@@ -1,0 +1,35 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#6800b5",
+        "activityBar.background": "#6800b5",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#000000",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#6800b5",
+        "statusBar.background": "#4b0082",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#6800b5",
+        "statusBarItem.remoteBackground": "#4b0082",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#4b0082",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#4b008299",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "indigo",
+
+    // POCs are independent uv projects, each with its own .venv (created by `uv sync`).
+    // Point Pylance at those venvs so third-party imports (fastapi, redis, pydantic,
+    // asyncpg, …) resolve, and add each POC root so its `app` package resolves too.
+    "python.defaultInterpreterPath": "${workspaceFolder}/proof-of-concepts/06-case-studies/01-url-shortener/.venv/bin/python",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/proof-of-concepts/06-case-studies/01-url-shortener",
+        "${workspaceFolder}/proof-of-concepts/06-case-studies/01-url-shortener/.venv/lib/python3.12/site-packages",
+        "${workspaceFolder}/proof-of-concepts/06-case-studies/02-ticketmaster",
+        "${workspaceFolder}/proof-of-concepts/06-case-studies/02-ticketmaster/.venv/lib/python3.12/site-packages"
+    ],
+    "python.analysis.autoImportCompletions": true,
+    "python.terminal.activateEnvironment": true
+}

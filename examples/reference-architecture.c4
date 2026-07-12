@@ -1,0 +1,209 @@
+// Reference architecture — a realistic production cloud-native system that exercises the FULL
+// enterprise catalog (every layer of the one specification in
+// synapse-features/03-architecture-docs/client-server.c4). Prefix `ref`; explicit `include` lists
+// only (the /c4 workspace is merged + global). This file lives under examples/ — walker-excluded,
+// so it is NOT a rendered lesson — but the likec4 CLI globs it into the build, so its views are
+// embeddable via /c4/view/ref_landscape and /c4/view/ref_platform. It doubles as end-to-end proof
+// that the catalog's colors / shapes / icons all render. See docs/architecture-library.md.
+
+model {
+
+  // ── People ──
+  refCustomer = person 'Customer' {
+    description 'Shops the storefront from a browser or mobile device.'
+  }
+  refAdmin = administrator 'Platform Administrator' {
+    description 'Operates the platform: watches dashboards, approves deploys.'
+  }
+
+  // ── Edge ──
+  refCdn = cdn 'CDN' {
+    description 'Caches static assets and terminates TLS at the edge.'
+    technology 'CloudFront'
+  }
+  refWaf = waf 'Web Application Firewall' {
+    description 'Filters malicious traffic before it reaches the origin.'
+    technology 'AWS WAF'
+  }
+  refLb = loadBalancer 'Load Balancer' {
+    description 'Spreads traffic across API-gateway instances.'
+    technology 'AWS ALB (L7)'
+  }
+
+  // ── Application platform ──
+  refPlatform = system 'E-Commerce Platform' {
+    description 'The core product: storefront, ordering, catalog, fulfillment.'
+
+    refWeb = webApplication 'Storefront Web App' {
+      description 'Single-page storefront rendered in the browser.'
+      technology 'React'
+      icon tech:react
+    }
+    refGw = apiGateway 'API Gateway' {
+      description 'Single entry point: routing, authentication, rate limiting.'
+      technology 'Kong'
+    }
+    refOrders = microservice 'Order Service' {
+      description 'Owns the order lifecycle and checkout.'
+      technology 'Spring Boot'
+      icon tech:spring
+    }
+    refCatalog = microservice 'Catalog Service' {
+      description 'Product catalog and the read path behind the storefront.'
+      technology 'Node.js'
+      icon tech:nodejs
+    }
+    refWorker = worker 'Fulfillment Worker' {
+      description 'Consumes order events; drives fulfillment and invoicing.'
+      technology 'Python'
+      icon tech:python
+    }
+    refFn = serverlessFunction 'Image Processor' {
+      description 'Generates product-image thumbnails on upload.'
+      technology 'AWS Lambda'
+      icon aws:lambda
+    }
+    refDb = relationalDatabase 'Orders Database' {
+      description 'System of record for orders and customers.'
+      technology 'PostgreSQL (RDS)'
+    }
+    refCache = cache 'Read / Session Cache' {
+      description 'Cache-aside for catalog reads and session state.'
+      technology 'Redis (ElastiCache)'
+    }
+    refBlob = objectStorage 'Media & Invoice Store' {
+      description 'Product media and generated invoices.'
+      technology 'Amazon S3'
+      icon aws:simple-storage-service
+    }
+    refStream = eventStream 'Event Stream' {
+      description 'Durable log of domain events (OrderPlaced, …).'
+      technology 'Kafka (MSK)'
+      icon tech:kafka
+    }
+    refBus = eventBus 'Notification Bus' {
+      description 'Fan-out of user-facing notifications.'
+      technology 'SNS'
+    }
+
+    refWeb -> refGw 'REST / JSON'
+    refGw -> refOrders 'routes'
+    refGw -> refCatalog 'routes'
+    refOrders -> refDb 'reads / writes'
+    refCatalog -> refDb 'reads'
+    refCatalog -> refCache 'cache-aside'
+    refOrders -> refStream 'publishes OrderPlaced'
+    refStream -> refWorker 'consumes'
+    refWorker -> refBlob 'writes invoice'
+    refWorker -> refBus 'emit notification'
+    refFn -> refBlob 'reads / writes thumbnails'
+  }
+
+  // ── Security ──
+  refIdp = identityProvider 'Identity Provider' {
+    description 'OIDC issuer for customer and admin identities.'
+    technology 'Keycloak'
+  }
+
+  // ── Runtime platform (infrastructure) ──
+  refInfra = system 'Runtime Platform' {
+    description 'The container platform the services run on.'
+
+    refK8s = kubernetesCluster 'Kubernetes Cluster' {
+      description 'Managed control plane; hosts all platform services.'
+      technology 'Amazon EKS'
+    }
+    refRuntime = containerRuntime 'Container Runtime' {
+      description 'Runs the OCI containers on each node.'
+      technology 'containerd'
+    }
+
+    refK8s -> refRuntime 'schedules pods'
+  }
+
+  // ── Observability ──
+  refObs = system 'Observability' {
+    description 'Metrics, logs and traces for the platform.'
+
+    refMetrics = monitoring 'Metrics' {
+      description 'Scrapes and stores time-series metrics.'
+      technology 'Prometheus'
+      icon tech:prometheus
+    }
+    refDash = dashboard 'Dashboards' {
+      description 'Operational dashboards and exploration.'
+      technology 'Grafana'
+      icon tech:grafana
+    }
+    refLog = logging 'Log Aggregation' {
+      description 'Central structured-log store and search.'
+      technology 'Loki'
+    }
+    refTrace = tracing 'Distributed Tracing' {
+      description 'End-to-end request traces across services.'
+      technology 'OpenTelemetry + Jaeger'
+    }
+
+    refDash -> refMetrics 'queries'
+  }
+
+  // ── Delivery / DevOps ──
+  refDelivery = system 'Delivery Pipeline' {
+    description 'Source to production, via GitOps.'
+
+    refRepo = sourceRepository 'Source Repository' {
+      description 'Application source and deployment manifests.'
+      technology 'GitHub'
+      icon tech:github
+    }
+    refCi = cicdPipeline 'CI/CD Pipeline' {
+      description 'Builds, tests, and deploys.'
+      technology 'ArgoCD'
+      icon tech:argocd
+    }
+    refArt = artifactRepository 'Artifact Registry' {
+      description 'Stores built container images.'
+      technology 'Amazon ECR'
+    }
+
+    refRepo -> refCi 'triggers'
+    refCi -> refArt 'pushes image'
+  }
+
+  // ── Cross-cutting flows ──
+  refCustomer -> refCdn 'HTTPS'
+  refCdn -> refWaf 'origin fetch'
+  refWaf -> refLb 'filtered traffic'
+  refLb -> refGw 'forwards'
+  refWeb -> refIdp 'OIDC login'
+  refGw -> refIdp 'validate token'
+  refCi -> refK8s 'deploys'
+  refMetrics -> refK8s 'scrapes'
+  refOrders -> refLog 'ships logs'
+  refOrders -> refTrace 'emits spans'
+  refAdmin -> refDash 'monitors'
+  refAdmin -> refCi 'approves deploys'
+}
+
+views {
+  view ref_landscape {
+    title 'Reference architecture — production cloud-native landscape'
+    include
+      refCustomer, refAdmin,
+      refCdn, refWaf, refLb,
+      refPlatform, refWeb, refGw, refOrders, refCatalog, refWorker, refFn,
+      refDb, refCache, refBlob, refStream, refBus,
+      refIdp,
+      refInfra, refK8s, refRuntime,
+      refObs, refMetrics, refDash, refLog, refTrace,
+      refDelivery, refRepo, refCi, refArt
+  }
+
+  view ref_platform of refPlatform {
+    title 'Reference architecture — application platform (container view)'
+    include
+      refCustomer, refCdn, refLb, refGw, refIdp,
+      refWeb, refOrders, refCatalog, refWorker, refFn,
+      refDb, refCache, refBlob, refStream, refBus
+  }
+}

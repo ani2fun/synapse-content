@@ -1,0 +1,23 @@
+{
+  "args": [
+    {
+      "id": "arr",
+      "label": "arr",
+      "type": "char[]",
+      "placeholder": "[a, e, i, o, u]"
+    }
+  ],
+  "cases": [
+    { "args": { "arr": "[a, e, i, o, u]" }, "expected": "[u, o, i, e, a]" },
+    { "args": { "arr": "[a, b, c, d, e]" }, "expected": "[e, d, c, b, a]" },
+    { "args": { "arr": "[]" }, "expected": "[]" },
+    { "args": { "arr": "[x]" }, "expected": "[x]" },
+    { "args": { "arr": "[x, y]" }, "expected": "[y, x]" },
+    { "args": { "arr": "[a, b, a]" }, "expected": "[a, b, a]" },
+    { "args": { "arr": "[m, n, o, p, q, r, s, t]" }, "expected": "[t, s, r, q, p, o, n, m]" },
+    { "args": { "arr": "[z, z, z]" }, "expected": "[z, z, z]" },
+    { "args": { "arr": "[q, w, e, r, t, y, u]" }, "expected": "[u, y, t, r, e, w, q]" },
+    { "args": { "arr": "[b, a]" }, "expected": "[a, b]" },
+    { "args": { "arr": "[1, 2, 3, 4, 5, 6, 7, 8, 9]" }, "expected": "[9, 8, 7, 6, 5, 4, 3, 2, 1]" }
+  ]
+}

@@ -1,0 +1,173 @@
+// Synapse Features demo — a minimal Client / Server / User architecture, used to showcase the
+// "click a component for its tutorial docs" feature. Every identifier carries the `sf`
+// (synapse-features) prefix so it doesn't collide in LikeC4's flat, global, merged namespace.
+//
+// This file also carries the ONE workspace `specification {}` for the whole merged /c4 workspace
+// (there must be exactly one — never add a second; extend THIS one additively). It declares the
+// five C4 structural kinds (actor / system / container / component / code) PLUS a reusable
+// enterprise catalog of semantic sub-kinds — databases, caches, queues, services, gateways,
+// infrastructure, security, observability, devops, cloud — with a set of custom category colors
+// and per-kind `style` defaults. Convention: a kind's COLOR encodes its architecture category
+// (fixed — technology never changes the color); its SHAPE encodes the role; TECHNOLOGY is shown
+// per-element via `icon tech:…` (a few kinds whose repo usage is monolithic hoist a default icon).
+// See docs/architecture-library.md for the catalog. (The original shared workspace.c4 was removed
+// with the old system-design book, so the demo supplies the spec; ADR-S016 for the C4 code level.)
+
+specification {
+
+  // ── Custom category colors — one hex per architecture category. Designer-grade palette
+  //    (Tailwind CSS 500-level hues; slate/zinc neutrals). Color ids are CATEGORY-based, decoupled
+  //    from the hue, so the palette can be retuned without renaming. Category → color is FIXED;
+  //    technology is conveyed by `icon`, never by color. ──
+  color catActor         #3b82f6
+  color catFrontend      #06b6d4
+  color catApi           #8b5cf6
+  color catBackend       #10b981
+  color catData          #f59e0b
+  color catCache         #ef4444
+  color catMessaging     #d946ef
+  color catInfra         #64748b
+  color catExternal      #a1a1aa
+  color catSecurity      #14b8a6
+  color catObservability #eab308
+  color catDevops        #84cc16
+
+  // ── C4 structural levels (retained; now styled). `component` = C4 L3 (a logical part inside a
+  //    container); `code` = C4 L4 (a real class/module, usually with a `link` to source — ADR-S016). ──
+  element actor     { style { shape person; color catActor } }
+  element system    { style { shape rectangle; color secondary } }
+  element container { style { shape rectangle; color muted } }   // neutral generic-container fallback
+  element component { style { shape component; color catBackend } }
+  element code      { style { shape rectangle; color secondary } }
+
+  // ── Actors ──
+  element person        { style { shape person; color catActor } }
+  element externalUser  { style { shape person; color catActor } }
+  element internalUser  { style { shape person; color catActor } }
+  element administrator { style { shape person; color catActor } }
+  element systemActor   { style { shape rectangle; color catActor } }
+
+  // ── Frontend / client ──
+  element webApplication     { style { shape browser; color catFrontend } }
+  element browserClient      { style { shape browser; color catFrontend } }
+  element frontendPortal     { style { shape browser; color catFrontend } }
+  element mobileApplication  { style { shape mobile; color catFrontend } }
+  element desktopApplication { style { shape rectangle; color catFrontend } }
+
+  // ── API / edge / integration (catApi; externalSystem is neutral catExternal) ──
+  element apiGateway         { style { shape rectangle; color catApi } }
+  element loadBalancer       { style { shape rectangle; color catApi } }
+  element reverseProxy       { style { shape rectangle; color catApi } }
+  element cdn                { style { shape rectangle; color catApi } }
+  element webhook            { style { shape rectangle; color catApi } }
+  element restApi            { style { shape component; color catApi } }
+  element graphqlApi         { style { shape component; color catApi } }
+  element grpcApi            { style { shape component; color catApi } }
+  element integrationService { style { shape component; color catApi } }
+  element externalSystem     { style { shape rectangle; color catExternal } }
+
+  // ── Backend compute ──
+  element service            { style { shape component; color catBackend } }
+  element microservice       { style { shape component; color catBackend } }
+  element backendService     { style { shape component; color catBackend } }
+  element monolith           { style { shape rectangle; color catBackend } }
+  element worker             { style { shape rectangle; color catBackend } }
+  element batchJob           { style { shape rectangle; color catBackend } }
+  element scheduler          { style { shape rectangle; color catBackend } }
+  element serverlessFunction { style { shape rectangle; color catBackend } }
+
+  // ── Data (catData; cache is its own category below) ──
+  element relationalDatabase { style { shape cylinder; color catData; icon tech:postgresql } }
+  element documentDatabase   { style { shape cylinder; color catData; icon tech:mongodb } }
+  element keyValueDatabase   { style { shape cylinder; color catData } }
+  element graphDatabase      { style { shape cylinder; color catData } }
+  element timeSeriesDatabase { style { shape cylinder; color catData } }
+  element wideColumnStore    { style { shape cylinder; color catData; icon tech:cassandra } }
+  element searchIndex        { style { shape cylinder; color catData; icon tech:elasticsearch } }
+  element dataWarehouse      { style { shape cylinder; color catData } }
+  element dataLake           { style { shape cylinder; color catData } }
+  element objectStorage      { style { shape bucket; color catData } }
+  element fileStorage        { style { shape bucket; color catData } }
+  element logStore           { style { shape document; color catData } }
+
+  // ── Cache (its own category color) ──
+  element cache { style { shape storage; color catCache; icon tech:redis } }
+
+  // ── Messaging / eventing ──
+  element messageQueue        { style { shape queue; color catMessaging } }
+  element eventBus            { style { shape queue; color catMessaging } }
+  element eventStream         { style { shape queue; color catMessaging } }
+  element pubSubTopic         { style { shape queue; color catMessaging } }
+  element notificationService { style { shape rectangle; color catMessaging } }
+
+  // ── Infrastructure. `dockerContainer` is prompt.md's infra "container", renamed to avoid the
+  //    clash with the C4 `container` kind above. ──
+  element dockerContainer     { style { shape rectangle; color catInfra; icon tech:docker } }
+  element containerRuntime    { style { shape rectangle; color catInfra } }
+  element kubernetesCluster   { style { shape rectangle; color catInfra; icon tech:kubernetes } }
+  element namespace           { style { shape rectangle; color catInfra } }
+  element pod                 { style { shape rectangle; color catInfra } }
+  element virtualMachine      { style { shape rectangle; color catInfra } }
+  element server              { style { shape rectangle; color catInfra } }
+  element cloudRegion         { style { shape rectangle; color catInfra } }
+  element availabilityZone    { style { shape rectangle; color catInfra } }
+  element coordinationService { style { shape rectangle; color catInfra; icon tech:etcd } }
+
+  // ── Security ──
+  element identityProvider      { style { shape rectangle; color catSecurity } }
+  element authenticationService { style { shape rectangle; color catSecurity } }
+  element authorizationService  { style { shape rectangle; color catSecurity } }
+  element secretsManager        { style { shape rectangle; color catSecurity } }
+  element certificateManager    { style { shape rectangle; color catSecurity } }
+  element firewall              { style { shape rectangle; color catSecurity } }
+  element waf                   { style { shape rectangle; color catSecurity } }
+  element apiSecurity           { style { shape rectangle; color catSecurity } }
+
+  // ── Observability ──
+  element monitoring { style { shape rectangle; color catObservability } }
+  element tracing    { style { shape rectangle; color catObservability } }
+  element alerting   { style { shape rectangle; color catObservability } }
+  element dashboard  { style { shape rectangle; color catObservability } }
+  element logging    { style { shape document; color catObservability } }
+
+  // ── DevOps ──
+  element sourceRepository      { style { shape rectangle; color catDevops } }
+  element cicdPipeline          { style { shape rectangle; color catDevops } }
+  element buildSystem           { style { shape rectangle; color catDevops } }
+  element artifactRepository    { style { shape rectangle; color catDevops } }
+  element deploymentEnvironment { style { shape rectangle; color catDevops } }
+
+  // ── Cloud provider — NEUTRAL color (never vendor-branded). Preferred pattern: model the role
+  //    kind (e.g. serverlessFunction) and convey the cloud with a per-element `icon aws:…`. ──
+  element awsService   { style { shape rectangle; color catInfra } }
+  element azureService { style { shape rectangle; color catInfra } }
+  element gcpService   { style { shape rectangle; color catInfra } }
+}
+
+model {
+  sfUser = actor 'User' {
+    description 'A person using the app in their web browser.'
+  }
+
+  sfClient = container 'Client' {
+    description 'The single-page app that runs in the browser and renders the UI.'
+    technology 'Browser SPA'
+  }
+
+  sfServer = container 'Server & DB' {
+    description 'The API server and its database — handles requests and stores the data.'
+    technology 'API + Postgres'
+  }
+
+  sfUser -> sfClient 'uses (HTTPS)'
+  sfClient -> sfServer 'API calls (reads / writes)'
+}
+
+views {
+  // Explicit include list (not `*`) so this view shows ONLY these three elements — the /c4 workspace
+  // is merged and global, and `include *` would pull in every other lesson's diagram.
+  view sf_client_server {
+    title 'A simple client–server app'
+    include sfUser, sfClient, sfServer
+  }
+}

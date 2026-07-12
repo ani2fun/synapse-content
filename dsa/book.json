@@ -1,0 +1,14 @@
+{
+    "title": "DSA",
+    "description": "DSA notes based on understanding from first principle approach.",
+    "tags": [
+        "computer-science",
+        "data-structures",
+        "algorithms",
+        "dsa",
+        "interview-prep",
+        "systems"
+    ],
+    "estimatedReadingMinutes": 1400,
+    "order": 5
+}

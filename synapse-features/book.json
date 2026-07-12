@@ -1,0 +1,8 @@
+{
+    "title": "Synapse Features",
+    "description": "A guided tour of what Synapse can do: rendered diagrams (Mermaid and D2), runnable code with step-by-step visualisations, an interactive coding problem with a hidden test suite, and architecture diagrams whose components you can click for tutorial docs.",
+    "tags": ["synapse", "demo", "features"],
+    "estimatedReadingMinutes": 20,
+    "order": 1,
+    "slug": "synapse-features"
+}

@@ -1,0 +1,44 @@
+.DS_Store
+
+local-only/
+docs/
+.claude/
+CLAUDE.md
+AGENTS.md
+
+
+_media/**/*.mp4
+
+_media/system-design-swiftly/
+
+# Ignore local editor state, but DO track the shared Python-resolution settings.
+.vscode/*
+!.vscode/settings.json
+
+# docs/ is local scratch (e.g. docs/prompt.md) EXCEPT the tracked architecture library.
+docs/*
+!docs/architecture-library.md
+
+# ── Compiled / build output, virtualenvs, tool caches (never committed) ──
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+# uv keeps a global cache; lockfiles (uv.lock) ARE committed for reproducibility.
+
+# Generic build / dependency / target dirs (JS, Rust, JVM, etc.)
+node_modules/
+dist/
+build/
+target/
+out/
+*.class
+*.log
