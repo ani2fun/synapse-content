@@ -595,7 +595,7 @@ Explanation:
 
 **Solution**
 
-```java
+```java run
 import java.util.*;
 
 // Interface
@@ -846,7 +846,7 @@ Constraints: 1 <= count <= 10^5
 
 **Solution**
 
-```java
+```java run
 import java.util.*;
 
 class Counter {
@@ -1128,7 +1128,7 @@ Explanation:
 
 **Solution**
 
-```java
+```java run
 import java.util.*;
 
 class Robot {

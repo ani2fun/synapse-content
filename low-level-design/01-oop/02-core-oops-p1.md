@@ -193,7 +193,7 @@ Book is not available.
 
 **Solution:**
 
-```java
+```java run
 import java.util.*;
 
 class Book {
@@ -520,7 +520,7 @@ Salary : 0.00
 
 **Solution:**
 
-```java
+```java run
 import java.util.*;
 
 class Employee {
@@ -999,7 +999,7 @@ Specialization : Full Stack Developer
 
 **Solution:**
 
-```java
+```java run
 import java.util.*;
 
 // Base class Employee
@@ -1253,7 +1253,7 @@ Area of Trapezoid : 17
 
 **Solution:**
 
-```java
+```java run
 import java.util.*;
 
 class ShapeCalculator {

@@ -551,7 +551,7 @@ Roll Number : 10434
 
 **Solution.**
 
-```java
+```java run
 import java.util.*;
 
 class Student {
@@ -753,7 +753,7 @@ Balance : 8665.00
 
 **Solution.**
 
-```java
+```java run
 import java.util.*;
 
 class BankAccount {
@@ -1236,7 +1236,7 @@ Area : 8.75
 
 **Solution.**
 
-```java
+```java run
 import java.util.*;
 
 class Rectangle {
