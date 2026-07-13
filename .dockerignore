@@ -1,0 +1,9 @@
+# likec4.Dockerfile only needs the .c4 sources — keep the heavy/noisy trees out of its context.
+.git
+.github
+.gitignore
+_media
+local-only
+docs
+node_modules
+.DS_Store

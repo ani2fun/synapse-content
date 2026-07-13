@@ -1,0 +1,34 @@
+name: Build, Push, and Promote LikeC4
+
+# The lesson C4 diagrams live in THIS repo (the delta vs Cortex, whose content is
+# in-app): any .c4 push rebuilds the merged /c4 SPA. The build engine is the synapse
+# repo's reusable workflow — one canonical copy, referenced cross-repo (both public).
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.c4'
+      - 'likec4.Dockerfile'
+      - '.github/workflows/likec4-build-push-promote.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: synapse-likec4-main
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  call:
+    uses: ani2fun/synapse/.github/workflows/_build-push-promote.yml@main
+    with:
+      image_repo: ghcr.io/ani2fun/synapse-likec4
+      dockerfile: likec4.Dockerfile
+      buildx_cache_scope: synapse-likec4
+      infra_kustomization_file: deploy/apps/synapse-likec4/overlays/prod/kustomization.yaml
+      commit_message: "chore(synapse-likec4): promote image to"
+    secrets: inherit
