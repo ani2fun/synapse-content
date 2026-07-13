@@ -493,79 +493,101 @@ heap: "Heap" {
 stack.ref -> heap.obj: "points to"
 ```
 
-## Practice (Classes and Objects)
+## Your Turn — Practice: Classes and Objects
 
-You are tasked with designing a class `Student` that stores and displays information about students.
+Design a `Student` class that stores a name and a roll number and prints them back. Write your version in the workbench, Run it against the cases, then compare with the Editorial.
 
-The class must have the following:
+````problem
+Design a class `Student` that stores and displays information about students.
 
-**Attributes:**
+**Attributes**
 
-- `name` (String): Stores the name of the student.
-- `rollNumber` (int): Stores the roll number of the student.
+- `name` (String): the name of the student.
+- `rollNumber` (int): the roll number of the student.
 
-**Methods:**
+**Methods**
 
-- `setDetails(String name, int rollNumber)`: This method initializes the attributes `name` and `rollNumber` with the values provided by the user.
-- `displayDetails()`: This method prints the details of the student in the following format (the output consists of two separate lines).
+- `setDetails(String name, int rollNumber)`: initializes the `name` and `rollNumber` attributes with the given values.
+- `displayDetails()`: prints the student's details across two lines, in the exact format shown below.
 
-Refer to the sample input example to understand the output format.
+**Input format.** Two lines on standard input — the `name`, then the `rollNumber`. The provided `Main` reads them and drives your class, so you only implement `Student`.
 
-Refer to the commented code on the IDE for output statements.
-
-**Example 1**
-
-**Input:** Name - "Striver", Roll Number: 101
-
-**Output:**
+**Example 1** — Input: `Striver`, `101`
 
 ```text
 Name : Striver
 Roll Number : 101
 ```
 
-**Explanation.**
-
-- A `Student` object is created in the `Main` class.
-- The `setDetails()` method is called with `"Striver"` and `101` as arguments. This initializes the `name` attribute to `"Striver"` and the `rollNumber` attribute to `101`.
-- The `displayDetails()` method is invoked, which prints the student's details in the required format.
-
-**Example 2**
-
-**Input:** Name - "Jax", Roll Number: 10434
-
-**Output:**
+**Example 2** — Input: `Jax`, `10434`
 
 ```text
 Name : Jax
 Roll Number : 10434
 ```
 
-**Explanation.**
-
-- A `Student` object is created in the `Main` class.
-- The `setDetails()` method is called with `"Jax"` and `10434` as arguments. This initializes the `name` attribute to `"Jax"` and the `rollNumber` attribute to `10434`.
-- The `displayDetails()` method is invoked, which prints the student's details in the required format.
-
-**Constraints:** 1 <= roll number <= 106
-
-**Solution.**
+**Constraints:** 1 ≤ rollNumber ≤ 10⁶
+````
 
 ```java run
 import java.util.*;
 
 class Student {
+    // TODO: declare the attributes — name (String), rollNumber (int)
 
+    public void setDetails(String name, int rollNumber) {
+        // TODO: store the values in this object's attributes
+    }
+
+    public void displayDetails() {
+        // TODO: print two lines:
+        //   Name : <name>
+        //   Roll Number : <rollNumber>
+    }
+}
+
+// The driver is complete — it reads stdin and calls your methods. Implement Student above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String name = sc.nextLine();
+        int rollNumber = Integer.parseInt(sc.nextLine().trim());
+
+        Student student = new Student();
+        student.setDetails(name, rollNumber);
+        student.displayDetails();
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "name", "label": "Name", "type": "string" },
+    { "id": "rollNumber", "label": "Roll Number", "type": "int" }
+  ],
+  "cases": [
+    { "args": { "name": "Striver", "rollNumber": "101" }, "expected": "Name : Striver\nRoll Number : 101" },
+    { "args": { "name": "Jax", "rollNumber": "10434" }, "expected": "Name : Jax\nRoll Number : 10434" }
+  ]
+}
+```
+
+````editorial
+Keep both fields `private` and set them only through `setDetails` — encapsulation in miniature. `displayDetails` then prints the two stored fields in the required format; the `this.` prefix distinguishes each attribute from the same-named parameter.
+
+```java solution
+import java.util.*;
+
+class Student {
     private String name;
     private int rollNumber;
 
-    // Method to set details
     public void setDetails(String name, int rollNumber) {
         this.name = name;
         this.rollNumber = rollNumber;
     }
 
-    // Method to display details
     public void displayDetails() {
         System.out.println("Name : " + this.name);
         System.out.println("Roll Number : " + this.rollNumber);
@@ -574,21 +596,17 @@ class Student {
 
 class Main {
     public static void main(String[] args) {
-        // Creating a Student object
+        Scanner sc = new Scanner(System.in);
+        String name = sc.nextLine();
+        int rollNumber = Integer.parseInt(sc.nextLine().trim());
+
         Student student = new Student();
-
-        // Hardcoded values
-        String name = "Striver";
-        int rollNumber = 101;
-
-        // Setting details
         student.setDetails(name, rollNumber);
-
-        // Displaying details
         student.displayDetails();
     }
 }
 ```
+````
 
 ## Attributes and Methods
 
@@ -689,52 +707,42 @@ Some important points must be taken care of while implementing real-world entiti
 - **Method Parameters:** Methods can take parameters to modify attributes (e.g., `deposit(amount)`).
 - **Error Handling:** Always validate inputs inside methods (e.g., disallow negative deposits or withdrawals exceeding balance).
 
-## Practice (Attributes and Methods)
+## Your Turn — Practice: Attributes and Methods
 
-Design a class `BankAccount` with the following specification:
+Model a `BankAccount` with a constructor, deposit/withdraw behaviour, and a formatted printout. The interesting bit is the overdraw guard on `withdraw`.
 
-**Attributes:**
+````problem
+Design a class `BankAccount` with the following specification.
 
-- `accountNumber` (String): Represents the account number of the user's account.
-- `balance` (double): Represents the balance of the account.
+**Attributes**
 
-**Constructor:**
+- `accountNumber` (String): the account number.
+- `balance` (double): the account balance.
 
-- Implement a parameterised constructor to have the `accountNumber` and `balance` initialised while creating the object.
+**Constructor**
 
-**Methods:**
+- A parameterised constructor that initialises `accountNumber` and `balance` when the object is created.
 
-- `deposit(double amount)`: It adds the amount to the balance of the user's account.
-- `withdraw(double amount)`: It deducts the money (amount) from the balance. If the balance is insufficient then print "Insufficient funds!" and do not change the original amount.
-- `displayDetails()`: It displays the `accountNumber` and `balance` of the account.
+**Methods**
 
-Refer to the sample examples for understanding the output format.
+- `deposit(double amount)`: adds `amount` to the balance.
+- `withdraw(double amount)`: deducts `amount` from the balance. If the balance is insufficient, print `Insufficient funds!` and leave the balance unchanged.
+- `displayDetails()`: prints the `accountNumber` and `balance`.
 
-**Note.** Use the exact output format given in the example, with matching case and whitespace, else you may face wrong answers. Use the naming convention for classes and methods as given in the IDE-commented code or the problem statement to avoid compilation errors. All outputs should always be displayed with exactly 2 decimal places.
+**Note.** Match the output format exactly — case, spacing, and **exactly two decimal places** on the balance.
 
-**Example 1**
+**Input format.** Four lines on standard input — `accountNumber`, `balance`, the deposit amount, then the withdrawal amount. The provided `Main` reads them and calls the constructor, `deposit`, `withdraw`, and `displayDetails` in that order.
 
-**Input:** accountNumber = "9662375274869", balance = 8655, addBalance = 5854, withdrawBalance = 9437
-
-**Output:**
+**Example 1** — Input: `9662375274869`, balance `8655`, deposit `5854`, withdraw `9437`
 
 ```text
 Account Number : 9662375274869
 Balance : 5072.00
 ```
 
-**Explanation.**
+Balance becomes 8655 + 5854 = 14509; withdrawing 9437 leaves 5072.00.
 
-- The object of the class `BankAccount` is created using the parameterised constructor with `accountNumber` and `balance` as the two arguments to the constructor.
-- Then the `deposit()` method is called with parameter `addBalance`.
-- Next the `withdraw()` method is called with parameter `withdrawBalance`. Here the withdrawal balance is 9437 and the balance is 14509, so we can withdraw the given amount.
-- Next the `displayDetails()` method is called, which displays the account number and balance present in the account.
-
-**Example 2**
-
-**Input:** accountNumber = "9662375274869", balance = 8655, addBalance = 10, withdrawBalance = 9437
-
-**Output:**
+**Example 2** — Input: `9662375274869`, balance `8655`, deposit `10`, withdraw `9437`
 
 ```text
 Insufficient funds!
@@ -742,42 +750,87 @@ Account Number : 9662375274869
 Balance : 8665.00
 ```
 
-**Explanation.**
+Balance becomes 8665; 9437 exceeds it, so the withdrawal is refused and the balance stays 8665.00.
 
-- The object of the class `BankAccount` is created using the parameterised constructor with `accountNumber` and `balance` as the two arguments to the constructor.
-- Then the `deposit()` method is called with parameter `addBalance`.
-- Next the `withdraw()` method is called with parameter `withdrawBalance`. Here the withdrawal balance is 9437 and the balance is 8665, so we cannot withdraw the given amount, and it prints "Insufficient funds!".
-- Next the `displayDetails()` method is called, which displays the account number and balance present in the account.
-
-**Constraints:** 1 <= amount <= 105
-
-**Solution.**
+**Constraints:** 1 ≤ amount ≤ 10⁵
+````
 
 ```java run
+import java.util.*;
+
+class BankAccount {
+    // TODO: attributes — accountNumber (String), balance (double)
+
+    public BankAccount(String accountNumber, double initialBalance) {
+        // TODO: initialise the attributes
+    }
+
+    public void deposit(double amount) {
+        // TODO: add amount to the balance
+    }
+
+    public void withdraw(double amount) {
+        // TODO: if amount <= balance, deduct it; otherwise print "Insufficient funds!"
+    }
+
+    public void displayDetails() {
+        // TODO: print
+        //   Account Number : <accountNumber>
+        //   Balance : <balance to 2 decimals>
+    }
+}
+
+// The driver is complete — implement BankAccount above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String accountNumber = sc.nextLine().trim();
+        double balance = Double.parseDouble(sc.nextLine().trim());
+        double addBalance = Double.parseDouble(sc.nextLine().trim());
+        double withdrawBalance = Double.parseDouble(sc.nextLine().trim());
+
+        BankAccount account = new BankAccount(accountNumber, balance);
+        account.deposit(addBalance);
+        account.withdraw(withdrawBalance);
+        account.displayDetails();
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "accountNumber", "label": "Account Number", "type": "string" },
+    { "id": "balance", "label": "Balance", "type": "double" },
+    { "id": "addBalance", "label": "Deposit", "type": "double" },
+    { "id": "withdrawBalance", "label": "Withdraw", "type": "double" }
+  ],
+  "cases": [
+    { "args": { "accountNumber": "9662375274869", "balance": "8655", "addBalance": "5854", "withdrawBalance": "9437" }, "expected": "Account Number : 9662375274869\nBalance : 5072.00" },
+    { "args": { "accountNumber": "9662375274869", "balance": "8655", "addBalance": "10", "withdrawBalance": "9437" }, "expected": "Insufficient funds!\nAccount Number : 9662375274869\nBalance : 8665.00" }
+  ]
+}
+```
+
+````editorial
+The balance is `private` state; `deposit` and `withdraw` are the only ways to change it, and `withdraw` guards against overdrawing before touching the balance. `printf` with `%.2f` (and `Locale.US`, so the decimal separator is always a dot) fixes the two-decimal format.
+
+```java solution
 import java.util.*;
 
 class BankAccount {
     private String accountNumber;
     private double balance;
 
-    // Parameterized constructor
     public BankAccount(String accountNumber, double initialBalance) {
         this.accountNumber = accountNumber;
-        if(initialBalance >= 0){
-            this.balance = initialBalance;
-        }
-        else{
-            this.balance = 0.00;
-            System.out.println("Insufficient funds!");
-        }
+        this.balance = initialBalance;
     }
 
-    // Method to deposit money
     public void deposit(double amount) {
         balance += amount;
     }
 
-    // Method to withdraw money
     public void withdraw(double amount) {
         if (amount <= balance) {
             balance -= amount;
@@ -786,33 +839,28 @@ class BankAccount {
         }
     }
 
-    // Method to display account details
     public void displayDetails() {
         System.out.println("Account Number : " + accountNumber);
-        System.out.printf("Balance : %.2f\n", balance);
+        System.out.printf(Locale.US, "Balance : %.2f\n", balance);
     }
 }
 
 class Main {
     public static void main(String[] args) {
-        // Hardcoded input
-        String accountNumber = "9662375274869";
-        double balance = 8655;
-        double addBalance = 5854;
-        double withdrawBalance = 9437;
+        Scanner sc = new Scanner(System.in);
+        String accountNumber = sc.nextLine().trim();
+        double balance = Double.parseDouble(sc.nextLine().trim());
+        double addBalance = Double.parseDouble(sc.nextLine().trim());
+        double withdrawBalance = Double.parseDouble(sc.nextLine().trim());
 
-        // Create BankAccount object
         BankAccount account = new BankAccount(accountNumber, balance);
-
-        // Deposit and withdraw operations
         account.deposit(addBalance);
         account.withdraw(withdrawBalance);
-
-        // Display final account details
         account.displayDetails();
     }
 }
 ```
+````
 
 ## Constructor in Java
 
@@ -1160,35 +1208,30 @@ class Employee {
 }
 ```
 
-## Practice (Constructors)
+## Your Turn — Practice: Constructors
 
-Design a class `Rectangle` with the following specifications:
+Write two constructors — a default and a parameterised one — and watch how the same class behaves depending on which you call.
 
-**Attributes:**
+````problem
+Design a class `Rectangle` with the following specifications.
 
-- `length` (double): Represents the length of the rectangle.
-- `width` (double): Represents the width of the rectangle.
-- `area` (double): Represents the area of the rectangle.
+**Attributes**
 
-**Constructors:**
+- `length` (double), `width` (double), `area` (double).
 
-- A default constructor that initializes both `length` and `width` to 1.0.
-- A parameterized constructor that takes two arguments to initialize `length` and `width`.
+**Constructors**
 
-**Methods:**
+- A default constructor that sets `length`, `width`, and `area` all to `1.0`.
+- A parameterised constructor that takes `length` and `width`.
 
-- `void calculateArea()`: Computes the area of the rectangle.
-- `void displayDetails()`: Prints the rectangle's details, including its dimensions and area, in the format specified below.
+**Methods**
 
-Refer to the sample examples for understanding the output format.
+- `calculateArea()`: computes `area = length × width`.
+- `displayDetails()`: prints the length, width, and area, each to two decimal places.
 
-Refer to the commented code on the IDE for output statements.
+**Input format.** Two lines on standard input — `length`, then `width`. The provided `Main` builds one rectangle with the **default** constructor and prints it, then a second with the **parameterised** constructor, calls `calculateArea()`, and prints that.
 
-**Example 1**
-
-**Input:** length = 5.0, width = 3.0
-
-**Output:**
+**Example 1** — Input: `5.0`, `3.0`
 
 ```text
 Length : 1.00
@@ -1199,20 +1242,7 @@ Width : 3.00
 Area : 15.00
 ```
 
-**Explanation.**
-
-- The program initializes the object `r1` of class `Rectangle` using the default constructor.
-- Then it calls the `calculateArea()` method using the `r1` object.
-- Then it calls the `displayDetails()` method using the `r1` object.
-- Now the program initializes another object `r2` of class `Rectangle` using the parameterized constructor with `length` and `width` as parameters.
-- Then it calls the `calculateArea()` method using the `r2` object.
-- Then it calls the `displayDetails()` method using the `r2` object.
-
-**Example 2**
-
-**Input:** length = 2.5, width = 3.5
-
-**Output:**
+**Example 2** — Input: `2.5`, `3.5`
 
 ```text
 Length : 1.00
@@ -1223,20 +1253,71 @@ Width : 3.50
 Area : 8.75
 ```
 
-**Explanation.**
+The first three lines come from the default rectangle (all `1.00`); the next three from the parameterised one after `calculateArea()`.
 
-- The program initializes the object `r1` of class `Rectangle` using the default constructor.
-- Then it calls the `calculateArea()` method using the `r1` object.
-- Then it calls the `displayDetails()` method using the `r1` object.
-- Now the program initializes another object `r2` of class `Rectangle` using the parameterized constructor with `length` and `width` as parameters.
-- Then it calls the `calculateArea()` method using the `r2` object.
-- Then it calls the `displayDetails()` method using the `r2` object.
-
-**Constraints:** 1 <= length, width <= 104
-
-**Solution.**
+**Constraints:** 1 ≤ length, width ≤ 10⁴
+````
 
 ```java run
+import java.util.*;
+
+class Rectangle {
+    // TODO: attributes — length, width, area (all double)
+
+    public Rectangle() {
+        // TODO: default constructor — set length, width, area all to 1.0
+    }
+
+    public Rectangle(double length, double width) {
+        // TODO: parameterised constructor — set length and width
+    }
+
+    public void calculateArea() {
+        // TODO: area = length * width
+    }
+
+    public void displayDetails() {
+        // TODO: print length, width, area — each on its own line, 2 decimals:
+        //   Length : <length>
+        //   Width : <width>
+        //   Area : <area>
+    }
+}
+
+// The driver is complete — implement Rectangle above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        double length = Double.parseDouble(sc.nextLine().trim());
+        double width = Double.parseDouble(sc.nextLine().trim());
+
+        Rectangle r1 = new Rectangle();
+        r1.displayDetails();
+
+        Rectangle r2 = new Rectangle(length, width);
+        r2.calculateArea();
+        r2.displayDetails();
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "length", "label": "Length", "type": "double" },
+    { "id": "width", "label": "Width", "type": "double" }
+  ],
+  "cases": [
+    { "args": { "length": "5.0", "width": "3.0" }, "expected": "Length : 1.00\nWidth : 1.00\nArea : 1.00\nLength : 5.00\nWidth : 3.00\nArea : 15.00" },
+    { "args": { "length": "2.5", "width": "3.5" }, "expected": "Length : 1.00\nWidth : 1.00\nArea : 1.00\nLength : 2.50\nWidth : 3.50\nArea : 8.75" }
+  ]
+}
+```
+
+````editorial
+The default constructor fills in `1.0` for every field (including `area`, so the default rectangle prints `Area : 1.00` without ever calling `calculateArea`). The parameterised constructor sets only the sides, leaving `area` at its `0.0` default until `calculateArea()` runs — which is exactly why `Main` calls it before printing the second rectangle.
+
+```java solution
 import java.util.*;
 
 class Rectangle {
@@ -1244,45 +1325,44 @@ class Rectangle {
     private double width;
     private double area;
 
-    // Default constructor
     public Rectangle() {
         this.length = 1.0;
         this.width = 1.0;
         this.area = 1.0;
     }
 
-    // Parameterized constructor
     public Rectangle(double length, double width) {
         this.length = length;
         this.width = width;
     }
 
-    // Method to calculate the area of the rectangle
     public void calculateArea() {
         this.area = this.length * this.width;
     }
 
-    // Method to display the details of the rectangle
     public void displayDetails() {
-        System.out.printf("Length : %.2f\n", this.length);
-        System.out.printf("Width : %.2f\n", this.width);
-        System.out.printf("Area : %.2f\n", this.area);
+        System.out.printf(Locale.US, "Length : %.2f\n", this.length);
+        System.out.printf(Locale.US, "Width : %.2f\n", this.width);
+        System.out.printf(Locale.US, "Area : %.2f\n", this.area);
     }
 }
 
 class Main {
     public static void main(String[] args) {
-        // Using default constructor
-        Rectangle defaultRect = new Rectangle();
-        defaultRect.displayDetails();
+        Scanner sc = new Scanner(System.in);
+        double length = Double.parseDouble(sc.nextLine().trim());
+        double width = Double.parseDouble(sc.nextLine().trim());
 
-        // Using parameterized constructor
-        Rectangle customRect = new Rectangle(5.0, 3.0);
-        customRect.calculateArea();
-        customRect.displayDetails();
+        Rectangle r1 = new Rectangle();
+        r1.displayDetails();
+
+        Rectangle r2 = new Rectangle(length, width);
+        r2.calculateArea();
+        r2.displayDetails();
     }
 }
 ```
+````
 
 ## Summary
 

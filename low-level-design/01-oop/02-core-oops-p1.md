@@ -138,77 +138,135 @@ By encapsulating the `BankAccount` class, we make sure that the balance cannot b
 
 Let us now understand access modifiers, which help us achieve encapsulation.
 
-### Practice (Encapsulation)
+### Your Turn — Practice: Encapsulation
 
-You are tasked to design a class `Book` to manage the book details in a library. The class should contain the following specifications:
+Model a library `Book` catalogue that hides its availability flags behind borrow / return / query methods — encapsulation in a realistic shape.
 
-**Attributes:**
+````problem
+Design a class `Book` to manage book details in a library.
 
-- `title` (`list<string>`) — the title of the book (public).
-- `author` (`list<string>`) — the author of the book (public).
-- `isAvailable` (`list<Boolean>`) — the availability status of the book (private).
+**Attributes**
 
-**Methods:**
+- `title` (`List<String>`) — book titles (public).
+- `author` (`List<String>`) — authors (public).
+- `isAvailable` (`List<Boolean>`) — availability per book (**private**).
 
-- Parameterised constructor to initialize the `title`, `author`, `isAvailable` list.
-- `borrowBook(string bookName)` — if the availability status for book `bookName` is true then the book can be borrowed. Once borrowed mark its status as false. If availability status for book `bookName` is false then the book is already borrowed by some user and cannot be borrowed until its returned, so print "Book is not available.".
-- `returnBook(string bookName)` — the book with `bookName` is returned and should be marked as available by setting its available flag to true.
-- `getAvailability(string bookName)` — prints the availability status of the book with name `bookName` (true for available, false for unavailable).
+**Methods**
 
-Refer the sample example to understand the output format. Refer the commented code on the IDE to view the output statements.
+- A parameterised constructor initialising the three lists.
+- `borrowBook(String bookName)` — if the book is available, mark it borrowed (flag → `false`). If it is already borrowed, or the name is unknown, print `Book is not available.`.
+- `returnBook(String bookName)` — mark the book available again (flag → `true`).
+- `getAvailability(String bookName)` — print `true` if available, otherwise `false`.
 
-The input is provided as mentioned below:
-
-- `"1 <book name>"` — represents call to `borrowBook` method along with name of the book to borrow.
-- `"2 <book name>"` — represents call to `returnBook` method along with name of the book to return.
-- `"3 <book name>"` — represents call to `getAvailability` method along with name of book.
+**Input format.** Four lines on standard input: comma-separated `titles`, comma-separated `authors`, comma-separated availability flags (`true`/`false`), then a semicolon-separated list of operations. Each operation is `<code> <bookName>`, where `1` = borrow, `2` = return, `3` = getAvailability. The provided `Main` parses these and dispatches to your methods — you implement `Book`.
 
 **Example 1**
 
 ```text
-Input:
-title = [ "Sherlock_Holmes", "Frankenstein", "King_Arthur_and_the_Round_Table", "Treasure_Island" ]
-author = [ "Arthur_Conan_Doyle", "Mary_Shelley", "Roger_Lancelyn_Green", "Robert_Louis_Stevenson" ]
-isAvailable = [ "false", "true", "false", "false" ]
-methodCalls = [ ["1", "Frankenstein"] , ["1", "Sherlock_Holmes"] , ["2", "King_Arthur_and_the_Round_Table"], ["3", "Sherlock_Holmes"], ["1", "Frankenstein"] ]
+titles     : Sherlock_Holmes, Frankenstein, King_Arthur_and_the_Round_Table, Treasure_Island
+authors    : Arthur_Conan_Doyle, Mary_Shelley, Roger_Lancelyn_Green, Robert_Louis_Stevenson
+available  : false, true, false, false
+operations : 1 Frankenstein ; 1 Sherlock_Holmes ; 2 King_Arthur_and_the_Round_Table ; 3 Sherlock_Holmes ; 1 Frankenstein
+```
 
 Output:
+
+```text
 Book is not available.
 false
 Book is not available.
 ```
 
-**Explanation:**
+Borrowing `Frankenstein` succeeds silently; borrowing the already-unavailable `Sherlock_Holmes` prints the message; returning `King_Arthur…` succeeds; querying `Sherlock_Holmes` prints `false`; and `Frankenstein` — borrowed in step 1, never returned — can't be borrowed again.
 
-- Program creates a object with the arguments title, author and isAvailable list.
-- It then takes the methodCalls array as input.
-- Iterate over the methodCalls array and gives call to the appropriate methods from the class Book.
-- The first operation is to borrow the book named "Frankenstein". As the book is available then it can be borrowed.
-- The second operation is to borrow book named "Sherlock Holmes". As the book is not available so we print "Book Not Available".
-- The third operation is to return the book named "King_Arthur_and_the_Round_Table".
-- The fourth operation we need the availability status of book named "Sherlock_Holmes", which is false.
-- The fifth operation is to borrow the book named "Frankenstein". The book was already borrowed in 1st operation and not returned yet. So the availability status is false and So we print "Book Not Available".
-
-**Constraints:** only one book can be borrowed at a time for a single instance.
-
-**Solution:**
+**Constraints:** one copy of each book; a borrowed book stays unavailable until returned.
+````
 
 ```java run
 import java.util.*;
 
 class Book {
-    private List<Boolean> isAvailable; // List of availability status
+    // Encapsulation: keep isAvailable PRIVATE; the only way to change state is via the methods below.
+    // TODO: fields — public List<String> title, author; private List<Boolean> isAvailable
+
+    public Book(List<String> title, List<String> author, List<Boolean> isAvailable) {
+        // TODO: store the three lists
+    }
+
+    public void borrowBook(String bookName) {
+        // TODO: find bookName; if available -> set false; else print "Book is not available."
+    }
+
+    public void returnBook(String bookName) {
+        // TODO: find bookName; mark it available again
+    }
+
+    public void getAvailability(String bookName) {
+        // TODO: print "true" if available, otherwise "false"
+    }
+}
+
+// The driver parses stdin and dispatches operations — implement Book above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        List<String> title = new ArrayList<>(Arrays.asList(sc.nextLine().split(",")));
+        List<String> author = new ArrayList<>(Arrays.asList(sc.nextLine().split(",")));
+        List<Boolean> isAvailable = new ArrayList<>();
+        for (String s : sc.nextLine().split(",")) isAvailable.add(Boolean.parseBoolean(s.trim()));
+        String opsLine = sc.hasNextLine() ? sc.nextLine() : "";
+
+        Book book = new Book(title, author, isAvailable);
+        if (!opsLine.trim().isEmpty()) {
+            for (String op : opsLine.split(";")) {
+                String[] p = op.trim().split("\\s+");
+                if (p.length < 2) continue;
+                if (p[0].equals("1")) book.borrowBook(p[1]);
+                else if (p[0].equals("2")) book.returnBook(p[1]);
+                else if (p[0].equals("3")) book.getAvailability(p[1]);
+            }
+        }
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "titles", "label": "Titles (comma-separated)", "type": "string" },
+    { "id": "authors", "label": "Authors (comma-separated)", "type": "string" },
+    { "id": "available", "label": "Available (comma-separated)", "type": "string" },
+    { "id": "ops", "label": "Operations (semicolon-separated)", "type": "string" }
+  ],
+  "cases": [
+    { "args": {
+        "titles": "Sherlock_Holmes,Frankenstein,King_Arthur_and_the_Round_Table,Treasure_Island",
+        "authors": "Arthur_Conan_Doyle,Mary_Shelley,Roger_Lancelyn_Green,Robert_Louis_Stevenson",
+        "available": "false,true,false,false",
+        "ops": "1 Frankenstein;1 Sherlock_Holmes;2 King_Arthur_and_the_Round_Table;3 Sherlock_Holmes;1 Frankenstein"
+      },
+      "expected": "Book is not available.\nfalse\nBook is not available." }
+  ]
+}
+```
+
+````editorial
+`isAvailable` is `private`, so the only way to change a book's state is through `borrowBook` / `returnBook` — that's the encapsulation the problem is really testing. Each method scans the parallel `title` list for the name, then reads or flips the matching flag. Borrowing an unavailable or unknown book prints the message; querying just prints the flag.
+
+```java solution
+import java.util.*;
+
+class Book {
+    private List<Boolean> isAvailable;
     public List<String> title;
     public List<String> author;
 
-    // Constructor
     public Book(List<String> title, List<String> author, List<Boolean> isAvailable) {
         this.title = title;
         this.author = author;
         this.isAvailable = isAvailable;
     }
 
-    // Method to borrow a book by its name
     public void borrowBook(String bookName) {
         for (int i = 0; i < title.size(); i++) {
             if (title.get(i).equals(bookName)) {
@@ -224,7 +282,6 @@ class Book {
         System.out.println("Book is not available.");
     }
 
-    // Method to return a book by its name
     public void returnBook(String bookName) {
         for (int i = 0; i < title.size(); i++) {
             if (title.get(i).equals(bookName)) {
@@ -236,7 +293,6 @@ class Book {
         }
     }
 
-    // Method to get the availability of a book by its name
     public void getAvailability(String bookName) {
         for (int i = 0; i < title.size(); i++) {
             if (title.get(i).equals(bookName)) {
@@ -250,40 +306,29 @@ class Book {
     }
 }
 
-public class Main {
+class Main {
     public static void main(String[] args) {
-        List<String> title = Arrays.asList(
-            "Sherlock_Holmes",
-            "Frankenstein",
-            "King_Arthur_and_the_Round_Table",
-            "Treasure_Island"
-        );
+        Scanner sc = new Scanner(System.in);
+        List<String> title = new ArrayList<>(Arrays.asList(sc.nextLine().split(",")));
+        List<String> author = new ArrayList<>(Arrays.asList(sc.nextLine().split(",")));
+        List<Boolean> isAvailable = new ArrayList<>();
+        for (String s : sc.nextLine().split(",")) isAvailable.add(Boolean.parseBoolean(s.trim()));
+        String opsLine = sc.hasNextLine() ? sc.nextLine() : "";
 
-        List<String> author = Arrays.asList(
-            "Arthur_Conan_Doyle",
-            "Mary_Shelley",
-            "Roger_Lancelyn_Green",
-            "Robert_Louis_Stevenson"
-        );
-
-        List<Boolean> isAvailable = Arrays.asList(
-            false,
-            true,
-            false,
-            false
-        );
-
-        Book book = new Book(title, author, new ArrayList<>(isAvailable));
-
-        // methodCalls
-        book.borrowBook("Frankenstein");                       // Valid borrow
-        book.borrowBook("Sherlock_Holmes");                    // Not available
-        book.returnBook("King_Arthur_and_the_Round_Table");    // Return
-        book.getAvailability("Sherlock_Holmes");               // Should be false
-        book.borrowBook("Frankenstein");                       // Already borrowed
+        Book book = new Book(title, author, isAvailable);
+        if (!opsLine.trim().isEmpty()) {
+            for (String op : opsLine.split(";")) {
+                String[] p = op.trim().split("\\s+");
+                if (p.length < 2) continue;
+                if (p[0].equals("1")) book.borrowBook(p[1]);
+                else if (p[0].equals("2")) book.returnBook(p[1]);
+                else if (p[0].equals("3")) book.getAvailability(p[1]);
+            }
+        }
     }
 }
 ```
+````
 
 ## Access Modifiers
 
@@ -457,50 +502,40 @@ Here's a table showing whether different scopes like Class, Package, Subclass, o
 | Default | ✔️ | ✔️ | ❌ | ❌ |
 | Private | ✔️ | ❌ | ❌ | ❌ |
 
-### Practice (Access Modifiers)
+### Your Turn — Practice: Access Modifiers
 
-Design a class `Employee` to manage employee details securely using proper encapsulation and access modifiers. The class should implement the following attributes and methods:
+Give `Employee` a `public` name, a `protected` id, and a `private` salary — then guard the salary against negative values on both the constructor and the setter.
 
-**Attributes:**
+````problem
+Design a class `Employee` that manages employee details using proper access modifiers.
 
-- `name` (`string`) — public, represents the name of employee.
-- `employeeId` (`Integer`) — protected, represents the unique Id of the employee.
-- `salary` (`double`) — private, represents the salary of the employee.
+**Attributes**
 
-**Methods:**
+- `name` (`String`) — **public**.
+- `employeeId` (`int`) — **protected**.
+- `salary` (`double`) — **private**.
 
-- `setSalary(double salary)` — sets the salary value. If salary is negative then print "Invalid salary" and set the salary to 0.
-- `getSalary()` — return the salary value.
-- Parameterised constructor to initialize the attributes. (If salary is negative then print "Invalid salary" and set the salary to 0.)
-- `displayEmployeeDetails()` — display the employee details in format specified below.
+**Methods**
 
-Refer the sample examples for understanding the output format. Refer the commented code to check the output statements.
+- A parameterised constructor initialising the attributes. If `salary` is negative, print `Invalid salary` and set it to `0`.
+- `setSalary(double salary)` — same rule: if negative, print `Invalid salary` and set it to `0`; otherwise store it.
+- `getSalary()` — returns the salary.
+- `displayEmployeeDetails()` — prints the name, id, and salary (two decimal places).
 
-**Example 1**
+**Input format.** Four lines on standard input: `name`, `employeeId`, initial `salary`, then `newSalary`. The provided `Main` constructs the employee, prints `getSalary()`, calls `setSalary(newSalary)`, then `displayEmployeeDetails()`.
+
+**Example 1** — Input: `Striver`, `9656`, `10000`, `15840`
 
 ```text
-Input: name = "Striver" , employeeId = 9656 , salary = 10000 , newSalary = 15840
-
-Output:
 Salary : 10000.00
 Name : Striver
 Employee Id : 9656
 Salary : 15840.00
 ```
 
-**Explanation:**
-
-- An object employee of class Employee is created with parameterised constructor.
-- A call is given to the getSalary method and it is displayed through the driver program itself.
-- We call the setSalary method with newSalary as argument.
-- Then we call the displayEmployeeDetails() method to print the details of the employee.
-
-**Example 2**
+**Example 2** — Input: `Striver`, `9656`, `-1050`, `-9315`
 
 ```text
-Input: name = "Striver" , employeeId = 9656 , salary = -1050, newSalary = -9315
-
-Output:
 Invalid salary
 Salary : 0.00
 Invalid salary
@@ -509,26 +544,78 @@ Employee Id : 9656
 Salary : 0.00
 ```
 
-**Explanation:**
+The negative initial salary trips the constructor's guard; the negative `newSalary` trips the setter's.
 
-- An object employee of class Employee is created with parameterised constructor. As the salary is in negative amount, so the constructor will print the text "Invalid salary" and set the salary to 0.00.
-- A call is given to the getSalary method and it is displayed through the driver program itself.
-- We call the setSalary method with newSalary as argument. As the newSalary is negative so we print the text "Invalid salary" and set the salary to 0.00.
-- Then we call the displayEmployeeDetails() method to print the details of the employee.
-
-**Constraints:** 1 <= salary, newSalary <= 106
-
-**Solution:**
+**Constraints:** valid salaries satisfy 1 ≤ salary ≤ 10⁶ (the negatives above exercise the guard).
+````
 
 ```java run
 import java.util.*;
 
 class Employee {
-    public String name; // Public attribute
-    protected int employeeId; // Protected attribute
-    private double salary; // Private attribute
+    // TODO: public String name; protected int employeeId; private double salary;
 
-    // Constructor
+    public Employee(String name, int employeeId, double salary) {
+        // TODO: set name and employeeId; if salary < 0 -> print "Invalid salary", salary = 0; else store it
+    }
+
+    public void setSalary(double salary) {
+        // TODO: if salary < 0 -> print "Invalid salary", set 0; else store it
+    }
+
+    public double getSalary() {
+        // TODO: return the salary
+        return 0;
+    }
+
+    public void displayEmployeeDetails() {
+        // TODO: print Name, Employee Id, and Salary (2 decimals)
+    }
+}
+
+// The driver is complete — implement Employee above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String name = sc.nextLine().trim();
+        int employeeId = Integer.parseInt(sc.nextLine().trim());
+        double salary = Double.parseDouble(sc.nextLine().trim());
+        double newSalary = Double.parseDouble(sc.nextLine().trim());
+
+        Employee emp = new Employee(name, employeeId, salary);
+        System.out.printf(Locale.US, "Salary : %.2f\n", emp.getSalary());
+        emp.setSalary(newSalary);
+        emp.displayEmployeeDetails();
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "name", "label": "Name", "type": "string" },
+    { "id": "employeeId", "label": "Employee Id", "type": "int" },
+    { "id": "salary", "label": "Salary", "type": "double" },
+    { "id": "newSalary", "label": "New Salary", "type": "double" }
+  ],
+  "cases": [
+    { "args": { "name": "Striver", "employeeId": "9656", "salary": "10000", "newSalary": "15840" }, "expected": "Salary : 10000.00\nName : Striver\nEmployee Id : 9656\nSalary : 15840.00" },
+    { "args": { "name": "Striver", "employeeId": "9656", "salary": "-1050", "newSalary": "-9315" }, "expected": "Invalid salary\nSalary : 0.00\nInvalid salary\nName : Striver\nEmployee Id : 9656\nSalary : 0.00" }
+  ]
+}
+```
+
+````editorial
+The access modifiers encode intent: `name` is `public` (freely readable), `employeeId` is `protected` (subclasses and same-package only), and `salary` is `private` — reachable exclusively through `getSalary` / `setSalary`. That private-ness is what lets the setter *enforce* the "no negative salary" rule; if callers could touch `salary` directly, the invariant couldn't hold. The constructor repeats the same guard so an object can never start in an invalid state.
+
+```java solution
+import java.util.*;
+
+class Employee {
+    public String name;
+    protected int employeeId;
+    private double salary;
+
     public Employee(String name, int employeeId, double salary) {
         this.name = name;
         this.employeeId = employeeId;
@@ -540,7 +627,6 @@ class Employee {
         }
     }
 
-    // Method to set the salary
     public void setSalary(double salary) {
         if (salary < 0) {
             System.out.println("Invalid salary");
@@ -550,41 +636,33 @@ class Employee {
         this.salary = salary;
     }
 
-    // Method to get the salary
     public double getSalary() {
         return this.salary;
     }
 
-    // Method to display employee details
     public void displayEmployeeDetails() {
         System.out.println("Name : " + name);
         System.out.println("Employee Id : " + employeeId);
-        System.out.printf("Salary : %.2f\n", salary);
+        System.out.printf(Locale.US, "Salary : %.2f\n", salary);
     }
 }
 
 class Main {
     public static void main(String[] args) {
-        // Hardcoded input
-        String name = "Striver";
-        int employeeId = 9656;
-        double salary = 10000;
-        double newSalary = 15840;
+        Scanner sc = new Scanner(System.in);
+        String name = sc.nextLine().trim();
+        int employeeId = Integer.parseInt(sc.nextLine().trim());
+        double salary = Double.parseDouble(sc.nextLine().trim());
+        double newSalary = Double.parseDouble(sc.nextLine().trim());
 
-        // Creating Employee object
         Employee emp = new Employee(name, employeeId, salary);
-
-        // Display initial salary
-        System.out.printf("Salary : %.2f\n", emp.getSalary());
-
-        // Update salary
+        System.out.printf(Locale.US, "Salary : %.2f\n", emp.getSalary());
         emp.setSalary(newSalary);
-
-        // Display all details
         emp.displayEmployeeDetails();
     }
 }
 ```
+````
 
 ## Inheritance
 
@@ -904,49 +982,40 @@ If both `B` and `C` inherit from `A` and override a method, and `D` inherits fro
 
 </div>
 
-### Practice (Inheritance)
+### Your Turn — Practice: Inheritance
 
-You are tasked with creating a class hierarchy to represent employees in a company. Implement a base class `Employee` and derive classes `Manager` and `Engineer` from it. The base class should encapsulate common attributes, and the derived classes should add specific attributes while overriding methods. The derived classes should explicitly call the constructor of the parent class (`Employee`) to initialize common attributes.
+Build a small hierarchy — a base `Employee`, with `Manager` and `Engineer` deriving from it — where each subclass overrides `displayDetails()` but reuses the parent's version via `super`.
 
-The classes should consist of below specifications:
+````problem
+Implement a base class `Employee` and two derived classes, `Manager` and `Engineer`. Each subclass calls the parent constructor with `super(...)` and extends the parent's `displayDetails()` rather than rewriting it.
 
-**Base Class: Employee**
+**Base class `Employee`**
 
-Attributes:
-
-- `name` (`string`) — represents the name of the employee.
-- `id` (`Integer`) — unique identifier for the employee.
-
-Methods:
-
+- Attributes: `name` (`String`), `id` (`int`).
 - `displayDetails()` — prints the name and id.
 
-**Derived Classes**
+**`Manager extends Employee`**
 
-`Manager`:
+- Adds `teamSize` (`int`).
+- `displayDetails()` — calls `super.displayDetails()`, then prints the team size.
 
-- Attribute: `teamSize` (`Integer`) — the size of team managed.
-- Method: `displayDetails()` — calls the parent class method `displayDetails()` and then prints teamSize.
+**`Engineer extends Employee`**
 
-`Engineer`:
+- Adds `specialization` (`String`).
+- `displayDetails()` — calls `super.displayDetails()`, then prints the specialization.
 
-- Attribute: `specialization` (`string`) — the engineer's area of interest.
-- Method: `displayDetails()` — calls the parent class method `displayDetails()` and then prints the specialization.
-
-Refer the sample examples for understanding the output format. The commented code has the output statements return, in order to avoid wrong answers due to case matching or whitespace.
-
-The sample input follows below naming convention:
-
-- `M` — prefix of M means input to class Manager.
-- `E` — prefix of E means input to class Engineer.
+**Input format.** Six lines on standard input: `M_name`, `M_id`, `M_teamSize`, then `E_name`, `E_id`, `E_specialization`. The provided `Main` builds a `Manager` and an `Engineer`, printing a header before each (and a blank line between them — you don't add it yourself).
 
 **Example 1**
 
 ```text
-Input: M_name = "Jax" , M_id = 101 , M_teamSize = 8
-       E_name = "William" , E_id = 202 , E_specialization = "Backend Developer"
+Manager  : Jax, 101, 8
+Engineer : William, 202, Backend Developer
+```
 
 Output:
+
+```text
 Manager Details
 Name : Jax
 Id : 101
@@ -958,73 +1027,117 @@ Id : 202
 Specialization : Backend Developer
 ```
 
-**Explanation:**
-
-- The object of Manager class is created with the parametrised constructor to initialize the attributes of both Manager and Employee class.
-- Then we call the displayDetails of Manager class and print the data of both Employee and Manager class.
-- We put an empty line between the data displayed for Manger and Engineer class as shown in output. (This is already written in driver code, user does not have to add this empty line.)
-- The object of Engineer class is created with the parametrised constructor to initialize the attributes of both Engineer and Employee class.
-- Then we call the displayDetails of Engineer class and print the data of both Employee and Engineer class.
-
-**Example 2**
-
-```text
-Input: M_name = "Striver" , M_id = 10434 , M_teamSize = 50
-       E_name = "Siddhant" , E_id = 41241, E_specialization = "Full Stack Developer"
-
-Output:
-Manager Details
-Name : Striver
-Id : 10434
-Team Size : 50
-
-Engineer Details
-Name : Siddhant
-Id : 41241
-Specialization : Full Stack Developer
-```
-
-**Explanation:**
-
-- The object of Manager class is created with the parametrised constructor to initialize the attributes of both Manager and Employee class.
-- Then we call the displayDetails of Manager class and print the data of both Employee and Manager class.
-- We put an empty line between the data displayed for Manger and Engineer class as shown in output. (This is already written in driver code, user does not have to add this new line.)
-- The object of Engineer class is created with the parametrised constructor to initialize the attributes of both Engineer and Employee class.
-- Then we call the displayDetails of Engineer class and print the data of both Employee and Engineer class.
-
-**Constraints:**
-
-- 1 <= Id <= 105
-- 1 <= team size <= 105
-
-**Solution:**
+**Constraints:** 1 ≤ id ≤ 10⁵ · 1 ≤ teamSize ≤ 10⁵
+````
 
 ```java run
 import java.util.*;
 
-// Base class Employee
+class Employee {
+    // TODO: protected String name; protected int id;
+
+    public Employee(String name, int id) {
+        // TODO: initialise name and id
+    }
+
+    public void displayDetails() {
+        // TODO: print "Name : <name>" and "Id : <id>"
+    }
+}
+
+class Manager extends Employee {
+    // TODO: private int teamSize;
+
+    public Manager(String name, int id, int teamSize) {
+        super(name, id);
+        // TODO: set teamSize
+    }
+
+    @Override
+    public void displayDetails() {
+        // TODO: call super.displayDetails(), then print "Team Size : <teamSize>"
+    }
+}
+
+class Engineer extends Employee {
+    // TODO: private String specialization;
+
+    public Engineer(String name, int id, String specialization) {
+        super(name, id);
+        // TODO: set specialization
+    }
+
+    @Override
+    public void displayDetails() {
+        // TODO: call super.displayDetails(), then print "Specialization : <specialization>"
+    }
+}
+
+// The driver is complete — implement the three classes above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String mName = sc.nextLine().trim();
+        int mId = Integer.parseInt(sc.nextLine().trim());
+        int mTeamSize = Integer.parseInt(sc.nextLine().trim());
+        String eName = sc.nextLine().trim();
+        int eId = Integer.parseInt(sc.nextLine().trim());
+        String eSpecialization = sc.nextLine().trim();
+
+        Manager manager = new Manager(mName, mId, mTeamSize);
+        System.out.println("Manager Details");
+        manager.displayDetails();
+
+        System.out.println();
+
+        Engineer engineer = new Engineer(eName, eId, eSpecialization);
+        System.out.println("Engineer Details");
+        engineer.displayDetails();
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "mName", "label": "Manager name", "type": "string" },
+    { "id": "mId", "label": "Manager id", "type": "int" },
+    { "id": "mTeamSize", "label": "Team size", "type": "int" },
+    { "id": "eName", "label": "Engineer name", "type": "string" },
+    { "id": "eId", "label": "Engineer id", "type": "int" },
+    { "id": "eSpecialization", "label": "Specialization", "type": "string" }
+  ],
+  "cases": [
+    { "args": { "mName": "Jax", "mId": "101", "mTeamSize": "8", "eName": "William", "eId": "202", "eSpecialization": "Backend Developer" }, "expected": "Manager Details\nName : Jax\nId : 101\nTeam Size : 8\n\nEngineer Details\nName : William\nId : 202\nSpecialization : Backend Developer" },
+    { "args": { "mName": "Striver", "mId": "10434", "mTeamSize": "50", "eName": "Siddhant", "eId": "41241", "eSpecialization": "Full Stack Developer" }, "expected": "Manager Details\nName : Striver\nId : 10434\nTeam Size : 50\n\nEngineer Details\nName : Siddhant\nId : 41241\nSpecialization : Full Stack Developer" }
+  ]
+}
+```
+
+````editorial
+The shared `name`/`id` and their printing live once, in `Employee`. Each subclass adds only its extra field and constructor, delegating the common part with `super(name, id)` and `super.displayDetails()` — so there's no duplicated printing logic. Marking the base fields `protected` is what lets the subclasses reach them; overriding `displayDetails()` while still calling `super` is the classic "extend, don't replace" pattern.
+
+```java solution
+import java.util.*;
+
 class Employee {
     protected String name;
     protected int id;
 
-    // Constructor for Employee
     public Employee(String name, int id) {
         this.name = name;
         this.id = id;
     }
 
-    // Method to display details
     public void displayDetails() {
         System.out.println("Name : " + name);
         System.out.println("Id : " + id);
     }
 }
 
-// Derived class Manager
 class Manager extends Employee {
     private int teamSize;
 
-    // Constructor for Manager
     public Manager(String name, int id, int teamSize) {
         super(name, id);
         this.teamSize = teamSize;
@@ -1032,16 +1145,14 @@ class Manager extends Employee {
 
     @Override
     public void displayDetails() {
-        super.displayDetails(); // Call to Employee displayDetails
+        super.displayDetails();
         System.out.println("Team Size : " + teamSize);
     }
 }
 
-// Derived class Engineer
 class Engineer extends Employee {
     private String specialization;
 
-    // Constructor for Engineer
     public Engineer(String name, int id, String specialization) {
         super(name, id);
         this.specialization = specialization;
@@ -1049,37 +1160,34 @@ class Engineer extends Employee {
 
     @Override
     public void displayDetails() {
-        super.displayDetails(); // Call to Employee displayDetails
+        super.displayDetails();
         System.out.println("Specialization : " + specialization);
     }
 }
 
 class Main {
     public static void main(String[] args) {
-        // Hardcoded Manager input
-        String M_name = "Jax";
-        int M_id = 101;
-        int M_teamSize = 8;
+        Scanner sc = new Scanner(System.in);
+        String mName = sc.nextLine().trim();
+        int mId = Integer.parseInt(sc.nextLine().trim());
+        int mTeamSize = Integer.parseInt(sc.nextLine().trim());
+        String eName = sc.nextLine().trim();
+        int eId = Integer.parseInt(sc.nextLine().trim());
+        String eSpecialization = sc.nextLine().trim();
 
-        // Hardcoded Engineer input
-        String E_name = "William";
-        int E_id = 202;
-        String E_specialization = "Backend Developer";
-
-        // Create Manager object
-        Manager manager = new Manager(M_name, M_id, M_teamSize);
+        Manager manager = new Manager(mName, mId, mTeamSize);
         System.out.println("Manager Details");
         manager.displayDetails();
 
         System.out.println();
 
-        // Create Engineer object
-        Engineer engineer = new Engineer(E_name, E_id, E_specialization);
+        Engineer engineer = new Engineer(eName, eId, eSpecialization);
         System.out.println("Engineer Details");
         engineer.displayDetails();
     }
 }
 ```
+````
 
 ## Polymorphism
 
@@ -1199,78 +1307,116 @@ classDiagram
     Animal <|-- Dog
 ```
 
-### Practice (Polymorphism)
+### Your Turn — Practice: Polymorphism
 
-Design a class `ShapeCalculator` that calculates the area of different shapes using method overloading. Implement the below attributes and methods to calculate the area of different shapes:
+Overload one method name — `area` — three ways, and let the compiler pick the right version by the number of arguments. This is compile-time polymorphism.
 
-**Methods:**
+````problem
+Design a class `ShapeCalculator` that computes areas using **method overloading** — three methods, all named `area`, distinguished by their parameter lists.
 
-- `area(integer radius)` — calculates and print the area of circle using the formula π×radius².
-- `area(integer length, integer width)` — calculates and print the area of rectangle using the formula (length * width).
-- `area(integer base1, integer base2, integer height)` — calculates and print the area of Trapezoid using the formula ((base1 + base2) * height) / 2.
+**Methods**
 
-Refer the sample examples for understanding the output format. Refer the commented code for the output statements. Consider π = 3.14.
+- `area(int radius)` — circle, `π × radius²`.
+- `area(int length, int width)` — rectangle, `length × width`.
+- `area(int base1, int base2, int height)` — trapezoid, `((base1 + base2) × height) / 2`.
 
-Note: print the area in integer format. Round down to nearest integer, i.e. 3.9 should be 3, 2.1 should be 2.
+Use `π = 3.14`. Print each area as an integer, **rounded down** (cast to `int`), in the format shown.
 
-**Example 1**
+**Input format.** Six lines on standard input: `radius`, `length`, `width`, `base1`, `base2`, `height`. The provided `Main` calls `area(radius)`, then `area(length, width)`, then `area(base1, base2, height)`.
+
+**Example 1** — Input: `radius=2`, `length=2`, `width=3`, `base1=2`, `base2=3`, `height=2`
 
 ```text
-Input: base1 = 2 , base2 = 3, height = 2, length = 2, radius = 2 , width = 3
-
-Output:
 Area of Circle : 12
 Area of Rectangle : 6
 Area of Trapezoid : 5
 ```
 
-**Explanation:**
-
-- We create the object of the class ShapeCalculator.
-- Calls the area method with radius as argument. It calculates and prints the area of circle.
-- Calls the area method with length and width as arguments. It calculates and prints the area of rectangle.
-- Calls the area method with base1, base2, height as arguments. It calculates and prints the area of trapezoid.
-
-**Example 2**
+**Example 2** — Input: `radius=3`, `length=2`, `width=5`, `base1=4`, `base2=3`, `height=5`
 
 ```text
-Input: base1 = 4, base2 = 3, height = 5, length = 2, radius = 3 , width = 5
-
-Output:
 Area of Circle : 28
 Area of Rectangle : 10
 Area of Trapezoid : 17
 ```
 
-**Explanation:**
+`3.14 × 2² = 12.56`, cast to `int` → `12`; `(2 + 3) × 2 / 2 = 5`.
 
-- We create the object of the class ShapeCalculator.
-- Calls the area method with radius as argument. It calculates and prints the area of circle.
-- Calls the area method with length and width as arguments. It calculates and prints the area of rectangle.
-- Calls the area method with base1, base2, height as arguments. It calculates and prints the area of trapezoid.
-
-**Constraints:** 1 <= radius, length, width, base1, base2, height <= 104
-
-**Solution:**
+**Constraints:** 1 ≤ radius, length, width, base1, base2, height ≤ 10⁴
+````
 
 ```java run
 import java.util.*;
 
 class ShapeCalculator {
+    // Three overloads of `area` — same name, different parameter lists.
 
-    // Area of Circle
+    public void area(int radius) {
+        // TODO: circle — 3.14 * radius * radius, cast to int; print "Area of Circle : <n>"
+    }
+
+    public void area(int length, int width) {
+        // TODO: rectangle — length * width; print "Area of Rectangle : <n>"
+    }
+
+    public void area(int base1, int base2, int height) {
+        // TODO: trapezoid — 0.5 * (base1 + base2) * height, cast to int; print "Area of Trapezoid : <n>"
+    }
+}
+
+// The driver is complete — implement the three overloads above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int radius = Integer.parseInt(sc.nextLine().trim());
+        int length = Integer.parseInt(sc.nextLine().trim());
+        int width = Integer.parseInt(sc.nextLine().trim());
+        int base1 = Integer.parseInt(sc.nextLine().trim());
+        int base2 = Integer.parseInt(sc.nextLine().trim());
+        int height = Integer.parseInt(sc.nextLine().trim());
+
+        ShapeCalculator calc = new ShapeCalculator();
+        calc.area(radius);
+        calc.area(length, width);
+        calc.area(base1, base2, height);
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "radius", "label": "Circle radius", "type": "int" },
+    { "id": "length", "label": "Rectangle length", "type": "int" },
+    { "id": "width", "label": "Rectangle width", "type": "int" },
+    { "id": "base1", "label": "Trapezoid base1", "type": "int" },
+    { "id": "base2", "label": "Trapezoid base2", "type": "int" },
+    { "id": "height", "label": "Trapezoid height", "type": "int" }
+  ],
+  "cases": [
+    { "args": { "radius": "2", "length": "2", "width": "3", "base1": "2", "base2": "3", "height": "2" }, "expected": "Area of Circle : 12\nArea of Rectangle : 6\nArea of Trapezoid : 5" },
+    { "args": { "radius": "3", "length": "2", "width": "5", "base1": "4", "base2": "3", "height": "5" }, "expected": "Area of Circle : 28\nArea of Rectangle : 10\nArea of Trapezoid : 17" }
+  ]
+}
+```
+
+````editorial
+All three methods share the name `area`; the compiler chooses which to call purely from the argument count (one, two, or three ints) — that resolution-by-signature is **compile-time (static) polymorphism**. The casts to `int` truncate toward zero, matching the "round down" rule; the trapezoid uses `0.5 * (base1 + base2) * height` in `double` before the cast so the halving isn't lost to integer division.
+
+```java solution
+import java.util.*;
+
+class ShapeCalculator {
     public void area(int radius) {
         double ans = 3.14 * radius * radius;
         System.out.println("Area of Circle : " + (int) ans);
     }
 
-    // Area of Rectangle
     public void area(int length, int width) {
         int ans = length * width;
         System.out.println("Area of Rectangle : " + (int) ans);
     }
 
-    // Area of Trapezoid
     public void area(int base1, int base2, int height) {
         double ans = 0.5 * (base1 + base2) * height;
         System.out.println("Area of Trapezoid : " + (int) ans);
@@ -1279,15 +1425,14 @@ class ShapeCalculator {
 
 class Main {
     public static void main(String[] args) {
-        // Hardcoded inputs
-        int radius = 2;
-        int length = 2;
-        int width = 3;
-        int base1 = 2;
-        int base2 = 3;
-        int height = 2;
+        Scanner sc = new Scanner(System.in);
+        int radius = Integer.parseInt(sc.nextLine().trim());
+        int length = Integer.parseInt(sc.nextLine().trim());
+        int width = Integer.parseInt(sc.nextLine().trim());
+        int base1 = Integer.parseInt(sc.nextLine().trim());
+        int base2 = Integer.parseInt(sc.nextLine().trim());
+        int height = Integer.parseInt(sc.nextLine().trim());
 
-        // Create object and call overloaded methods
         ShapeCalculator calc = new ShapeCalculator();
         calc.area(radius);
         calc.area(length, width);
@@ -1295,6 +1440,7 @@ class Main {
     }
 }
 ```
+````
 
 ## Summary
 

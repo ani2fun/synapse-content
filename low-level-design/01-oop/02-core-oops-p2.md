@@ -237,47 +237,37 @@ However, an abstract class can have a constructor, which can be invoked by a sub
 - **Abstract class constructor:** An abstract class can have constructors, but you cannot create an instance of the abstract class directly. The constructor is only called when a subclass object is created.
 - **Subclass constructor:** When a subclass is instantiated, its constructor can call the constructor of the abstract class using the `super()` keyword.
 
-## Practice (Abstraction)
+## Your Turn — Practice: Abstraction
 
-You are required to design a program that utilizes an abstract class `Animal` to serve as the foundation for specific animal classes. The objective is to demonstrate runtime polymorphism where derived classes override the behaviour of the abstract method `makeSound()`. The program should include:
+Define an abstract `Animal` with an abstract `makeSound()`, then let `Dog` and `Cat` supply their own — runtime polymorphism through an abstract base.
 
-An abstract class `Animal`:
+````problem
+Design an abstract class `Animal` and two concrete subclasses that override its abstract method.
 
-- Attributes: `name` (string) — represents the name of the animal.
-- Abstract method: `makeSound()` — to print the sound specific to the animal.
+**Abstract class `Animal`**
 
-Derived classes:
+- Attribute: `name` (`String`).
+- Abstract method: `makeSound()`.
 
-- **Dog class:** Inherits class `Animal` and overrides the `makeSound()` method to print "Woof!".
-- **Cat class:** Inherits class `Animal` and overrides the `makeSound()` method to print "Meow!".
+**Subclasses**
 
-Refer sample example to understand about the output format.
+- `Dog extends Animal` — `makeSound()` prints `The dog <name> says : Woof!`.
+- `Cat extends Animal` — `makeSound()` prints `The cat <name> says : Meow!`.
 
-Refer the commented code on IDE to view the output statements.
+**Input format.** Two lines on standard input: the dog's name, then the cat's name. The provided `Main` builds a `Dog` and a `Cat` (held as `Animal` references) and calls `makeSound()` on each, with a blank line between.
 
-**Example 1**
-
-Input: `d_name = "Buddy"`, `c_name = "Whiskers"`
-
-Output:
+**Example 1** — Input: `Buddy`, `Whiskers`
 
 ```text
 The dog Buddy says : Woof!
 
 The cat Whiskers says : Meow!
 ```
+````
 
-Explanation:
+```java run
+import java.util.*;
 
-- First the object of Dog class is created with the name provided for the dog.
-- Then the dog object is used to call the `makeSound()` method to print the output for the dog.
-- Now the object of Cat class is created with name provided for the cat.
-- Then the cat object is used to call the `makeSound()` method to print the output for the cat.
-
-**Solution**
-
-```java
-// Abstract Class
 abstract class Animal {
     protected String name;
 
@@ -285,11 +275,79 @@ abstract class Animal {
         this.name = name;
     }
 
-    // Abstract Method
+    // Abstract: no body here — each subclass MUST provide one.
     abstract void makeSound();
 }
 
-// Derived Class: Dog
+class Dog extends Animal {
+    Dog(String name) {
+        super(name);
+    }
+
+    @Override
+    void makeSound() {
+        // TODO: print "The dog <name> says : Woof!"
+    }
+}
+
+class Cat extends Animal {
+    Cat(String name) {
+        super(name);
+    }
+
+    @Override
+    void makeSound() {
+        // TODO: print "The cat <name> says : Meow!"
+    }
+}
+
+// The driver is complete — implement makeSound() in Dog and Cat above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String dName = sc.nextLine().trim();
+        String cName = sc.nextLine().trim();
+
+        Animal dog = new Dog(dName);
+        dog.makeSound();
+
+        System.out.println();
+
+        Animal cat = new Cat(cName);
+        cat.makeSound();
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "dogName", "label": "Dog name", "type": "string" },
+    { "id": "catName", "label": "Cat name", "type": "string" }
+  ],
+  "cases": [
+    { "args": { "dogName": "Buddy", "catName": "Whiskers" }, "expected": "The dog Buddy says : Woof!\n\nThe cat Whiskers says : Meow!" },
+    { "args": { "dogName": "Rex", "catName": "Felix" }, "expected": "The dog Rex says : Woof!\n\nThe cat Felix says : Meow!" }
+  ]
+}
+```
+
+````editorial
+`Animal` can't be instantiated — it declares `makeSound()` with no body, so it exists only to be extended. Each subclass supplies its own `makeSound()`, and because `Main` holds the objects through `Animal` references, the JVM picks the right override at runtime from each object's actual type (`Dog` or `Cat`). That late binding is **runtime polymorphism**; the abstract method is the contract guaranteeing every animal has a sound.
+
+```java solution
+import java.util.*;
+
+abstract class Animal {
+    protected String name;
+
+    Animal(String name) {
+        this.name = name;
+    }
+
+    abstract void makeSound();
+}
+
 class Dog extends Animal {
     Dog(String name) {
         super(name);
@@ -301,7 +359,6 @@ class Dog extends Animal {
     }
 }
 
-// Derived Class: Cat
 class Cat extends Animal {
     Cat(String name) {
         super(name);
@@ -312,7 +369,24 @@ class Cat extends Animal {
         System.out.println("The cat " + name + " says : Meow!");
     }
 }
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String dName = sc.nextLine().trim();
+        String cName = sc.nextLine().trim();
+
+        Animal dog = new Dog(dName);
+        dog.makeSound();
+
+        System.out.println();
+
+        Animal cat = new Cat(cName);
+        cat.makeSound();
+    }
+}
 ```
+````
 
 ## Interfaces
 
@@ -558,88 +632,136 @@ class Human implements Mammal {
 
 Here, the `Mammal` interface inherits the `eat` method from `Animal` and adds the `walk` method. The `Human` class implements both methods.
 
-## Practice (Interfaces)
+## Your Turn — Practice: Interfaces
 
-You are required to design an interface `PaymentGateway` that defines a common method for processing payments. Implement two classes, `CreditCardPayment` and `UPIPayment`, which provide specific implementations of the `processPayment()` method. Use polymorphism to demonstrate how different payment methods can be processed through the same interface.
+One `PaymentGateway` contract, two implementations. The driver processes each payment through the interface type without caring which concrete class it is — that's the point of programming to an interface.
 
-Interface `PaymentGateway`:
+````problem
+Design an interface `PaymentGateway` with a single method, and two classes that implement it differently.
 
-- Abstract method `processPayment(double amount)`: This method processes a payment of the specified amount.
+**Interface `PaymentGateway`**
 
-Implementing classes:
+- `processPayment(double amount)`.
 
-- **CreditCardPayment** — method `processPayment(double amount)`: Implements to print "Processing credit card payment of amount".
-- **UPIPayment** — method `processPayment(double amount)`: Implements to print "Processing UPI payment of amount".
+**Implementations**
 
-Refer the sample input example to understand about the output format.
+- `CreditCardPayment` — prints `Processing credit card payment of <amount>`.
+- `UPIPayment` — prints `Processing UPI payment of <amount>`.
 
-Refer the commented code on IDE for output statements.
+Print each amount to **two decimal places**.
 
-**Example 1**
+**Input format.** Two lines on standard input: a comma-separated list of methods (`credit` or `upi`), and a comma-separated list of amounts (positionally matched). The provided `Main` picks the right implementation per method and calls `processPayment`, with a blank line between payments.
 
-Input: `paymentMethod = ["credit", "upi"]`, `paymentValue = [284.5, 27476.2]`
-
-Output:
+**Example 1** — methods `credit, upi` · amounts `284.5, 27476.2`
 
 ```text
 Processing credit card payment of 284.50
 
 Processing UPI payment of 27476.20
 ```
-
-Explanation:
-
-- We iterate over the `paymentMethod` list.
-- If the payment is through the credit card: we create the object of class `CreditCardPayment`. Then call the `processPayment()` method with the amount to print the corresponding output text.
-- If the payment is through the UPI: we create the object of class `UPIPayment`. Then call the `processPayment()` method with the amount to print the corresponding output text.
-
-**Solution**
+````
 
 ```java run
 import java.util.*;
 
-// Interface
 interface PaymentGateway {
     void processPayment(double amount);
 }
 
-// CreditCardPayment Class
 class CreditCardPayment implements PaymentGateway {
     @Override
     public void processPayment(double amount) {
-        System.out.printf("Processing credit card payment of %.2f%n", amount);
+        // TODO: print "Processing credit card payment of <amount>" (2 decimals)
     }
 }
 
-// UPIPayment Class
 class UPIPayment implements PaymentGateway {
     @Override
     public void processPayment(double amount) {
-        System.out.printf("Processing UPI payment of %.2f%n", amount);
+        // TODO: print "Processing UPI payment of <amount>" (2 decimals)
+    }
+}
+
+// The driver parses stdin and dispatches by method — implement the two classes above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String[] methods = sc.nextLine().split(",");
+        String[] amounts = sc.nextLine().split(",");
+
+        boolean first = true;
+        for (int i = 0; i < methods.length; i++) {
+            String m = methods[i].trim();
+            PaymentGateway gateway;
+            if (m.equals("credit")) gateway = new CreditCardPayment();
+            else if (m.equals("upi")) gateway = new UPIPayment();
+            else continue;
+            if (!first) System.out.println();
+            first = false;
+            gateway.processPayment(Double.parseDouble(amounts[i].trim()));
+        }
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "methods", "label": "Methods (comma-separated)", "type": "string" },
+    { "id": "amounts", "label": "Amounts (comma-separated)", "type": "string" }
+  ],
+  "cases": [
+    { "args": { "methods": "credit,upi", "amounts": "284.5,27476.2" }, "expected": "Processing credit card payment of 284.50\n\nProcessing UPI payment of 27476.20" },
+    { "args": { "methods": "upi,credit", "amounts": "100,50" }, "expected": "Processing UPI payment of 100.00\n\nProcessing credit card payment of 50.00" }
+  ]
+}
+```
+
+````editorial
+`PaymentGateway` is a pure contract — a method signature and nothing else. `CreditCardPayment` and `UPIPayment` each `implement` it their own way, and the driver holds every payment as a `PaymentGateway`, so adding a third method (say `WalletPayment`) later would need zero changes to the loop. `Locale.US` keeps the decimal separator a dot regardless of the machine's locale.
+
+```java solution
+import java.util.*;
+
+interface PaymentGateway {
+    void processPayment(double amount);
+}
+
+class CreditCardPayment implements PaymentGateway {
+    @Override
+    public void processPayment(double amount) {
+        System.out.printf(Locale.US, "Processing credit card payment of %.2f\n", amount);
+    }
+}
+
+class UPIPayment implements PaymentGateway {
+    @Override
+    public void processPayment(double amount) {
+        System.out.printf(Locale.US, "Processing UPI payment of %.2f\n", amount);
     }
 }
 
 class Main {
     public static void main(String[] args) {
-        // Hardcoded input
-        String[] paymentMethod = { "credit", "upi" };
-        double[] paymentValue = { 284.5, 27476.2 };
+        Scanner sc = new Scanner(System.in);
+        String[] methods = sc.nextLine().split(",");
+        String[] amounts = sc.nextLine().split(",");
 
-        // Process payments based on method
-        for (int i = 0; i < paymentMethod.length; i++) {
-            PaymentGateway paymentGateway;
-            if (paymentMethod[i].equals("credit")) {
-                paymentGateway = new CreditCardPayment();
-            } else if (paymentMethod[i].equals("upi")) {
-                paymentGateway = new UPIPayment();
-            } else {
-                continue; // If payment method is unknown
-            }
-            paymentGateway.processPayment(paymentValue[i]);
+        boolean first = true;
+        for (int i = 0; i < methods.length; i++) {
+            String m = methods[i].trim();
+            PaymentGateway gateway;
+            if (m.equals("credit")) gateway = new CreditCardPayment();
+            else if (m.equals("upi")) gateway = new UPIPayment();
+            else continue;
+            if (!first) System.out.println();
+            first = false;
+            gateway.processPayment(Double.parseDouble(amounts[i].trim()));
         }
     }
 }
 ```
+````
 
 ## The static keyword
 
@@ -806,59 +928,95 @@ As you can see, static members simplify scenarios where sharing resources or cre
 
 </div>
 
-## Practice (Static Keyword)
+## Your Turn — Practice: Static Keyword
 
-You are required to design a class `Counter` to keep track of how many objects have been created from it. The tracking must be done using the `static` keyword to ensure a single shared variable across all instances of the class. The class should contain below specification:
+Track how many `Counter` objects exist using a single `static` field shared across every instance — the defining trait of static state.
 
-Attributes:
+````problem
+Design a class `Counter` that counts how many of its objects have been created, using a `static` variable shared by all instances.
 
-- `count` (Integer) — a static variable that tracks the total number of objects created.
+**Attribute**
 
-Methods:
+- `count` (`static int`) — the total number of objects created.
 
-- A default constructor that increments the `count` variable each time a new object is instantiated.
-- `getCount()` — a static method that returns the current value of the `count` variable.
-- `resetCount()` — a static method to reset the value of `count` variable to 0.
+**Methods**
 
-Refer the sample examples for understanding the output format.
+- A no-arg constructor that increments `count` on each instantiation.
+- `static int getCount()` — returns the current count.
+- `static void resetCount()` — resets `count` to 0.
 
-Refer the commented code on IDE for output statements.
+**Input format.** One line on standard input: how many `Counter` objects to create. The provided `Main` instantiates that many, prints `getCount()`, then calls `resetCount()`.
 
-**Example 1**
-
-Input: `count = 10`
-
-Output:
+**Example 1** — Input: `10`
 
 ```text
 Number of objects created : 10
 ```
 
-Explanation:
-
-- Total count of objects that will be created is taken as input.
-- Then `count` number of different objects are instantiated.
-- At each instantiation the constructor increments the count of object.
-- Now `getCount` method is called which returns the total number of objects instantiated.
-- At end we call the `resetCount()` method to reset the count to 0.
-
-Constraints: 1 <= count <= 10^5
-
-**Solution**
+**Constraints:** 1 ≤ count ≤ 10⁵
+````
 
 ```java run
 import java.util.*;
 
 class Counter {
-    // Static variable to track the number of objects created
+    // TODO: a STATIC counter shared by every instance (starts at 0)
+
+    public Counter() {
+        // TODO: increment the shared count
+    }
+
+    public static int getCount() {
+        // TODO: return the count
+        return 0;
+    }
+
+    public static void resetCount() {
+        // TODO: reset the count to 0
+    }
+}
+
+// The driver is complete — implement Counter above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int count = Integer.parseInt(sc.nextLine().trim());
+
+        for (int i = 0; i < count; i++) {
+            new Counter();
+        }
+
+        System.out.println("Number of objects created : " + Counter.getCount());
+        Counter.resetCount();
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "count", "label": "Objects to create", "type": "int" }
+  ],
+  "cases": [
+    { "args": { "count": "10" }, "expected": "Number of objects created : 10" },
+    { "args": { "count": "5" }, "expected": "Number of objects created : 5" }
+  ]
+}
+```
+
+````editorial
+Because `count` is `static`, there is exactly **one** copy of it — owned by the class, not by any object — so every `new Counter()` increments the same variable. `getCount` and `resetCount` are `static` too: they read that class-level state without needing an instance, which is why `Main` calls them as `Counter.getCount()` rather than on an object. (Each Run is a fresh JVM, so the count always starts at 0.)
+
+```java solution
+import java.util.*;
+
+class Counter {
     private static int count = 0;
 
-    // Default constructor increments the count
     public Counter() {
         count++;
     }
 
-    // Static method to get the current count
     public static int getCount() {
         return count;
     }
@@ -870,19 +1028,19 @@ class Counter {
 
 class Main {
     public static void main(String[] args) {
-        // Hardcoded input count = 10
-        int count = 10;
+        Scanner sc = new Scanner(System.in);
+        int count = Integer.parseInt(sc.nextLine().trim());
 
-        // Create 10 objects
         for (int i = 0; i < count; i++) {
-            new Counter();  // Creating Counter objects
+            new Counter();
         }
 
-        // Output the count of objects created
         System.out.println("Number of objects created : " + Counter.getCount());
+        Counter.resetCount();
     }
 }
 ```
+````
 
 ## Inner classes
 
@@ -1071,39 +1229,24 @@ In the example, an instance of the `Greeting` class is created with an overridde
 
 Anonymous inner classes are commonly used in GUI applications or when implementing event listeners.
 
-## Practice (Inner classes)
+## Your Turn — Practice: Inner Classes
 
-You are tasked with designing a `Robot` class to demonstrate the functionality of different types of inner classes. Implement the following:
+Put all four kinds of inner class to work inside one `Robot`: a non-static inner class, a static nested class, a local class, and an anonymous class — each with its own access to the outer object.
 
-Class `Robot`:
+````problem
+Design a `Robot` class that demonstrates the four kinds of inner class.
 
-- Attribute: `name` (string)
-- Method: `performAction()` — prints the robot's action
+**Class `Robot`**
 
-Class `Arm` (non-static inner class):
+- Attribute: `name` (`String`); method `performAction()` prints `<name> is performing an action.`.
+- **Non-static inner class `Arm`** — `pickItem()` prints `<name> arm picking an item.`.
+- **Static nested class `Processor`** — `process()` prints `Processor analyzing the data.`.
+- **Local inner class** inside `manageSensors()` — a `Sensor` whose `sense()` prints `<name> sensor detecting obstacles.`.
+- **Anonymous inner class** in `executeTask()` — implements a nested interface `Task { execute(); }` to print `<name> executing a custom task.`.
 
-- Method: `pickItem()` to print the message "Arm picking an item.".
+**Input format.** One line on standard input: the robot's `name`. The provided `Main` exercises each inner class in turn, printing a blank line between the five messages.
 
-Class `Processor` (static nested class):
-
-- Method: `process()` to print the message "Processor analyzing the data.".
-
-Local inner class: `manageSensors()` method is used to implement the local inner class sensor.
-
-- Method: `sense()` to print the message "Sensor detecting obstacles." which is defined inside the local inner class.
-
-Anonymous inner class:
-
-- Implements an interface `Task` with a single method `execute()`.
-- Method: `executeTask()` method to implement the overrides of `execute()` method of interface to print "Executing a custom task".
-
-Refer the commented code on IDE to see the output statements.
-
-**Example 1**
-
-Input: `name = "Robot-1"`
-
-Output:
+**Example 1** — Input: `Robot-1`
 
 ```text
 Robot-1 is performing an action.
@@ -1116,19 +1259,105 @@ Robot-1 sensor detecting obstacles.
 
 Robot-1 executing a custom task.
 ```
-
-Explanation:
-
-- First we create the Robot class object and initialize the name of robot.
-- Then we call method `performAction` and print the corresponding text.
-- Then we call method `pickItem` and print the corresponding text.
-- Then we call method `process` and print the corresponding text.
-- Then we call method `manageSensors` and print the corresponding text.
-- Then we call method `executeTask` and print the corresponding text.
-
-**Solution**
+````
 
 ```java run
+import java.util.*;
+
+class Robot {
+    private String name;
+
+    public Robot(String name) {
+        this.name = name;
+    }
+
+    public void performAction() {
+        // TODO: print "<name> is performing an action."
+    }
+
+    // Non-static inner class — can read the outer Robot's `name`.
+    class Arm {
+        public void pickItem() {
+            // TODO: print "<name> arm picking an item."
+        }
+    }
+
+    // Static nested class — no outer instance, so no access to `name`.
+    static class Processor {
+        public void process() {
+            // TODO: print "Processor analyzing the data."
+        }
+    }
+
+    public void manageSensors() {
+        // Local inner class — declared inside a method.
+        class Sensor {
+            public void sense() {
+                // TODO: print "<name> sensor detecting obstacles."
+            }
+        }
+        Sensor sensor = new Sensor();
+        sensor.sense();
+    }
+
+    public void executeTask() {
+        // Anonymous inner class — implements Task inline, one-time use.
+        Task task = new Task() {
+            @Override
+            public void execute() {
+                // TODO: print "<name> executing a custom task."
+            }
+        };
+        task.execute();
+    }
+
+    interface Task {
+        void execute();
+    }
+}
+
+// The driver is complete — fill in the print statements above.
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String name = sc.nextLine().trim();
+
+        Robot robot = new Robot(name);
+        robot.performAction();
+        System.out.println();
+
+        Robot.Arm arm = robot.new Arm();
+        arm.pickItem();
+        System.out.println();
+
+        Robot.Processor processor = new Robot.Processor();
+        processor.process();
+        System.out.println();
+
+        robot.manageSensors();
+        System.out.println();
+
+        robot.executeTask();
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "name", "label": "Robot name", "type": "string" }
+  ],
+  "cases": [
+    { "args": { "name": "Robot-1" }, "expected": "Robot-1 is performing an action.\n\nRobot-1 arm picking an item.\n\nProcessor analyzing the data.\n\nRobot-1 sensor detecting obstacles.\n\nRobot-1 executing a custom task." },
+    { "args": { "name": "Wall-E" }, "expected": "Wall-E is performing an action.\n\nWall-E arm picking an item.\n\nProcessor analyzing the data.\n\nWall-E sensor detecting obstacles.\n\nWall-E executing a custom task." }
+  ]
+}
+```
+
+````editorial
+Each inner class shows a different relationship to the outer object. `Arm` (non-static) carries an implicit reference to its `Robot`, so it can read `name` — and is created with the unusual `robot.new Arm()` syntax. `Processor` (static nested) has no such link, so it can't see `name` and is built as `new Robot.Processor()`. The local `Sensor` lives only inside `manageSensors()` yet still captures `name`, and the anonymous `Task` implements the interface inline for a single use. All four can reach the enclosing instance's members except the `static` one — that's the distinction the exercise is drilling.
+
+```java solution
 import java.util.*;
 
 class Robot {
@@ -1142,33 +1371,28 @@ class Robot {
         System.out.println(name + " is performing an action.");
     }
 
-    // Non-static inner class
     class Arm {
         public void pickItem() {
             System.out.println(name + " arm picking an item.");
         }
     }
 
-    // Static nested class
     static class Processor {
         public void process() {
             System.out.println("Processor analyzing the data.");
         }
     }
 
-    // Method demonstrating a local inner class
     public void manageSensors() {
         class Sensor {
             public void sense() {
                 System.out.println(name + " sensor detecting obstacles.");
             }
         }
-
         Sensor sensor = new Sensor();
         sensor.sense();
     }
 
-    // Anonymous inner class
     public void executeTask() {
         Task task = new Task() {
             @Override
@@ -1186,27 +1410,29 @@ class Robot {
 
 class Main {
     public static void main(String[] args) {
-        // Hardcoded input
-        String name = "Robot-1";
+        Scanner sc = new Scanner(System.in);
+        String name = sc.nextLine().trim();
 
-        // Create Robot object
         Robot robot = new Robot(name);
-
-        // Call methods to demonstrate the inner classes and task
         robot.performAction();
+        System.out.println();
 
         Robot.Arm arm = robot.new Arm();
         arm.pickItem();
+        System.out.println();
 
         Robot.Processor processor = new Robot.Processor();
         processor.process();
+        System.out.println();
 
         robot.manageSensors();
+        System.out.println();
 
         robot.executeTask();
     }
 }
 ```
+````
 
 ## Summary
 
