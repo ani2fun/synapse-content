@@ -8,9 +8,27 @@ prereqs: []
 
 A plain loop runs its body start to finish, every pass. Real loops need to *steer*: stop as soon as you've found what you're looking for, skip the passes that don't apply, or break out of a nested search entirely. Java gives you three controls — `break` (leave the loop now), `continue` (skip to the next pass), and the **labeled** `break` (leave an *outer* loop) — and one quiet rule governs all of them: each affects only the **innermost** loop unless you name another. On top of these sit the handful of **accumulation patterns** — sum, count, max, "found it?" — that almost every loop turns out to be.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Real loops need to **steer**: `break` leaves now, `continue` skips to the next pass, a **labeled** `break` leaves an *outer* loop.
+- Each control affects only the **innermost** loop unless you name another.
+- Most loops are built from a few **accumulation patterns** — sum, count, max, "found it?".
+
+</div>
+
 This builds on [loops](/synapse/programming-languages/java/control-flow/loops) and the [boolean conditions](/synapse/programming-languages/java/control-flow/booleans-and-logic) that gate them. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -78,7 +96,11 @@ public class Main {
 
 For each `i`, the inner loop printed `j = 1`, then hit `break` at `j == 2` — but that `break` only ended the *inner* loop. The outer loop dutifully moved to the next `i` and started a fresh inner loop, three times over. `break` stopped the inner search, not the whole thing.
 
-*Earned rule.* Use `break` to stop a scan the moment its job is done; just remember it leaves only the innermost loop. The cost of that scoping is that a `break` meant to abandon a *nested* search stops only the inner loop and silently lets the outer one continue — which is exactly what the labeled `break` in §3 fixes.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `break` to stop a scan the moment its job is done; just remember it leaves only the innermost loop. The cost of that scoping is that a `break` meant to abandon a *nested* search stops only the inner loop and silently lets the outer one continue — which is exactly what the labeled `break` in §3 fixes.
+
+</div>
 
 ---
 
@@ -156,7 +178,11 @@ checking 3
 
 `checking i` prints every pass (it is *above* the `continue`); `i is odd` prints only for odd `i`, because for even `i` the `continue` skipped it. The `continue` cut the body short without ending the loop.
 
-*Earned rule.* Use `continue` to skip the passes that don't apply and keep the body flat instead of wrapping it all in an `if`. The cost is the `for`-vs-`while` asymmetry: a `for` always runs its update, but a `while` whose increment sits below a `continue` will skip the increment and spin forever — so in a `while`, advance the counter *before* any `continue`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `continue` to skip the passes that don't apply and keep the body flat instead of wrapping it all in an `if`. The cost is the `for`-vs-`while` asymmetry: a `for` always runs its update, but a `while` whose increment sits below a `continue` will skip the increment and spin forever — so in a `while`, advance the counter *before* any `continue`.
+
+</div>
 
 ---
 
@@ -222,7 +248,11 @@ Main.java:6: error: undefined label: inner
 
 There is no label `inner` on any enclosing loop (the only label is `outer`), so the compiler rejects it. Labels are checked at compile time, so a mistyped one is caught immediately.
 
-*Earned rule.* Reach for a labeled `break` only to escape genuinely nested loops in one move; name the label for what it leaves (`search:`, `outer:`). The cost is that labels are rare enough to surprise the next reader, and overusing them recreates the tangled "goto" control flow structured loops were meant to replace — so prefer extracting the nested search into its own method (Tutorial 11) and `return`ing from it once that tool is available.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for a labeled `break` only to escape genuinely nested loops in one move; name the label for what it leaves (`search:`, `outer:`). The cost is that labels are rare enough to surprise the next reader, and overusing them recreates the tangled "goto" control flow structured loops were meant to replace — so prefer extracting the nested search into its own method (Tutorial 11) and `return`ing from it once that tool is available.
+
+</div>
 
 ---
 
@@ -277,7 +307,11 @@ public class Main {
 
 The real maximum is `-1`, but `0` was never in the data — it was a bad starting value that no negative element could beat, so the loop reported `0`, a value that isn't even in `temps`. The logic is right; the *seed* was wrong.
 
-*Earned rule.* Seed an accumulator with the identity for its operation — `0` for a sum, `Integer.MIN_VALUE` (or the first element) for a max, `Integer.MAX_VALUE` for a min — never a "convenient" `0` that happens to be a valid value. The cost of a wrong seed is a silent wrong answer that survives every test using positive data and only breaks on the negative (or empty) case you forgot.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Seed an accumulator with the identity for its operation — `0` for a sum, `Integer.MIN_VALUE` (or the first element) for a max, `Integer.MAX_VALUE` for a min — never a "convenient" `0` that happens to be a valid value. The cost of a wrong seed is a silent wrong answer that survives every test using positive data and only breaks on the negative (or empty) case you forgot.
+
+</div>
 
 ---
 
@@ -293,15 +327,23 @@ The real maximum is `-1`, but `0` was never in the data — it was a bad startin
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A nested search keeps running after a match →** a plain `break` left only the inner loop; use a labeled `break` (or extract a method and `return`).
 - **A `while` with `continue` hangs →** the increment sits below the `continue` and gets skipped; advance the counter before any `continue`.
 - **`undefined label` →** the label isn't on an enclosing loop (typo or wrong scope); label the actual outer loop.
 - **A max/min comes back as `0` (or a value not in the data) →** the accumulator was seeded with `0`; use `Integer.MIN_VALUE`/`MAX_VALUE` or the first element.
 - **`continue` skipped a line you expected to run →** code below `continue` runs only on passes that don't continue; move it above, or invert the condition.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the output of this nested loop with a plain `break`, then with `break outer` instead: `for i in 1..2 { for j in 1..2 { if (i+j == 3) break; print(i,j); } }`. Next, predict what `for (int i = 0; i < 6; i++) { if (i % 3 != 0) continue; System.out.print(i + " "); }` prints. Finally, write a loop that finds the **minimum** of `{7, 3, 9, 2, 8}` — and decide what to seed the accumulator with so it would still be correct for all-negative data.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the output of this nested loop with a plain `break`, then with `break outer` instead: `for i in 1..2 { for j in 1..2 { if (i+j == 3) break; print(i,j); } }`. Next, predict what `for (int i = 0; i < 6; i++) { if (i % 3 != 0) continue; System.out.print(i + " "); }` prints. Finally, write a loop that finds the **minimum** of `{7, 3, 9, 2, 8}` — and decide what to seed the accumulator with so it would still be correct for all-negative data.
+
+</div>
 
 ## Your Turn
 

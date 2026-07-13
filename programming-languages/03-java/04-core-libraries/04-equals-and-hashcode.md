@@ -8,9 +8,27 @@ prereqs: []
 
 [The object model](/synapse/programming-languages/java/classes-and-objects/references-equality-and-the-object-model) showed that `==` compares identity and `.equals` compares meaning — *if* the class defines what "meaning" is. By default it does not: a class inherits an `equals` that just checks identity (same object) and a `hashCode` tied to the object's address. So two `Point(1, 2)` objects are *not* equal, and they misbehave in the [hash-based collections](/synapse/programming-languages/java/core-libraries/sets-and-maps) of the last chapter. To fix that you override `equals` to compare values — and here is the trap this chapter exists for: **if you override `equals`, you must override `hashCode` to match, or `HashSet`/`HashMap` will silently fail to find your objects and let duplicates in.** The two are a contract; honoring one without the other is worse than neither.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Default `equals`/`hashCode` compare by **identity**, so value-equal objects aren't equal.
+- Override `equals` for value equality — but you **must override `hashCode` to match**.
+- Break that contract and `HashSet`/`HashMap` silently miss your objects and admit duplicates.
+
+</div>
+
 Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -58,7 +76,11 @@ false
 
 *Concrete bite.* The second `false` is the surprise: people expect `.equals` to compare contents, but for a class that didn't override it, `.equals` is identity too. A `List.contains`, a `Map` key lookup, a deduplicating `Set` — all use `.equals`, so all of them treat your two equal points as different.
 
-*Earned rule.* If a class represents a *value* (a point, a money amount, a name) and two instances with the same fields should count as equal, you must override `equals` — the default identity behavior is correct only for objects whose identity *is* their meaning. The cost is writing (and maintaining) the method; the benefit is that equality means what your domain means, not just "same allocation."
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** If a class represents a *value* (a point, a money amount, a name) and two instances with the same fields should count as equal, you must override `equals` — the default identity behavior is correct only for objects whose identity *is* their meaning. The cost is writing (and maintaining) the method; the benefit is that equality means what your domain means, not just "same allocation."
+
+</div>
 
 ---
 
@@ -102,7 +124,11 @@ true
 
 *Concrete bite.* A subtle slip: writing `public boolean equals(Point o)` (parameter `Point`, not `Object`) does *not* override `Object.equals` — it **overloads** it, so collections (which call `equals(Object)`) ignore your version and fall back to identity. The `@Override` annotation catches this at compile time; without it the bug is silent.
 
-*Earned rule.* Override `equals(Object o)` (exact signature, with `@Override`) to compare the fields that define value-equality, guarding the type with `instanceof`. The cost is care with the signature and the fields you include; the benefit is value semantics everywhere `.equals` is used — but only if you also fix `hashCode`, which is the contract the next section enforces.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Override `equals(Object o)` (exact signature, with `@Override`) to compare the fields that define value-equality, guarding the type with `instanceof`. The cost is care with the signature and the fields you include; the benefit is value semantics everywhere `.equals` is used — but only if you also fix `hashCode`, which is the contract the next section enforces.
+
+</div>
 
 ---
 
@@ -172,7 +198,11 @@ p2 -> buckets.b2: "lands in bucket 2"
 
 *Concrete bite.* The `false` and the `2` are the breakage: a present element reports absent, and a duplicate slips in. This is among the most insidious Java bugs because the class *looks* right (`equals` works in isolation) and only fails inside hash collections.
 
-*Earned rule.* Whenever you override `equals`, override `hashCode` in the same change so that equal objects produce equal hashes — never one without the other. The cost is a second method; the cost of skipping it is a class that passes `a.equals(b)` tests yet silently corrupts every `HashSet`/`HashMap` it's used in.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Whenever you override `equals`, override `hashCode` in the same change so that equal objects produce equal hashes — never one without the other. The cost is a second method; the cost of skipping it is a class that passes `a.equals(b)` tests yet silently corrupts every `HashSet`/`HashMap` it's used in.
+
+</div>
 
 ---
 
@@ -226,7 +256,11 @@ true
 
 *Concrete bite.* The fix is exactly the inverse of §3's breakage: `true` and `1` instead of `false` and `2`. The only change was adding a `hashCode` consistent with `equals` — proof that the broken behavior was the missing `hashCode`, nothing else.
 
-*Earned rule.* Generate `equals` and `hashCode` together from the same fields (`Objects.equals`/`Objects.hash`, or your IDE's generator), and keep them in sync when fields change. The cost is boilerplate that must stay consistent; the benefit is correctness in every hash collection — and Tutorial 21's `record` removes the cost entirely by generating both (and `toString`) for you from the components.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Generate `equals` and `hashCode` together from the same fields (`Objects.equals`/`Objects.hash`, or your IDE's generator), and keep them in sync when fields change. The cost is boilerplate that must stay consistent; the benefit is correctness in every hash collection — and Tutorial 21's `record` removes the cost entirely by generating both (and `toString`) for you from the components.
+
+</div>
 
 ---
 
@@ -242,15 +276,23 @@ true
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A `HashSet`/`HashMap` can't find an object it contains →** you overrode `equals` but not `hashCode`; add a `hashCode` over the same fields.
 - **Duplicates appear in a `Set` of "equal" objects →** same cause — inconsistent `hashCode`; override it to match `equals`.
 - **Your `equals` is "ignored" by collections →** the signature is `equals(YourType)`, not `equals(Object)` — it overloads, not overrides; add `@Override` to catch it.
 - **`equals` and `hashCode` use different fields →** they must use the *same* fields, or equal objects can hash differently.
 - **Lots of boilerplate to keep in sync →** use `Objects.equals`/`Objects.hash`, your IDE's generator, or a `record` (Tutorial 21).
 
+</div>
+
 ---
 
-*Predict, then check.* For the §1 `Point` (no overrides), predict `new Point(1,2).equals(new Point(1,2))`. Add a correct `equals` but **no** `hashCode`, put one `Point(1,2)` in a `HashSet`, and predict both `contains(new Point(1,2))` and `size()` after adding a second equal point. Then add `hashCode` via `Objects.hash(x, y)` and predict the same two values again. Finally, explain why overriding `equals` with parameter type `Point` (not `Object`) would leave the set still broken even *with* a `hashCode`.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** For the §1 `Point` (no overrides), predict `new Point(1,2).equals(new Point(1,2))`. Add a correct `equals` but **no** `hashCode`, put one `Point(1,2)` in a `HashSet`, and predict both `contains(new Point(1,2))` and `size()` after adding a second equal point. Then add `hashCode` via `Objects.hash(x, y)` and predict the same two values again. Finally, explain why overriding `equals` with parameter type `Point` (not `Object`) would leave the set still broken even *with* a `hashCode`.
+
+</div>
 
 ## Your Turn
 

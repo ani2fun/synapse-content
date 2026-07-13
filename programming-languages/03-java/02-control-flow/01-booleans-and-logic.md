@@ -8,9 +8,27 @@ prereqs: []
 
 Decisions in a program come down to yes-or-no questions, and Java gives those questions their own type: `boolean`, with exactly two values, `true` and `false`. What makes Java strict — and what trips up newcomers from C or Python — is that **nothing else counts as a yes or no.** A number is not a stand-in for a condition: `1` is not "true," `0` is not "false," and the compiler rejects code that confuses them. You build conditions from **comparisons** (`<`, `==`, …), combine them with the **logical operators** `&&`, `||`, `!`, and lean on **short-circuit** evaluation, which stops the moment the answer is known.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- `boolean` is its own type with exactly two values, `true` and `false`.
+- **Nothing else counts** as a yes or no — `1` and `0` are not conditions.
+- You build conditions from **comparisons**, combine them with `&&`, `||`, `!`, and lean on **short-circuit** evaluation.
+
+</div>
+
 This builds on the [primitive types](/synapse/programming-languages/java/first-steps/variables-and-primitive-types) — `boolean` is one of the eight — and the [comparison of `==` vs `.equals`](/synapse/programming-languages/java/first-steps/strings-the-basics) from strings. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -73,7 +91,11 @@ Main.java:3: error: incompatible types: int cannot be converted to boolean
 
 `1` is an `int`, `b` is a `boolean`, and Java has no rule turning one into the other. The same strictness will reject `if (1)` when you meet `if` in the [next chapter](/synapse/programming-languages/java/control-flow/conditionals) — a condition must be a `boolean`, never a number.
 
-*Earned rule.* Conditions in Java are genuine `boolean`s; you cannot abbreviate "is this non-zero?" as the number itself. The cost is a few more characters (`count != 0` instead of `count`), and the benefit is that an entire family of C bugs — treating a stray integer as a truth value — cannot occur, because the compiler forbids the confusion outright.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Conditions in Java are genuine `boolean`s; you cannot abbreviate "is this non-zero?" as the number itself. The cost is a few more characters (`count != 0` instead of `count`), and the benefit is that an entire family of C bugs — treating a stray integer as a truth value — cannot occur, because the compiler forbids the confusion outright.
+
+</div>
 
 ---
 
@@ -129,7 +151,11 @@ Main.java:4: error: incompatible types: int cannot be converted to boolean
 
 `(x = 5)` assigns `5` to `x` and evaluates to the `int` `5`; storing that in a `boolean` fails to compile. The very typo that compiles-and-misbehaves in C is a compile error here.
 
-*Earned rule.* Use `==` to compare and `=` to assign; if you slip, the compiler stops you wherever a `boolean` was required. The cost is that the protection only holds *where a boolean is expected* — `=` and `==` are both legal in other spots — so the discipline is to read every condition as a question, not a statement.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `==` to compare and `=` to assign; if you slip, the compiler stops you wherever a `boolean` was required. The cost is that the protection only holds *where a boolean is expected* — `=` and `==` are both legal in other spots — so the discipline is to read every condition as a question, not a statement.
+
+</div>
 
 ---
 
@@ -179,7 +205,11 @@ false
 
 `!(true && false)` is `!(false)` = `true`. But `!true && !false` is `false && true` = `false`. Negating a compound condition flips *and* to *or* (De Morgan's law): `!(a && b)` equals `!a || !b`, not `!a && !b`.
 
-*Earned rule.* Build conditions from `&&`, `||`, `!`, and parenthesise when negating a compound test — `!(a && b)` means `!a || !b`. The cost of forgetting De Morgan is a condition that looks negated but tests the wrong thing; when in doubt, wrap the whole expression in `!( … )` rather than distributing the `!` by hand.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Build conditions from `&&`, `||`, `!`, and parenthesise when negating a compound test — `!(a && b)` means `!a || !b`. The cost of forgetting De Morgan is a condition that looks negated but tests the wrong thing; when in doubt, wrap the whole expression in `!( … )` rather than distributing the `!` by hand.
+
+</div>
 
 ---
 
@@ -226,7 +256,11 @@ Exception in thread "main" java.lang.ArithmeticException: / by zero
 
 `&` evaluated `10 / x` even though `x != 0` was already `false`, and dividing by zero threw `ArithmeticException`. Same logic, one missing character, a crash instead of a clean `false`.
 
-*Earned rule.* Use `&&` and `||` (not `&`/`|`) for conditions, and put the cheap, protective test first — `x != 0 && 10 / x > 0`, `s != null && s.length() > 0`. The cost is that order now matters: short-circuiting only protects the right side if the guard is on the left, so a misordered condition loses the protection and can still crash. (`null` and the `s != null` guard arrive properly in Tier 2.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `&&` and `||` (not `&`/`|`) for conditions, and put the cheap, protective test first — `x != 0 && 10 / x > 0`, `s != null && s.length() > 0`. The cost is that order now matters: short-circuiting only protects the right side if the guard is on the left, so a misordered condition loses the protection and can still crash. (`null` and the `s != null` guard arrive properly in Tier 2.)
+
+</div>
 
 ---
 
@@ -273,7 +307,11 @@ false
 
 `0.1 + 0.2` is `0.30000000000000004`, not `0.3`, so `== 0.3` is `false`. Nothing is broken — `double` simply stores approximations, and `==` compares them exactly.
 
-*Earned rule.* Parenthesise whenever `&&` and `||` mix, and never compare `double`s with `==` — test that the difference is within a small tolerance (`Math.abs(a - b) < 1e-9`) instead. The cost of trusting `==` on floating-point is a comparison that is *false* for values you consider equal, with no error to flag it — the same "silent wrong answer" hazard as [integer overflow](/synapse/programming-languages/java/first-steps/numbers-and-arithmetic), in a different disguise.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Parenthesise whenever `&&` and `||` mix, and never compare `double`s with `==` — test that the difference is within a small tolerance (`Math.abs(a - b) < 1e-9`) instead. The cost of trusting `==` on floating-point is a comparison that is *false* for values you consider equal, with no error to flag it — the same "silent wrong answer" hazard as [integer overflow](/synapse/programming-languages/java/first-steps/numbers-and-arithmetic), in a different disguise.
+
+</div>
 
 ---
 
@@ -289,15 +327,23 @@ false
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`incompatible types: int cannot be converted to boolean` →** you used a number as a condition (or wrote `=` for `==`); make it a real comparison.
 - **A negated compound condition tests the wrong thing →** De Morgan: `!(a && b)` is `!a || !b`; wrap the whole expression in `!( … )`.
 - **Divide-by-zero / null crash despite a guard →** you used `&`/`|` (no short-circuit) or put the guard on the wrong side; use `&&`/`||` with the guard first.
 - **A mixed `&&`/`||` condition groups unexpectedly →** `&&` binds tighter than `||`; add parentheses.
 - **Two equal-looking decimals compare as unequal →** floating-point approximation; compare with a tolerance, not `==`.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict each line's output before running: `System.out.println(5 > 3);` · `System.out.println(5 > 3 && 2 > 4);` · `System.out.println(5 > 3 || 2 > 4);` · `System.out.println(!(5 > 3));`. Then a harder one: with `int n = 0;`, what does `System.out.println(n != 0 && 100 / n > 0);` print — and what would change if you wrote `&` instead of `&&`? Explain the second in terms of short-circuiting before you run it.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict each line's output before running: `System.out.println(5 > 3);` · `System.out.println(5 > 3 && 2 > 4);` · `System.out.println(5 > 3 || 2 > 4);` · `System.out.println(!(5 > 3));`. Then a harder one: with `int n = 0;`, what does `System.out.println(n != 0 && 100 / n > 0);` print — and what would change if you wrote `&` instead of `&&`? Explain the second in terms of short-circuiting before you run it.
+
+</div>
 
 ## Your Turn
 

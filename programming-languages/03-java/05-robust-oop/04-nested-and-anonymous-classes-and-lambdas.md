@@ -8,9 +8,28 @@ prereqs: []
 
 So far a method's *behavior* has been fixed where it's written. This chapter makes behavior something you can **pass around**. The path there runs through Java's ways of defining a class in a smaller scope: **nested classes** (a class inside a class), **anonymous classes** (an unnamed class implementing an interface right where it's used), and finally **lambdas** — a compact, anonymous implementation of a **functional interface** (an interface with exactly one abstract method). A lambda turns "what to do" into a value you can store in a variable, hand to a method, and call later. **Method references** shorten the common case of a lambda that just calls an existing method. Together these are the bridge from object-oriented to functional Java — and the foundation for streams in the next tier.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- These turn **behavior into a value** you can pass, store, and call later.
+- **Nested** and **anonymous** classes define a class in a smaller scope.
+- A **lambda** is a compact implementation of a **functional interface** (one abstract method).
+- **Method references** shorten a lambda that just calls a method — the bridge to functional Java.
+
+</div>
+
 This builds on [methods](/synapse/programming-languages/java/control-flow/methods) and [interfaces](/synapse/programming-languages/java/robust-oop/abstract-classes-and-interfaces). Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -67,7 +86,11 @@ public class Main {
 
 *Concrete bite.* The practical rule: default a nested class to `static` unless it genuinely needs the enclosing instance. A non-static inner class keeps its outer object alive (a hidden reference), which can cause surprising memory retention; `static` avoids that link entirely.
 
-*Earned rule.* Nest a helper class inside the class it serves to keep it scoped and private, and make it `static` unless it must access enclosing instance state. The cost of a non-static inner class is the hidden outer reference (memory and coupling); the benefit of nesting is locality — the helper lives exactly where it's used, not as a separate top-level file.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Nest a helper class inside the class it serves to keep it scoped and private, and make it `static` unless it must access enclosing instance state. The cost of a non-static inner class is the hidden outer reference (memory and coupling); the benefit of nesting is locality — the helper lives exactly where it's used, not as a separate top-level file.
+
+</div>
 
 ---
 
@@ -101,7 +124,11 @@ Hello, Ada
 
 *Concrete bite.* The ceremony is the problem: four lines (`new Greeter() { @Override public String greet... }`) to express one line of actual logic. For an interface with a *single* method, almost all of that is noise — which is precisely what a lambda removes.
 
-*Earned rule.* Reach for an anonymous class when you need a one-off implementation that has *multiple* methods or needs its own fields; otherwise prefer the lambda in the next section. The cost of an anonymous class is verbosity and a distinct generated class; the benefit is a complete inline implementation when a single-expression lambda isn't enough.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for an anonymous class when you need a one-off implementation that has *multiple* methods or needs its own fields; otherwise prefer the lambda in the next section. The cost of an anonymous class is verbosity and a distinct generated class; the benefit is a complete inline implementation when a single-expression lambda isn't enough.
+
+</div>
 
 ---
 
@@ -156,7 +183,11 @@ Main.java:4: error: incompatible types: TwoMethods is not a functional interface
 
 `TwoMethods` has two abstract methods, so a single lambda body can't say which it implements — "not a functional interface." A lambda needs a one-method target (mark your own with `@FunctionalInterface` to enforce it); for more than one method, use an anonymous class.
 
-*Earned rule.* Use a lambda to implement a functional interface compactly — passing behavior to `sort`, `forEach`, a callback, a strategy. The cost is that it works only for single-method interfaces (and captures only effectively-final locals); the benefit is enormous expressiveness: logic becomes a value you store and pass, which is the entire premise of the Streams API in Tutorial 28.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a lambda to implement a functional interface compactly — passing behavior to `sort`, `forEach`, a callback, a strategy. The cost is that it works only for single-method interfaces (and captures only effectively-final locals); the benefit is enormous expressiveness: logic becomes a value you store and pass, which is the entire premise of the Streams API in Tutorial 28.
+
+</div>
 
 ---
 
@@ -193,7 +224,11 @@ Charlie
 
 *Concrete bite.* They read as the *intent*: `sort(String::compareToIgnoreCase)` says "sort by case-insensitive comparison" with no boilerplate parameters. The boundary is that a method reference only works when the lambda is *exactly* one call with matching arguments — any extra logic (a transform, a condition) needs a full lambda.
 
-*Earned rule.* Prefer a method reference when a lambda's whole body is one method call with matching arguments (`String::toUpperCase`, `System.out::println`, `Objects::nonNull`); use a full lambda when there's any additional logic. The cost is learning the four reference forms; the benefit is code that names the operation directly — maximally concise and readable, especially in the stream pipelines ahead.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Prefer a method reference when a lambda's whole body is one method call with matching arguments (`String::toUpperCase`, `System.out::println`, `Objects::nonNull`); use a full lambda when there's any additional logic. The cost is learning the four reference forms; the benefit is code that names the operation directly — maximally concise and readable, especially in the stream pipelines ahead.
+
+</div>
 
 ---
 
@@ -209,15 +244,23 @@ Charlie
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`X is not a functional interface` →** the target interface has more than one abstract method; use an anonymous class, or reduce it to one method.
 - **A lambda can't change a local variable it uses →** captured locals must be effectively final; use a field or an array/holder if you must mutate.
 - **A nested class holds its outer object alive unexpectedly →** it's a non-static inner class; make it `static` if it doesn't need the enclosing instance.
 - **A method reference won't compile where a lambda would →** the method's shape doesn't match the interface, or there's extra logic; write the full lambda.
 - **Reached for an anonymous class for a one-method interface →** a lambda is shorter and clearer; reserve anonymous classes for multi-method or stateful cases.
 
+</div>
+
 ---
 
-*Predict, then check.* Write a functional interface `IntOp { int apply(int a, int b); }` and predict what `IntOp add = (a, b) -> a + b; System.out.println(add.apply(3, 4));` prints. Next, rewrite the §2 anonymous `Greeter` as a lambda and confirm identical output. Finally, predict the output of sorting `["banana","Apple","cherry"]` with `String::compareToIgnoreCase` then printing with `forEach(System.out::println)`, and explain what lambda each method reference stands for.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write a functional interface `IntOp { int apply(int a, int b); }` and predict what `IntOp add = (a, b) -> a + b; System.out.println(add.apply(3, 4));` prints. Next, rewrite the §2 anonymous `Greeter` as a lambda and confirm identical output. Finally, predict the output of sorting `["banana","Apple","cherry"]` with `String::compareToIgnoreCase` then printing with `forEach(System.out::println)`, and explain what lambda each method reference stands for.
+
+</div>
 
 ## Your Turn
 

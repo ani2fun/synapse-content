@@ -21,4 +21,12 @@ Eight chapters, in order:
 
 Every code block with a ▶ Run button is live; the concurrency, performance, and tooling chapters include real captured runs (a data race, JIT and GC logs, a `mvn test` summary) where behavior is nondeterministic or project-level. The habit that matters most at this tier is **knowing the cost**: streams, parallelism, immutability, and abstractions all have trade-offs, and senior judgment is choosing them deliberately.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>

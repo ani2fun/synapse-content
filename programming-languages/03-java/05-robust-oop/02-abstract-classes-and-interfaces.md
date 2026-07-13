@@ -8,9 +8,28 @@ prereqs: []
 
 [Inheritance](/synapse/programming-languages/java/robust-oop/inheritance-and-polymorphism) let a subclass specialize a concrete superclass. Two more tools let you specify behavior a type *must* provide without saying how. An **abstract class** is a partial implementation — it can declare **abstract methods** (signatures with no body) and cannot itself be instantiated, so every concrete subclass is forced to supply the missing pieces. An **interface** goes further: a pure **contract** of methods that any class can `implement`, with no shared state. The crucial asymmetry is that a class `extends` exactly **one** class but `implements` **many** interfaces — so interfaces give Java multiple inheritance of *type* (a class can be many things) while sidestepping the "diamond problem" of multiple inheritance of *state*. This is the machinery behind "[program to the interface](/synapse/programming-languages/java/core-libraries/the-collections-framework)."
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- An **abstract class** is a partial type with body-less methods — it can't be instantiated.
+- An **interface** is a pure contract a class `implements`, with no shared state.
+- A class `extends` **one** class but `implements` **many** interfaces.
+- So interfaces give multiple inheritance of *type* without the diamond problem.
+
+</div>
+
 Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -88,7 +107,11 @@ Main.java:4: error: Shape is abstract; cannot be instantiated
 
 `new Shape()` is rejected — `Shape.area()` has no body, so there's no complete object to make. You can hold a `Shape` reference (to a `Circle` or `Square`), but you can't create a bare `Shape`.
 
-*Earned rule.* Use an abstract class when subtypes share both a common type *and* some implementation or state, but a key operation must differ per subtype (`area()`). The cost is that a class can extend only one abstract class (single inheritance); the benefit is shared code plus an enforced contract — the compiler guarantees no subclass forgets to implement the abstract methods.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use an abstract class when subtypes share both a common type *and* some implementation or state, but a key operation must differ per subtype (`area()`). The cost is that a class can extend only one abstract class (single inheritance); the benefit is shared code plus an enforced contract — the compiler guarantees no subclass forgets to implement the abstract methods.
+
+</div>
 
 ---
 
@@ -144,7 +167,11 @@ class Circle implements Drawable { }
 
 `Circle` claims to be `Drawable` but never provides `draw()`, so it's incomplete — either implement the method or declare `Circle` itself `abstract`. The contract is enforced at compile time.
 
-*Earned rule.* Define an interface to specify *what* a type can do without dictating *how* or sharing state, and program against it so any implementer fits. The cost is that a plain interface carries no implementation (until `default` methods, next); the benefit is a contract decoupled from any class — the foundation for swappable implementations and, in Tutorial 25, lambdas.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Define an interface to specify *what* a type can do without dictating *how* or sharing state, and program against it so any implementer fits. The cost is that a plain interface carries no implementation (until `default` methods, next); the benefit is a contract decoupled from any class — the foundation for swappable implementations and, in Tutorial 25, lambdas.
+
+</div>
 
 ---
 
@@ -184,7 +211,11 @@ Hello, Ada
 
 *Concrete bite.* Defaults are what let interfaces evolve. Before JDK 8, adding a method to a widely-implemented interface broke every implementer (they suddenly lacked it); a `default` method adds the capability with a fallback, so old implementers keep compiling. The cost surfaces only with *multiple* inherited defaults of the same signature — then the class must override to resolve the conflict (a controlled, compile-time error, not the silent C++ diamond).
 
-*Earned rule.* Use a `default` method to provide optional or derivable behavior on an interface (especially to extend an existing one compatibly), keeping the interface's core as abstract signatures. The cost is that an interface with many defaults drifts toward an abstract class (but still without state); the benefit is interfaces that carry useful behavior and can grow without breaking implementers.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a `default` method to provide optional or derivable behavior on an interface (especially to extend an existing one compatibly), keeping the interface's core as abstract signatures. The cost is that an interface with many defaults drifts toward an abstract class (but still without state); the benefit is interfaces that carry useful behavior and can grow without breaking implementers.
+
+</div>
 
 ---
 
@@ -248,7 +279,11 @@ class C extends A, B {}
 
 `extends A, B` isn't even valid syntax — a class has at most one superclass. To be "both," `A` and `B` would need to be interfaces and `C` would `implement` them.
 
-*Earned rule.* Reach for an interface (or several) when a type needs to play multiple roles or you want maximum decoupling; reach for an abstract class when subtypes share state and implementation. The cost of interfaces is they can't hold instance state; the benefit is that a class can implement many, modeling "is-a-kind-of-capability" freely — which is why most Java APIs are built on interfaces, with abstract classes as an implementation convenience.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for an interface (or several) when a type needs to play multiple roles or you want maximum decoupling; reach for an abstract class when subtypes share state and implementation. The cost of interfaces is they can't hold instance state; the benefit is that a class can implement many, modeling "is-a-kind-of-capability" freely — which is why most Java APIs are built on interfaces, with abstract classes as an implementation convenience.
+
+</div>
 
 ---
 
@@ -264,15 +299,23 @@ class C extends A, B {}
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`X is abstract; cannot be instantiated` →** you did `new` on an abstract type; instantiate a concrete subclass instead.
 - **`is not abstract and does not override abstract method …` →** an implementer is missing a contracted method; implement it (and make overrides `public`).
 - **`extends A, B` won't compile →** a class has one superclass; make `A`/`B` interfaces and `implement` them.
 - **Two inherited `default` methods clash →** override the method in your class to resolve which behavior wins.
 - **You can't decide interface vs abstract class →** need shared state/implementation → abstract class; need a pure contract or multiple roles → interface(s).
 
+</div>
+
 ---
 
-*Predict, then check.* Add a `Triangle extends Shape` with `area()` returning `0.5 * base * height`, and predict the three areas printed for a `Circle(1)`, `Square(2)`, `Triangle(3, 4)`. Next, give `Greeter` a second `default` method `loudGreet()` returning `greet().toUpperCase()`, and predict `new Person("Ada").loudGreet()`. Finally, predict whether `class Robot implements Swimmer, Flyer {}` compiles, and what it would print from `describe()`-style calls — explaining why two interfaces are fine but two classes are not.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Add a `Triangle extends Shape` with `area()` returning `0.5 * base * height`, and predict the three areas printed for a `Circle(1)`, `Square(2)`, `Triangle(3, 4)`. Next, give `Greeter` a second `default` method `loudGreet()` returning `greet().toUpperCase()`, and predict `new Person("Ada").loudGreet()`. Finally, predict whether `class Robot implements Swimmer, Flyer {}` compiles, and what it would print from `describe()`-style calls — explaining why two interfaces are fine but two classes are not.
+
+</div>
 
 ## Your Turn
 

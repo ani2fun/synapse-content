@@ -8,9 +8,27 @@ prereqs: []
 
 Java's arithmetic looks like the maths you already know — `+`, `-`, `*`, `/` — but it obeys one rule the maths classroom never mentioned: **the result is shaped by the operands' types, not by the answer you have in mind.** Divide two integers and the fraction vanishes; push an `int` past its range and it wraps silently to a negative number; mix an `int` with a `double` and the whole expression becomes a `double`. The same `/` means different things depending on what sits to its left and right. This chapter is about reading those types so the numbers come out right.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Java arithmetic is shaped by the **operands' types**, not the answer you have in mind.
+- The same `/` can truncate, promote, or silently overflow depending on its operands.
+- Reading those types is how you make the numbers come out right.
+
+</div>
+
 This builds directly on [the primitive types](/synapse/programming-languages/java/first-steps/variables-and-primitive-types) — the sizes and ranges from that chapter are exactly what decides each result here. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -73,7 +91,11 @@ public class Main {
 
 `-7 % 2` is `-1`, not `1` — the result took the sign of `-7`. `7 % -2` is `1`, taking the sign of `7`. The magnitude is the remainder; the sign comes from the dividend.
 
-*Earned rule.* Use `%` for remainders and divisibility, but when you need an always-non-negative "wrap" of a possibly-negative number, `-7 % 2` will not give it — add the divisor back, or use `Math.floorMod`, which returns a non-negative result for a positive divisor. The cost of assuming `%` is mathematical modulo is an off-by-a-sign bug that appears precisely when the input goes negative.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `%` for remainders and divisibility, but when you need an always-non-negative "wrap" of a possibly-negative number, `-7 % 2` will not give it — add the divisor back, or use `Math.floorMod`, which returns a non-negative result for a positive divisor. The cost of assuming `%` is mathematical modulo is an off-by-a-sign bug that appears precisely when the input goes negative.
+
+</div>
 
 ---
 
@@ -122,7 +144,11 @@ public class Main {
 
 Even though `average` is a `double`, the right-hand side `total / count` is `int / int`, evaluated first — as `3` — and only *then* widened to `3.0`. The division already happened in integer-land; widening the answer afterward cannot recover the lost `.5`. So the "average" of 7 and 2 prints `3.0`.
 
-*Earned rule.* Integer `/` truncates; to get a real quotient, make sure at least one operand is floating-point *before* the division runs. The cost of forgetting is a silent wrong answer rather than an error — `3.0` looks reasonable, which is what makes this Java's most common arithmetic bug. The fix is the next section's job.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Integer `/` truncates; to get a real quotient, make sure at least one operand is floating-point *before* the division runs. The cost of forgetting is a silent wrong answer rather than an error — `3.0` looks reasonable, which is what makes this Java's most common arithmetic bug. The fix is the next section's job.
+
+</div>
 
 ---
 
@@ -170,7 +196,11 @@ public class Main {
 
 The parentheses force `7 / 2` first (integer division → `3`), and only then cast `3` to `3.0`. You converted the answer *after* the fraction was already gone. Contrast `(double) 7 / 2`, which casts `7` first and gives `3.5`.
 
-*Earned rule.* To divide as reals, get a floating-point operand into the expression *before* the division — `(double) total / count`, not `(double) (total / count)`. The cost of casting is that **narrowing** casts (`(int) 3.9`) silently truncate, discarding information on purpose: you are telling the compiler "I accept the loss." That same silent loss, uninvited, is the next trap.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** To divide as reals, get a floating-point operand into the expression *before* the division — `(double) total / count`, not `(double) (total / count)`. The cost of casting is that **narrowing** casts (`(int) 3.9`) silently truncate, discarding information on purpose: you are telling the compiler "I accept the loss." That same silent loss, uninvited, is the next trap.
+
+</div>
 
 ---
 
@@ -218,7 +248,11 @@ public class Main {
 
 `100000 * 100000` is ten billion, far beyond an `int`, so it wraps to a meaningless `1410065408`. Nothing looked dangerous; the type quietly betrayed the arithmetic.
 
-*Earned rule.* When a value can exceed ~2 billion, use `long` (64 bits, up to ~9.2 quintillion), and make at least one operand a `long` so the operation runs in 64-bit: `100000L * 100000` gives the correct `10000000000`. The cost of ignoring overflow is the most dangerous kind of bug — a wrong number with nothing to flag it. When you must be certain, `Math.multiplyExact` and `Math.addExact` **throw** instead of wrapping:
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** When a value can exceed ~2 billion, use `long` (64 bits, up to ~9.2 quintillion), and make at least one operand a `long` so the operation runs in 64-bit: `100000L * 100000` gives the correct `10000000000`. The cost of ignoring overflow is the most dangerous kind of bug — a wrong number with nothing to flag it. When you must be certain, `Math.multiplyExact` and `Math.addExact` **throw** instead of wrapping:
+
+</div>
 
 ```java run
 public class Main {
@@ -288,7 +322,11 @@ Main.java:3: error: incompatible types: possible lossy conversion from double to
 
 `Math.pow` returns `1024.0`, a `double`, and a `double` will not fit into an `int` without losing its fractional part — so the compiler refuses. The fix is a deliberate cast, `int kib = (int) Math.pow(2, 10);`, which gives `1024`.
 
-*Earned rule.* Let precedence and `Math` do the arithmetic, but remember that `Math.pow` and `Math.sqrt` return `double` — assign to a `double`, or cast deliberately when you truly want an `int`, accepting the truncation. Reach for parentheses whenever the intended grouping is not obvious at a glance; they cost nothing and prevent precedence surprises.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Let precedence and `Math` do the arithmetic, but remember that `Math.pow` and `Math.sqrt` return `double` — assign to a `double`, or cast deliberately when you truly want an `int`, accepting the truncation. Reach for parentheses whenever the intended grouping is not obvious at a glance; they cost nothing and prevent precedence surprises.
+
+</div>
 
 ---
 
@@ -305,6 +343,8 @@ Main.java:3: error: incompatible types: possible lossy conversion from double to
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A division gives a whole number when you expected a fraction →** both operands are integers; make one floating-point (`(double) a / b` or `a / 2.0`).
 - **`double x = a / b;` is `.0` →** the division ran as `int / int` before the widening; cast an operand, not the result.
 - **A sum or product is suddenly negative or absurd →** `int` overflow; switch to `long` (with an `L` operand) or use `Math.addExact` / `Math.multiplyExact`.
@@ -312,9 +352,15 @@ Main.java:3: error: incompatible types: possible lossy conversion from double to
 - **`%` of a negative number has the "wrong" sign →** the remainder follows the dividend; use `Math.floorMod` for a non-negative result.
 - **An expression groups unexpectedly →** check precedence (`*` before `+`); add parentheses to force your intended order.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the exact output of each line before running it: `System.out.println(5 / 2);` · `System.out.println(5 / 2.0);` · `System.out.println((double) 5 / 2);` · `System.out.println((double) (5 / 2));`. Three of the four differ. Explain, in terms of *when* the division happens and *what types* its operands have, why two print `2.5`, one prints `2`, and one prints `2.0`.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the exact output of each line before running it: `System.out.println(5 / 2);` · `System.out.println(5 / 2.0);` · `System.out.println((double) 5 / 2);` · `System.out.println((double) (5 / 2));`. Three of the four differ. Explain, in terms of *when* the division happens and *what types* its operands have, why two print `2.5`, one prints `2`, and one prints `2.0`.
+
+</div>
 
 ## Your Turn
 

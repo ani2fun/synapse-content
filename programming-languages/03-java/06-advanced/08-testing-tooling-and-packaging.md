@@ -8,9 +8,28 @@ prereqs: []
 
 This is the last chapter, and it's about everything *around* the code that makes it trustworthy and shippable. **Tests** turn "I think it works" into "the machine verifies it works, on every build" — and Java's built-in `assert` is disabled by default, which is exactly why real projects use **JUnit 5**, whose `@Test` methods always run. **Build tools** (Maven and Gradle) take over the manual `javac`/`jar` dance from [Tutorial 27](/synapse/programming-languages/java/robust-oop/packages-modules-and-the-build): they resolve dependencies from coordinates, compile, run the tests, and package the result. And an **executable JAR** is how you hand someone a program they can run with one command. A good **debugging** strategy ties it together when something still goes wrong.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- **Tests** turn "I think it works" into "the machine verifies it, every build."
+- Java's `assert` is disabled by default — which is why real projects use **JUnit 5**.
+- **Build tools** (Maven/Gradle) resolve dependencies, compile, test, and package.
+- An **executable JAR** is how you ship a program someone runs with one command.
+
+</div>
+
 These examples use multi-file projects and the `javac`/`mvn`/`jar` tools, so they're shown as real terminal sessions — every command and its output was run and captured locally. Every output below was produced by actually running these commands.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -67,7 +86,11 @@ Exception in thread "main" java.lang.AssertionError: add(2,2) should be 5
 
 *Concrete bite.* The middle run is the trap: `java Main` printed `passed` for code that's wrong, because the assertion was disabled. Relying on `assert` for tests means your "tests" silently do nothing in any normal run — which is why no one tests with bare `assert`.
 
-*Earned rule.* Use `assert` only for optional internal invariant checks (and know it's off by default); use a real test framework for actual tests. The cost of `assert` is exactly that default-off behavior; the benefit of a framework — next — is checks that always run, with rich assertions and reporting.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `assert` only for optional internal invariant checks (and know it's off by default); use a real test framework for actual tests. The cost of `assert` is exactly that default-off behavior; the benefit of a framework — next — is checks that always run, with rich assertions and reporting.
+
+</div>
 
 ---
 
@@ -122,7 +145,11 @@ $ mvn test
 
 *Concrete bite.* The power is regression protection: once `divideByZeroThrows` exists, anyone who later breaks that behavior gets a red build immediately — the test is a permanent, executable specification. Tests also *document* intent (the method names say what should happen) and enable fearless refactoring (change the code, re-run, see green).
 
-*Earned rule.* Write JUnit tests for the behavior you care about — the happy path, edge cases, and the exceptions — and run them in your build so failures block shipping. The cost is writing and maintaining tests (and they're code that can rot); the benefit is a machine-checked safety net that catches regressions instantly and lets you refactor without fear.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Write JUnit tests for the behavior you care about — the happy path, edge cases, and the exceptions — and run them in your build so failures block shipping. The cost is writing and maintaining tests (and they're code that can rot); the benefit is a machine-checked safety net that catches regressions instantly and lets you refactor without fear.
+
+</div>
 
 ---
 
@@ -159,7 +186,11 @@ The Gradle equivalent of that dependency is one line — `testImplementation("or
 
 *Concrete bite.* The transitive resolution is the real value: declaring one dependency pulls in its dependencies automatically, with version conflict mediation. Doing this by hand — tracking which JAR needs which other JAR — is exactly the "JAR hell" build tools were invented to end.
 
-*Earned rule.* Use a build tool (Maven or Gradle) for any real project; declare dependencies by coordinates and let it resolve, compile, test, and package. The cost is learning the tool's model and conventions (and occasional dependency-conflict debugging); the benefit is reproducible builds with managed transitive dependencies — the baseline for collaborating and shipping.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a build tool (Maven or Gradle) for any real project; declare dependencies by coordinates and let it resolve, compile, test, and package. The cost is learning the tool's model and conventions (and occasional dependency-conflict debugging); the benefit is reproducible builds with managed transitive dependencies — the baseline for collaborating and shipping.
+
+</div>
 
 ---
 
@@ -186,7 +217,11 @@ Hello from an executable JAR!
 
 *Concrete bite.* A plain JAR contains *your* classes only — if your code uses libraries, `java -jar app.jar` fails with `NoClassDefFoundError` unless those libraries are on the classpath or bundled into a fat JAR. "It runs in my IDE but not as a JAR" is almost always missing dependencies in the artifact.
 
-*Earned rule.* Ship an executable JAR (a fat JAR for apps with dependencies) built by your build tool, and run it with `java -jar`. The cost is configuring the packaging (fat-JAR plugin) and a larger artifact; the benefit is a single, self-contained file anyone with a JVM can run — the "write once, run anywhere" of [Tutorial 1](/synapse/programming-languages/java/first-steps/what-java-is-and-running-code) delivered as one command.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Ship an executable JAR (a fat JAR for apps with dependencies) built by your build tool, and run it with `java -jar`. The cost is configuring the packaging (fat-JAR plugin) and a larger artifact; the benefit is a single, self-contained file anyone with a JVM can run — the "write once, run anywhere" of [Tutorial 1](/synapse/programming-languages/java/first-steps/what-java-is-and-running-code) delivered as one command.
+
+</div>
 
 ---
 
@@ -201,7 +236,11 @@ When a test goes red or production misbehaves, debug methodically rather than by
 
 *Concrete bite.* The anti-pattern is changing code randomly hoping the symptom disappears — it often hides the bug instead of fixing it, or breaks something else. Reproduce first, understand the cause, *then* fix; a fix you can't explain isn't a fix.
 
-*Earned rule.* Debug by reproducing (ideally as a failing test), reading the stack trace to the cause, and inspecting state with a debugger or logging — not by guessing. The cost is the discipline to understand before editing; the benefit is fixes that actually address the cause, with a regression test ensuring the bug stays dead.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Debug by reproducing (ideally as a failing test), reading the stack trace to the cause, and inspecting state with a debugger or logging — not by guessing. The cost is the discipline to understand before editing; the benefit is fixes that actually address the cause, with a regression test ensuring the bug stays dead.
+
+</div>
 
 ---
 
@@ -217,15 +256,23 @@ When a test goes red or production misbehaves, debug methodically rather than by
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`assert` "tests" pass for broken code →** assertions are off by default; use JUnit, whose checks always run (or `-ea` for internal invariants).
 - **`mvn`/`gradle` can't find a class you use →** the dependency isn't declared; add it by coordinates in `pom.xml`/`build.gradle`.
 - **`java -jar app.jar` throws `NoClassDefFoundError` →** the JAR lacks its dependencies; build a fat/uber JAR or set the classpath.
 - **`no main manifest attribute` from `java -jar` →** the JAR has no `Main-Class`; build it with `--main-class` (or the build tool's config).
 - **Debugging by random edits →** reproduce the failure as a test, read the stack trace to the cause, then fix — and keep the test.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict what `java Main` (no `-ea`) prints for a program whose only statement is a *false* `assert`, versus `java -ea Main`. Next, predict whether a JUnit test `assertEquals(4, calc.add(2, 3))` passes, and what the failure message would show. Finally, write a `pom.xml` `<dependency>` for a hypothetical library `com.acme:widgets:2.1.0` and explain what `mvn package` does with it — and why a fat JAR is needed to run the result with `java -jar`.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict what `java Main` (no `-ea`) prints for a program whose only statement is a *false* `assert`, versus `java -ea Main`. Next, predict whether a JUnit test `assertEquals(4, calc.add(2, 3))` passes, and what the failure message would show. Finally, write a `pom.xml` `<dependency>` for a hypothetical library `com.acme:widgets:2.1.0` and explain what `mvn package` does with it — and why a fat JAR is needed to run the result with `java -jar`.
+
+</div>
 
 ## Your Turn
 

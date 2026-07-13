@@ -8,9 +8,28 @@ prereqs: []
 
 Two advanced realities shape correct, fast Java. First, the **Java Memory Model** (JMM): because compilers and CPUs reorder and cache memory for speed, a write by one thread is *not* automatically visible to another. **`volatile`** guarantees visibility (but, crucially, *not* atomicity), and **happens-before** is the precise set of rules that decide when writes are seen — the foundation under [`synchronized`](/synapse/programming-languages/java/advanced/concurrency-the-basics) and [atomics](/synapse/programming-languages/java/advanced/concurrency-high-level-and-virtual-threads). Second, performance: the JVM doesn't run your bytecode the same way forever — it **interprets** it at first, then **JIT-compiles** hot methods to optimized native code, and a **garbage collector** reclaims unused objects in short pauses. You can watch both happen with diagnostic flags. Understanding visibility keeps concurrent code *correct*; understanding the JIT and GC keeps it *fast*.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- **`volatile`** guarantees visibility across threads — but **not** atomicity.
+- **happens-before** is the rule set that decides when one thread's writes are seen.
+- For speed, the JVM **interprets then JIT-compiles** hot methods to native code.
+- A **garbage collector** reclaims unused objects in short pauses.
+
+</div>
+
 This is the deep pass of [happens-before](/synapse/programming-languages/java/advanced/concurrency-the-basics). Every output below was produced by running the code; JIT and GC logs are real captured excerpts, **labeled illustrative** because their exact lines and timings vary per run and machine.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -111,7 +130,11 @@ public class Main {
 
 Even though `counter` is `volatile`, `counter++` is still read-modify-write — and `volatile` makes each *access* visible, not the *trio* atomic. So updates are still lost, just as without `volatile`. Visibility ≠ atomicity: for an atomic counter you need `AtomicInteger` or a lock.
 
-*Earned rule.* Use `volatile` for a single flag or reference that one thread writes and others read (a stop signal, a published configuration); use atomics or locks when you need *atomic* updates. The cost of confusing the two is the bug above — a `volatile` counter that still races; the benefit, used correctly, is cheap, lock-free visibility for the common publish-a-value pattern.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `volatile` for a single flag or reference that one thread writes and others read (a stop signal, a published configuration); use atomics or locks when you need *atomic* updates. The cost of confusing the two is the bug above — a `volatile` counter that still races; the benefit, used correctly, is cheap, lock-free visibility for the common publish-a-value pattern.
+
+</div>
 
 ---
 
@@ -148,7 +171,11 @@ flowchart LR
 
 *Concrete bite.* The relation is the *only* guarantee — two unrelated threads with no edge between them can see each other's writes in any order, or not at all. "It seemed to work" is meaningless; correctness requires an actual happens-before edge, which is why every shared-state access needs `synchronized`, `volatile`, or a `java.util.concurrent` tool.
 
-*Earned rule.* Reason about concurrent correctness in terms of happens-before edges, not intuition about timing: for every shared read, identify the write it must see and the edge that guarantees it. The cost is a more formal mental model; the benefit is the only sound way to know concurrent code is correct — and it explains *why* the synchronization tools work, rather than treating them as magic.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reason about concurrent correctness in terms of happens-before edges, not intuition about timing: for every shared read, identify the write it must see and the edge that guarantees it. The cost is a more formal mental model; the benefit is the only sound way to know concurrent code is correct — and it explains *why* the synchronization tools work, rather than treating them as magic.
+
+</div>
 
 ---
 
@@ -225,7 +252,11 @@ Thread-3 got loaded
 
 *Concrete bite.* The bug's signature is its rarity: unsafe publication can run clean for months on one JVM/hardware combination and then produce impossible-looking `NullPointerException`s on another (different CPU memory model, different JIT decisions). It cannot be caught by testing on your machine — only by reasoning about edges.
 
-*Earned rule.* Publish objects via `final` fields, a `volatile` reference, a lock, or a concurrent collection — never via a plain field another thread reads unlocked. Prefer immutable (`final`-field) objects, and the holder idiom over hand-rolled DCL. The cost: one more thing to check whenever a reference escapes a constructor or crosses threads; the benefit: no thread, anywhere, can ever observe your object half-built.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Publish objects via `final` fields, a `volatile` reference, a lock, or a concurrent collection — never via a plain field another thread reads unlocked. Prefer immutable (`final`-field) objects, and the holder idiom over hand-rolled DCL. The cost: one more thing to check whenever a reference escapes a constructor or crosses threads; the benefit: no thread, anywhere, can ever observe your object half-built.
+
+</div>
 
 ---
 
@@ -256,7 +287,11 @@ $ java -XX:+PrintCompilation Main
 
 *Concrete bite.* This makes naive timing lie: the first thousand calls to a method run interpreted and slow; later calls run optimized and fast. Timing a method "once" measures interpretation, not steady-state performance — which is why you warm up (run it many times) before measuring, and why a real benchmark uses a harness like JMH.
 
-*Earned rule.* Trust the JIT to optimize hot code, and warm up before measuring performance; don't hand-optimize cold paths the JIT will never compile, or micro-optimize based on un-warmed timings. The cost is that performance is dynamic and hard to predict from source alone; the benefit is that idiomatic, readable code usually runs fast once hot — the JIT rewards clarity over premature cleverness.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Trust the JIT to optimize hot code, and warm up before measuring performance; don't hand-optimize cold paths the JIT will never compile, or micro-optimize based on un-warmed timings. The cost is that performance is dynamic and hard to predict from source alone; the benefit is that idiomatic, readable code usually runs fast once hot — the JIT rewards clarity over premature cleverness.
+
+</div>
 
 ---
 
@@ -285,7 +320,11 @@ allocated 2000 MB of garbage
 
 *Concrete bite.* Automatic GC doesn't mean "no memory bugs": a **memory leak** in Java is unintended *reachability* — objects you forgot to remove from a `static` collection or cache stay reachable, so the GC can't reclaim them, and the heap grows until `OutOfMemoryError`. The GC frees the *unreachable*; keeping a reference alive defeats it.
 
-*Earned rule.* Let the GC manage memory and tune only when profiling shows a problem — size the heap (`-Xmx`), pick a collector for your latency/throughput goals, and use a profiler (JFR/`jcmd`, async-profiler) to find real allocation and pause hot spots. The cost of premature GC tuning is wasted effort on a system that's usually fine by default; the benefit of knowing the model is that when a leak or pause problem *does* appear, you can read the logs and fix the actual cause.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Let the GC manage memory and tune only when profiling shows a problem — size the heap (`-Xmx`), pick a collector for your latency/throughput goals, and use a profiler (JFR/`jcmd`, async-profiler) to find real allocation and pause hot spots. The cost of premature GC tuning is wasted effort on a system that's usually fine by default; the benefit of knowing the model is that when a leak or pause problem *does* appear, you can read the logs and fix the actual cause.
+
+</div>
 
 ---
 
@@ -303,6 +342,8 @@ allocated 2000 MB of garbage
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A thread never sees a flag change (spins forever) →** the field isn't `volatile` (or under a lock); make it `volatile` for visibility.
 - **A `volatile` counter is still wrong →** `volatile` isn't atomic; use `AtomicInteger` or `synchronized` for `++`.
 - **Concurrent code "works" but you can't say why →** there's no happens-before edge; add `synchronized`/`volatile`/`j.u.c` and reason about edges.
@@ -311,9 +352,15 @@ allocated 2000 MB of garbage
 - **A micro-benchmark shows wildly different times →** un-warmed JIT; warm up (or use JMH) before measuring steady-state performance.
 - **The heap grows until `OutOfMemoryError` →** a memory leak via reachability (a `static` cache/collection you never clear); drop the references or bound the cache.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict whether making a shared `int counter` `volatile` is enough for four threads to increment it to exactly the right total — and why. Next, explain in terms of happens-before why writing several plain fields and then setting a `volatile` `ready = true` lets a reader that sees `ready == true` also see those fields. Then predict which of §3's three publication tools a `record` uses, and why that makes records safe to hand between threads with no synchronization at all. Finally, predict what `-XX:+PrintCompilation` shows about a method called 10 times versus 10 million times, and why a benchmark must warm up.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict whether making a shared `int counter` `volatile` is enough for four threads to increment it to exactly the right total — and why. Next, explain in terms of happens-before why writing several plain fields and then setting a `volatile` `ready = true` lets a reader that sees `ready == true` also see those fields. Then predict which of §3's three publication tools a `record` uses, and why that makes records safe to hand between threads with no synchronization at all. Finally, predict what `-XX:+PrintCompilation` shows about a method called 10 times versus 10 million times, and why a benchmark must warm up.
+
+</div>
 
 ## Your Turn
 

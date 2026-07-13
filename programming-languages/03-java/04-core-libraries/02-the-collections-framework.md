@@ -8,9 +8,28 @@ prereqs: []
 
 [Arrays](/synapse/programming-languages/java/control-flow/arrays) were our first containers, but their fixed size is a real limit. The **Collections Framework** is Java's library of growable, feature-rich containers — and its central design idea is worth more than any single class: you program to an **interface** (`List`) and only *choose* an implementation (`ArrayList`, `LinkedList`) at the moment you create the object. Code written against `List` works with any list, so you can swap implementations for performance without changing a line that uses them. This chapter covers `List` and its two main implementations, the `Iterator` that powers every for-each (and the modification trap it enforces), and how to choose between implementations.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Program to the **interface** (`List`), not the implementation (`ArrayList`/`LinkedList`).
+- Declaring the interface lets you **swap implementations** freely.
+- The `Iterator` drives for-each and forbids modifying mid-loop.
+- Implementation choice is a **performance** trade-off, not a correctness one.
+
+</div>
+
 This is the deep pass of [arrays](/synapse/programming-languages/java/control-flow/arrays); the `<Integer>` notation (a *generic* type — "a `List` of `Integer`") gets its full treatment in Tutorial 20, but read it here as "this list holds `Integer`s." Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -61,7 +80,11 @@ public class Main {
 
 *Concrete bite.* The difference from an array is exactly the growth: an array would throw `ArrayIndexOutOfBoundsException` the moment you exceeded its fixed length, while a `List` simply expands. The cost — invisible reallocations — is paid for the convenience of never sizing it yourself.
 
-*Earned rule.* Reach for a `List` whenever the number of elements isn't fixed up front (which is most of the time); keep a bare array only when the size is truly fixed and you need raw speed or primitives without boxing. The cost of a `List` is the boxing of primitives (`List<Integer>`, not `List<int>`) and a little overhead per element; the benefit is growth, a rich API, and a real `toString`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for a `List` whenever the number of elements isn't fixed up front (which is most of the time); keep a bare array only when the size is truly fixed and you need raw speed or primitives without boxing. The cost of a `List` is the boxing of primitives (`List<Integer>`, not `List<int>`) and a little overhead per element; the benefit is growth, a rich API, and a real `toString`.
+
+</div>
 
 ---
 
@@ -116,7 +139,11 @@ classDiagram
 
 *Concrete bite.* The payoff is swap-ability: change `new ArrayList<>()` to `new LinkedList<>()` and nothing else breaks, because every caller spoke to `List`. Declare the variable as `ArrayList` instead and you've welded that choice in — callers can now use `ArrayList`-only methods, and swapping becomes a refactor.
 
-*Earned rule.* Declare variables, parameters, and return types with the **interface** (`List`, `Collection`), and name the implementation only at construction. The cost is forgoing implementation-specific methods (rarely needed); the benefit is that the implementation becomes a decision you can revisit for performance without touching the code that uses it.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Declare variables, parameters, and return types with the **interface** (`List`, `Collection`), and name the implementation only at construction. The cost is forgoing implementation-specific methods (rarely needed); the benefit is that the implementation becomes a decision you can revisit for performance without touching the code that uses it.
+
+</div>
 
 ---
 
@@ -197,7 +224,11 @@ public class Main {
 [1, 3]
 ```
 
-*Earned rule.* Never `add`/`remove` on a collection while a for-each is walking it; to delete during a pass, use an explicit `Iterator` and its `remove()` (or, once you have lambdas, `removeIf`). The cost of the fail-fast check is that the convenient for-each can't mutate; the benefit is that a whole class of "modified mid-iteration" bugs throws loudly instead of silently corrupting the traversal.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Never `add`/`remove` on a collection while a for-each is walking it; to delete during a pass, use an explicit `Iterator` and its `remove()` (or, once you have lambdas, `removeIf`). The cost of the fail-fast check is that the convenient for-each can't mutate; the benefit is that a whole class of "modified mid-iteration" bugs throws loudly instead of silently corrupting the traversal.
+
+</div>
 
 ---
 
@@ -243,7 +274,11 @@ public class Main {
 
 *Concrete bite.* `nums.remove(1)` silently removing index 1 rather than the value `1` is a real, common bug with `List<Integer>`. The output proves it: the value `10` survived `remove(1)` and only fell to the explicit `remove(Integer.valueOf(10))`.
 
-*Earned rule.* Default to `ArrayList`; reach for `LinkedList` only for front-heavy or queue workloads where its O(1) ends pay off. And with `List<Integer>`, remove by value with `remove(Integer.valueOf(x))` (or `remove((Integer) x)`), never a bare `remove(x)`, which means *index*. The cost is remembering the overload; the benefit is not silently deleting the wrong element.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Default to `ArrayList`; reach for `LinkedList` only for front-heavy or queue workloads where its O(1) ends pay off. And with `List<Integer>`, remove by value with `remove(Integer.valueOf(x))` (or `remove((Integer) x)`), never a bare `remove(x)`, which means *index*. The cost is remembering the overload; the benefit is not silently deleting the wrong element.
+
+</div>
 
 ---
 
@@ -259,15 +294,23 @@ public class Main {
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`ConcurrentModificationException` →** you `add`/`remove`d during a for-each; use an explicit `Iterator.remove()` (or `removeIf`).
 - **`list.remove(x)` removed the wrong element →** `remove(int)` is by index; remove by value with `remove(Integer.valueOf(x))`.
 - **You declared `ArrayList` and now can't swap it →** declare the variable/param as `List`; name the implementation only at `new`.
 - **Random access on a `LinkedList` is slow →** `get(i)` walks the chain (O(n)); use `ArrayList` for index-heavy work.
 - **`List<int>` won't compile →** generics hold objects; use `List<Integer>` (with autoboxing), or a primitive array for raw `int`s.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the output of: create a `List<String>`, `add("a")`, `add("b")`, `add("c")`, then `set(0, "z")` and print. Next, predict whether removing every `"b"` from `["a","b","b","c"]` inside a for-each throws, and rewrite it with an `Iterator`. Finally, for `List<Integer> xs = new ArrayList<>(); xs.add(5); xs.add(7);`, predict what `xs.remove(1)` leaves versus what `xs.remove(Integer.valueOf(1))` would do.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the output of: create a `List<String>`, `add("a")`, `add("b")`, `add("c")`, then `set(0, "z")` and print. Next, predict whether removing every `"b"` from `["a","b","b","c"]` inside a for-each throws, and rewrite it with an `Iterator`. Finally, for `List<Integer> xs = new ArrayList<>(); xs.add(5); xs.add(7);`, predict what `xs.remove(1)` leaves versus what `xs.remove(Integer.valueOf(1))` would do.
+
+</div>
 
 ## Your Turn
 

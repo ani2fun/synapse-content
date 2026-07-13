@@ -8,9 +8,27 @@ prereqs: []
 
 A **variable** is a named place to keep a value so you can use it again. In Java that place has one extra property that shapes everything you write: a **type**, fixed when you declare the variable and checked by the compiler on every line. Java is **statically typed** — *static* meaning "decided before the program runs." You tell the compiler "this name holds an `int`," and from then on it guarantees the name only ever holds an `int`, refusing to compile any line that breaks the promise.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A variable is a named place to keep a value.
+- Its **type** is fixed when you declare it and checked by the compiler on every line.
+- **Statically typed** means the type is decided *before the program runs*.
+
+</div>
+
 The simplest values are the **primitives** — eight built-in types for numbers, true/false, and single characters. A primitive variable holds its value **directly**: the box *is* the number. That word "directly" is doing quiet work — Tier 2 introduces the other kind of variable, a *reference*, which holds not a value but the location of one. Keep the distinction in your pocket; for now, primitives hold their value. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -85,7 +103,11 @@ Main.java:3: error: cannot find symbol
 
 "cannot find symbol" means the compiler looked for a declared variable named `age` and found none. In a dynamically typed language, `age = 25` would create the variable on the spot; Java instead insists you declare it — with a type — first.
 
-*Earned rule.* Declare before you assign, and declare *with a type*: `int age = 25;`. The cost is a few more keystrokes than a language that conjures variables on first use; the payoff is that the compiler now knows `age`'s type and will catch, at compile time, every later line that misuses it — as the next section shows.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Declare before you assign, and declare *with a type*: `int age = 25;`. The cost is a few more keystrokes than a language that conjures variables on first use; the payoff is that the compiler now knows `age`'s type and will catch, at compile time, every later line that misuses it — as the next section shows.
+
+</div>
 
 ---
 
@@ -134,7 +156,11 @@ Main.java:3: error: incompatible types: String cannot be converted to int
 
 `"hello"` is text (a `String`); `n` is an `int`. There is no automatic way to turn arbitrary text into an integer, so the compiler stops you here, at compile time, rather than letting a nonsensical value flow into your program.
 
-*Earned rule.* A variable holds exactly its declared type, checked on every assignment — so a whole class of "wrong kind of value" bugs is caught before the program runs. The cost is rigidity: when you genuinely need to convert between types (text to number, say), you must do it deliberately, with a conversion you'll meet in [Tutorial 5](/synapse/programming-languages/java/first-steps/input-and-output). Static typing trades flexibility for a compiler that proves, on every build, that your values fit their boxes.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** A variable holds exactly its declared type, checked on every assignment — so a whole class of "wrong kind of value" bugs is caught before the program runs. The cost is rigidity: when you genuinely need to convert between types (text to number, say), you must do it deliberately, with a conversion you'll meet in [Tutorial 5](/synapse/programming-languages/java/first-steps/input-and-output). Static typing trades flexibility for a compiler that proves, on every build, that your values fit their boxes.
+
+</div>
 
 ---
 
@@ -208,7 +234,11 @@ Main.java:3: error: incompatible types: possible lossy conversion from int to by
 
 `200` is an ordinary `int`, but a `byte` tops out at `127`, so storing `200` would lose information. The compiler calls this a "lossy conversion" and refuses without an explicit instruction to truncate.
 
-*Earned rule.* Pick the type by the range you need: `int` for ordinary whole numbers, `long` when they exceed ~2 billion, `double` for decimals, `boolean` and `char` for their obvious jobs; reach for `byte`, `short`, or `float` only when memory or an external format demands them. The cost of the wrong choice is either a compile error (a too-big literal) or — worse — a silent **overflow** at run time, when arithmetic pushes a value past the type's range without warning. That run-time trap is the subject of [Tutorial 3](/synapse/programming-languages/java/first-steps/numbers-and-arithmetic).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Pick the type by the range you need: `int` for ordinary whole numbers, `long` when they exceed ~2 billion, `double` for decimals, `boolean` and `char` for their obvious jobs; reach for `byte`, `short`, or `float` only when memory or an external format demands them. The cost of the wrong choice is either a compile error (a too-big literal) or — worse — a silent **overflow** at run time, when arithmetic pushes a value past the type's range without warning. That run-time trap is the subject of [Tutorial 3](/synapse/programming-languages/java/first-steps/numbers-and-arithmetic).
+
+</div>
 
 ---
 
@@ -279,7 +309,11 @@ public class Main {
 3000000000
 ```
 
-*Earned rule.* Write the literal in the form of the type you want: `L` for `long`, `f` for `float`, single quotes for `char`, double quotes for `String`; a plain integer is an `int` and a plain decimal is a `double`. The cost of forgetting is a compile error like "integer number too large" — annoying but honest, because it catches at compile time the mismatch that would otherwise become a wrong number at run time.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Write the literal in the form of the type you want: `L` for `long`, `f` for `float`, single quotes for `char`, double quotes for `String`; a plain integer is an `int` and a plain decimal is a `double`. The cost of forgetting is a compile error like "integer number too large" — annoying but honest, because it catches at compile time the mismatch that would otherwise become a wrong number at run time.
+
+</div>
 
 ---
 
@@ -334,7 +368,11 @@ Main.java:4: error: incompatible types: String cannot be converted to int
 
 The error names `int`, even though you wrote `var` — proof that `x`'s type was fixed to `int` the instant it was initialized.
 
-*Earned rule.* Use `var` when the initializer already makes the type obvious (`var total = 0;`, `var name = "Ada";`) to cut noise; keep the explicit type where naming it aids the reader. The boundaries are its cost: `var` needs an initializer on the same line (the compiler has nothing to infer from otherwise) and works only for local variables, never fields or parameters. Omit the initializer and it cannot even guess:
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `var` when the initializer already makes the type obvious (`var total = 0;`, `var name = "Ada";`) to cut noise; keep the explicit type where naming it aids the reader. The boundaries are its cost: `var` needs an initializer on the same line (the compiler has nothing to infer from otherwise) and works only for local variables, never fields or parameters. Omit the initializer and it cannot even guess:
+
+</div>
 
 ```java run
 public class Main {
@@ -370,6 +408,8 @@ Main.java:3: error: cannot infer type for local variable y
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`cannot find symbol … variable X` →** you used `X` without declaring it; add a type: `int X = …;`.
 - **`incompatible types: String cannot be converted to int` →** you put the wrong type in a box (or reassigned across types); fix the value, or convert it deliberately.
 - **`incompatible types: possible lossy conversion from … ` →** the value is outside the target type's range; use a wider type (`int`, `long`, `double`) or an explicit cast (Tutorial 3).
@@ -377,9 +417,15 @@ Main.java:3: error: cannot infer type for local variable y
 - **`cannot infer type for local variable` →** `var` with no initializer; give it a starting value on the same line, or write the explicit type.
 - **A decimal loses precision unexpectedly →** you may want `double` (the default) instead of `float`; `float`'s 32 bits hold fewer digits (Tutorial 3).
 
+</div>
+
 ---
 
-*Predict, then check.* Write these four declarations and predict, for each, whether it compiles — and if not, the error's wording: `int a = 5;` · `int b = 5.0;` · `byte c = 5;` · `var d = 5; d = 5.5;`. Two compile and two do not. Decide which, and why, before running them. (Hint: think about each literal's *own* type — `5` versus `5.0` — and which box it is going into.)
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write these four declarations and predict, for each, whether it compiles — and if not, the error's wording: `int a = 5;` · `int b = 5.0;` · `byte c = 5;` · `var d = 5; d = 5.5;`. Two compile and two do not. Decide which, and why, before running them. (Hint: think about each literal's *own* type — `5` versus `5.0` — and which box it is going into.)
+
+</div>
 
 ## Your Turn
 

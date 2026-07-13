@@ -8,9 +8,27 @@ prereqs: []
 
 So far each variable has held one value. An **array** holds *many* values of the **same type** in a single, fixed-size block — `scores[0]`, `scores[1]`, and so on — reached by an integer **index** counting from zero. Two properties define it and cause every array bug: its **size is chosen when you create it and never changes**, and indices run from `0` to `length - 1`, so stepping outside that range fails — at *run time*, because the compiler can't know the index in advance. Arrays are the raw, fast, fixed foundation; the growable collections of Tier 3 are built on top of this idea.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- An **array** holds many values of the **same type** in one fixed-size block, reached by an integer **index** from zero.
+- Its **size is chosen at creation and never changes**.
+- Indices run `0` to `length - 1`; stepping outside fails at **run time**.
+
+</div>
+
 This uses the [loops](/synapse/programming-languages/java/control-flow/loops) that walk an array and the [accumulation patterns](/synapse/programming-languages/java/control-flow/loop-control-and-patterns) that summarize one. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -72,7 +90,11 @@ primes: "int[] primes   (length = 4)" {
 
 *Concrete bite.* The size is fixed at creation — `.length` is a property of the array, not a target you can change. (You will feel that limit directly in §5.) For now the point is that every slot exists from the start: an unassigned `int` slot is `0`, not "empty" or "undefined."
 
-*Earned rule.* Choose the form by what you know: a literal when you have the values up front, `new T[n]` when you'll fill the slots later (and can rely on the `0`/`false`/`null` defaults until you do). The cost of the defaults is that a slot you *forgot* to fill is silently `0`, not an error — so a half-initialized array reads as a fully-`0` one.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Choose the form by what you know: a literal when you have the values up front, `new T[n]` when you'll fill the slots later (and can rely on the `0`/`false`/`null` defaults until you do). The cost of the defaults is that a slot you *forgot* to fill is silently `0`, not an error — so a half-initialized array reads as a fully-`0` one.
+
+</div>
 
 ---
 
@@ -122,7 +144,11 @@ Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 3 out
 
 `a` has length `3`, so the valid indices are `0`, `1`, `2`; `a[3]` is one past the end. The compiler accepted it (the index could have come from anywhere), and the JVM caught it when the line ran. The message names both the offending index and the length.
 
-*Earned rule.* Index from `0` to `length - 1`; the last element is `a[a.length - 1]`, never `a[a.length]`. The cost of this run-time checking is that an out-of-range index is found late — when that line executes, often with real data — so when the index comes from a calculation or input, bound-check it against `length` before using it.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Index from `0` to `length - 1`; the last element is `a[a.length - 1]`, never `a[a.length]`. The cost of this run-time checking is that an out-of-range index is found late — when that line executes, often with real data — so when the index comes from a calculation or input, bound-check it against `length` before using it.
+
+</div>
 
 ---
 
@@ -160,7 +186,11 @@ public class Main {
 
 *Concrete bite.* The choice has consequences, not just style: only the indexed `for` can write back. `for (int n : nums) n = 0;` changes copies and leaves the array untouched (you saw this with for-each); to zero the array you need `for (int i = 0; i < nums.length; i++) nums[i] = 0;`.
 
-*Earned rule.* Use the enhanced `for` when you only read each value, and the classic `for` when you need the index — to modify a slot, look at positions, or compare an element to its neighbour. The cost of reaching for the index when you don't need it is reintroducing the off-by-one risk the enhanced `for` removes; the cost of the enhanced `for` when you *do* need it is that you simply can't write back.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use the enhanced `for` when you only read each value, and the classic `for` when you need the index — to modify a slot, look at positions, or compare an element to its neighbour. The cost of reaching for the index when you don't need it is reintroducing the off-by-one risk the enhanced `for` removes; the cost of the enhanced `for` when you *do* need it is that you simply can't write back.
+
+</div>
 
 ---
 
@@ -227,7 +257,11 @@ Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: Index 1 out
 
 Row `0` has four elements but row `1` has only one, so `jagged[1][1]` is out of bounds for *that* row. Each row carries its own `length`; there is no single "column count" to trust.
 
-*Earned rule.* Treat a 2D array as rows that each have their own `length` — iterate with `grid[i].length` per row, not one shared width — and reach for `new int[rows][cols]` when you truly want a rectangle. The cost of assuming uniformity is exactly this per-row `ArrayIndexOutOfBoundsException`, which shows up only when a short row is indexed past its end.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Treat a 2D array as rows that each have their own `length` — iterate with `grid[i].length` per row, not one shared width — and reach for `new int[rows][cols]` when you truly want a rectangle. The cost of assuming uniformity is exactly this per-row `ArrayIndexOutOfBoundsException`, which shows up only when a short row is indexed past its end.
+
+</div>
 
 ---
 
@@ -261,7 +295,11 @@ Main.java:4: error: cannot find symbol
 
 *Concrete bite.* The compile error above is one face of it; the deeper one is design: code that needs to grow a sequence cannot use a bare array without re-allocating and copying every time. "Add a score to the list" has no array equivalent that isn't O(n) copying.
 
-*Earned rule.* Use an array when the size is known and fixed and you want raw speed and contiguity; reach for an `ArrayList` (Tier 3) the moment the collection needs to grow or shrink. The cost of forcing a growable problem onto an array is repeated allocate-and-copy; the cost of the array's fixed size is paid once, in choosing it only when the size really is fixed.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use an array when the size is known and fixed and you want raw speed and contiguity; reach for an `ArrayList` (Tier 3) the moment the collection needs to grow or shrink. The cost of forcing a growable problem onto an array is repeated allocate-and-copy; the cost of the array's fixed size is paid once, in choosing it only when the size really is fixed.
+
+</div>
 
 ---
 
@@ -277,6 +315,8 @@ Main.java:4: error: cannot find symbol
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`ArrayIndexOutOfBoundsException` →** an index hit `length` or beyond (or went negative); last valid index is `length - 1`; bound-check computed indices.
 - **A slot reads as `0` you thought you set →** `new T[n]` defaults are `0`/`false`/`null`; you didn't assign that slot.
 - **A for-each "edit" didn't stick →** the loop variable is a copy; use a classic `for` and `a[i] = …` to write back.
@@ -284,9 +324,15 @@ Main.java:4: error: cannot find symbol
 - **A 2D index throws on some rows →** the array is jagged; use each row's own `grid[i].length`, don't assume a uniform width.
 - **You need to add/remove elements →** an array can't grow; allocate-and-copy, or use an `ArrayList` (Tier 3).
 
+</div>
+
 ---
 
-*Predict, then check.* For `int[] a = new int[4];` then `a[0] = 5; a[3] = 9;`, predict `a.length`, `a[1]`, and what `a[4]` does. Next, predict the output of summing `{ {1,2}, {3,4,5} }` with nested for-each, and what `m[0][2]` would do. Finally, write a loop that reverses the *printing* of `{1, 2, 3, 4}` (last to first) — which loop shape do you need, and what is the starting index?
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** For `int[] a = new int[4];` then `a[0] = 5; a[3] = 9;`, predict `a.length`, `a[1]`, and what `a[4]` does. Next, predict the output of summing `{ {1,2}, {3,4,5} }` with nested for-each, and what `m[0][2]` would do. Finally, write a loop that reverses the *printing* of `{1, 2, 3, 4}` (last to first) — which loop shape do you need, and what is the starting index?
+
+</div>
 
 ## Your Turn
 

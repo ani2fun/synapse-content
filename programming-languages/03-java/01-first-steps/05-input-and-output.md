@@ -8,11 +8,29 @@ prereqs: []
 
 A program becomes useful the moment it can take input from a person and respond. Both halves are just **method calls on stream objects**: `System.out` is an object you send text to (`println`, `printf`), and a `Scanner` wraps `System.in` — the keyboard — to turn the characters someone types into typed *values*. The chapter turns on one idea that ties the tier together: reading input is **parsing**. `Scanner`'s `nextInt()` hands you a real `int`, ready for the arithmetic of [Tutorial 3](/synapse/programming-languages/java/first-steps/numbers-and-arithmetic) — and when the typed text is not a number, the parse fails loudly.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Input and output are just **method calls on stream objects** — `System.out` and a `Scanner` over `System.in`.
+- Reading input is **parsing**: `nextInt()` turns typed characters into a real `int`.
+- When the typed text is not a number, the parse **fails loudly**.
+
+</div>
+
 Every output below was produced by compiling and running the code. One practical note about *this page's* runner first:
 
 > **A note on the Run button and typed input.** The sandbox behind ▶ Run compiles and runs your code but cannot pause to prompt you for keyboard input. So the real `Scanner(System.in)` examples here are shown as **static** code, with the exact output they produce *for a stated entry* (verified by running them with that input supplied). Beside each, a **runnable twin** points the Scanner at a fixed text source instead of the keyboard — the methods behave identically — so you can still click Run and experiment. On your own machine, `Scanner(System.in)` pauses and waits for you to type.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -75,7 +93,11 @@ Exception in thread "main" java.util.IllegalFormatConversionException: d != java
 
 `%d` demands an integer, but a String was supplied, so `printf` throws `IllegalFormatConversionException` (read it as "`d` ≠ `String`"). 
 
-*Earned rule.* Match each specifier to its value's type — `%d` for integers, `%f` for decimals, `%s` for anything — and use `%.Nf` to fix the number of decimals, `%n` for line breaks. The cost of `printf`'s power is that mismatches are *run-time* errors: the compiler does not check format strings against their arguments, so a wrong `%d`/`%s` surfaces only when that line runs.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Match each specifier to its value's type — `%d` for integers, `%f` for decimals, `%s` for anything — and use `%.Nf` to fix the number of decimals, `%n` for line breaks. The cost of `printf`'s power is that mismatches are *run-time* errors: the compiler does not check format strings against their arguments, so a wrong `%d`/`%s` surfaces only when that line runs.
+
+</div>
 
 ---
 
@@ -144,7 +166,11 @@ Exception in thread "main" java.util.NoSuchElementException: No line found
 
 The source is empty, so `nextLine()` has nothing to return and throws `NoSuchElementException`. (This is also why an interactive `Scanner(System.in)` program, clicked Run here with no keyboard to read, would fail — which is exactly why the real examples on this page are shown statically.)
 
-*Earned rule.* Create one Scanner over `System.in` for real input; point one at a String only to demo or test. The cost is that a Scanner assumes input exists — read past the end and it throws — so a robust program checks `hasNextLine()` / `hasNextInt()` first, a guard you'll write properly once you have conditionals in Tier 1.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Create one Scanner over `System.in` for real input; point one at a String only to demo or test. The cost is that a Scanner assumes input exists — read past the end and it throws — so a robust program checks `hasNextLine()` / `hasNextInt()` first, a guard you'll write properly once you have conditionals in Tier 1.
+
+</div>
 
 ---
 
@@ -214,7 +240,11 @@ age=36 name=[]
 
 `nextInt()` read `36` and stopped before its newline; the following `nextLine()` returned everything left on that same line — nothing — so `name` is empty (`[]`), not `"Ada"`. The fix is an extra `sc.nextLine()` after the `nextInt()` to swallow the leftover newline.
 
-*Earned rule.* `nextInt`/`nextDouble` read a *token* and leave the rest of the line (newline included) unread; when you mix them with `nextLine`, consume that leftover newline first. The cost of Scanner's token model is exactly this trap — when a `nextLine()` after a `nextInt()` comes back empty, this is why.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** `nextInt`/`nextDouble` read a *token* and leave the rest of the line (newline included) unread; when you mix them with `nextLine`, consume that leftover newline first. The cost of Scanner's token model is exactly this trap — when a `nextLine()` after a `nextInt()` comes back empty, this is why.
+
+</div>
 
 ---
 
@@ -283,7 +313,11 @@ public class Main {
 
 Two strings joined → `"75"`, not `12`. Reading with `nextInt` (or converting with `Integer.parseInt`) is precisely what avoids the `+` trap from [Tutorial 4](/synapse/programming-languages/java/first-steps/strings-the-basics), now at the input boundary.
 
-*Earned rule.* Structure interactive programs as read → convert → compute → output, and read numbers *as numbers* (`nextInt`/`nextDouble`) so `+` stays arithmetic. The cost of reading numbers as text and converting late is the concatenation bug — convert at the boundary.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Structure interactive programs as read → convert → compute → output, and read numbers *as numbers* (`nextInt`/`nextDouble`) so `+` stays arithmetic. The cost of reading numbers as text and converting late is the concatenation bug — convert at the boundary.
+
+</div>
 
 ---
 
@@ -334,7 +368,11 @@ Exception in thread "main" java.lang.NumberFormatException: For input string: "3
 
 *Concrete bite.* The outputs above are the demonstration — `42` prints, then the bad parse throws and execution stops. Real user input is unpredictable, so this is not an edge case; it is Tuesday.
 
-*Earned rule.* Convert at the boundary and assume conversion *can* fail on real input. The cost of unhandled bad input is a crash, right at the parse, with everything after it skipped. Recovering gracefully — re-prompting instead of crashing — needs `try`/`catch`, which is Tutorial 24 in Tier 4; for now, know that it happens, and where.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Convert at the boundary and assume conversion *can* fail on real input. The cost of unhandled bad input is a crash, right at the parse, with everything after it skipped. Recovering gracefully — re-prompting instead of crashing — needs `try`/`catch`, which is Tutorial 24 in Tier 4; for now, know that it happens, and where.
+
+</div>
 
 ---
 
@@ -351,6 +389,8 @@ Exception in thread "main" java.lang.NumberFormatException: For input string: "3
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`IllegalFormatConversionException` →** a `printf` specifier doesn't match its value (`%d` given a String); fix the specifier or the argument.
 - **A `nextLine()` after `nextInt()` is empty →** the leftover newline; add an extra `sc.nextLine()` after the `nextInt()` to consume it.
 - **`InputMismatchException` from `nextInt()` →** the next token isn't an integer (a word or decimal); read it differently or validate first.
@@ -358,9 +398,15 @@ Exception in thread "main" java.lang.NumberFormatException: For input string: "3
 - **`+` concatenated input instead of adding →** you read or kept the value as text; read with `nextInt`/`nextDouble`, or parse before computing, and parenthesise (`+ (a + b)`).
 - **`NoSuchElementException` on Run →** an interactive `Scanner(System.in)` program has no keyboard here; use the runnable-twin pattern (a String source) to experiment.
 
+</div>
+
 ---
 
-*Predict, then check.* Take the §4 runnable twin and predict its output if the source string were `"10 20"` instead of `"7 5"`. Now predict what happens if the source were `"ten 20"` — which line throws, and with what exception? Finally, change the twin to read two numbers and print their **average** to two decimals with `printf` (hints: from [Tutorial 3](/synapse/programming-languages/java/first-steps/numbers-and-arithmetic), `nextInt` gives `int`s, so force floating-point division before the `%.2f`; reach for `nextDouble` if you'd rather read decimals directly). Build it and confirm.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Take the §4 runnable twin and predict its output if the source string were `"10 20"` instead of `"7 5"`. Now predict what happens if the source were `"ten 20"` — which line throws, and with what exception? Finally, change the twin to read two numbers and print their **average** to two decimals with `printf` (hints: from [Tutorial 3](/synapse/programming-languages/java/first-steps/numbers-and-arithmetic), `nextInt` gives `int`s, so force floating-point division before the `%.2f`; reach for `nextDouble` if you'd rather read decimals directly). Build it and confirm.
+
+</div>
 
 ## Your Turn
 

@@ -8,9 +8,28 @@ prereqs: []
 
 The last two chapters showed the raw material: [threads, races, and `synchronized`](/synapse/programming-languages/java/advanced/concurrency-the-basics), then [waiting, multiple locks, and the synchronizers](/synapse/programming-languages/java/advanced/concurrency-coordination) — correct, but low-level and error-prone (manual lifecycle, manual locking, a real deadlock). The `java.util.concurrent` library packages those primitives so you mostly stop writing them: an **`ExecutorService`** manages a pool of threads you *submit* tasks to, handing back a **`Future`** for each result; **atomics** like `AtomicInteger` fix the counter race lock-free; **`CompletableFuture`** composes asynchronous steps into pipelines; and **concurrent collections** are safe to share. The headline JDK 21 feature, **virtual threads** (Project Loom), changes the economics entirely: a virtual thread is so cheap that blocking one costs almost nothing, so you can have *millions* — write simple blocking code and get massive scalability.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- `java.util.concurrent` packages the raw primitives so you stop writing them.
+- An **`ExecutorService`** runs a thread pool returning a **`Future`**; **atomics** fix races lock-free.
+- **`CompletableFuture`** composes async steps; concurrent collections are safe to share.
+- **Virtual threads** (JDK 21) make blocking nearly free — run *millions*.
+
+</div>
+
 This is the deep pass of [concurrency basics](/synapse/programming-languages/java/advanced/concurrency-the-basics), using [lambdas](/synapse/programming-languages/java/robust-oop/nested-and-anonymous-classes-and-lambdas) as tasks. Every output below was produced by compiling and running the code (timings are illustrative and vary per machine).
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -137,7 +156,11 @@ awaitTermination returned true: isTerminated=true
 
 `isShutdown` flipped immediately (intake closed), but `isTerminated` stayed `false` while the four queued tasks drained through two workers; only after `awaitTermination` observed the last task finish did it become `true`. The graceful-shutdown idiom is exactly this sequence — `shutdown()`, `awaitTermination(deadline)`, and only if the deadline passes, `shutdownNow()`.
 
-*Earned rule.* Use an `ExecutorService` instead of raw `Thread`s — submit tasks, collect results via `Future`, and shut down deliberately: `shutdown()` → `awaitTermination` → `shutdownNow()` as the escalation path (or `try`-with-resources, since it's `AutoCloseable`, which does close-and-wait for you). Size fixed pools to roughly the core count for CPU-bound work; for workloads that mostly *block*, don't tune a bigger pool — use §4's virtual threads. The cost is owning the lifecycle and unwrapping `ExecutionException`; the benefit is pooled, reusable threads, queued tasks, and exceptions that propagate to the caller instead of disappearing.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use an `ExecutorService` instead of raw `Thread`s — submit tasks, collect results via `Future`, and shut down deliberately: `shutdown()` → `awaitTermination` → `shutdownNow()` as the escalation path (or `try`-with-resources, since it's `AutoCloseable`, which does close-and-wait for you). Size fixed pools to roughly the core count for CPU-bound work; for workloads that mostly *block*, don't tune a bigger pool — use §4's virtual threads. The cost is owning the lifecycle and unwrapping `ExecutionException`; the benefit is pooled, reusable threads, queued tasks, and exceptions that propagate to the caller instead of disappearing.
+
+</div>
 
 ---
 
@@ -176,7 +199,11 @@ public class Main {
 
 *Concrete bite.* Atomicity is per *operation*: `incrementAndGet()` is atomic, but combining two calls — `counter.set(counter.get() + 1)` — is *not* (another thread can change it between the `get` and the `set`), reintroducing the race. For a compound check-then-act, use `compareAndSet` or a lock. The same applies to collections: a `HashMap` shared across threads can corrupt; **`ConcurrentHashMap`** is the safe replacement (with atomic compound ops like `merge` and `computeIfAbsent`).
 
-*Earned rule.* Use atomics (`AtomicInteger`/`AtomicLong`/`AtomicReference`) for single shared values and concurrent collections (`ConcurrentHashMap`) for shared maps, reserving `synchronized` for multi-step critical sections. The cost is that atomics only make *individual* operations atomic — compound logic still needs `compareAndSet` or a lock; the benefit is lock-free, non-blocking correctness for the common case of a single shared counter or reference.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use atomics (`AtomicInteger`/`AtomicLong`/`AtomicReference`) for single shared values and concurrent collections (`ConcurrentHashMap`) for shared maps, reserving `synchronized` for multi-step critical sections. The cost is that atomics only make *individual* operations atomic — compound logic still needs `compareAndSet` or a lock; the benefit is lock-free, non-blocking correctness for the common case of a single shared counter or reference.
+
+</div>
 
 ---
 
@@ -286,7 +313,11 @@ The `thenApply` stage never ran — a failed stage completes the future *excepti
 
 *Concrete bite.* The classic type error: using `thenApply` where you meant `thenCompose`. `thenApply(label -> fetchScore(label))` yields a `CompletableFuture<CompletableFuture<Integer>>` — a future *of a future* — and the compiler will let you, leaving you to unwrap the nesting at `get()`. If the function you're applying itself returns a `CompletableFuture`, you want `thenCompose` (the same map-vs-flatMap distinction as [streams](/synapse/programming-languages/java/advanced/functional-java-and-streams) and `Optional`).
 
-*Earned rule.* Use `CompletableFuture` to compose multiple asynchronous operations (call services, combine results) without blocking between them; a plain `Future.get()` is fine for a single result you immediately need. The cost is a richer API and careful exception handling (`exceptionally`/`handle`); the benefit is non-blocking pipelines that scale far better than a thread blocked at each step.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `CompletableFuture` to compose multiple asynchronous operations (call services, combine results) without blocking between them; a plain `Future.get()` is fine for a single result you immediately need. The cost is a richer API and careful exception handling (`exceptionally`/`handle`); the benefit is non-blocking pipelines that scale far better than a thread blocked at each step.
+
+</div>
 
 ---
 
@@ -356,7 +387,11 @@ The `reason:MONITOR` line is the JVM reporting the pin, and `<== monitors:1` poi
 
 *Concrete bite.* Virtual threads speed up **I/O-bound** and blocking workloads (each thread spends most of its time waiting), not **CPU-bound** ones — a million threads doing pure computation still share the same few cores and won't go faster. And the pinning trace above is the second bite: a legacy library that blocks inside `synchronized` can silently turn your million-thread design back into a "handful of carriers, all pinned" design. They're a scalability tool for "many concurrent blocking operations," not a speed-up for raw computation.
 
-*Earned rule.* Use virtual threads (one per task, via `newVirtualThreadPerTaskExecutor`) for high-concurrency *blocking* workloads — servers handling thousands of requests, fan-out I/O — and write simple blocking code instead of callback chains. The cost is that they don't help CPU-bound work and, on Java 21, monitor-guarded blocking pins the carrier (check with `-Djdk.tracePinnedThreads`); the benefit is enormous: "thread-per-request" blocking code that scales to millions of concurrent tasks on a handful of cores.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use virtual threads (one per task, via `newVirtualThreadPerTaskExecutor`) for high-concurrency *blocking* workloads — servers handling thousands of requests, fan-out I/O — and write simple blocking code instead of callback chains. The cost is that they don't help CPU-bound work and, on Java 21, monitor-guarded blocking pins the carrier (check with `-Djdk.tracePinnedThreads`); the benefit is enormous: "thread-per-request" blocking code that scales to millions of concurrent tasks on a handful of cores.
+
+</div>
 
 One outlook, because you'll meet it in code review before long: **structured concurrency** (`StructuredTaskScope`, a *preview* API in Java 21 — it needs `--enable-preview`, so no Run button here) makes a scope own its forked subtasks the way a `try` block owns a resource:
 
@@ -387,6 +422,8 @@ If either subtask fails, the scope cancels the other and the error surfaces at `
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **The program won't exit after submitting tasks →** you didn't `shutdown()` the executor; its non-daemon threads keep the JVM alive (use `try`-with-resources).
 - **A submitted task's exception "disappeared" →** it's stored in the `Future`; `get()` throws `ExecutionException` — unwrap with `getCause()`.
 - **An atomic counter is still wrong →** you combined two atomic calls (`set(get()+1)`); use `incrementAndGet`/`compareAndSet`, or a lock for multi-step logic.
@@ -395,9 +432,15 @@ If either subtask fails, the scope cancels the other and the error surfaces at `
 - **`thenApply` gave you a `CompletableFuture<CompletableFuture<…>>` →** the function itself returns a future; use `thenCompose` to flatten the chain.
 - **Virtual threads scaled worse than promised →** something blocks inside `synchronized` and pins its carrier (Java 21); find it with `-Djdk.tracePinnedThreads=full`, fix with `ReentrantLock` or by moving the blocking call out.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the two lines printed by submitting `() -> "a".repeat(3)` and `() -> 2 + 2` to a pool and printing each `Future.get()`. Next, predict whether `AtomicInteger` incremented 100,000 times by 5 threads prints exactly `500000`, and why. Finally, explain why 100,000 virtual threads each doing `Thread.sleep(100)` finish in roughly 100 ms, while 100,000 platform threads could not — in terms of mounting and unmounting.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the two lines printed by submitting `() -> "a".repeat(3)` and `() -> 2 + 2` to a pool and printing each `Future.get()`. Next, predict whether `AtomicInteger` incremented 100,000 times by 5 threads prints exactly `500000`, and why. Finally, explain why 100,000 virtual threads each doing `Thread.sleep(100)` finish in roughly 100 ms, while 100,000 platform threads could not — in terms of mounting and unmounting.
+
+</div>
 
 ## Your Turn
 

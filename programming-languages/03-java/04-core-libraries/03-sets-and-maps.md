@@ -8,9 +8,27 @@ prereqs: []
 
 A [`List`](/synapse/programming-languages/java/core-libraries/the-collections-framework) keeps things in order and allows duplicates. Two other shapes cover most of what's left. A **`Set`** stores *unique* elements and answers "is this in here?" in roughly constant time. A **`Map`** stores *key → value* associations and answers "what's the value for this key?" just as fast. Both come in a hash-based form that's fast but unordered (`HashSet`, `HashMap`), a tree-based form that keeps keys sorted (`TreeSet`, `TreeMap`), and a linked form that preserves insertion order (`LinkedHashSet`, `LinkedHashMap`). The speed of the hash versions comes from **hashing** entries into buckets — the same mechanism that makes the next chapter's `hashCode` contract matter.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A **`Set`** stores unique elements; a **`Map`** stores key→value.
+- Hash forms give ~constant-time lookup by **hashing into buckets** — trading order for speed.
+- `Tree*` keeps keys sorted; `LinkedHash*` keeps insertion order.
+
+</div>
+
 This builds on [the Collections Framework](/synapse/programming-languages/java/core-libraries/the-collections-framework) and the [`null`/unboxing](/synapse/programming-languages/java/classes-and-objects/references-equality-and-the-object-model) hazards. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -81,7 +99,11 @@ hashfn -> buckets.b1: "lands in bucket 1"
 
 *Concrete bite.* Because placement is by `hashCode`, a `HashSet` has **no meaningful order** — you cannot ask for "the first element" or expect any particular iteration sequence. That's the trade for O(1): speed in exchange for order. (And it's why a type used in a `HashSet` must implement `hashCode`/`equals` correctly — Tutorial 19.)
 
-*Earned rule.* Use a `Set` when you need uniqueness or fast membership tests ("have I seen this?", "is this allowed?"); reach for a `HashSet` by default for its O(1) operations. The cost is losing order and a small per-element overhead; the benefit is membership in constant time instead of the O(n) scan a `List.contains` does.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a `Set` when you need uniqueness or fast membership tests ("have I seen this?", "is this allowed?"); reach for a `HashSet` by default for its O(1) operations. The cost is losing order and a small per-element overhead; the benefit is membership in constant time instead of the O(n) scan a `List.contains` does.
+
+</div>
 
 ---
 
@@ -121,7 +143,11 @@ hash:   [1, 2, 3]
 
 *Concrete bite.* The `hash: [1, 2, 3]` line is a trap dressed as order: it looks sorted, so a test might assume `HashSet` is sorted — then break when the elements are strings, larger numbers, or a different JVM. Order from a `HashSet` is coincidence, never contract.
 
-*Earned rule.* Pick the implementation by the order you need: `HashSet` when order doesn't matter (fastest), `TreeSet` when you need sorted iteration (at O(log n)), `LinkedHashSet` when you need stable insertion order (at a little memory). The cost of choosing `Tree`/`Linked` is speed or memory; the cost of assuming `HashSet` is ordered is a bug that hides until the data changes.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Pick the implementation by the order you need: `HashSet` when order doesn't matter (fastest), `TreeSet` when you need sorted iteration (at O(log n)), `LinkedHashSet` when you need stable insertion order (at a little memory). The cost of choosing `Tree`/`Linked` is speed or memory; the cost of assuming `HashSet` is ordered is a bug that hides until the data changes.
+
+</div>
 
 ---
 
@@ -192,7 +218,11 @@ Exception in thread "main" java.lang.NullPointerException: Cannot invoke "java.l
 
 `m.get("missing")` returned `null` (no such key), and assigning it to an `int` tried to unbox `null` — the [null-unboxing NullPointerException](/synapse/programming-languages/java/classes-and-objects/references-equality-and-the-object-model). The map didn't fail; the *implicit unboxing of a null* did.
 
-*Earned rule.* Treat `Map.get` as possibly returning `null`; use `getOrDefault(key, fallback)` or `containsKey` when a key may be absent, and never assign `get`'s result straight into a primitive. The cost is a fallback value or an extra check; the benefit is no surprise `NullPointerException` from a lookup that simply missed.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Treat `Map.get` as possibly returning `null`; use `getOrDefault(key, fallback)` or `containsKey` when a key may be absent, and never assign `get`'s result straight into a primitive. The cost is a fallback value or an extra check; the benefit is no surprise `NullPointerException` from a lookup that simply missed.
+
+</div>
 
 ---
 
@@ -232,7 +262,11 @@ public class Main {
 
 *Concrete bite.* Drop the default and use `get` — `counts.put(word, counts.get(word) + 1)` — and the *first* occurrence of each word reads `null`, unboxes, and throws the same NPE as §3. The `getOrDefault(..., 0)` is not optional decoration; it's the seed that makes the count work.
 
-*Earned rule.* Count with `map.put(k, map.getOrDefault(k, 0) + 1)`; for fancier accumulation, `merge(k, 1, Integer::sum)` does the same in one call once you have the method references of Tutorial 25. The cost of the `getOrDefault` form is verbosity; the benefit is that it works with only what you know now, and it makes the "default for a new key" explicit and correct.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Count with `map.put(k, map.getOrDefault(k, 0) + 1)`; for fancier accumulation, `merge(k, 1, Integer::sum)` does the same in one call once you have the method references of Tutorial 25. The cost of the `getOrDefault` form is verbosity; the benefit is that it works with only what you know now, and it makes the "default for a new key" explicit and correct.
+
+</div>
 
 ---
 
@@ -248,15 +282,23 @@ public class Main {
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`NullPointerException` unboxing a `Map.get` →** the key was absent (`get` returned `null`); use `getOrDefault` or `containsKey`, keep the result an `Integer`.
 - **A `HashSet`/`HashMap` "lost" its order →** it never had one; use `LinkedHashSet`/`LinkedHashMap` for insertion order or `Tree*` for sorted.
 - **A test assumes `HashSet` iterates in sorted order →** that's coincidence for small ints; never depend on hash order.
 - **Counting throws on the first occurrence →** you used `get(k) + 1`; seed with `getOrDefault(k, 0) + 1`.
 - **Duplicate elements "disappeared" from a `Set` →** sets are unique by design; use a `List` (or a `Map` to counts) if duplicates matter.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the size of a `Set<String>` after adding `"x"`, `"y"`, `"x"`, `"z"`, `"y"`. Next, predict the three lines printed by adding `5, 3, 5, 1` to a `TreeSet`, a `LinkedHashSet`, and a `HashSet` and printing each. Finally, predict what `Map<String,Integer> m = new HashMap<>();` then `System.out.println(m.get("a"));` prints, and what `int n = m.get("a");` does instead — and fix the counting loop `m.put(w, m.get(w) + 1)` so it doesn't throw.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the size of a `Set<String>` after adding `"x"`, `"y"`, `"x"`, `"z"`, `"y"`. Next, predict the three lines printed by adding `5, 3, 5, 1` to a `TreeSet`, a `LinkedHashSet`, and a `HashSet` and printing each. Finally, predict what `Map<String,Integer> m = new HashMap<>();` then `System.out.println(m.get("a"));` prints, and what `int n = m.get("a");` does instead — and fix the counting loop `m.put(w, m.get(w) + 1)` so it doesn't throw.
+
+</div>
 
 ## Your Turn
 

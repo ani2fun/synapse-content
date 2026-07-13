@@ -8,9 +8,28 @@ prereqs: []
 
 [Classes](/synapse/programming-languages/java/classes-and-objects/classes-and-objects) let you model one kind of thing. **Inheritance** lets one class build on another: a subclass `extends` a superclass, inheriting its fields and methods and adding or **overriding** as needed. The real prize isn't code reuse — it's **polymorphism**: when you call an overridden method through a *superclass* reference, Java runs the version belonging to the object's *actual* runtime type. A `List<Animal>` of `Dog`s and `Cat`s, looped once, makes each speak in its own voice. That single mechanism — **dynamic dispatch** — is what lets code written against a general type drive specialized behavior it's never seen. This chapter also draws the line it stops at (fields don't dispatch), how `final` shuts it off, and the methods *every* object inherits from the universal superclass, `Object`.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A subclass `extends` a superclass, **inheriting** and **overriding** its members.
+- The prize is **polymorphism**: an overridden call through a superclass reference runs the object's runtime type's version.
+- That mechanism is **dynamic dispatch** — general code drives specialized behavior.
+- Its limits: fields don't dispatch, `final` shuts it off, every object inherits `Object`.
+
+</div>
+
 This is the deep pass of [classes & objects](/synapse/programming-languages/java/classes-and-objects/classes-and-objects). Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -75,7 +94,11 @@ classDiagram
 
 *Concrete bite.* The "is-a" relationship is the test for whether to inherit: a `Dog` genuinely *is an* `Animal`, so inheritance fits. Inheriting just to reuse a method ("a `Stack` *is an* `ArrayList`?" — no, it *has* one) couples the subclass to the superclass's entire interface, including methods that don't make sense for it.
 
-*Earned rule.* Use `extends` only for a true "is-a" specialization, and call `super(...)` to initialize the inherited state. The cost of inheritance is tight coupling — the subclass depends on the superclass's internals and inherits its whole API; the benefit is genuine specialization and the polymorphism that follows, so prefer it for "is-a" and favor composition ("has-a") otherwise.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `extends` only for a true "is-a" specialization, and call `super(...)` to initialize the inherited state. The cost of inheritance is tight coupling — the subclass depends on the superclass's internals and inherits its whole API; the benefit is genuine specialization and the polymorphism that follows, so prefer it for "is-a" and favor composition ("has-a") otherwise.
+
+</div>
 
 ---
 
@@ -138,7 +161,11 @@ Main.java:3: error: method does not override or implement a method from a supert
 
 `speakk` (typo) overrides nothing, so `@Override` flags it. Without the annotation this would compile as a brand-new, never-called method, and `speak()` would silently keep the parent's behavior.
 
-*Earned rule.* Always annotate overrides with `@Override`, and use `super.method()` when you need to build on the parent's behavior. The cost is one annotation; the benefit is that a misspelled or mis-signed "override" — which would otherwise silently do nothing — becomes a compile error you fix immediately.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Always annotate overrides with `@Override`, and use `super.method()` when you need to build on the parent's behavior. The cost is one annotation; the benefit is that a misspelled or mis-signed "override" — which would otherwise silently do nothing — becomes a compile error you fix immediately.
+
+</div>
 
 ---
 
@@ -206,7 +233,11 @@ animal
 
 `a.speak()` dispatched dynamically to `Dog` (`"Woof"`), but `a.kind` read `Animal`'s field (`"animal"`) — because fields are *not* polymorphic; they bind to the declared type. (Shadowing a field like this is a code smell precisely because of this confusion; override *methods*, don't shadow fields.)
 
-*Earned rule.* Program against the general (super)type and let overridden *methods* dispatch to the right behavior — that's how polymorphic code stays open to new subclasses without changing. The cost is the field/method asymmetry (fields bind statically, so never rely on "overriding" a field); the benefit is code that works for subclasses written long after it, as long as they override the methods it calls.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Program against the general (super)type and let overridden *methods* dispatch to the right behavior — that's how polymorphic code stays open to new subclasses without changing. The cost is the field/method asymmetry (fields bind statically, so never rely on "overriding" a field); the benefit is code that works for subclasses written long after it, as long as they override the methods it calls.
+
+</div>
 
 ---
 
@@ -263,7 +294,11 @@ class Dog extends Animal { @Override String species() { return "dog"; } }
 
 `Animal.species()` is `final`, so `Dog` cannot override it — the seal holds. `final` is how a class guarantees a method's behavior can't be changed by any subclass.
 
-*Earned rule.* Override `Object`'s `toString` (and `equals`/`hashCode` for value types) to give your objects meaning; mark a method `final` when subclasses must not change its behavior (a security or invariant guarantee). The cost of `final` is lost flexibility — no subclass can specialize that method; the benefit is a behavior you can rely on across the whole hierarchy.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Override `Object`'s `toString` (and `equals`/`hashCode` for value types) to give your objects meaning; mark a method `final` when subclasses must not change its behavior (a security or invariant guarantee). The cost of `final` is lost flexibility — no subclass can specialize that method; the benefit is a behavior you can rely on across the whole hierarchy.
+
+</div>
 
 ---
 
@@ -279,15 +314,23 @@ class Dog extends Animal { @Override String species() { return "dog"; } }
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **An "override" is ignored / the parent method still runs →** a signature mismatch or typo made it a new method; add `@Override` to catch it.
 - **A field "override" returns the wrong value →** fields aren't polymorphic; they bind to the declared type. Override methods; don't shadow fields.
 - **`cannot override … overridden method is final` →** the superclass method is `final`; you can't change it (by design).
 - **`println(obj)` prints `ClassName@hash` →** the default `Object.toString`; override `toString()`.
 - **You inherited a whole API you didn't want →** "is-a" wasn't really true; prefer composition (a field) over inheritance.
 
+</div>
+
 ---
 
-*Predict, then check.* Add a `Bird extends Animal` overriding `speak()` to return `"Tweet"`, put a `Dog`, `Cat`, and `Bird` in an `Animal[]`, and predict the three lines printed by calling `speak()` on each. Next, predict what `a.speak()` and `a.kind` print for `Animal a = new Dog();` given the §3 shadowed field. Finally, predict the compiler's reaction to a subclass overriding a `final` method, and explain why fields and methods resolve differently.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Add a `Bird extends Animal` overriding `speak()` to return `"Tweet"`, put a `Dog`, `Cat`, and `Bird` in an `Animal[]`, and predict the three lines printed by calling `speak()` on each. Next, predict what `a.speak()` and `a.kind` print for `Animal a = new Dog();` given the §3 shadowed field. Finally, predict the compiler's reaction to a subclass overriding a `final` method, and explain why fields and methods resolve differently.
+
+</div>
 
 ## Your Turn
 

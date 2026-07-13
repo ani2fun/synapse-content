@@ -8,9 +8,28 @@ prereqs: []
 
 A program that can't read or write outside itself is sealed off. **I/O** (input/output) connects it to files, the network, and the console — and it comes in two flavors: **byte** I/O moves raw binary, while **character** I/O moves text, which is bytes interpreted through a **charset** (encoding) like UTF-8. The modern file API, **NIO.2** (`java.nio.file`, since JDK 7), is built on `Path` (a location) and `Files` (static operations), and it makes common tasks one line. It also bridges to the [Streams API](/synapse/programming-languages/java/advanced/functional-java-and-streams): `Files.lines()` returns a `java.util.stream.Stream<String>` — which is the moment to clear up a genuine confusion, because the word "stream" means two different things in Java (an I/O byte stream, and the functional Stream pipeline). Two more realities round it out: text is bytes-through-an-encoding (so one character can be several bytes), and **buffering** batches the expensive system calls that I/O really is.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- **I/O** moves **bytes** (binary) or **characters** (text through a charset like UTF-8).
+- **NIO.2** — `Path` and `Files` — is the modern, one-line file API.
+- `Files.lines()` returns a `java.util.stream.Stream`, clearing the "stream" name clash.
+- Text is bytes-through-an-encoding, and **buffering** batches the costly system calls.
+
+</div>
+
 This uses [streams](/synapse/programming-languages/java/advanced/functional-java-and-streams) and [try-with-resources](/synapse/programming-languages/java/robust-oop/exceptions). Every output below was produced by compiling and running the code (each writes and reads a file in its working directory).
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -77,7 +96,11 @@ Exception in thread "main" java.nio.file.NoSuchFileException: does-not-exist.txt
 
 `Path.of(...)` succeeded (it's just a name), and the failure came when `Files.readString` tried to actually read a file that isn't there. The distinction matters: constructing a `Path` never throws for a missing file; the `Files` operation does.
 
-*Earned rule.* Use NIO.2 (`Path` + `Files`) for file work — it's concise, manages resources for you, and gives precise exceptions; reach for raw streams only when you need fine control. The cost is handling `IOException` (file I/O genuinely can fail — missing files, permissions, full disks); the benefit is one-line reads/writes instead of the verbose open-read-close-in-finally boilerplate of the old `java.io` API.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use NIO.2 (`Path` + `Files`) for file work — it's concise, manages resources for you, and gives precise exceptions; reach for raw streams only when you need fine control. The cost is handling `IOException` (file I/O genuinely can fail — missing files, permissions, full disks); the benefit is one-line reads/writes instead of the verbose open-read-close-in-finally boilerplate of the old `java.io` API.
+
+</div>
 
 ---
 
@@ -114,7 +137,11 @@ banana
 
 *Concrete bite.* "All into memory" is the limit: `readAllLines` on a multi-gigabyte log loads the whole thing and can exhaust the heap. For large or unbounded files you want to process line by line *without* holding them all — which is exactly what the streaming version in the next section does.
 
-*Earned rule.* Use `readAllLines`/`readString` for files that comfortably fit in memory (config, small data), and the streaming `Files.lines` for large ones. The cost of the eager methods is memory proportional to file size; the benefit is simplicity — a whole file as a `String` or `List` when you can afford to hold it.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `readAllLines`/`readString` for files that comfortably fit in memory (config, small data), and the streaming `Files.lines` for large ones. The cost of the eager methods is memory proportional to file size; the benefit is simplicity — a whole file as a `String` or `List` when you can afford to hold it.
+
+</div>
 
 ---
 
@@ -153,7 +180,11 @@ lines > 2: 3
 
 *Concrete bite.* The name clash causes real confusion: an `InputStream` is *not* a `Stream`, has no `map`/`filter`, and isn't interchangeable. And forgetting `try`-with-resources on `Files.lines` leaks the file handle (unlike a `list.stream()`, which holds no resource). Same word, two meanings, two lifecycles.
 
-*Earned rule.* Read "stream" by package: `java.util.stream.Stream` is the functional pipeline (`map`/`filter`/`collect`); `java.io`/`java.nio` streams are byte/character channels. Close `Files.lines` (and any resource-backed stream) with `try`-with-resources. The cost is the terminology overhead; the benefit is that `Files.lines` lets you bring the whole expressive Stream API to a file, processing huge files lazily without loading them.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Read "stream" by package: `java.util.stream.Stream` is the functional pipeline (`map`/`filter`/`collect`); `java.io`/`java.nio` streams are byte/character channels. Close `Files.lines` (and any resource-backed stream) with `try`-with-resources. The cost is the terminology overhead; the benefit is that `Files.lines` lets you bring the whole expressive Stream API to a file, processing huge files lazily without loading them.
+
+</div>
 
 ---
 
@@ -190,7 +221,11 @@ chars: 4
 
 *Concrete bite.* Two traps live here. Mixing up byte and character APIs corrupts text (reading UTF-8 bytes as if they were Latin-1 mangles `é`); and doing unbuffered, one-byte-at-a-time I/O is orders of magnitude slower than buffered reads because each call hits the OS. Always specify the charset and read in buffered chunks. (Java's older **serialization** — `Serializable`/`ObjectOutputStream` — turns objects into bytes automatically, but is now discouraged for its security and versioning pitfalls; prefer an explicit format like JSON.)
 
-*Earned rule.* Use character I/O (`Reader`/`Writer`, `readString`) with an explicit UTF-8 charset for text, byte I/O (`InputStream`/`readAllBytes`) for binary, and let buffering (built into the `Files` helpers) batch the system calls. The cost is being deliberate about encoding and resource handling; the benefit is correct, fast I/O that doesn't silently corrupt non-ASCII text or crawl one byte at a time.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use character I/O (`Reader`/`Writer`, `readString`) with an explicit UTF-8 charset for text, byte I/O (`InputStream`/`readAllBytes`) for binary, and let buffering (built into the `Files` helpers) batch the system calls. The cost is being deliberate about encoding and resource handling; the benefit is correct, fast I/O that doesn't silently corrupt non-ASCII text or crawl one byte at a time.
+
+</div>
 
 ---
 
@@ -206,15 +241,23 @@ chars: 4
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`NoSuchFileException` →** the file doesn't exist (or wrong path); creating a `Path` doesn't create a file — the `Files` operation needs it to exist (for reads).
 - **`OutOfMemoryError` reading a file →** `readAllLines`/`readString` loaded it all; use `Files.lines` to stream a large file lazily.
 - **A resource-backed stream leaked / file stayed open →** `Files.lines` holds a file handle; wrap it in `try`-with-resources.
 - **Confused `InputStream` with `Stream` →** different packages and purposes; `java.util.stream.Stream` has `map`/`filter`, byte streams don't.
 - **Non-ASCII text got mangled →** a charset mismatch; read/write with an explicit UTF-8 charset, and don't rely on a platform default.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the byte count and character count that `Files.writeString` then `readAllBytes`/`readString` report for the string `"a€b"` (the euro sign `€` is 3 bytes in UTF-8). Next, predict whether `Files.readString(Path.of("nope.txt"))` throws at `Path.of` or at `readString`, and the exception. Finally, rewrite the §3 example to *sum* the numbers in the file with a stream, and decide why the `Files.lines` stream needs a `try`-with-resources where a `List.stream()` would not.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the byte count and character count that `Files.writeString` then `readAllBytes`/`readString` report for the string `"a€b"` (the euro sign `€` is 3 bytes in UTF-8). Next, predict whether `Files.readString(Path.of("nope.txt"))` throws at `Path.of` or at `readString`, and the exception. Finally, rewrite the §3 example to *sum* the numbers in the file with a stream, and decide why the `Files.lines` stream needs a `try`-with-resources where a `List.stream()` would not.
+
+</div>
 
 ## Your Turn
 

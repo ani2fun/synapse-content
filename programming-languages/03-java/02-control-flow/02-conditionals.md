@@ -8,9 +8,27 @@ prereqs: []
 
 A program that always does the same thing is a calculator with one button. **Conditionals** let it choose: run this code when a condition holds, that code otherwise. Every choice rests on a `boolean` — the [yes/no type from the last chapter](/synapse/programming-languages/java/control-flow/booleans-and-logic) — and Java offers four shapes for branching: `if`/`else` for one decision, `else if` chains for many, `switch` for selecting among constant values, and the ternary `?:` for a choice that *produces a value*. The newest shape, the `switch` **expression**, fixes the oldest `switch` trap by design.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- **Conditionals** let a program choose which code to run.
+- Every choice rests on a `boolean`.
+- Java offers four shapes: `if`/`else`, `else if` chains, `switch`, and the ternary `?:`.
+
+</div>
+
 Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -72,7 +90,11 @@ leave the house
 
 `cold` is `false`, so `wear a coat` is correctly skipped — but `leave the house` printed anyway. The indentation suggests both lines are guarded; in fact only the first is. The braceless `if` controls exactly one statement, and the second runs unconditionally.
 
-*Earned rule.* Always use braces, even for a one-line body: `if (cond) { … }`. The cost is two extra characters; the benefit is that "what does this `if` control?" has one answer — the block — instead of depending on where the semicolons fall, which is how a guarded line and an always-run line end up looking identical.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Always use braces, even for a one-line body: `if (cond) { … }`. The cost is two extra characters; the benefit is that "what does this `if` control?" has one answer — the block — instead of depending on where the semicolons fall, which is how a guarded line and an always-run line end up looking identical.
+
+</div>
 
 ---
 
@@ -142,7 +164,11 @@ C
 
 `95` deserves an `A`, but `score >= 70` is checked first and matches, so it prints `C` and never reaches `>= 90`. The compiler sees nothing wrong — the logic is legal, just ordered backwards.
 
-*Earned rule.* In an `else if` chain, order conditions from most specific (narrowest) to least, because the first match wins. The cost of getting it wrong is a *silent* misclassification, not an error — so when ranges overlap, read the chain as "first true wins" and put the tightest test on top.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** In an `else if` chain, order conditions from most specific (narrowest) to least, because the first match wins. The cost of getting it wrong is a *silent* misclassification, not an error — so when ranges overlap, read the chain as "first true wins" and put the tightest test on top.
+
+</div>
 
 ---
 
@@ -199,7 +225,11 @@ Wed
 
 `day` is `1`, so it entered `case 1` and printed `Mon` — then, with no `break`, fell through into `case 2` (`Tue`) and `case 3` (`Wed`), stopping only at the `break`. One value, three lines printed.
 
-*Earned rule.* End every `case` of a `switch` *statement* with `break` (or `return`) unless you deliberately want fall-through. The cost of the colon-and-`break` form is exactly this footgun — a forgotten `break` is silent and runs too much code — which is precisely what the arrow form in the next section removes.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** End every `case` of a `switch` *statement* with `break` (or `return`) unless you deliberately want fall-through. The cost of the colon-and-`break` form is exactly this footgun — a forgotten `break` is silent and runs too much code — which is precisely what the arrow form in the next section removes.
+
+</div>
 
 ---
 
@@ -257,7 +287,11 @@ Main.java:4: error: the switch expression does not cover all possible input valu
 
 An `int` can be more than `1` or `2`, and a `switch` *expression* must always produce a value, so the missing cases are a compile error — not a run-time surprise. Add a `default ->` and it compiles.
 
-*Earned rule.* Prefer arrow `switch` expressions when you are computing a value from one of several cases: they cannot fall through, and exhaustiveness is checked at compile time. The cost is that you must handle every case (or add a `default`) — which is the point: the compiler turns "I forgot a branch" from a run-time bug into a build error. (This exhaustiveness becomes even more powerful with `sealed` types and pattern matching in Tier 4.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Prefer arrow `switch` expressions when you are computing a value from one of several cases: they cannot fall through, and exhaustiveness is checked at compile time. The cost is that you must handle every case (or add a `default`) — which is the point: the compiler turns "I forgot a branch" from a run-time bug into a build error. (This exhaustiveness becomes even more powerful with `sealed` types and pattern matching in Tier 4.)
+
+</div>
 
 ---
 
@@ -309,7 +343,11 @@ Main.java:4: error: illegal start of expression
 
 `if` cannot start an expression, so `String s = if …` is rejected. The ternary `String s = cond ? "yes" : "no";` is the expression form that works.
 
-*Earned rule.* Reach for `?:` to choose between two *values* in one expression (`max = a > b ? a : b`), and `if` to choose between two *actions*. The cost of `?:` is readability: nesting ternaries (`a ? b : c ? d : e`) quickly becomes unreadable, so keep them to a single, simple choice and use `if`/`else` or a `switch` expression for anything branchier.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for `?:` to choose between two *values* in one expression (`max = a > b ? a : b`), and `if` to choose between two *actions*. The cost of `?:` is readability: nesting ternaries (`a ? b : c ? d : e`) quickly becomes unreadable, so keep them to a single, simple choice and use `if`/`else` or a `switch` expression for anything branchier.
+
+</div>
 
 ---
 
@@ -325,15 +363,23 @@ Main.java:4: error: illegal start of expression
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A line runs even though the `if` was false →** no braces; the `if` guarded only the previous statement. Add `{ }`.
 - **A value gets the wrong branch in an `if`/`else if` chain →** a broader condition is listed before a narrower one; reorder narrowest-first.
 - **A `switch` prints several cases for one value →** missing `break`s caused fall-through; add `break` (or switch to the arrow form).
 - **`the switch expression does not cover all possible input values` →** an arrow `switch` used as a value isn't exhaustive; add the missing cases or a `default ->`.
 - **`illegal start of expression` on an `if` →** you used `if` where a value was needed; use the ternary `cond ? a : b`.
 
+</div>
+
 ---
 
-*Predict, then check.* For the §2 grade chain, predict the printed letter for `score = 90`, then `score = 70`, then `score = 69`. Now take the §3 `switch` and predict the output for `day = 2` **with** the `break`s, and again **without** them. Finally, rewrite the grade chain as a `switch` expression that assigns the letter to a `String` and prints it — and decide what its `default` should be. Build it and confirm.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** For the §2 grade chain, predict the printed letter for `score = 90`, then `score = 70`, then `score = 69`. Now take the §3 `switch` and predict the output for `day = 2` **with** the `break`s, and again **without** them. Finally, rewrite the grade chain as a `switch` expression that assigns the letter to a `String` and prints it — and decide what its `default` should be. Build it and confirm.
+
+</div>
 
 ## Your Turn
 

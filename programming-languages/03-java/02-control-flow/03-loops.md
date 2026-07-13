@@ -8,9 +8,27 @@ prereqs: []
 
 Computers are good at doing the same thing many times, and a **loop** is how you ask for that: repeat a block of code while a `boolean` condition stays true. Java gives you four loop shapes, and they differ only in *when* the condition is checked and *what* drives the repetition. `while` checks before each pass; `do-while` checks after; the classic `for` bundles a counter's setup, test, and step onto one line; and the enhanced `for` walks a collection of values directly. Master the counter and the boundary, and every loop you meet is a variation on these.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A **loop** repeats a block while a `boolean` condition stays true.
+- Java's four loop shapes differ only in *when* the condition is checked and *what* drives the repetition.
+- Master the **counter and the boundary** and every loop is a variation on these.
+
+</div>
+
 This rests on [boolean conditions](/synapse/programming-languages/java/control-flow/booleans-and-logic) — the same `<`, `==`, `&&` that drive an `if` drive a loop. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -74,7 +92,11 @@ public class Main {
 
 The same loop with `<=` prints `0` through `5` — six numbers, not five. "Count five things starting at zero" means `i < 5` (indices `0..4`); `i <= 5` is the off-by-one that does one too many.
 
-*Earned rule.* Write the condition so the body advances toward making it false, and pin down the boundary deliberately: `i < n` counts `n` times from `0`. The cost of a loose boundary is an off-by-one — one too many or too few passes — and the cost of *no* advance is an infinite loop, the one bug that doesn't produce wrong output, just a program that never returns.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Write the condition so the body advances toward making it false, and pin down the boundary deliberately: `i < n` counts `n` times from `0`. The cost of a loose boundary is an off-by-one — one too many or too few passes — and the cost of *no* advance is an infinite loop, the one bug that doesn't produce wrong output, just a program that never returns.
+
+</div>
 
 ---
 
@@ -110,7 +132,11 @@ do done
 
 *Concrete bite.* The output above is the demonstration: identical conditions, but `while body` is absent and `do body` is present. When the starting condition is false, the two loops disagree on whether the body runs at all.
 
-*Earned rule.* Use `do-while` only when the body *must* run once before any test makes sense — prompting for input you then validate, for instance. The cost of reaching for it by habit is a body that runs even when it shouldn't; `while` (or `for`) is the right default, because most loops should be able to run zero times.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `do-while` only when the body *must* run once before any test makes sense — prompting for input you then validate, for instance. The cost of reaching for it by habit is a body that runs even when it shouldn't; `while` (or `for`) is the right default, because most loops should be able to run zero times.
+
+</div>
 
 ---
 
@@ -182,7 +208,11 @@ Main.java:6: error: cannot find symbol
 
 `i` exists only within the `for`; after the closing brace it is gone, so referencing it is a compile error. (If you need the final value afterward, declare the variable *before* the loop instead.)
 
-*Earned rule.* Use a `for` when you know the counting structure up front — a fixed range, a step — and let its declared variable stay scoped to the loop. The cost of that tidy scoping is that the counter vanishes at the loop's end; the benefit is that you cannot accidentally read a stale loop counter later, and two adjacent loops can both use `i` without colliding.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a `for` when you know the counting structure up front — a fixed range, a step — and let its declared variable stay scoped to the loop. The cost of that tidy scoping is that the counter vanishes at the loop's end; the benefit is that you cannot accidentally read a stale loop counter later, and two adjacent loops can both use `i` without colliding.
+
+</div>
 
 ---
 
@@ -238,7 +268,11 @@ public class Main {
 
 The first loop "multiplied each element by 10," yet the second loop sums to `6` (`1 + 2 + 3`), not `60` — proof the array was never touched. `n = n * 10` updated a throwaway copy each pass.
 
-*Earned rule.* Reach for the enhanced `for` whenever you need each element and nothing more — it removes the index, and with it the off-by-one bugs. The cost is exactly what it hides: you get no index (so you cannot say "the 3rd element" or compare neighbours) and you cannot write *back* into the array through the loop variable. When you need the position or want to modify elements in place, use the classic `for` with `nums[i]`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for the enhanced `for` whenever you need each element and nothing more — it removes the index, and with it the off-by-one bugs. The cost is exactly what it hides: you get no index (so you cannot say "the 3rd element" or compare neighbours) and you cannot write *back* into the array through the loop variable. When you need the position or want to modify elements in place, use the classic `for` with `nums[i]`.
+
+</div>
 
 ---
 
@@ -254,15 +288,23 @@ The first loop "multiplied each element by 10," yet the second loop sums to `6` 
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **The loop runs one too many / too few times →** off-by-one at the boundary; `i < n` from `0` counts `n` times.
 - **The program hangs and prints nothing →** an infinite loop; the body never changes what the condition depends on. Ensure the counter advances.
 - **`cannot find symbol` using the counter after the loop →** a `for`-declared variable is scoped to the loop; declare it before the loop if you need it afterward.
 - **A loop body that should sometimes be skipped always runs once →** you used `do-while`; switch to `while`/`for` so zero passes is possible.
 - **Modifying elements in a for-each has no effect →** the loop variable is a copy; use the classic `for` with `nums[i]` to write back.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the exact output of `for (int i = 10; i > 0; i -= 2) System.out.print(i + " ");` — how many numbers, and which? Now predict how many times each loop body runs when the variable starts at `3` and the condition is `< 3`: a `while`, then a `do-while`. Finally, rewrite the §1 `while` (printing `0 1 2 3 4`) as a `for` loop, and confirm it prints the same line.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the exact output of `for (int i = 10; i > 0; i -= 2) System.out.print(i + " ");` — how many numbers, and which? Now predict how many times each loop body runs when the variable starts at `3` and the condition is `< 3`: a `while`, then a `do-while`. Finally, rewrite the §1 `while` (printing `0 1 2 3 4`) as a `for` loop, and confirm it prints the same line.
+
+</div>
 
 ## Your Turn
 

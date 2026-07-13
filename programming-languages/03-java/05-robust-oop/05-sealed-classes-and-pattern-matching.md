@@ -8,9 +8,28 @@ prereqs: []
 
 [Tutorial 21](/synapse/programming-languages/java/core-libraries/enums-and-records) introduced `sealed` (a closed set of subtypes) and `record` (immutable data). This chapter makes them pay off. **Pattern matching** tests a value's type *and* binds it to a variable in one move — `o instanceof Circle c` replaces the old test-then-cast you wrote for [`equals`](/synapse/programming-languages/java/core-libraries/equals-and-hashcode). **Switch pattern matching** (JDK 21) extends the [`switch`](/synapse/programming-languages/java/control-flow/conditionals) to dispatch on type, with **record patterns** that deconstruct a record's components inline. The keystone: over a **sealed** hierarchy the compiler knows every possible subtype, so a `switch` covering them all needs **no `default`** — and if you add a subtype the `switch` doesn't handle, it's a compile error, not a silent fall-through. That combination — `sealed` + `record` + pattern `switch` — is Java's answer to data-oriented programming.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- **Pattern matching** tests a type and binds it in one move — `o instanceof Circle c`.
+- **Switch pattern matching** dispatches on type; **record patterns** deconstruct components inline.
+- Over a **sealed** hierarchy the `switch` is **exhaustive with no `default`** — a forgotten case is a compile error.
+- Together `sealed` + `record` + pattern `switch` is Java's data-oriented design.
+
+</div>
+
 Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -61,7 +80,11 @@ unknown
 
 *Concrete bite.* The redundancy it removes is real: the classic `instanceof` + cast names the type twice and risks them drifting apart. The pattern names it once and binds the result, so there's no second cast to get wrong.
 
-*Earned rule.* Use `o instanceof Type var` instead of a separate test and cast wherever you check a type and then use it. The cost is essentially none (it's strictly less code); the benefit is no redundant cast, no chance of a mismatched one, and a binding scoped exactly to where it's valid — and it's the building block for the switch patterns next.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `o instanceof Type var` instead of a separate test and cast wherever you check a type and then use it. The cost is essentially none (it's strictly less code); the benefit is no redundant cast, no chance of a mismatched one, and a binding scoped exactly to where it's valid — and it's the building block for the switch patterns next.
+
+</div>
 
 ---
 
@@ -100,7 +123,11 @@ other
 
 *Concrete bite.* This replaces the verbose `if (o instanceof A a) … else if (o instanceof B b) …` ladder with a flat, value-producing form. The `default` is required *only* because the selector type (`Object`) is open — close the type set with `sealed`, and the next section removes even that.
 
-*Earned rule.* Use a pattern `switch` to dispatch on a value's type when you'd otherwise write an `instanceof` chain — it's flatter, binds each case, and yields a value. The cost is a `default` for open types (and ordering care: put specific cases before general ones); the benefit is readable type-based dispatch, which becomes exhaustive and `default`-free over a sealed hierarchy.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a pattern `switch` to dispatch on a value's type when you'd otherwise write an `instanceof` chain — it's flatter, binds each case, and yields a value. The cost is a `default` for open types (and ordering care: put specific cases before general ones); the benefit is readable type-based dispatch, which becomes exhaustive and `default`-free over a sealed hierarchy.
+
+</div>
 
 ---
 
@@ -172,7 +199,11 @@ Main.java:6: error: the switch expression does not cover all possible input valu
 
 `Square` is missing, so the `switch` isn't exhaustive over `Shape` — a compile error. And here's the real win: add a *third* permitted shape later, and *every* such `switch` across the codebase stops compiling until you handle it. The compiler becomes a checklist of "places to update when the data model grows."
 
-*Earned rule.* Model a closed set of cases as a `sealed` hierarchy and dispatch with a `default`-free `switch`, letting exhaustiveness be checked. The cost is keeping the `permits` list and the switches in step (which the compiler enforces); the benefit is that adding a case can't silently slip through — unlike a `default`, which would quietly swallow the new type at run time.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Model a closed set of cases as a `sealed` hierarchy and dispatch with a `default`-free `switch`, letting exhaustiveness be checked. The cost is keeping the `permits` list and the switches in step (which the compiler enforces); the benefit is that adding a case can't silently slip through — unlike a `default`, which would quietly swallow the new type at run time.
+
+</div>
 
 ---
 
@@ -212,7 +243,11 @@ public class Main {
 
 *Concrete bite.* This is the heart of data-oriented programming: `sealed` defines the set of shapes data can take, `record`s define each shape's fields, and a pattern `switch` consumes them by destructuring — exhaustively. The behavior lives *outside* the data (in the `switch`), the opposite of the polymorphism in [inheritance](/synapse/programming-languages/java/robust-oop/inheritance-and-polymorphism), and a better fit when the operations vary more than the data.
 
-*Earned rule.* Combine `sealed` + `record` + record-pattern `switch` to model and process closed sets of structured data — results, expressions, events, shapes. The cost is choosing this style over class polymorphism (use polymorphism when *behavior* travels with each type and subtypes are open; use sealed/patterns when the type set is *closed* and operations are added externally); the benefit is concise, exhaustive, destructuring code the compiler keeps complete.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Combine `sealed` + `record` + record-pattern `switch` to model and process closed sets of structured data — results, expressions, events, shapes. The cost is choosing this style over class polymorphism (use polymorphism when *behavior* travels with each type and subtypes are open; use sealed/patterns when the type set is *closed* and operations are added externally); the benefit is concise, exhaustive, destructuring code the compiler keeps complete.
+
+</div>
 
 ---
 
@@ -228,15 +263,23 @@ public class Main {
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Still writing `(Type) o` after an `instanceof` →** use `o instanceof Type var` to bind the cast result once.
 - **A pattern `switch` demands a `default` you don't want →** the selector type is open; make it `sealed` so the compiler can prove exhaustiveness.
 - **`the switch expression does not cover all possible input values` over a sealed type →** a permitted subtype is unhandled; add its case (don't reach for `default`).
 - **Adding a subtype silently does the wrong thing →** you used a `default` that swallows it; drop the `default` over a sealed type so the compiler flags every switch.
 - **Calling accessors in every case →** use a record pattern (`case Rect(double w, double h)`) to bind components directly.
 
+</div>
+
 ---
 
-*Predict, then check.* Rewrite the §1 `describe` as a pattern `switch` and predict its three outputs. Next, for `sealed interface Json permits JNull, JNum, JStr {}` with records `JNull()`, `JNum(double v)`, `JStr(String s)`, predict whether a `switch` handling only `JNum` and `JStr` compiles, and the error if not. Finally, predict the area printed by `area(new Rect(2, 5))` using the §4 record pattern, and explain why no `default` is needed.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Rewrite the §1 `describe` as a pattern `switch` and predict its three outputs. Next, for `sealed interface Json permits JNull, JNum, JStr {}` with records `JNull()`, `JNum(double v)`, `JStr(String s)`, predict whether a `switch` handling only `JNum` and `JStr` compiles, and the error if not. Finally, predict the area printed by `area(new Rect(2, 5))` using the §4 record pattern, and explain why no `default` is needed.
+
+</div>
 
 ## Your Turn
 

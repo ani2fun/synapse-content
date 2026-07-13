@@ -8,9 +8,28 @@ prereqs: []
 
 Three modern features let you model data so precisely that whole categories of bug become impossible to write. An **enum** is a fixed set of named constants — a type whose every value you list up front, so an invalid one can't exist. A **record** (JDK 16) is an immutable data carrier: you declare its *components* and Java generates the constructor, accessors, and a correct [`equals`/`hashCode`](/synapse/programming-languages/java/core-libraries/equals-and-hashcode)/`toString` for free. A **sealed** type (JDK 17) names exactly which classes may implement it, so the set of subtypes is closed and known. Together they replace piles of hand-written boilerplate — and the bugs that hide in it.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- An **enum** is a fixed set of named constants — an invalid value can't exist.
+- A **record** generates constructor, accessors, `equals`/`hashCode`/`toString` from its components.
+- A **sealed** type names exactly which subtypes may exist — a closed, known set.
+- Together they replace hand-written boilerplate and the bugs hiding in it.
+
+</div>
+
 Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -86,7 +105,11 @@ Main.java:5: error: the switch expression does not cover all possible input valu
 
 The `switch` handles only two of seven days and produces a value, so the compiler demands the rest (or a `default`). With an enum, "I forgot a case" becomes a build error.
 
-*Earned rule.* Use an enum for any value that comes from a fixed, known set — states, directions, days, modes — instead of `int` codes or `String`s. The cost is declaring the type; the benefit is type safety (no invalid value), readable names, and exhaustiveness checking in `switch` that flags a forgotten case at compile time.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use an enum for any value that comes from a fixed, known set — states, directions, days, modes — instead of `int` codes or `String`s. The cost is declaring the type; the benefit is type safety (no invalid value), readable names, and exhaustiveness checking in `switch` that flags a forgotten case at compile time.
+
+</div>
 
 ---
 
@@ -126,7 +149,11 @@ MOON: 16.2
 
 *Concrete bite.* This replaces the fragile "parallel arrays" or `switch`-on-code style: instead of a `double gravityFor(int planetCode)` with a `switch` you must keep in sync, the data lives *on* the constant, so adding a planet adds one line and can't desync. The behavior travels with the value.
 
-*Earned rule.* Put per-constant data and behavior *in* the enum (fields, a constructor, methods) rather than in external `switch`es keyed on the constant. The cost is a slightly richer enum declaration; the benefit is that each constant is self-contained — add or change one and there's a single place to edit, with no lookup table to keep aligned.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Put per-constant data and behavior *in* the enum (fields, a constructor, methods) rather than in external `switch`es keyed on the constant. The cost is a slightly richer enum declaration; the benefit is that each constant is self-contained — add or change one and there's a single place to edit, with no lookup table to keep aligned.
+
+</div>
 
 ---
 
@@ -186,7 +213,11 @@ Main.java:5: error: x has private access in Point
 
 `p.x = 5` is rejected — the component is a `private final` field, readable only through the accessor `p.x()`, never assignable. A record is immutable by construction; to "change" a point you build a new one.
 
-*Earned rule.* Use a record for any immutable group of values — coordinates, a name/email pair, a DTO, a `Map` key — and let it generate the boilerplate and the `equals`/`hashCode` contract. The cost is immutability (a record can't be a mutable bean) and that it can't extend a class; the benefit is a correct, concise value type where a hand-written class would be dozens of lines of bug-prone boilerplate.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a record for any immutable group of values — coordinates, a name/email pair, a DTO, a `Map` key — and let it generate the boilerplate and the `equals`/`hashCode` contract. The cost is immutability (a record can't be a mutable bean) and that it can't extend a class; the benefit is a correct, concise value type where a hand-written class would be dozens of lines of bug-prone boilerplate.
+
+</div>
 
 ---
 
@@ -245,7 +276,11 @@ Main.java:3: error: class is not allowed to extend sealed class: Shape (as it is
 
 `Triangle` tried to implement `Shape` but isn't permitted, so it's rejected. The family stays exactly `{Circle}` — the seal holds.
 
-*Earned rule.* Seal an interface or class when the set of subtypes is meant to be *closed and known* — a fixed algebra of cases like shapes, AST nodes, or result variants — and pair it with records for the cases. The cost is listing the permitted types (and updating the list to add one); the benefit is a closed family the compiler can reason about, enabling the exhaustive `switch` pattern matching of Tutorial 26 with no `default` needed.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Seal an interface or class when the set of subtypes is meant to be *closed and known* — a fixed algebra of cases like shapes, AST nodes, or result variants — and pair it with records for the cases. The cost is listing the permitted types (and updating the list to add one); the benefit is a closed family the compiler can reason about, enabling the exhaustive `switch` pattern matching of Tutorial 26 with no `default` needed.
+
+</div>
 
 ---
 
@@ -261,15 +296,23 @@ Main.java:3: error: class is not allowed to extend sealed class: Shape (as it is
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`the switch expression does not cover all possible input values` on an enum →** add the missing constants or a `default`; the closed set is exhaustiveness-checked.
 - **`x has private access` assigning a record component →** records are immutable; read via `x()`, build a new record to "change" it.
 - **Two equal records aren't equal / break a `HashMap` →** they won't — a record generates a correct `equals`/`hashCode`; that's a reason to use one.
 - **`class is not allowed to extend sealed class` →** add the type to the `permits` clause, or it can't join the sealed family.
 - **Reached for `int`/`String` codes for a fixed set of values →** use an enum for type safety, names, and switch exhaustiveness.
 
+</div>
+
 ---
 
-*Predict, then check.* Give `Day` a `boolean isWeekend()` method and predict what `Day.SAT.isWeekend()` and `Day.MON.isWeekend()` return. Next, for `record Money(int cents, String currency) {}`, predict the output of printing `new Money(100, "USD")` and comparing two equal `Money` values with `.equals`. Finally, predict whether a `record Rectangle(double w, double h) implements Shape {}` compiles given `sealed interface Shape permits Circle, Square {}` — and what one change makes it compile.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Give `Day` a `boolean isWeekend()` method and predict what `Day.SAT.isWeekend()` and `Day.MON.isWeekend()` return. Next, for `record Money(int cents, String currency) {}`, predict the output of printing `new Money(100, "USD")` and comparing two equal `Money` values with `.equals`. Finally, predict whether a `record Rectangle(double w, double h) implements Shape {}` compiles given `sealed interface Shape permits Circle, Square {}` — and what one change makes it compile.
+
+</div>
 
 ## Your Turn
 

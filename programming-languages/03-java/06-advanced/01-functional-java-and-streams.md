@@ -8,9 +8,28 @@ prereqs: []
 
 [Lambdas](/synapse/programming-languages/java/robust-oop/nested-and-anonymous-classes-and-lambdas) made behavior a value; the **Streams API** uses that to transform sequences declaratively. A **stream** is a *pipeline* of operations over a source — `filter`, `map`, `reduce` chained together — that describes **what** to compute, leaving **how** to iterate to the library. Two ideas make it powerful: pipelines are **lazy** (nothing runs until a *terminal* operation pulls the data through, so work is fused and can short-circuit), and they compose. Alongside streams, **`Optional`** turns "maybe absent" from a [`null` waiting to crash](/synapse/programming-languages/java/classes-and-objects/references-equality-and-the-object-model) into a type you must handle. And **parallel** streams split the work across cores — fast when the operations are stateless, dangerous when they share mutable state.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A **stream** is a pipeline (`filter`/`map`/`reduce`) describing **what** to compute, not how to iterate.
+- Pipelines are **lazy** — nothing runs until a terminal operation pulls the data — and they compose.
+- **`Optional`** turns "maybe absent" into a type you must handle.
+- **Parallel** streams split work across cores — fast when stateless, dangerous when sharing mutable state.
+
+</div>
+
 This builds on [generics](/synapse/programming-languages/java/core-libraries/generics) and [lambdas](/synapse/programming-languages/java/robust-oop/nested-and-anonymous-classes-and-lambdas). Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -76,7 +95,11 @@ flowchart LR
 
 *Concrete bite.* A stream is single-use and not a collection: after a terminal op it's consumed, and re-using it throws `IllegalStateException: stream has already been operated upon or closed`. A stream is a *view of a computation*, not data you can revisit — call `stream()` again for a fresh pipeline.
 
-*Earned rule.* Use a stream pipeline when you're transforming or querying a sequence (`filter`/`map`/`collect`); keep an explicit loop for side-effecting iteration or when a plain `for` is clearer. The cost is a new mental model (and that streams are one-shot); the benefit is declarative, composable data processing that reads as intent and that the library can optimize.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a stream pipeline when you're transforming or querying a sequence (`filter`/`map`/`collect`); keep an explicit loop for side-effecting iteration or when a plain `for` is clearer. The cost is a new mental model (and that streams are one-shot); the benefit is declarative, composable data processing that reads as intent and that the library can optimize.
+
+</div>
 
 ---
 
@@ -119,7 +142,11 @@ even=[2, 4]
 
 *Concrete bite.* The identity must truly be neutral: `reduce(1, Integer::sum)` would give `16`, not `15`, because `1` is the identity for *multiplication*, not addition. The seed is part of the computation, the same lesson as the [accumulator-seed trap](/synapse/programming-languages/java/control-flow/loop-control-and-patterns).
 
-*Earned rule.* Use `reduce` for a single folded value with a neutral identity, and `Collectors` for structured results (`toList`, `joining`, `groupingBy`). The cost is learning the collector vocabulary; the benefit is that aggregation, grouping, and joining — loops you'd otherwise write by hand — become one declarative, correct line.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `reduce` for a single folded value with a neutral identity, and `Collectors` for structured results (`toList`, `joining`, `groupingBy`). The cost is learning the collector vocabulary; the benefit is that aggregation, grouping, and joining — loops you'd otherwise write by hand — become one declarative, correct line.
+
+</div>
 
 ---
 
@@ -156,7 +183,11 @@ found: 2
 
 *Concrete bite.* The `peek` output is the proof: only `1` and `2` were processed. This is why streams handle huge or even infinite sources efficiently — `Stream.iterate(...).filter(...).findFirst()` examines just enough elements, where an eager loop over a materialized list would do all the work first.
 
-*Earned rule.* Lean on laziness for efficiency — put cheap, selective `filter`s early and use short-circuiting terminals (`findFirst`, `anyMatch`, `limit`) to stop as soon as possible. The cost is that lazy pipelines with side effects (like `peek`) run in a non-obvious order and only as far as needed (so `peek` is for debugging, not logic); the benefit is that only the necessary work runs, fused into a single pass.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Lean on laziness for efficiency — put cheap, selective `filter`s early and use short-circuiting terminals (`findFirst`, `anyMatch`, `limit`) to stop as soon as possible. The cost is that lazy pipelines with side effects (like `peek`) run in a non-obvious order and only as far as needed (so `peek` is for debugging, not logic); the benefit is that only the necessary work runs, fused into a single pass.
+
+</div>
 
 ---
 
@@ -212,7 +243,11 @@ Exception in thread "main" java.util.NoSuchElementException: No value present
 
 `empty.get()` is the `Optional` equivalent of dereferencing `null` — it asserts a value is present when it isn't. Use `orElse`, `orElseThrow(...)` with a meaningful exception, or `ifPresent` instead of a bare `get()`.
 
-*Earned rule.* Return `Optional<T>` from methods that may find nothing, and consume it with `orElse`/`map`/`ifPresent` — never a naked `get()`. The cost is wrapping/unwrapping and that `Optional` is for *return values*, not fields or parameters; the benefit is that "this might be absent" is checked by the compiler at the boundary, turning a class of runtime `NullPointerException`s into handled cases.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Return `Optional<T>` from methods that may find nothing, and consume it with `orElse`/`map`/`ifPresent` — never a naked `get()`. The cost is wrapping/unwrapping and that `Optional` is for *return values*, not fields or parameters; the benefit is that "this might be absent" is checked by the compiler at the boundary, turning a class of runtime `NullPointerException`s into handled cases.
+
+</div>
 
 ---
 
@@ -262,7 +297,11 @@ public class Main {
 
 Many threads ran `counter[0]++` — read, increment, write — at once, so updates overwrote each other and most were lost. The "count" is wildly wrong and *different every run*. There's no exception; just silent corruption. (The fix is a proper reduction or an atomic — the subject of the concurrency chapters next.)
 
-*Earned rule.* Parallelize only stateless pipelines that end in a reduction/collector, and on large enough data to outweigh the splitting overhead; never let a parallel stream write to shared mutable state. The cost is that parallelism is correct only under those conditions (and can be *slower* on small or order-sensitive data); the benefit, when they hold, is multi-core speedup from changing one word — `stream()` to `parallelStream()`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Parallelize only stateless pipelines that end in a reduction/collector, and on large enough data to outweigh the splitting overhead; never let a parallel stream write to shared mutable state. The cost is that parallelism is correct only under those conditions (and can be *slower* on small or order-sensitive data); the benefit, when they hold, is multi-core speedup from changing one word — `stream()` to `parallelStream()`.
+
+</div>
 
 ---
 
@@ -278,15 +317,23 @@ Many threads ran `counter[0]++` — read, increment, write — at once, so updat
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`IllegalStateException: stream has already been operated upon` →** a stream is single-use; call `stream()` again for a fresh pipeline.
 - **`reduce` gives a wrong total →** the identity isn't neutral (`0` for sum, not `1`); fix the seed.
 - **A `peek` printed in a surprising order / not at all →** streams are lazy and short-circuit; use `peek` only for debugging, not logic.
 - **`NoSuchElementException: No value present` →** `get()` on an empty `Optional`; use `orElse`/`orElseThrow`/`ifPresent`.
 - **A parallel stream gives wrong, varying results →** it writes shared mutable state (a data race); use a reduction/collector, or don't parallelize.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the output of `Stream.of(1,2,3,4).filter(n -> n % 2 == 0).map(n -> n * n).collect(Collectors.toList())`. Next, predict the `peek` lines printed by `Stream.of(10,20,30).peek(System.out::println).map(n -> n + 1).findFirst()`. Finally, predict whether `List.of("a","bb","ccc").stream().filter(s -> s.length() > 5).findFirst()` is present, and what `.orElse("none")` returns — explaining why `Optional` is safer here than returning `null`.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the output of `Stream.of(1,2,3,4).filter(n -> n % 2 == 0).map(n -> n * n).collect(Collectors.toList())`. Next, predict the `peek` lines printed by `Stream.of(10,20,30).peek(System.out::println).map(n -> n + 1).findFirst()`. Finally, predict whether `List.of("a","bb","ccc").stream().filter(s -> s.length() > 5).findFirst()` is present, and what `.orElse("none")` returns — explaining why `Optional` is safer here than returning `null`.
+
+</div>
 
 ## Your Turn
 

@@ -8,9 +8,28 @@ prereqs: []
 
 The last chapter solved *exclusion*: `synchronized` keeps two threads from corrupting shared state by being in the same critical section at once. But most real concurrent programs need something more: threads that **wait for each other**. A consumer must wait until a producer has made something; a coordinator must wait until all workers finish; a pool must make requests wait until a connection is free. The thesis: **coordination is "wait until some condition on shared state becomes true," and everything in this chapter — `wait`/`notify`, `Condition`, latches, semaphores, blocking queues — is that one idea at increasing levels of packaging.** Learn the raw form first and the library forms stop being magic; learn the failure mode of holding *two* locks — deadlock — and you'll understand why the library forms exist.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Coordination = **wait until a condition on shared state becomes true**.
+- `wait`/`notify`, `Condition`, latches, semaphores, blocking queues are that one idea, packaged at rising levels.
+- Learn the raw form and the library forms stop being magic.
+- Holding *two* locks brings **deadlock** — which is why the library forms exist.
+
+</div>
+
 This builds directly on [threads, races, and `synchronized`](/synapse/programming-languages/java/advanced/concurrency-the-basics) and sets up the [executors and virtual threads](/synapse/programming-languages/java/advanced/concurrency-high-level-and-virtual-threads) of the next chapter, which are built from these primitives. Thread scheduling is nondeterministic, so several outputs below vary per run and are **labeled illustrative** — each shows one real captured run; the deadlock in §2 is shown statically because a deadlocked program never finishes (the capture explains how we proved it).
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -111,7 +130,11 @@ Exception in thread "main" java.lang.IllegalMonitorStateException: current threa
 
 Second, and far worse because it *usually* works: guarding with `if` instead of `while`. A woken thread re-acquires the lock *later*, after other threads may have run — another consumer may have emptied the buffer again. The JVM is even allowed **spurious wakeups** (waking with no notify at all). Only re-checking in a loop makes the guard airtight.
 
-*Earned rule.* The guarded-block idiom is fixed: `synchronized` + `while (!condition) wait();` + `notifyAll()` after every state change that could make someone's condition true. The cost: it's verbose, easy to get subtly wrong (`if` vs `while`, `notify` vs `notifyAll`), and every waiter wakes to re-check even when the change doesn't concern it — which is exactly why the rest of this chapter exists.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** The guarded-block idiom is fixed: `synchronized` + `while (!condition) wait();` + `notifyAll()` after every state change that could make someone's condition true. The cost: it's verbose, easy to get subtly wrong (`if` vs `while`, `notify` vs `notifyAll`), and every waiter wakes to re-check even when the change doesn't concern it — which is exactly why the rest of this chapter exists.
+
+</div>
 
 ---
 
@@ -190,7 +213,11 @@ flowchart LR
 
 *Concrete bite.* The window is tiny and timing-dependent — remove the `pause()` and the program *usually* completes, because one thread grabs both locks before the other starts. That's what makes deadlock the cruelest concurrency bug: it passes tests for months, then freezes production the day load reshuffles the timing. The last chapter's earned rule warned "deadlock risk if you hold multiple locks carelessly"; this is that risk, made visible.
 
-*Earned rule.* Establish a global **lock ordering** — some fixed rank for every lock, acquired in rank order by all threads, everywhere — or don't hold two locks at once at all. The cost: ordering is an invisible, compiler-unenforceable convention you must document and defend in review; the discipline is why experienced designs minimize the number of locks a thread can hold to one.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Establish a global **lock ordering** — some fixed rank for every lock, acquired in rank order by all threads, everywhere — or don't hold two locks at once at all. The cost: ordering is an invisible, compiler-unenforceable convention you must document and defend in review; the discipline is why experienced designs minimize the number of locks a thread can hold to one.
+
+</div>
 
 ---
 
@@ -248,7 +275,11 @@ both finished — no deadlock
 
 *Concrete bite.* The back-off loop above is *livelock-prone* without the jittered sleep: two perfectly synchronized threads could acquire-fail-release in lockstep forever, busy but never progressing. The random retry delay is load-bearing, not decoration — delete it and the program still usually works, which is exactly the kind of "usually" §2 taught you to distrust.
 
-*Earned rule.* Reach for `ReentrantLock` when you need what `synchronized` can't do: timed or interruptible acquisition, fairness, multiple conditions per lock. Otherwise prefer `synchronized` — it's shorter, can't leak an unreleased lock, and the JVM optimizes it heavily. The cost of the explicit lock is the discipline: every `lock()` needs a `finally { unlock(); }`, forever.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for `ReentrantLock` when you need what `synchronized` can't do: timed or interruptible acquisition, fairness, multiple conditions per lock. Otherwise prefer `synchronized` — it's shorter, can't leak an unreleased lock, and the JVM optimizes it heavily. The cost of the explicit lock is the discipline: every `lock()` needs a `finally { unlock(); }`, forever.
+
+</div>
 
 ---
 
@@ -336,7 +367,11 @@ public class Main {
 
 *Concrete bite.* Pick by lifecycle, not surface similarity. A latch is *one-shot*: once it hits zero, `await()` returns instantly forever — reuse it for round two and round two doesn't wait at all. Needing the gate to work again is the signal you wanted a barrier. And a `Semaphore` has no notion of an owner: any thread can `release()`, which is flexibility *and* a hole — call `release()` on an exception path where you never acquired, and you've silently minted a permit; the bound is now 4, not 3.
 
-*Earned rule.* Before writing a guarded block, check the shelf: waiting for N completions is a latch; bounding concurrent access is a semaphore; a fixed team meeting between phases is a barrier. The cost is a vocabulary to learn and lifecycle rules to respect (one-shot vs reusable, ownerless permits) — far cheaper than debugging a hand-rolled `wait`/`notify` under load.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Before writing a guarded block, check the shelf: waiting for N completions is a latch; bounding concurrent access is a semaphore; a fixed team meeting between phases is a barrier. The cost is a vocabulary to learn and lifecycle rules to respect (one-shot vs reusable, ownerless permits) — far cheaper than debugging a hand-rolled `wait`/`notify` under load.
+
+</div>
 
 ---
 
@@ -430,7 +465,11 @@ queue -> c2
 
 *Concrete bite.* The tempting shortcut is a plain `ArrayDeque` "protected" by synchronized wrappers — but then *empty* and *full* become your problem again: poll returns `null` and you're back to busy-polling in a sleep loop, burning CPU and adding latency, or straight back to hand-written `wait`/`notify`. The blocking in `BlockingQueue` isn't a convenience feature; it *is* the coordination.
 
-*Earned rule.* Design concurrent programs as **stages connected by blocking queues** — each thread owns its data, and ownership *transfers* through the queue — rather than as threads sharing structures under locks. Reach for raw `wait`/`notify` only when no shelf tool fits. The cost: a queue per stage adds hand-off latency and a capacity to tune (too small throttles, too large hides problems and hoards memory), and shutdown needs a protocol (pills, or the interruption the next chapter's executors give you).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Design concurrent programs as **stages connected by blocking queues** — each thread owns its data, and ownership *transfers* through the queue — rather than as threads sharing structures under locks. Reach for raw `wait`/`notify` only when no shelf tool fits. The cost: a queue per stage adds hand-off latency and a capacity to tune (too small throttles, too large hides problems and hoards memory), and shutdown needs a protocol (pills, or the interruption the next chapter's executors give you).
+
+</div>
 
 ---
 
@@ -447,6 +486,8 @@ queue -> c2
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`IllegalMonitorStateException` from `wait`/`notify` →** you don't hold the monitor you're waiting on; both calls must be inside `synchronized` on that same object.
 - **A waiting thread woke up but its condition was false (or crashes later) →** you guarded with `if`; use `while` — wakeups are batched, out of date, and occasionally spurious.
 - **Used `notify()` and a thread waits forever →** the single notified thread wasn't the one whose condition changed; use `notifyAll()` unless every waiter is interchangeable.
@@ -455,9 +496,15 @@ queue -> c2
 - **A latch "stopped working" the second time →** latches are one-shot; a reusable phase-gate is a `CyclicBarrier`.
 - **With multiple consumers, some never shut down →** one poison pill stops one consumer; enqueue one per consumer (or switch to executor shutdown, next chapter).
 
+</div>
+
 ---
 
-*Predict, then check.* Predict what §1's buffer does if both `wait()` calls used `if` instead of `while` and there were *two* consumer threads — which line can now throw, and under what wakeup order? Next, predict whether §2's program can complete normally on a lucky run, and which of the four deadlock conditions the luck removes. Finally, predict `maxSeen` in the semaphore demo if one thread's code path called `release()` twice — and whether the `Semaphore` would object.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict what §1's buffer does if both `wait()` calls used `if` instead of `while` and there were *two* consumer threads — which line can now throw, and under what wakeup order? Next, predict whether §2's program can complete normally on a lucky run, and which of the four deadlock conditions the luck removes. Finally, predict `maxSeen` in the semaphore demo if one thread's code path called `release()` twice — and whether the `Semaphore` would object.
+
+</div>
 
 ## Your Turn
 

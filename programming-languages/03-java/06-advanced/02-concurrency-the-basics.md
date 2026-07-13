@@ -8,9 +8,27 @@ prereqs: []
 
 A **thread** is an independent path of execution; with several, your program does things *at the same time* — on multiple cores, truly in parallel. That's power and peril. The moment two threads touch the same mutable data without coordination, you get a **race condition**: operations interleave, updates clobber each other, and one thread may not even *see* another's writes. These bugs are the worst kind — silent, nondeterministic, often invisible in testing and catastrophic in production. The fix is coordination: **`synchronized`** enforces that only one thread at a time runs a critical section (mutual exclusion) *and* — through the **Java Memory Model's** happens-before rule — guarantees that one thread's writes become visible to the next. This chapter is the foundation; [coordination between threads](/synapse/programming-languages/java/advanced/concurrency-coordination) — waiting, multiple locks, and the synchronizers — comes next, then the higher-level tools and the memory model in depth.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A **thread** runs code concurrently, truly in parallel on multiple cores.
+- Sharing mutable state without coordination produces a **race condition** — silent and nondeterministic.
+- **`synchronized`** gives mutual exclusion *and*, via **happens-before**, visibility of one thread's writes to another.
+
+</div>
+
 This connects [shared references](/synapse/programming-languages/java/classes-and-objects/references-equality-and-the-object-model), [lambdas as `Runnable`s](/synapse/programming-languages/java/robust-oop/nested-and-anonymous-classes-and-lambdas), and the [parallel-stream race](/synapse/programming-languages/java/advanced/functional-java-and-streams) you just saw. Because thread scheduling is nondeterministic, some outputs below vary per run and are **labeled illustrative** — each shows one real captured run.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -100,7 +118,11 @@ stateDiagram-v2
 
 *Concrete bite.* `start()` and `run()` are different: `t.run()` just calls the method on the current thread (no new thread, no concurrency); only `t.start()` creates one. Calling `run()` thinking you've gone parallel is a classic beginner mistake — the code works, sequentially, hiding the bug until concurrency was the point.
 
-*Earned rule.* Create threads with a `Runnable` and `start()` them; use `join()` to wait for results. The cost is that you now own coordination — without it, inter-thread order and visibility are undefined; the benefit is genuine parallelism. (In practice you'll rarely manage raw `Thread`s — the next chapter's executors do it better — but the model here underlies all of it.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Create threads with a `Runnable` and `start()` them; use `join()` to wait for results. The cost is that you now own coordination — without it, inter-thread order and visibility are undefined; the benefit is genuine parallelism. (In practice you'll rarely manage raw `Thread`s — the next chapter's executors do it better — but the model here underlies all of it.)
+
+</div>
 
 ---
 
@@ -165,7 +187,11 @@ sequenceDiagram
 
 *Concrete bite.* The varying, sub-400,000 outputs are the race made visible. This is exactly the [parallel-stream data race](/synapse/programming-languages/java/advanced/functional-java-and-streams) from the last chapter, now in raw threads — and it's why "it passed in testing" means little for concurrent code: a race may manifest one run in a thousand, then constantly under production load.
 
-*Earned rule.* Treat *any* unsynchronized access to shared mutable state from multiple threads as a bug, even if it seems to work. The cost of recognizing this is pessimism about shared state; the benefit is avoiding the hardest category of bug — nondeterministic, test-evading corruption — by coordinating access, which the next section does.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Treat *any* unsynchronized access to shared mutable state from multiple threads as a bug, even if it seems to work. The cost of recognizing this is pessimism about shared state; the benefit is avoiding the hardest category of bug — nondeterministic, test-evading corruption — by coordinating access, which the next section does.
+
+</div>
 
 ---
 
@@ -204,7 +230,11 @@ public class Main {
 
 *Concrete bite.* The boundary: `synchronized` only protects threads locking on the *same* monitor. Two methods synchronized on *different* objects don't exclude each other, and an unsynchronized access to the same field still races. Locking is a discipline every accessor must follow — one unguarded write reopens the race.
 
-*Earned rule.* Guard every read and write of shared mutable state with synchronization on a *consistent* lock (a `synchronized` method/block, or the higher-level tools next chapter). The cost is contention and reduced parallelism (threads queue at the lock) plus deadlock risk if you hold multiple locks carelessly; the benefit is correctness — atomic critical sections instead of silent corruption.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Guard every read and write of shared mutable state with synchronization on a *consistent* lock (a `synchronized` method/block, or the higher-level tools next chapter). The cost is contention and reduced parallelism (threads queue at the lock) plus deadlock risk if you hold multiple locks carelessly; the benefit is correctness — atomic critical sections instead of silent corruption.
+
+</div>
 
 ---
 
@@ -240,7 +270,11 @@ sequenceDiagram
 
 *Concrete bite.* This is why a shared flag without `volatile` or a lock can spin forever: one thread sets `stop = true`, but the reader, with no happens-before edge, keeps reading a cached `false`. The bug isn't atomicity (a boolean write is atomic) — it's *visibility*, and only a happens-before relationship fixes it (the `volatile` and atomics of the next-but-one chapter).
 
-*Earned rule.* Establish a happens-before relationship — `synchronized`, `volatile`, or the `java.util.concurrent` tools — for *every* piece of state shared between threads, not just to prevent lost updates but to guarantee visibility. The cost is that you must think in terms of happens-before edges rather than "the variable just has a value"; the benefit is that your reads are guaranteed to see the writes you depend on, instead of stale cached data.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Establish a happens-before relationship — `synchronized`, `volatile`, or the `java.util.concurrent` tools — for *every* piece of state shared between threads, not just to prevent lost updates but to guarantee visibility. The cost is that you must think in terms of happens-before edges rather than "the variable just has a value"; the benefit is that your reads are guaranteed to see the writes you depend on, instead of stale cached data.
+
+</div>
 
 ---
 
@@ -257,6 +291,8 @@ sequenceDiagram
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A concurrent counter/total is wrong and varies per run →** a race on shared state; guard updates with `synchronized` (or an atomic).
 - **`run()` didn't run in parallel →** you called `run()` (same thread); use `start()` to create a new thread.
 - **`synchronized` "didn't help" →** the threads lock on *different* monitors, or some access is unsynchronized; use a consistent lock for every access.
@@ -264,9 +300,15 @@ sequenceDiagram
 - **It works in tests, fails under load →** races are nondeterministic; reason about correctness (happens-before), don't rely on testing alone.
 - **You asserted on thread ids or output order →** ids and interleavings vary per run (only `pid` is shared); never assert cross-thread order without a coordination point like `join`.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict whether two threads each doing `counter += 1` a million times, unsynchronized, can ever print exactly `2000000` — and why it usually won't. Next, predict the difference between `t.start()` and `t.run()` for a task that prints the current thread's name. Finally, explain in terms of happens-before why a `boolean running` flag set by one thread and polled by another should be `volatile`, even though a boolean write is atomic.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict whether two threads each doing `counter += 1` a million times, unsynchronized, can ever print exactly `2000000` — and why it usually won't. Next, predict the difference between `t.start()` and `t.run()` for a task that prints the current thread's name. Finally, explain in terms of happens-before why a `boolean running` flag set by one thread and polled by another should be `volatile`, even though a boolean write is atomic.
+
+</div>
 
 ## Your Turn
 

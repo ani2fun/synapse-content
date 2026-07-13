@@ -8,9 +8,27 @@ prereqs: []
 
 You've used `static` since `main` and met it again on helper methods; now it earns a precise definition. A **`static`** member belongs to the **class itself** — there is exactly one copy, shared by everything — while an **instance** member belongs to each **object**, with a fresh copy per `new`. That one distinction decides where a value lives, who can see it, and what a method is allowed to touch: a `static` method has no object, hence no `this`, hence no access to instance fields. The same keyword gives you class-wide **constants** (`static final`) and one-time class setup (a `static` block).
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A **`static`** member belongs to the **class** — one shared copy — while an **instance** member belongs to each **object**.
+- A `static` method has no `this`, so it cannot touch instance fields.
+- The same keyword gives class-wide **constants** (`static final`) and one-time class setup.
+
+</div>
+
 This is the deep pass of [the `static` you've used on methods](/synapse/programming-languages/java/control-flow/methods), now set against the [instance state of objects](/synapse/programming-languages/java/classes-and-objects/classes-and-objects). Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -79,7 +97,11 @@ c -> cls
 
 *Concrete bite.* Because the static field is shared, a change through *any* path is seen by *all* — `count` reached `3` because three different constructors all incremented the same variable. That is the feature (a class-wide tally) and the hazard (shared mutable state that any instance can change).
 
-*Earned rule.* Use a `static` field for state that genuinely belongs to the class as a whole — a counter, a shared cache, a registry — and an instance field for anything that differs per object. The cost of `static` mutable state is exactly its sharing: it is effectively global, so changes from anywhere are visible everywhere, which makes it hard to reason about and unsafe under concurrency (a theme that returns in Tier 5).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a `static` field for state that genuinely belongs to the class as a whole — a counter, a shared cache, a registry — and an instance field for anything that differs per object. The cost of `static` mutable state is exactly its sharing: it is effectively global, so changes from anywhere are visible everywhere, which makes it hard to reason about and unsafe under concurrency (a theme that returns in Tier 5).
+
+</div>
 
 ---
 
@@ -145,7 +167,11 @@ Main.java:4: error: non-static variable id cannot be referenced from a static co
 
 `show()` is `static`, so there is no `this` and no particular widget whose `id` to print — "non-static variable `id` … from a static context." (This is the same rule that stopped `Rectangle.area()` last tier: instance state needs an instance.)
 
-*Earned rule.* Make a method `static` when it doesn't depend on any one object's state — a utility that works purely from its arguments — and an instance method when it operates on `this` object's fields. The cost of guessing wrong is a compile error the moment a static method reaches for instance state; the upside is that the signature tells the truth — a `static` method visibly needs no object, so you can call it without making one.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Make a method `static` when it doesn't depend on any one object's state — a utility that works purely from its arguments — and an instance method when it operates on `this` object's fields. The cost of guessing wrong is a compile error the moment a static method reaches for instance state; the upside is that the signature tells the truth — a `static` method visibly needs no object, so you can call it without making one.
+
+</div>
 
 ---
 
@@ -204,7 +230,11 @@ Main.java:3: error: cannot assign a value to static final variable MAX
 
 `MAX` is `static final`, set once at declaration, so `raise()`'s attempt to change it won't compile. A constant is constant — there is no method that can move it.
 
-*Earned rule.* Use `static final` for fixed, shared values — limits, conversion factors, configuration that never changes at run time — and name them in `UPPER_SNAKE_CASE` so readers know they're constants. The cost is none for truly fixed values; the discipline is reserving it for things that are *actually* constant, since a `static final` you later need to vary forces a real redesign.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `static final` for fixed, shared values — limits, conversion factors, configuration that never changes at run time — and name them in `UPPER_SNAKE_CASE` so readers know they're constants. The cost is none for truly fixed values; the discipline is reserving it for things that are *actually* constant, since a `static final` you later need to vary forces a real redesign.
+
+</div>
 
 ---
 
@@ -247,7 +277,11 @@ static block ran
 
 *Concrete bite.* The single `static block ran` line is the proof of "once": `main` touched `Lookup` twice (`SQUARES[3]` and `SQUARES[4]`), yet the block ran a single time. Class initialization does not repeat, no matter how many times the class is used or how many objects you create.
 
-*Earned rule.* Use a `static` block for class-level setup that needs more than a literal — building a lookup table, validating configuration, registering something — and rely on its run-once, lazy-on-first-use timing. The cost is that the *moment* it runs is subtle (first use, not program start), so a `static` block with side effects or ordering dependencies can surprise you; keep them simple and side-effect-light.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a `static` block for class-level setup that needs more than a literal — building a lookup table, validating configuration, registering something — and rely on its run-once, lazy-on-first-use timing. The cost is that the *moment* it runs is subtle (first use, not program start), so a `static` block with side effects or ordering dependencies can surprise you; keep them simple and side-effect-light.
+
+</div>
 
 ---
 
@@ -263,15 +297,23 @@ static block ran
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`non-static variable … cannot be referenced from a static context` →** a `static` method (or `main`) touched an instance field; make the method non-static, or pass/create an object.
 - **A counter or cache behaves "globally" across objects →** it's a `static` field, shared by all instances; use an instance field for per-object state.
 - **`cannot assign a value to static final variable` →** you tried to change a constant; `static final` is set once — redesign if it must vary.
 - **A `static` block seems to run at the "wrong" time →** classes initialize lazily on first use, not at program start; don't depend on early side effects.
 - **You called `ClassName.method()` and it failed →** that method is an instance method needing an object; call it on an instance instead.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the output of `new Widget(); new Widget(); System.out.println(Widget.count);` for the §1 class. Next, decide whether a method `static double areaOf(double r)` (using only `r` and `PI`) would compile inside `Circle` — and whether `static double area()` (using the instance field `radius`) would. Finally, predict whether `static block ran` would print if `main` *never* mentioned `Lookup` at all — and explain why.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the output of `new Widget(); new Widget(); System.out.println(Widget.count);` for the §1 class. Next, decide whether a method `static double areaOf(double r)` (using only `r` and `PI`) would compile inside `Circle` — and whether `static double area()` (using the instance field `radius`) would. Finally, predict whether `static block ran` would print if `main` *never* mentioned `Lookup` at all — and explain why.
+
+</div>
 
 ## Your Turn
 

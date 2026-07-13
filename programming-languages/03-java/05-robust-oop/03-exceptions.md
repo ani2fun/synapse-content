@@ -8,9 +8,27 @@ prereqs: []
 
 You've already seen programs crash — a [NullPointerException](/synapse/programming-languages/java/classes-and-objects/references-equality-and-the-object-model), an [ArithmeticException](/synapse/programming-languages/java/first-steps/numbers-and-arithmetic), a bad [parse](/synapse/programming-languages/java/first-steps/input-and-output). An **exception** is Java's mechanism for signaling "something went wrong" and *transferring control* to code that can deal with it, instead of returning error codes that callers forget to check. The defining design choice is the split between **checked** exceptions — recoverable conditions the *compiler forces* you to handle or declare — and **unchecked** ones (`RuntimeException`), which signal programming bugs and carry no such requirement. Around that split sit `try`/`catch` to recover, `throw`/`throws` to raise and declare, `finally` to always clean up, and `try`-with-resources to close things automatically.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- An **exception** signals "something went wrong" and **transfers control** to code that can handle it.
+- The defining split: **checked** (compiler forces you to handle or declare) vs **unchecked** (`RuntimeException`, bugs).
+- Around it sit `try`/`catch`, `throw`/`throws`, `finally`, and `try`-with-resources.
+
+</div>
+
 Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -62,7 +80,11 @@ done
 
 *Concrete bite.* The win is targeted recovery: only the operations that can fail are guarded, and the handler decides what "recover" means (skip, retry, default). Catch too broadly (`catch (Exception e)`) and you may swallow bugs you'd rather see; catch the *specific* type and unexpected exceptions still propagate.
 
-*Earned rule.* Wrap exactly the operation that can fail in a `try`, and `catch` the *specific* exception you can actually handle. The cost is structure (and the temptation to over-catch); the benefit is that anticipated failures become recoverable events instead of crashes — and the `catch`'s scope documents precisely which line was expected to fail.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Wrap exactly the operation that can fail in a `try`, and `catch` the *specific* exception you can actually handle. The cost is structure (and the temptation to over-catch); the benefit is that anticipated failures become recoverable events instead of crashes — and the `catch`'s scope documents precisely which line was expected to fail.
+
+</div>
 
 ---
 
@@ -136,7 +158,11 @@ Main.java:7: error: unreported exception IOException; must be caught or declared
 
 `IOException` is checked, so calling `risky()` without a `try`/`catch` (or a `throws` on `main`) won't compile — "unreported exception … must be caught or declared." Wrapping the call fixes it: `try { risky(); } catch (IOException e) { … }`.
 
-*Earned rule.* Use checked exceptions for recoverable, expected conditions a caller should consciously handle (a missing file, a network timeout), and unchecked (`RuntimeException`) for programming errors (null, bad argument, bad index) that signal a bug to fix, not a case to handle. The cost is the famous friction of checked exceptions — they propagate up through every signature; the benefit is the compiler guaranteeing that anticipated failures are not silently ignored.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use checked exceptions for recoverable, expected conditions a caller should consciously handle (a missing file, a network timeout), and unchecked (`RuntimeException`) for programming errors (null, bad argument, bad index) that signal a bug to fix, not a case to handle. The cost is the famous friction of checked exceptions — they propagate up through every signature; the benefit is the compiler guaranteeing that anticipated failures are not silently ignored.
+
+</div>
 
 ---
 
@@ -186,7 +212,11 @@ denied: need 100, have 50
 
 *Concrete bite.* A custom exception beats a generic one (`throw new Exception("...")`): callers can `catch (InsufficientFundsException e)` specifically, distinguish it from other failures, and the type itself documents the condition. The message (`super(msg)`) and any extra fields travel with it to the handler.
 
-*Earned rule.* `throw` a *specific* exception type (custom when no standard one fits) and declare checked ones with `throws`; extend `Exception` for conditions callers should handle, `RuntimeException` for misuse/bugs. The cost is a class per condition and `throws` plumbing; the benefit is failures that are named, catchable by type, and self-documenting — far better than error codes or a bare boolean return.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** `throw` a *specific* exception type (custom when no standard one fits) and declare checked ones with `throws`; extend `Exception` for conditions callers should handle, `RuntimeException` for misuse/bugs. The cost is a class per condition and `throws` plumbing; the benefit is failures that are named, catchable by type, and self-documenting — far better than error codes or a bare boolean return.
+
+</div>
 
 ---
 
@@ -222,7 +252,11 @@ from try
 
 *Concrete bite.* The `finally ran`-before-`from try` order is the surprise: people expect a `return` to leave immediately. It doesn't — `finally` always gets its turn first, which is the whole point (release the lock, close the file, even if you bailed early). The trap to avoid is *returning* from `finally`, which silently discards the `try`'s exception or value.
 
-*Earned rule.* Put must-always-run cleanup in `finally`, and never `return` (or `throw`) from inside it. The cost is remembering that `finally` runs on every path (so it can mask the `try`'s outcome if you misuse it); the benefit is cleanup that's guaranteed regardless of how the block exits — though for *resources*, the next section's tool is cleaner still.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Put must-always-run cleanup in `finally`, and never `return` (or `throw`) from inside it. The cost is remembering that `finally` runs on every path (so it can mask the `try`'s outcome if you misuse it); the benefit is cleanup that's guaranteed regardless of how the block exits — though for *resources*, the next section's tool is cleaner still.
+
+</div>
 
 ---
 
@@ -263,7 +297,11 @@ after
 
 *Concrete bite.* The alternative — a manual `finally { r.close(); }` — is where leaks hide: forget it, get the ordering wrong, or let `close()` itself throw and mask the real error, and a file handle or connection leaks. `try`-with-resources removes that whole class of bug by construction; the close is not optional and not yours to forget.
 
-*Earned rule.* Use `try`-with-resources for anything you must close — files, streams, sockets, connections, locks — and reserve a bare `finally` for cleanup that isn't an `AutoCloseable`. The cost is that your resource type must implement `AutoCloseable`; the benefit is guaranteed, correctly-ordered, exception-safe cleanup with none of the manual `finally` boilerplate that leaks resources when forgotten. (Tutorial 33 uses it for real file I/O.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `try`-with-resources for anything you must close — files, streams, sockets, connections, locks — and reserve a bare `finally` for cleanup that isn't an `AutoCloseable`. The cost is that your resource type must implement `AutoCloseable`; the benefit is guaranteed, correctly-ordered, exception-safe cleanup with none of the manual `finally` boilerplate that leaks resources when forgotten. (Tutorial 33 uses it for real file I/O.)
+
+</div>
 
 ---
 
@@ -279,15 +317,23 @@ after
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`unreported exception …; must be caught or declared` →** a checked exception isn't handled; wrap it in `try`/`catch` or add `throws` to the method.
 - **An exception crashes despite a `catch` →** the `catch` type doesn't match (too specific, or the throw is unchecked and uncaught elsewhere); catch the actual type.
 - **Cleanup didn't run on an early `return` →** put it in `finally` (or use `try`-with-resources), which runs on every exit path.
 - **An exception "disappeared" →** you `return`ed (or threw) from `finally`, discarding the original; never exit from `finally`.
 - **A file/stream/connection leaked →** you closed it manually (or forgot); use `try`-with-resources so `close()` is guaranteed.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the output of a loop that `parseInt`s `{"1", "x", "3"}` inside a `try`/`catch`, summing the valid ones and printing the total. Next, predict whether a method `void read() throws IOException` can be called from `main` without a `try` — and what error you get if not. Finally, predict the exact line order printed by a `try`-with-resources opening two resources `A` then `B` (each printing on open and close), and explain why `B` closes before `A`.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the output of a loop that `parseInt`s `{"1", "x", "3"}` inside a `try`/`catch`, summing the valid ones and printing the total. Next, predict whether a method `void read() throws IOException` can be called from `main` without a `try` — and what error you get if not. Finally, predict the exact line order printed by a `try`-with-resources opening two resources `A` then `B` (each printing on open and close), and explain why `B` closes before `A`.
+
+</div>
 
 ## Your Turn
 

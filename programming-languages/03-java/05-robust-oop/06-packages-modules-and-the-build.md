@@ -8,9 +8,28 @@ prereqs: []
 
 Everything so far has been one file. Real programs are hundreds of classes across many files, pulling in libraries, built and shipped as artifacts — and Java has a layered system for that. **Packages** group related classes into namespaces, and the **classpath** tells the tools where to find them. **Access modifiers** gain their full meaning here: `public` vs package-private is a *boundary*, enforced between packages. The **module system** (JPMS, `module-info.java`) goes a level up: a module declares which packages it **exports** and which others it **requires**, so even a `public` class stays hidden unless its package is exported. **JARs** bundle compiled classes into one file, and **Maven/Gradle** automate compiling, dependency-fetching, and packaging.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- **Packages** namespace classes; the **classpath** tells the tools where to find them.
+- **Access modifiers** become a real boundary enforced *between* packages.
+- The **module system** (`module-info.java`) makes `exports`/`requires` explicit — even a `public` type stays hidden unless exported.
+- **JARs** bundle classes; **Maven/Gradle** automate the whole build.
+
+</div>
+
 Because these examples span *multiple files* and use the `javac`/`jar`/`java` tools, they're shown as real terminal sessions — every command and its output was run and captured locally (the in-page ▶ Run sandbox compiles a single file, so it can't build a multi-package project). Every output below was produced by actually running these commands.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -66,7 +85,11 @@ HELLO!
 
 *Concrete bite.* The directory must match the package — `package com.example.util` *must* live in `…/com/example/util/`, or compilation fails. And `import` is not C's `#include`: it copies no code, just lets you use a short name; the class is found at run time via the classpath.
 
-*Earned rule.* Organize classes into packages by feature/layer, matching directories to package names, and run with the right classpath. The cost is the directory discipline and getting the classpath right (a frequent "could not find or load main class" cause); the benefit is namespaced, collision-free organization that scales from one file to thousands.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Organize classes into packages by feature/layer, matching directories to package names, and run with the right classpath. The cost is the directory discipline and getting the classpath right (a frequent "could not find or load main class" cause); the benefit is namespaced, collision-free organization that scales from one file to thousands.
+
+</div>
 
 ---
 
@@ -107,7 +130,11 @@ src2/com/example/Main.java:5: error: whisper(String) is not public in Text; cann
 
 *Concrete bite.* This is real encapsulation, not convention: a package can expose a `public` API while keeping helper classes and methods package-private, and no outside code can reach them — the compiler enforces it. It's how libraries hide their internals from consumers.
 
-*Earned rule.* Make a package's intended API `public` and keep everything else package-private (the default) so internals stay internal across the boundary. The cost is thinking about what belongs to the API; the benefit is that a package's surface is exactly what you marked `public` — but, as the next section shows, the classpath has a hole this can't close.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Make a package's intended API `public` and keep everything else package-private (the default) so internals stay internal across the boundary. The cost is thinking about what belongs to the API; the benefit is that a package's surface is exactly what you marked `public` — but, as the next section shows, the classpath has a hole this can't close.
+
+</div>
 
 ---
 
@@ -160,7 +187,11 @@ client -> mod.internal: "cannot access"
 
 *Concrete bite.* This is "strong encapsulation": the classpath's hole (public-but-internal types leaking) is sealed. It's why the JDK itself is modularized — `java.base`, `java.sql`, etc. — and why reflective access into JDK internals now requires explicit `--add-opens`.
 
-*Earned rule.* Use modules when you ship a library or large app and want to *enforce* its API surface and dependencies, not just document them. The cost is real friction (every dependency must be `requires`d, reflective and classpath tricks break, and much of the ecosystem still runs on the classpath); the benefit is reliable, declared boundaries — so for application code the classpath is often fine, and modules earn their keep for libraries and platforms.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use modules when you ship a library or large app and want to *enforce* its API surface and dependencies, not just document them. The cost is real friction (every dependency must be `requires`d, reflective and classpath tricks break, and much of the ecosystem still runs on the classpath); the benefit is reliable, declared boundaries — so for application code the classpath is often fine, and modules earn their keep for libraries and platforms.
+
+</div>
 
 ---
 
@@ -194,7 +225,11 @@ HELLO!
 ```
 or the Gradle equivalent `implementation("com.google.guava:guava:33.0.0-jre")` — declares a library by coordinates, and the tool resolves it (and *its* dependencies, transitively) so you never manage JARs by hand.
 
-*Earned rule.* Use `javac`/`jar` to understand what's happening, but use a build tool (Maven or Gradle) for any real project — declare dependencies by coordinates and let it handle resolution, compilation, and packaging. The cost is learning the tool and its conventions; the benefit is reproducible builds with managed, transitive dependencies, which is non-negotiable past a couple of files. (Tutorial 35 returns to build tools alongside testing and shipping a runnable JAR.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `javac`/`jar` to understand what's happening, but use a build tool (Maven or Gradle) for any real project — declare dependencies by coordinates and let it handle resolution, compilation, and packaging. The cost is learning the tool and its conventions; the benefit is reproducible builds with managed, transitive dependencies, which is non-negotiable past a couple of files. (Tutorial 35 returns to build tools alongside testing and shipping a runnable JAR.)
+
+</div>
 
 ---
 
@@ -210,15 +245,23 @@ or the Gradle equivalent `implementation("com.google.guava:guava:33.0.0-jre")` �
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`could not find or load main class` →** the classpath is wrong or the package/directory don't match; run with `-cp <root>` and the fully-qualified name.
 - **`package X does not exist` / `cannot find symbol` →** the dependency isn't on the classpath, or the directory doesn't match the `package` declaration.
 - **A `public` class is still reachable you wanted hidden →** package-private only hides members; use a module and *not* `exports`-ing its package for strong encapsulation.
 - **A modular app fails with `module not found` / `package not visible` →** add the needed `requires`/`exports` to `module-info.java`; the module graph is enforced.
 - **Managing library JARs by hand →** use Maven or Gradle; declare dependencies by coordinates and let it resolve them transitively.
 
+</div>
+
 ---
 
-*Predict, then check.* Given `package com.shop.model;` in a file, predict which directory it must live in. Next, if `com.shop.model.Order` has a `public` field and a package-private `validate()` method, predict which a class in `com.shop.web` can access. Finally, for a module that declares only `exports com.shop.api;`, predict whether another module can use a `public` class in `com.shop.internal` — and what one line in `module-info.java` would change the answer.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Given `package com.shop.model;` in a file, predict which directory it must live in. Next, if `com.shop.model.Order` has a `public` field and a package-private `validate()` method, predict which a class in `com.shop.web` can access. Finally, for a module that declares only `exports com.shop.api;`, predict whether another module can use a `public` class in `com.shop.internal` — and what one line in `module-info.java` would change the answer.
+
+</div>
 
 ## Your Turn
 

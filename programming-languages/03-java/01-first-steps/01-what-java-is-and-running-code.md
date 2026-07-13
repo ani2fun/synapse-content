@@ -8,9 +8,27 @@ prereqs: []
 
 Java is a **compiled** language, and that one fact shapes everything you are about to do. You write **source code** — text, like the program below. Before it can run, a tool called the **compiler** reads the *whole* file, checks it for mistakes, and translates it into **bytecode**: instructions for an imaginary computer called the **Java Virtual Machine** (the **JVM**). The JVM is a real program on your machine that reads that bytecode and carries it out. So running Java is always two steps — **compile, then run** — and the payoff is portability: because the bytecode targets the *virtual* machine and not your specific laptop, the same compiled program runs unchanged on Windows, macOS, or Linux. "Write once, run anywhere" is not a slogan; it is the consequence of that extra compile step.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- You write **source code**; a **compiler** translates the whole file into **bytecode**.
+- The **JVM** runs that bytecode — so running Java is always **compile, then run**.
+- Because bytecode targets a *virtual* machine, the same program runs unchanged anywhere.
+
+</div>
+
 This chapter gets you running real Java and shows you both halves of that loop — including what it looks like when each half says *no*, because Java says no in two very different ways. You don't need anything installed: every block with a ▶ Run button compiles and runs in a sandboxed **Java 21** environment — the same one that produced every `Output:` block below. Every output here was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -68,7 +86,11 @@ Main.java:3: error: ';' expected
 
 The compiler read the whole file, found that the statement on line 3 had no `;`, and refused to produce bytecode. Nothing ran; there is no `Hello, world!` anywhere, because there was nothing to run.
 
-*Earned rule.* Java checks first and runs second, so a program that doesn't compile produces **no** output — not even the lines before the mistake. The cost is up-front strictness: you must satisfy the compiler before you see anything happen. The benefit, which compounds with every chapter, is that a whole category of mistakes is caught *before* your program ever touches real data — the compiler is a proof-checker you run for free.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Java checks first and runs second, so a program that doesn't compile produces **no** output — not even the lines before the mistake. The cost is up-front strictness: you must satisfy the compiler before you see anything happen. The benefit, which compounds with every chapter, is that a whole category of mistakes is caught *before* your program ever touches real data — the compiler is a proof-checker you run for free.
+
+</div>
 
 ---
 
@@ -137,7 +159,11 @@ Caused by: java.lang.ClassNotFoundException: Ghost
 
 There is no `Ghost.class`, so the JVM stops before running a single instruction. This is a *run-time* failure — the JVM complaining — not a *compile-time* one; the two are different stages with different error styles, a distinction the next section sharpens.
 
-*Earned rule.* Compiling and running are separate steps with separate failures: `javac` rejects bad *source* (compile-time); the JVM rejects missing or broken *bytecode* (run-time). The cost of two steps is the ceremony of compiling before running; the benefit is **portability** — `Main.class` is plain bytecode, so the very same file runs on any machine with a JVM, which is why a Java program built on a developer's Mac runs unchanged on a Linux server.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Compiling and running are separate steps with separate failures: `javac` rejects bad *source* (compile-time); the JVM rejects missing or broken *bytecode* (run-time). The cost of two steps is the ceremony of compiling before running; the benefit is **portability** — `Main.class` is plain bytecode, so the very same file runs on any machine with a JVM, which is why a Java program built on a developer's Mac runs unchanged on a Linux server.
+
+</div>
 
 For quick experiments there is a third tool, **jshell**, a Java REPL (Read–Eval–Print Loop) that evaluates one expression at a time with no class and no `main`:
 
@@ -199,7 +225,11 @@ or a JavaFX application class must extend javafx.application.Application
 
 It compiled (the method is valid Java), but it never ran `greet`, because the JVM only ever calls `main`. The error even reminds you of the exact shape it wants. `never printed` never printed.
 
-*Earned rule.* The entry point must be exactly `public static void main(String[] args)` — the JVM matches it literally. The cost is that a typo in the *signature* (a capital `Main`, a missing `static`, a wrong parameter) gives you not a helpful compile error but a run-time "main method not found," because the method you wrote is legal — it is just not the one the JVM calls. When a program compiles but won't start, check the `main` signature first.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** The entry point must be exactly `public static void main(String[] args)` — the JVM matches it literally. The cost is that a typo in the *signature* (a capital `Main`, a missing `static`, a wrong parameter) gives you not a helpful compile error but a run-time "main method not found," because the method you wrote is legal — it is just not the one the JVM calls. When a program compiles but won't start, check the `main` signature first.
+
+</div>
 
 **A note on newer Java.** Since JDK 25 you can write a simpler entry point — `void main()` with no `public`, no `static`, no `String[] args`, not even the surrounding class — as a convenience for learning and small scripts. This book targets **JDK 21**, the current long-term-support release, and teaches the classic `public static void main(String[] args)` because it is what nearly all existing code uses and what runs everywhere today. When you meet the short form later, you will understand exactly what it leaves out — and why dropping it was safe.
 
@@ -248,7 +278,11 @@ d
 
 The `a`, `b`, and `c` all landed on one line (`abc`) because only the `println` at `c` ended it; then `d` printed on the next line. Swap a `print` for a `println` earlier and the line would split sooner.
 
-*Earned rule.* Use `println` when you want each piece on its own line, `print` when you are building a line in parts. The cost of confusing them is cosmetic but common: a row of `print` calls runs your output together (`abc`), and a stray `println` breaks a line you meant to keep whole. When in doubt, `println` is the safe default — most output is line-at-a-time.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `println` when you want each piece on its own line, `print` when you are building a line in parts. The cost of confusing them is cosmetic but common: a row of `print` calls runs your output together (`abc`), and a stray `println` breaks a line you meant to keep whole. When in doubt, `println` is the safe default — most output is line-at-a-time.
+
+</div>
 
 ---
 
@@ -280,7 +314,11 @@ code runs
 
 *Concrete bite.* The missing line is the proof: the output is only `code runs`. The commented-out `println` was legal code, but because it sat behind `//` the compiler never saw it as an instruction, so it produced nothing.
 
-*Earned rule.* Comment to explain **why**, not to restate **what** the code plainly does; and "comment out" a line to disable it while you experiment. The cost is that comments are never checked against the code — the compiler ignores them, so a comment gone stale will state a falsehood with total confidence. Keep them honest, or delete them.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Comment to explain **why**, not to restate **what** the code plainly does; and "comment out" a line to disable it while you experiment. The cost is that comments are never checked against the code — the compiler ignores them, so a comment gone stale will state a falsehood with total confidence. Keep them honest, or delete them.
+
+</div>
 
 ---
 
@@ -298,6 +336,8 @@ code runs
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`error: ';' expected` →** a statement is missing its terminating `;`; the caret `^` points just past where it belongs.
 - **`Could not find or load main class X` →** you ran `java X` but there is no compiled `X.class` (you didn't compile, or mistyped the name); compile first with `javac X.java`, and name the *class*, not the file.
 - **Compiles fine but `Main method not found` at run time →** your entry method isn't exactly `public static void main(String[] args)`; check spelling, `static`, and the parameter.
@@ -305,9 +345,15 @@ code runs
 - **A line you expected to run did nothing →** it is behind `//` or inside `/* */`; remove the comment markers.
 - **Edited the code but the output didn't change (on a terminal) →** you re-ran `java` without re-running `javac`, so the old `.class` ran; recompile after every edit. (The Run button here recompiles for you.)
 
+</div>
+
 ---
 
-*Predict, then check.* Look again at the §3 program whose method is named `greet` instead of `main`. Before re-running it, answer two questions: does it **compile**? And does it **run**? Then fix it by renaming `greet` to `main`, and predict the output before clicking Run. If you can explain why the broken version compiles but won't start, you have understood the most important idea in this chapter: **Java checks your program at compile time and again at run time, and the two stages fail in different ways.**
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Look again at the §3 program whose method is named `greet` instead of `main`. Before re-running it, answer two questions: does it **compile**? And does it **run**? Then fix it by renaming `greet` to `main`, and predict the output before clicking Run. If you can explain why the broken version compiles but won't start, you have understood the most important idea in this chapter: **Java checks your program at compile time and again at run time, and the two stages fail in different ways.**
+
+</div>
 
 ## Your Turn
 

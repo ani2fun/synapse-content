@@ -8,9 +8,27 @@ prereqs: []
 
 Until now your programs have been free-floating `static` methods passing primitives and arrays around. A **class** changes the unit of organization: it bundles **data** (its *fields*) together with the **operations** on that data (its *methods*) into one named blueprint. From that blueprint, `new` builds **objects** (also called *instances*) — each a self-contained bundle with its own copy of the fields. This is the leap from "code that acts on data" to "data that knows how to act," and it rests on one idea you already met: an object variable holds a *reference*, so two variables can point at the same object.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A **class** bundles **data** (fields) with the **operations** on it (methods) into one blueprint.
+- `new` builds **objects** from it, each with its own copy of the fields.
+- An object variable holds a **reference**, so two variables can point at the same object.
+
+</div>
+
 This builds directly on [methods](/synapse/programming-languages/java/control-flow/methods) — especially [pass-by-value of references](/synapse/programming-languages/java/control-flow/methods) — and the [arrays](/synapse/programming-languages/java/control-flow/arrays) that were our first objects. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -92,7 +110,11 @@ Main.java:7: error: non-static method area() cannot be referenced from a static 
 
 `Rectangle.area()` tries to call `area` on the *class* — but `area` needs an *object*'s `width` and `height`, and there isn't one. Instance methods require an instance; that's the difference between `r.area()` (an object) and `Rectangle.area()` (the class).
 
-*Earned rule.* Group a piece of data with the methods that operate on it into a class, and call instance methods through an object (`r.area()`). The cost of this bundling is the ceremony of creating objects before you can use their behavior; the benefit is that an object carries its own data, so a method never has to be handed the state it works on — it already has it.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Group a piece of data with the methods that operate on it into a class, and call instance methods through an object (`r.area()`). The cost of this bundling is the ceremony of creating objects before you can use their behavior; the benefit is that an object carries its own data, so a method never has to be handed the state it works on — it already has it.
+
+</div>
 
 ---
 
@@ -155,7 +177,11 @@ Main.java:7: error: constructor Rectangle in class Rectangle cannot be applied t
 
 Once `Rectangle(int, int)` exists, the implicit no-arg constructor is gone, so `new Rectangle()` (no arguments) has nothing to match. If you want both, declare both — Java lets you overload constructors exactly like methods.
 
-*Earned rule.* Use a constructor to guarantee every new object starts in a valid state, with its required fields supplied at creation. The cost is that defining one constructor removes the free no-arg one — so if some callers still need `new T()`, you must declare that no-arg constructor yourself; the benefit is that "an object with `width` set but `height` forgotten" becomes impossible to create.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a constructor to guarantee every new object starts in a valid state, with its required fields supplied at creation. The cost is that defining one constructor removes the free no-arg one — so if some callers still need `new T()`, you must declare that no-arg constructor yourself; the benefit is that "an object with `width` set but `height` forgotten" becomes impossible to create.
+
+</div>
 
 ---
 
@@ -218,7 +244,11 @@ public class Main {
 
 `width = width` reads the parameter and assigns it right back to the parameter — the *field* `width` is never touched, so it keeps its default `0`. With both fields still `0`, `area()` returns `0`, not `12`. The code compiled, ran, and gave a confidently wrong answer.
 
-*Earned rule.* When a parameter shadows a field, qualify the field with `this.` — `this.width = width`. The cost of the shadowing convention (reusing the field's name for the parameter) is exactly this trap, a self-assignment that silently leaves fields at their defaults; many compilers and IDEs warn about it, but the language allows it, so make `this.` a habit in constructors and setters.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** When a parameter shadows a field, qualify the field with `this.` — `this.width = width`. The cost of the shadowing convention (reusing the field's name for the parameter) is exactly this trap, a self-assignment that silently leaves fields at their defaults; many compilers and IDEs warn about it, but the language allows it, so make `this.` a habit in constructors and setters.
+
+</div>
 
 ---
 
@@ -297,7 +327,11 @@ public class Main {
 
 `Counter c = a` did **not** make a second counter — it made `c` another name for `a`'s object. So `a.increment()` and `c.increment()` both ticked the *same* `count`, ending at `2`. To get a genuinely separate counter you must `new` one; `=` between object variables only copies the handle.
 
-*Earned rule.* Reach for `new` whenever you need a distinct object; remember that assigning object variables aliases them rather than copying the object. The cost of references is exactly this aliasing surprise — "I changed `c` and `a` changed too" — which is the same pass-by-value-of-a-reference effect from the last chapter, and the doorway to the full stack/heap object model in Tutorial 15.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for `new` whenever you need a distinct object; remember that assigning object variables aliases them rather than copying the object. The cost of references is exactly this aliasing surprise — "I changed `c` and `a` changed too" — which is the same pass-by-value-of-a-reference effect from the last chapter, and the doorway to the full stack/heap object model in Tutorial 15.
+
+</div>
 
 ---
 
@@ -313,15 +347,23 @@ public class Main {
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`non-static method … cannot be referenced from a static context` →** you called an instance method on the class; call it on an object (`r.area()`, not `Rectangle.area()`).
 - **`constructor … cannot be applied to given types` / `new T()` won't compile →** you defined a constructor with parameters, removing the no-arg one; add a no-arg constructor or pass the arguments.
 - **Fields stay `0`/`null` after construction →** a `width = width` self-assignment (missing `this.`); qualify the field with `this.`.
 - **Two "different" objects change together →** they're aliased (`b = a` copied the reference); use `new` to make a separate object.
 - **An object came back with unset fields →** no constructor enforced initialization; add one that requires the needed fields.
 
+</div>
+
 ---
 
-*Predict, then check.* Add a `String name` field and a constructor `Rectangle(int width, int height, String name)` to the §3 class — predict what `area()` returns if you write `width = width` but `this.name = name`. Next, predict the output of: `Counter x = new Counter(); Counter y = new Counter(); Counter z = x; x.increment(); z.increment(); y.increment();` then printing `x.count`, `y.count`, `z.count`. Finally, explain why `area()` needs no parameters even though it uses `width` and `height`.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Add a `String name` field and a constructor `Rectangle(int width, int height, String name)` to the §3 class — predict what `area()` returns if you write `width = width` but `this.name = name`. Next, predict the output of: `Counter x = new Counter(); Counter y = new Counter(); Counter z = x; x.increment(); z.increment(); y.increment();` then printing `x.count`, `y.count`, `z.count`. Finally, explain why `area()` needs no parameters even though it uses `width` and `height`.
+
+</div>
 
 ## Your Turn
 

@@ -8,9 +8,27 @@ prereqs: []
 
 A **String** is a piece of text — characters in double quotes, like `"Ada"`. But unlike the [primitives of the last chapter](/synapse/programming-languages/java/first-steps/variables-and-primitive-types), a String is an **object**, and two consequences of that flow through everything you do with text. First, a String is **immutable**: it can never be changed, so every method that seems to edit it actually returns a *new* String. Second, because a String is an object, comparing two strings means choosing between two questions — "the same object?" (`==`) or "the same characters?" (`.equals`) — and choosing wrong is one of the most common beginner bugs in Java.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A `String` is an **object**, not a primitive.
+- It is **immutable**, so every method that seems to edit it returns a *new* String.
+- Compare text with `.equals` (same characters), not `==` (same object).
+
+</div>
+
 This is a gentle first pass. The reference model under "object" gets its rigorous treatment in Tier 2, and Strings return in depth in Tier 3. For now, two ideas carry the chapter: a String is immutable, and you compare its contents with `.equals`. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -72,7 +90,11 @@ Exception in thread "main" java.lang.StringIndexOutOfBoundsException: Index 3 ou
 
 `"Ada"` has length `3`, so the valid positions are `0`, `1`, `2`; `charAt(3)` is one past the end and throws.
 
-*Earned rule.* Index strings from `0` to `length − 1`; `charAt(length)` is always off the end. The cost of a String being an object is that an out-of-range access fails at *run time*, with an exception, not at compile time — the compiler cannot know the index in advance. When the position comes from a calculation, check it against `length()` first.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Index strings from `0` to `length − 1`; `charAt(length)` is always off the end. The cost of a String being an object is that an out-of-range access fails at *run time*, with an exception, not at compile time — the compiler cannot know the index in advance. When the position comes from a calculation, check it against `length()` first.
+
+</div>
 
 ---
 
@@ -121,7 +143,11 @@ hello
 
 `toUpperCase()` ran and produced `"HELLO"`, but nothing caught the result, so it was discarded; `greeting` was never going to change. To keep the new value you must assign it: `greeting = greeting.toUpperCase();`.
 
-*Earned rule.* Treat every String method as returning a new value you must capture — `s = s.strip();`, not `s.strip();`. The cost of immutability is exactly this gotcha (a method call that appears to do nothing) plus extra objects when you transform text repeatedly. The benefit is safety: a String you hand to other code can never be altered behind your back, which is what makes Strings dependable as constants and as map keys — a payoff you'll collect in Tier 3.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Treat every String method as returning a new value you must capture — `s = s.strip();`, not `s.strip();`. The cost of immutability is exactly this gotcha (a method call that appears to do nothing) plus extra objects when you transform text repeatedly. The benefit is safety: a String you hand to other code can never be altered behind your back, which is what makes Strings dependable as constants and as map keys — a payoff you'll collect in Tier 3.
+
+</div>
 
 ---
 
@@ -175,7 +201,11 @@ public class Main {
 
 `"z"` is not in `"Hello"`, so `indexOf` returns `-1` — a sentinel, not an exception. Hand that `-1` to `substring` or `charAt` and *that* call throws; the search itself quietly gave you a value you were supposed to check.
 
-*Earned rule.* Check `indexOf`'s result against `-1` before using it as a position. The cost of a method that returns a sentinel rather than throwing is a *delayed* failure: you learn nothing is wrong at the `indexOf` call, only later when `-1` reaches code that cannot handle it. (Tier 5's `Optional` is the modern, typed alternative to sentinel return values.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Check `indexOf`'s result against `-1` before using it as a position. The cost of a method that returns a sentinel rather than throwing is a *delayed* failure: you learn nothing is wrong at the `indexOf` call, only later when `-1` reaches code that cannot handle it. (Tier 5's `Optional` is the modern, typed alternative to sentinel return values.)
+
+</div>
 
 ---
 
@@ -224,7 +254,11 @@ sum: 3
 
 The parentheses force `1 + 2 = 3` first, then the concatenation.
 
-*Earned rule.* When you mix text and arithmetic with `+`, wrap the arithmetic in parentheses — `"sum: " + (1 + 2)`. The cost of `+`'s double meaning is this ordering trap; and there is a second cost — building long text with `+` inside a loop creates a new String on every step, which is quadratic work. Tier 3's `StringBuilder` is the linear-time fix, and the spot where this chapter's "every change makes a new String" stops being a curiosity and starts mattering for speed.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** When you mix text and arithmetic with `+`, wrap the arithmetic in parentheses — `"sum: " + (1 + 2)`. The cost of `+`'s double meaning is this ordering trap; and there is a second cost — building long text with `+` inside a loop creates a new String on every step, which is quadratic work. Tier 3's `StringBuilder` is the linear-time fix, and the spot where this chapter's "every change makes a new String" stops being a curiosity and starts mattering for speed.
+
+</div>
 
 ---
 
@@ -279,7 +313,11 @@ true
 
 The text is `"yes"` both ways, but `==` compared object identities — two different objects — and was `false`, while `.equals` compared characters and was `true`. A program that checks user input with `==` will reject correct answers seemingly at random, because typed-in or computed strings are not pooled.
 
-*Earned rule.* Compare String *contents* with `.equals` (or `.equalsIgnoreCase`); reserve `==` for primitives and deliberate identity checks. The cost of the pool is that `==` *looks* right in quick tests with literals and then fails on real, non-literal strings — so never let a passing literal test convince you `==` is correct for text. This is one face of a deeper rule about objects: references and equality get their full pass in Tier 2, and the `equals`/`hashCode` contract behind hash-based collections in Tier 3.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Compare String *contents* with `.equals` (or `.equalsIgnoreCase`); reserve `==` for primitives and deliberate identity checks. The cost of the pool is that `==` *looks* right in quick tests with literals and then fails on real, non-literal strings — so never let a passing literal test convince you `==` is correct for text. This is one face of a deeper rule about objects: references and equality get their full pass in Tier 2, and the `equals`/`hashCode` contract behind hash-based collections in Tier 3.
+
+</div>
 
 ---
 
@@ -295,15 +333,23 @@ The text is `"yes"` both ways, but `==` compared object identities — two diffe
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A string "edit" didn't take →** the method returned a new String you ignored; assign it back (`s = s.toUpperCase();`).
 - **`StringIndexOutOfBoundsException` →** an index reached `length` or beyond; valid positions are `0 … length − 1`; check against `length()`.
 - **A `+` "sum" concatenated instead of adding →** left-to-right `+` joined once a String appeared; wrap the arithmetic: `... + (a + b)`.
 - **String comparison with `==` works in tests, fails in production →** you compared identity; literals are pooled but real input is not — use `.equals`.
 - **`substring`/`charAt` throws on a search result →** `indexOf` returned `-1` (not found) and you used it as a position; test for `-1` first.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the four lines of output before running this: `String x = "java"; String y = "ja" + "va"; String z = new String("java");` then print `x == y`, `x.equals(y)`, `x == z`, and `x.equals(z)`. (Hint: `"ja" + "va"` is two *literals* joined by the compiler before the program runs — does that land it in the pool with `x`, or make a separate object like `z`?) Decide each `true`/`false`, then run it and reconcile any surprise with the rule that `==` compares identity while `.equals` compares characters.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the four lines of output before running this: `String x = "java"; String y = "ja" + "va"; String z = new String("java");` then print `x == y`, `x.equals(y)`, `x == z`, and `x.equals(z)`. (Hint: `"ja" + "va"` is two *literals* joined by the compiler before the program runs — does that land it in the pool with `x`, or make a separate object like `z`?) Decide each `true`/`false`, then run it and reconcile any surprise with the rule that `==` compares identity while `.equals` compares characters.
+
+</div>
 
 ## Your Turn
 

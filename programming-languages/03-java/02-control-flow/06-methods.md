@@ -8,9 +8,27 @@ prereqs: []
 
 You have been writing one method since the first chapter — `main`. A **method** is a named block of code with typed **parameters** (its inputs) and a **return type** (its output); calling it runs that block with the arguments you supply and hands back a result. Methods are how programs avoid repetition and how they are built from small, testable pieces. One rule governs every call and surprises nearly everyone: Java passes arguments **by value** — the method works on *copies* — and that single fact, applied to object references, explains the difference between a method that can change your data and one that cannot.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A **method** is a named block with typed **parameters** and a **return type**.
+- Java passes arguments **by value** — the method works on *copies*.
+- Applied to object references, that one fact decides whether a method can change your data.
+
+</div>
+
 This pulls together [conditionals](/synapse/programming-languages/java/control-flow/conditionals) and [arrays](/synapse/programming-languages/java/control-flow/arrays) from this tier. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -89,7 +107,11 @@ Main.java:5: error: missing return statement
 
 When `x` is `0`, neither `if` returns, so there is a path with no value to hand back — a compile error, not a run-time surprise. Adding a final `return 0;` makes every path return.
 
-*Earned rule.* Give each method one clear job, name it for that job, and make sure every path through a value-returning method ends in a `return`. The cost of the compiler's insistence is that you must handle the cases you'd rather ignore (what *is* the sign of `0`?); the benefit is that "this method forgot to return" cannot reach run time.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Give each method one clear job, name it for that job, and make sure every path through a value-returning method ends in a `return`. The cost of the compiler's insistence is that you must handle the cases you'd rather ignore (what *is* the sign of `0`?); the benefit is that "this method forgot to return" cannot reach run time.
+
+</div>
 
 ---
 
@@ -127,7 +149,11 @@ Hello, Ada
 
 *Concrete bite.* Because a `void` call has no value, trying to use it as one fails to compile: `String s = greet("Ada");` would be rejected — `greet` returns nothing to put in `s`. (You met the same idea with the ternary-vs-`if` distinction in [Tutorial 7](/synapse/programming-languages/java/control-flow/conditionals): a thing that performs an action has no value to capture.)
 
-*Earned rule.* Use `void` for methods that act (print, mutate, send) and a real return type for methods that compute; reach for an early `return` to handle edge cases first and keep the main logic unindented. The cost of early returns is that many scattered ones can obscure a method's flow — a guard or two at the top is clear, but a dozen sprinkled throughout is harder to follow than a single structured path.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `void` for methods that act (print, mutate, send) and a real return type for methods that compute; reach for an early `return` to handle edge cases first and keep the main logic unindented. The cost of early returns is that many scattered ones can obscure a method's flow — a guard or two at the top is clear, but a dozen sprinkled throughout is harder to follow than a single structured path.
+
+</div>
 
 ---
 
@@ -184,7 +210,11 @@ Main.java:3: error: method f() is already defined in class Main
 
 Both are `f()` with no parameters — identical signatures — so the second is "already defined." Changing the return type doesn't make a new method; only a different parameter list does.
 
-*Earned rule.* Overload a name only when the methods do the *same conceptual thing* to different input types (`print(int)`, `print(String)`); distinguish them by parameter list, never by return type alone. The cost of overloading is resolution surprises — with mixed argument types the compiler may pick an overload you didn't expect, or refuse an ambiguous call — so keep overloads few and their parameter types clearly distinct.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Overload a name only when the methods do the *same conceptual thing* to different input types (`print(int)`, `print(String)`); distinguish them by parameter list, never by return type alone. The cost of overloading is resolution surprises — with mixed argument types the compiler may pick an overload you didn't expect, or refuse an ambiguous call — so keep overloads few and their parameter types clearly distinct.
+
+</div>
 
 ---
 
@@ -220,7 +250,11 @@ outside: 5
 
 *Concrete bite.* The output is the proof: `inside: 6`, `outside: 5`. A method cannot "increment your variable in place" — to reflect a change, it must *return* the new value (`x = addOne(x);`), because returning is the only channel back to the caller.
 
-*Earned rule.* Treat primitive parameters as inputs only; to communicate a result, return it. The cost is that a method cannot have a primitive "out-parameter" the way some languages do — but the benefit is that a call can never secretly alter your local numbers, so reading `addOne(x)` you know `x` is unchanged unless you assign the result.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Treat primitive parameters as inputs only; to communicate a result, return it. The cost is that a method cannot have a primitive "out-parameter" the way some languages do — but the benefit is that a call can never secretly alter your local numbers, so reading `addOne(x)` you know `x` is unchanged unless you assign the result.
+
+</div>
 
 ---
 
@@ -261,7 +295,11 @@ public class Main {
 
 *Concrete bite.* The two `99`s are the whole lesson: the mutation in `mutate` stuck, the reassignment in `reassign` did not. A method that "replaces your array" by assigning to its parameter silently does nothing to the caller — a real and common bug.
 
-*Earned rule.* Remember that a method can change the *contents* of an object you pass, but cannot change *which* object your variable points to — to hand back a different object, `return` it. The cost of this model is the very confusion shown here ("I reassigned it and nothing happened"); the benefit is one consistent rule — everything is passed by value — and the reference/object distinction it forces you to see is the heart of the object model in Tutorial 15.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Remember that a method can change the *contents* of an object you pass, but cannot change *which* object your variable points to — to hand back a different object, `return` it. The cost of this model is the very confusion shown here ("I reassigned it and nothing happened"); the benefit is one consistent rule — everything is passed by value — and the reference/object distinction it forces you to see is the heart of the object model in Tutorial 15.
+
+</div>
 
 ---
 
@@ -278,15 +316,23 @@ public class Main {
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`missing return statement` →** some path through a value-returning method doesn't `return`; add a final `return` or cover every branch.
 - **A method "changed" a primitive but the caller didn't see it →** primitives pass by value; return the new value and assign it (`x = f(x)`).
 - **A method "replaced" an object by assigning its parameter, with no effect →** that repoints only the copy of the reference; `return` the new object instead.
 - **A method *did* change an object you passed →** expected: caller and method share the object; pass a copy if you need to protect the original.
 - **`method f() is already defined` →** two methods have the same name and parameters (differing only by return type); change the parameter list or the name.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the output of a method `static int[] doubled(int[] in)` that loops `in[i] *= 2` and returns `in`, called as `int[] a = {1,2,3}; doubled(a); System.out.println(a[0]);` — does `a[0]` change, and why? Now predict what `addOne` (from §4) prints for `inside`/`outside` if `x` starts at `0`. Finally, write an overloaded `area(int side)` (square) and `area(int w, int h)` (rectangle), and decide why the compiler can tell them apart.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the output of a method `static int[] doubled(int[] in)` that loops `in[i] *= 2` and returns `in`, called as `int[] a = {1,2,3}; doubled(a); System.out.println(a[0]);` — does `a[0]` change, and why? Now predict what `addOne` (from §4) prints for `inside`/`outside` if `x` starts at `0`. Finally, write an overloaded `area(int side)` (square) and `area(int w, int h)` (rectangle), and decide why the compiler can tell them apart.
+
+</div>
 
 ## Your Turn
 

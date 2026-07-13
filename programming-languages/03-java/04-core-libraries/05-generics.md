@@ -8,9 +8,27 @@ prereqs: []
 
 You've used generics since [the collections](/synapse/programming-languages/java/core-libraries/the-collections-framework): `List<Integer>` is "a list of `Integer`," and the `<Integer>` is a **type parameter**. Generics let a class or method work over *a* type the caller chooses, while the compiler enforces it — so `List<String>` accepts only `String`s and returns `String`s with no casting. The catch, and the second half of this chapter, is that generics are a **compile-time** device: the JVM erases them, so at run time `List<String>` and `List<Integer>` are the *same* `List`. That **type erasure** is what makes generics free, and also what they cannot do (`new T[]`, `instanceof List<String>`).
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Generics parameterize code over **a type the caller picks** — `List<String>` with no casts.
+- The compiler enforces it; generics are a **compile-time** device.
+- The JVM **erases** them, so `List<String>` and `List<Integer>` are one class at run time — free, but limited.
+
+</div>
+
 Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -86,7 +104,11 @@ Main.java:9: error: incompatible types: String cannot be converted to Integer
 
 `sb.get()` is statically a `String`, so assigning it to an `Integer` is rejected — the type parameter carried `String` all the way to the return type. The error is at compile time, not a `ClassCastException` at run time.
 
-*Earned rule.* Parameterize a container or wrapper with `<T>` so its callers get type safety and skip casts. The cost is a more abstract class definition (and that `T` must be a reference type — `Box<int>` won't compile, only `Box<Integer>`); the benefit is that misuse becomes a compile error instead of a run-time cast failure.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Parameterize a container or wrapper with `<T>` so its callers get type safety and skip casts. The cost is a more abstract class definition (and that `T` must be a reference type — `Box<int>` won't compile, only `Box<Integer>`); the benefit is that misuse becomes a compile error instead of a run-time cast failure.
+
+</div>
 
 ---
 
@@ -140,7 +162,11 @@ Main.java:3: error: cannot find symbol
 
 With an unbounded `T`, `a` is known only to be an `Object`, which has no `compareTo` — so the call won't compile. The bound isn't decoration; it's what makes `T`'s methods available.
 
-*Earned rule.* Use a generic method when one algorithm applies across many types, and add a bound (`extends`) exactly when the body needs methods beyond `Object`'s. The cost of a bound is narrowing what callers may pass; the benefit is that the body can actually *do* something with `T` — compare it, measure it, call its interface — while staying type-safe.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a generic method when one algorithm applies across many types, and add a bound (`extends`) exactly when the body needs methods beyond `Object`'s. The cost of a bound is narrowing what callers may pass; the benefit is that the body can actually *do* something with `T` — compare it, measure it, call its interface — while staying type-safe.
+
+</div>
 
 ---
 
@@ -211,7 +237,11 @@ Main.java:12: error: incompatible types: List<Integer> cannot be converted to Li
 
 `List<Integer>` is not a `List<Number>`, so `sum(ints)` won't compile — invariance in action. The `? extends Number` wildcard is exactly the fix.
 
-*Earned rule.* Use `? extends T` for parameters you only **read** from (producers), and `? super T` for parameters you only **write** to (consumers) — PECS. The cost is wildcard syntax and the restriction it implies (a `? extends` list can't be added to); the benefit is APIs that accept the whole family of related generic types instead of one exact match.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `? extends T` for parameters you only **read** from (producers), and `? super T` for parameters you only **write** to (consumers) — PECS. The cost is wildcard syntax and the restriction it implies (a `? extends` list can't be added to); the benefit is APIs that accept the whole family of related generic types instead of one exact match.
+
+</div>
 
 ---
 
@@ -269,7 +299,11 @@ Main.java:4: error: Object cannot be safely cast to List<String>
 
 At run time there's only `List`, not `List<String>`, so `instanceof List<String>` can't be checked — the compiler rejects it (use the unbounded `instanceof List<?>` if you must test for "a list"). For the same reason you can't write `new T[]` or `new ArrayList<T>[10]` — there's no run-time `T` to allocate.
 
-*Earned rule.* Rely on generics for compile-time safety, and remember the run-time blind spot: no `instanceof Type<Arg>`, no `new T[]`, no reflection on the type argument. The cost of erasure is these gaps (and the occasional "unchecked" warning when bridging legacy code); the benefit is zero run-time overhead and full backward compatibility with pre-generics code.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Rely on generics for compile-time safety, and remember the run-time blind spot: no `instanceof Type<Arg>`, no `new T[]`, no reflection on the type argument. The cost of erasure is these gaps (and the occasional "unchecked" warning when bridging legacy code); the benefit is zero run-time overhead and full backward compatibility with pre-generics code.
+
+</div>
 
 ---
 
@@ -285,15 +319,23 @@ At run time there's only `List`, not `List<String>`, so `instanceof List<String>
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`cannot find symbol: method …` on a type parameter →** `T` is unbounded (just `Object`); add a bound (`T extends Comparable<T>`) to use its methods.
 - **`List<Integer> cannot be converted to List<Number>` →** generics are invariant; take `List<? extends Number>` for a read-only parameter.
 - **You can't add to a `? extends` collection →** it's a producer; use `? super T` if the method needs to add `T`s.
 - **`instanceof List<String>` won't compile →** erasure removes the type argument; test `instanceof List<?>` instead.
 - **`new T[]` / `new ArrayList<T>[]` won't compile →** no run-time `T`; use a `List<T>` or an `Object[]` with a cast, accepting the unchecked warning.
 
+</div>
+
 ---
 
-*Predict, then check.* Write a `Pair<A, B>` class with two type parameters and a `first()`/`second()`; predict what `new Pair<String, Integer>("x", 1).second() + 1` evaluates to. Next, predict whether `static <T> T firstOrNull(List<T> xs)` compiles, and whether adding `xs.get(0).compareTo(...)` inside it does. Finally, predict `new ArrayList<String>().getClass() == new ArrayList<Double>().getClass()`, and explain in one sentence why `obj instanceof Map<String,Integer>` is rejected.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write a `Pair<A, B>` class with two type parameters and a `first()`/`second()`; predict what `new Pair<String, Integer>("x", 1).second() + 1` evaluates to. Next, predict whether `static <T> T firstOrNull(List<T> xs)` compiles, and whether adding `xs.get(0).compareTo(...)` inside it does. Finally, predict `new ArrayList<String>().getClass() == new ArrayList<Double>().getClass()`, and explain in one sentence why `obj instanceof Map<String,Integer>` is rejected.
+
+</div>
 
 ## Your Turn
 

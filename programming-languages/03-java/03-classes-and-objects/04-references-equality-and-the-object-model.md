@@ -8,9 +8,27 @@ prereqs: []
 
 This is the chapter the last several have been building toward. Every variable in Java is one of exactly two things: a **primitive**, which holds its value directly, or a **reference**, which holds the *address* of an object that lives on the heap. That single distinction is the key to nearly every Java surprise you've met — why assigning an array shares it but assigning an `int` copies it, why `==` sometimes lies, why a method can change your object but not your variable, and why `null` is the most common crash in the language. Get this picture right and the rules stop being arbitrary; they become consequences.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Every variable is either a **primitive** that holds its value or a **reference** that holds a heap object's **address**.
+- That split governs assignment, aliasing, equality, and `null`.
+- Get the picture right and the rules stop being arbitrary — they become consequences.
+
+</div>
+
 This is the deep pass of [primitives](/synapse/programming-languages/java/first-steps/variables-and-primitive-types), [`==` vs `.equals` on strings](/synapse/programming-languages/java/first-steps/strings-the-basics), [pass-by-value](/synapse/programming-languages/java/control-flow/methods), and [aliasing](/synapse/programming-languages/java/classes-and-objects/classes-and-objects). Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -77,7 +95,11 @@ stack.b -> heap.arr
 
 *Concrete bite.* The two output lines are the contrast: copy a primitive and the copies are independent (`5 99`); copy a reference and both names share one object (`99 99`). This is the same fact behind [pass-by-value of references](/synapse/programming-languages/java/control-flow/methods) — a method copies the *reference*, so it can mutate the shared object.
 
-*Earned rule.* Always ask "is this a value or a reference?" — it tells you whether `=` (or a method call) makes an independent copy or shares an object. The cost of references is the sharing surprise; the benefit is efficiency — passing a million-element array copies one address, not a million ints — and it is *the* distinction the rest of this chapter's traps fall out of.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Always ask "is this a value or a reference?" — it tells you whether `=` (or a method call) makes an independent copy or shares an object. The cost of references is the sharing surprise; the benefit is efficiency — passing a million-element array copies one address, not a million ints — and it is *the* distinction the rest of this chapter's traps fall out of.
+
+</div>
 
 ---
 
@@ -112,7 +134,11 @@ true
 
 *Concrete bite.* `a == b` being `false` for two identical-looking arrays is the trap: on references, `==` cannot see contents, only identity. Two objects that *mean* the same thing are still `!=` unless they are literally the same object.
 
-*Earned rule.* Use `==` for primitives and for deliberate "same object?" checks; never use it to compare the *contents* of two objects. The cost of forgetting is a comparison that's `false` for equal-meaning objects (or, as the next sections show, `true` by accident) — for meaning, you need `.equals`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `==` for primitives and for deliberate "same object?" checks; never use it to compare the *contents* of two objects. The cost of forgetting is a comparison that's `false` for equal-meaning objects (or, as the next sections show, `true` by accident) — for meaning, you need `.equals`.
+
+</div>
 
 ---
 
@@ -149,7 +175,11 @@ true
 
 *Concrete bite.* A test that passes with `127` and fails with `128` is the signature of code that used `==` for object equality. The cache makes the bug invisible in small-number tests and live in production.
 
-*Earned rule.* Compare wrapper objects (and all objects) with `.equals`; reserve `==` for primitives and identity. The cost is vigilance: autoboxing hides the boundary, so a passing small-value `==` test proves nothing — `.equals` is the only comparison that means "same value" for objects. (This is the same mechanism as the String pool, next, and the `equals`/`hashCode` contract in Tutorial 19.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Compare wrapper objects (and all objects) with `.equals`; reserve `==` for primitives and identity. The cost is vigilance: autoboxing hides the boundary, so a passing small-value `==` test proves nothing — `.equals` is the only comparison that means "same value" for objects. (This is the same mechanism as the String pool, next, and the `equals`/`hashCode` contract in Tutorial 19.)
+
+</div>
 
 ---
 
@@ -184,7 +214,11 @@ true
 
 *Concrete bite.* `a == c` is `false` for two strings that both spell `"hello"`. A program comparing typed-in or computed strings with `==` rejects correct matches at random, because only literals are pooled.
 
-*Earned rule.* Compare string contents with `.equals` (or `.equalsIgnoreCase`); never `==`. The cost of the pool is that `==` passes in quick literal tests and fails on real strings — the Integer cache's trap wearing a different hat, and the same lesson: `==` is identity, `.equals` is meaning.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Compare string contents with `.equals` (or `.equalsIgnoreCase`); never `==`. The cost of the pool is that `==` passes in quick literal tests and fails on real strings — the Integer cache's trap wearing a different hat, and the same lesson: `==` is identity, `.equals` is meaning.
+
+</div>
 
 ---
 
@@ -215,7 +249,11 @@ Exception in thread "main" java.lang.NullPointerException: Cannot invoke "String
 
 *Concrete bite.* The `null` line works, the `s.length()` line throws — the boundary is *use*. A reference defaults to `null` (uninitialized object fields, an array of objects, a lookup that found nothing), so any object you didn't definitely set could be `null`, and the first method call on it crashes.
 
-*Earned rule.* Guard a reference before dereferencing when it might be `null` — `if (s != null && s.length() > 0)`, leaning on the [short-circuit `&&`](/synapse/programming-languages/java/control-flow/booleans-and-logic) so the right side is skipped when `s` is null. The cost of `null` is constant vigilance and the most common crash in Java; the modern, typed alternative — making "might be absent" visible in the type — is `Optional`, in Tutorial 28.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Guard a reference before dereferencing when it might be `null` — `if (s != null && s.length() > 0)`, leaning on the [short-circuit `&&`](/synapse/programming-languages/java/control-flow/booleans-and-logic) so the right side is skipped when `s` is null. The cost of `null` is constant vigilance and the most common crash in Java; the modern, typed alternative — making "might be absent" visible in the type — is `Optional`, in Tutorial 28.
+
+</div>
 
 ---
 
@@ -231,15 +269,23 @@ Exception in thread "main" java.lang.NullPointerException: Cannot invoke "String
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Two objects with equal contents compare `!=` →** `==` is identity on references; use `.equals` for contents.
 - **An `Integer`/`String` `==` test passes for small values and fails for big ones →** the Integer cache / String pool; switch to `.equals`.
 - **A method changed your object (or array) through a parameter →** references are shared by value; pass a copy to protect the original.
 - **`NullPointerException: Cannot invoke "…" because "…" is null` →** you dereferenced a `null` reference; guard with `x != null` first (short-circuit `&&`).
 - **An assignment "shared" data you expected to copy →** it was a reference; clone/copy the object explicitly if you need independence.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict each line: `Integer p = 100, q = 100; System.out.println(p == q);` then `Integer r = 200, s = 200; System.out.println(r == s);` then `System.out.println(r.equals(s));`. Next, for `String x = "ab" + "c";` and `String y = "abc";`, predict `x == y` (hint: is `"ab" + "c"` a compile-time constant?). Finally, predict what `String z = null; System.out.println(z + "!");` prints — and what `z.toUpperCase()` would do instead.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict each line: `Integer p = 100, q = 100; System.out.println(p == q);` then `Integer r = 200, s = 200; System.out.println(r == s);` then `System.out.println(r.equals(s));`. Next, for `String x = "ab" + "c";` and `String y = "abc";`, predict `x == y` (hint: is `"ab" + "c"` a compile-time constant?). Finally, predict what `String z = null; System.out.println(z + "!");` prints — and what `z.toUpperCase()` would do instead.
+
+</div>
 
 ## Your Turn
 

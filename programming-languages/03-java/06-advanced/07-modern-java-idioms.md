@@ -8,9 +8,28 @@ prereqs: []
 
 You've met the modern features one at a time — [records and sealed types](/synapse/programming-languages/java/core-libraries/enums-and-records), [pattern matching](/synapse/programming-languages/java/robust-oop/sealed-classes-and-pattern-matching), [`Optional` and streams](/synapse/programming-languages/java/advanced/functional-java-and-streams), `var`. This chapter shows they're not a grab-bag of tricks but a **coherent design**. Together, **`record` + `sealed` + pattern matching** give *data-oriented programming*: model your data as a closed set of immutable shapes, and let the compiler force you to handle every one. **`Optional`** pushes `null` out of your domain at the edges. **Immutability** makes objects safe to share, and **`var`** removes redundant noise. The thesis is composition: each feature is good alone, but their real power is how they fit together into code that is concise, safe, and checked.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- The modern features aren't a grab-bag — they compose into **one coherent design**.
+- **`record` + `sealed` + pattern matching** give data-oriented programming with compiler-checked exhaustiveness.
+- **`Optional`** pushes `null` out at the edges; **immutability** makes objects safe to share; **`var`** cuts noise.
+- The real power is **composition** — how the features fit together.
+
+</div>
+
 This synthesizes Tiers 3–5. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -85,7 +104,11 @@ dop -> exhaustive: "guarantees"
 
 *Concrete bite.* The payoff is the compiler as a checklist: as [Tutorial 26 verified](/synapse/programming-languages/java/robust-oop/sealed-classes-and-pattern-matching), adding a fourth permitted shape makes *every* non-exhaustive `switch` stop compiling until you handle it — "the switch expression does not cover all possible input values." Compare the [inheritance](/synapse/programming-languages/java/robust-oop/inheritance-and-polymorphism) alternative (an `abstract double area()` per subclass): use polymorphism when behavior travels *with* open subtypes; use sealed + patterns when the type set is *closed* and operations are added from outside.
 
-*Earned rule.* Reach for `record` + `sealed` + pattern `switch` to model closed sets of structured data — results, events, AST nodes, protocol messages — and process them exhaustively. The cost is choosing this over class polymorphism (and maintaining the `permits` list, which the compiler enforces); the benefit is concise, immutable data plus operations the compiler proves complete — a whole class of "forgot a case" bugs eliminated.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for `record` + `sealed` + pattern `switch` to model closed sets of structured data — results, events, AST nodes, protocol messages — and process them exhaustively. The cost is choosing this over class polymorphism (and maintaining the `permits` list, which the compiler enforces); the benefit is concise, immutable data plus operations the compiler proves complete — a whole class of "forgot a case" bugs eliminated.
+
+</div>
 
 ---
 
@@ -128,7 +151,11 @@ us-east
 
 *Concrete bite.* The discipline is to convert at the boundary and never let `null` leak inward — `Optional.ofNullable` at the edge, an `Optional` return type for "may not find one." But `Optional` is for *return values*, not fields or parameters (a `null` `Optional` field is the worst of both worlds), and `opt.get()` on empty throws, so it isn't a license to skip handling.
 
-*Earned rule.* Return `Optional<T>` from methods that may find nothing, build it with `ofNullable` at boundaries, and consume it with `map`/`filter`/`orElse`; keep `null` out of your domain logic. The cost is wrapping/unwrapping and discipline about where `Optional` belongs (returns, not fields); the benefit is that "absent" is a checked, composable case instead of a runtime crash.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Return `Optional<T>` from methods that may find nothing, build it with `ofNullable` at boundaries, and consume it with `map`/`filter`/`orElse`; keep `null` out of your domain logic. The cost is wrapping/unwrapping and discipline about where `Optional` belongs (returns, not fields); the benefit is that "absent" is a checked, composable case instead of a runtime crash.
+
+</div>
 
 ---
 
@@ -169,7 +196,11 @@ Point[x=3, y=4]
 
 *Concrete bite.* Immutability has the cost you'd expect: "updating" deep structures means rebuilding them, and very hot allocation paths may matter — but as [Tutorial 21 verified](/synapse/programming-languages/java/core-libraries/enums-and-records), a `record`'s components are `final` and can't be reassigned, which is exactly what makes sharing safe. And `var` aids brevity, not obscurity: use it when the initializer makes the type obvious (`var p = new Point(...)`), not when it hides a non-obvious type.
 
-*Earned rule.* Default to immutability (`record`s, `final` fields, transform-by-new) for data you share or use as keys, and use `var` where the type is obvious from the right-hand side. The cost is extra allocations and verbosity for deep updates (immutability) and potential opacity if overused (`var`); the benefit is data that's safe to share without defensive copies and code with less redundant ceremony.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Default to immutability (`record`s, `final` fields, transform-by-new) for data you share or use as keys, and use `var` where the type is obvious from the right-hand side. The cost is extra allocations and verbosity for deep updates (immutability) and potential opacity if overused (`var`); the benefit is data that's safe to share without defensive copies and code with less redundant ceremony.
+
+</div>
 
 ---
 
@@ -224,7 +255,11 @@ biggest: Card
 
 *Concrete bite.* This is "data-oriented" Java — declarative, like the [stream pipelines](/synapse/programming-languages/java/advanced/functional-java-and-streams) of a few chapters ago, but with the compiler enforcing exhaustiveness and types throughout. The trade-off is knowing when to use it: this style shines for data-processing and modeling closed domains; classic OOP (encapsulated mutable objects with polymorphic behavior) still fits stateful, open-ended designs.
 
-*Earned rule.* Compose the modern features — sealed records for data, pattern switches and streams for operations, Optional for absence — when modeling and transforming data; reach for classic object-oriented design (mutable state, inheritance) when behavior and identity dominate. The cost is judgment about which paradigm fits; the benefit is that, for the large class of data-shaped problems, modern Java is concise, immutable, and compiler-verified end to end.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Compose the modern features — sealed records for data, pattern switches and streams for operations, Optional for absence — when modeling and transforming data; reach for classic object-oriented design (mutable state, inheritance) when behavior and identity dominate. The cost is judgment about which paradigm fits; the benefit is that, for the large class of data-shaped problems, modern Java is concise, immutable, and compiler-verified end to end.
+
+</div>
 
 ---
 
@@ -240,15 +275,23 @@ biggest: Card
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A pattern `switch` needs a `default` you don't want →** model the cases as a `sealed` type so the compiler proves exhaustiveness without one.
 - **`null` leaked deep into the code →** wrap at the boundary with `Optional.ofNullable` and return `Optional`; don't pass `null` around.
 - **`Optional` as a field or parameter feels wrong →** it is; `Optional` is for return values — use a nullable field or a real default instead.
 - **A "modified" record didn't change →** records are immutable; `translate`-style methods return a *new* record; capture the result.
 - **Reached for `var` and the type got unclear →** use `var` only when the initializer makes the type obvious; spell it out otherwise.
 
+</div>
+
 ---
 
-*Predict, then check.* Add a `Pentagon(double side)` to the §1 `Shape` hierarchy and predict what the compiler says about `area` until you add its case. Next, predict the three lines printed by §2 if `config` also contained `"port" -> "abc"` and you parsed it with `.map(Integer::parseInt)` — would `orElse(80)` save you? Finally, extend §4 to also print the *count* of `Card` payments using a stream `filter` with a pattern (`p instanceof Card`), and predict the result.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Add a `Pentagon(double side)` to the §1 `Shape` hierarchy and predict what the compiler says about `area` until you add its case. Next, predict the three lines printed by §2 if `config` also contained `"port" -> "abc"` and you parsed it with `.map(Integer::parseInt)` — would `orElse(80)` save you? Finally, extend §4 to also print the *count* of `Card` payments using a stream `filter` with a pattern (`p instanceof Card`), and predict the result.
+
+</div>
 
 ## Your Turn
 

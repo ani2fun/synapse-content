@@ -8,9 +8,27 @@ prereqs: []
 
 A class that exposes its raw fields cannot defend itself: anyone can set `balance` to `-999`, and the class is powerless to object. **Encapsulation** is the fix — hide the data (`private`) and expose only methods that *control* how it changes, so the class can enforce its own rules (its *invariants*). The four **access modifiers** — `private`, package-private (the default), `protected`, and `public` — are the dial that sets who can see each field and method. Pushed to its limit, encapsulation gives you **immutable** objects: data set once at construction, never changed, and therefore safe to share without fear of the aliasing surprise from the last chapter.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- **Encapsulation** hides data (`private`) behind methods that control how it changes, so a class can enforce its **invariants**.
+- The four **access modifiers** set who can see each field and method.
+- Pushed to its limit it gives **immutable** objects — set once, never changed, safe to share.
+
+</div>
+
 This builds on [classes and objects](/synapse/programming-languages/java/classes-and-objects/classes-and-objects) — especially the [aliasing](/synapse/programming-languages/java/classes-and-objects/classes-and-objects) that immutability tames. Every output below was produced by compiling and running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the compiler and the JVM are *actually doing*; (2) a **concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the compiler and the JVM are *actually doing*.
+2. **A concrete bite** — a specific, runnable failure (often a real compiler error), shown so the trap is visible.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -80,7 +98,11 @@ Main.java:8: error: balance has private access in Account
 
 `acct.balance` is rejected because `balance` is `private` to `Account` — `main` is outside that class. The wall is real and checked at compile time, not a convention you can quietly ignore.
 
-*Earned rule.* Make fields `private` by default and expose behavior, not data. The cost is the boilerplate of accessor methods for the data you *do* want to share; the benefit is that the set of ways to touch a field shrinks from "everywhere" to "the handful of methods in this class," which is what makes the next section's invariants enforceable.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Make fields `private` by default and expose behavior, not data. The cost is the boilerplate of accessor methods for the data you *do* want to share; the benefit is that the set of ways to touch a field shrinks from "everywhere" to "the handful of methods in this class," which is what makes the next section's invariants enforceable.
+
+</div>
 
 ---
 
@@ -146,7 +168,11 @@ public class Main {
 
 With `balance` public, `acct.balance = -999` simply succeeds — the class never gets a chance to object, and a "bank account" now holds `-999`. There is no method to enforce a rule, because the assignment bypasses methods entirely.
 
-*Earned rule.* Expose mutation through methods that validate, not through public fields, so invariants are checked at the one place state changes. The cost is more code than a public field — a getter and a guarded setter instead of a bare variable; the benefit is that "an account can't go below its rules" is enforced by construction, not by hoping every caller behaves.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Expose mutation through methods that validate, not through public fields, so invariants are checked at the one place state changes. The cost is more code than a public field — a getter and a guarded setter instead of a bare variable; the benefit is that "an account can't go below its rules" is enforced by construction, not by hoping every caller behaves.
+
+</div>
 
 ---
 
@@ -192,7 +218,11 @@ Main.java:5: error: balance has private access in Account
 
 *Concrete bite.* The error above is the demonstration: same file, different class, access denied. The unit of privacy is the class, which is exactly why a helper in the same file still has to go through `Account`'s public methods.
 
-*Earned rule.* Default to `private`, widen only as far as a real collaborator needs — package-private for same-package helpers, `public` only for the deliberate interface, `protected` reserved for what subclasses must reach. The cost of starting narrow is occasionally widening later; the cost of starting `public` is that every field becomes part of your contract, and you can never quietly take it back once other code depends on it.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Default to `private`, widen only as far as a real collaborator needs — package-private for same-package helpers, `public` only for the deliberate interface, `protected` reserved for what subclasses must reach. The cost of starting narrow is occasionally widening later; the cost of starting `public` is that every field becomes part of your contract, and you can never quietly take it back once other code depends on it.
+
+</div>
 
 ---
 
@@ -249,7 +279,11 @@ Main.java:4: error: cannot assign a value to final variable x
 
 `moveTo` tries to reassign `x`, but `x` is `final` — already assigned in the constructor — so the compiler refuses. To "move" an immutable point you don't mutate it; you build a *new* `Point`.
 
-*Earned rule.* Make a class immutable — `private final` fields, no setters, set everything in the constructor — whenever you can, especially for values you'll share or use as keys. The cost is that "changing" an immutable object means creating a new one (more allocations), and very deep updates get verbose; the benefit is that an immutable object is safe to alias freely — the [aliasing surprise from the last chapter](/synapse/programming-languages/java/classes-and-objects/classes-and-objects) can't bite, because there is nothing to change behind your back. (Tutorial 21's `record` makes immutable data classes nearly free to write.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Make a class immutable — `private final` fields, no setters, set everything in the constructor — whenever you can, especially for values you'll share or use as keys. The cost is that "changing" an immutable object means creating a new one (more allocations), and very deep updates get verbose; the benefit is that an immutable object is safe to alias freely — the [aliasing surprise from the last chapter](/synapse/programming-languages/java/classes-and-objects/classes-and-objects) can't bite, because there is nothing to change behind your back. (Tutorial 21's `record` makes immutable data classes nearly free to write.)
+
+</div>
 
 ---
 
@@ -265,15 +299,23 @@ Main.java:4: error: cannot assign a value to final variable x
 
 ## 6. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`X has private access in Y` →** you touched a `private` member from outside its class (even a sibling class in the same file); use a public method.
 - **An object reached an invalid state →** you exposed a public field with no validation; make it `private` and gate changes through a method.
 - **You meant a field to be internal but other code depends on it →** it was `public` (or you let it leak); start `private` and widen deliberately.
 - **`cannot assign a value to final variable` →** you tried to change a `final` field after construction; assign it once in the constructor, or drop `final` if it must change.
 - **A shared object changed unexpectedly →** it's mutable and aliased; make it immutable (`final` fields, no setters) so sharing is safe.
 
+</div>
+
 ---
 
-*Predict, then check.* Give `Account` a `withdraw(int amount)` that refuses to let the balance go negative — predict the output of `new Account(100)`, then `withdraw(150)`, then `getBalance()`. Next, predict the compiler's reaction to adding `acct.balance -= 10;` in `main` when `balance` is `private`. Finally, decide: if `Point` were *not* immutable and two variables aliased the same `Point`, what could go wrong that immutability prevents?
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Give `Account` a `withdraw(int amount)` that refuses to let the balance go negative — predict the output of `new Account(100)`, then `withdraw(150)`, then `getBalance()`. Next, predict the compiler's reaction to adding `acct.balance -= 10;` in `main` when `balance` is `private`. Finally, decide: if `Point` were *not* immutable and two variables aliased the same `Point`, what could go wrong that immutability prevents?
+
+</div>
 
 ## Your Turn
 
