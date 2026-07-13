@@ -63,7 +63,11 @@ From [Data Definition](/synapse/programming-languages/sql/foundations/data-defin
 
 The advice: **default to `TIMESTAMPTZ` for any column representing "when something happened."** `TIMESTAMP` is for niche cases like calendar entries that should always read "9:00 AM in whatever timezone the user is currently in" — and those are rare.
 
-> **Dialect note:** SQLite has no native date/time type. It stores dates as TEXT (`'2026-04-15'`), REAL (Julian day numbers), or INTEGER (Unix epoch). Date functions parse the storage form. **Use ISO-8601 TEXT** (`'2026-04-15'`, `'2026-04-15 14:30:00'`) — sortable as strings, parseable by every date function. The runnable blocks in this chapter use that convention.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQLite has no native date/time type. It stores dates as TEXT (`'2026-04-15'`), REAL (Julian day numbers), or INTEGER (Unix epoch). Date functions parse the storage form. **Use ISO-8601 TEXT** (`'2026-04-15'`, `'2026-04-15 14:30:00'`) — sortable as strings, parseable by every date function. The runnable blocks in this chapter use that convention.
+
+</div>
 
 ---
 
@@ -81,7 +85,11 @@ SELECT
 
 The standard literal form is `<TYPE> 'string'`. Postgres also accepts string literals with implicit casting in many contexts. Use the explicit form (`DATE '2026-04-15'`) in shipped code — it documents the type and prevents implicit-cast surprises.
 
-> **Date format:** Always use **ISO-8601** (`'YYYY-MM-DD'`). Other formats (`'04/15/2026'`, `'15-Apr-2026'`) are dialect-specific, locale-dependent, and ambiguous (`'04/15/2026'` vs `'15/04/2026'` is a flame war). ISO-8601 is unambiguous, sorts lexicographically, and parses everywhere.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Date format:** Always use **ISO-8601** (`'YYYY-MM-DD'`). Other formats (`'04/15/2026'`, `'15-Apr-2026'`) are dialect-specific, locale-dependent, and ambiguous (`'04/15/2026'` vs `'15/04/2026'` is a flame war). ISO-8601 is unambiguous, sorts lexicographically, and parses everywhere.
+
+</div>
 
 ---
 
@@ -237,7 +245,11 @@ SELECT TO_DATE('15/04/2026', 'DD/MM/YYYY');               -- 2026-04-15
 SELECT TO_TIMESTAMP('Apr 15, 2026 2:30 PM', 'Mon DD, YYYY HH12:MI AM');
 ```
 
-> **Dialect note:** MySQL uses `STR_TO_DATE(string, format)` and `DATE_FORMAT(timestamp, format)` with different format strings. SQLite uses `strftime` for both directions. Always check your dialect's format-string conventions.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** MySQL uses `STR_TO_DATE(string, format)` and `DATE_FORMAT(timestamp, format)` with different format strings. SQLite uses `strftime` for both directions. Always check your dialect's format-string conventions.
+
+</div>
 
 For **modern code, prefer ISO-8601 throughout** and rely on direct casting (`CAST('2026-04-15' AS DATE)`). Save the format strings for when you genuinely have to parse non-ISO data.
 
@@ -363,6 +375,10 @@ Use codefolio's Postgres for full date-function support. The runnable blocks bel
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Dates and times are SQL's most timezone-bug-prone area. Three patterns to internalise:
 
 1. **Default to `TIMESTAMPTZ` for "when did this happen" columns.** It stores the moment unambiguously and converts on display. `TIMESTAMP` (without TZ) is a footgun for application data.
@@ -370,6 +386,8 @@ Dates and times are SQL's most timezone-bug-prone area. Three patterns to intern
 3. **Compute time windows in the timezone that matters to the consumer, not the server.** "Yesterday" is timezone-relative. Store in UTC, query in UTC, convert to the user's timezone *only at the display layer* (or compute boundaries explicitly with `AT TIME ZONE`).
 
 Master these three and date/time SQL stops being the silent source of "the report is one hour off after every DST change."
+
+</div>
 
 ## Your Turn
 

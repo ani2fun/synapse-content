@@ -62,7 +62,11 @@ Postgres has both:
 
 **Use `JSONB` for production.** `JSON` is text-as-text; `JSONB` is what you actually want.
 
-> **Dialect note:** MySQL has `JSON` (binary internally). SQLite has `json` extension functions but no native type. SQL Server has `nvarchar` + JSON functions (no first-class type pre-2025). The Postgres `JSONB` model is the most powerful; the rest play catch-up.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** MySQL has `JSON` (binary internally). SQLite has `json` extension functions but no native type. SQL Server has `nvarchar` + JSON functions (no first-class type pre-2025). The Postgres `JSONB` model is the most powerful; the rest play catch-up.
+
+</div>
 
 ---
 
@@ -266,11 +270,17 @@ A common production pattern: **structured columns for what you know, JSONB for w
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 JSONB is Postgres's flexible-schema escape hatch. Three patterns to internalise:
 
 1. **`JSONB` over `JSON`. Always.** Binary representation, queryable, indexable.
 2. **Use `->>` for text, `->` for JSONB; cast at the boundary.** `(payload->>'amount')::NUMERIC` is the standard pattern.
 3. **Index the paths you query.** GIN index for general containment; expression index or generated column for specific paths.
+
+</div>
 
 ## Your Turn
 

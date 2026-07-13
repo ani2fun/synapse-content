@@ -247,6 +247,10 @@ For codefolio-scale data (thousands of events / day), regular Postgres handles a
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Time-series SQL is the same SQL with a few patterns. Three to internalise:
 
 1. **Bucket with `DATE_TRUNC` (or integer-divide for arbitrary widths).**
@@ -254,6 +258,8 @@ Time-series SQL is the same SQL with a few patterns. Three to internalise:
 3. **`FILTER` aggregates for time-windowed summary stats.** "Total / last 24h / last hour" in one pass over the data.
 
 With this chapter, the **SQL section is complete**: 38 chapters across 10 modules. Next sections in the [Languages](/synapse) book — Python, Scala, etc. — are planned but not yet written.
+
+</div>
 
 ## Your Turn
 

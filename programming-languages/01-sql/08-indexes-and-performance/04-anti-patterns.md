@@ -301,11 +301,17 @@ Most production SQL bugs that look like "the database is slow" trace back to one
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Anti-patterns are the predicates that block index use. Three patterns to internalise:
 
 1. **Function-on-column kills indexes.** `LOWER(col)`, `CAST(col AS X)`, `col + 1` — all of them. Fix: store the normalised form, or build an expression index.
 2. **`NOT IN` with subqueries → `NOT EXISTS`.** The null-safety and the plan are both better.
 3. **A code-review checklist beats a debug session.** Catch these patterns before they ship; production query plans should be examined, not assumed.
+
+</div>
 
 ## Your Turn
 

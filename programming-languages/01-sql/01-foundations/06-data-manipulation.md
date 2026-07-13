@@ -233,7 +233,11 @@ WHERE customers.score < EXCLUDED.score;
 
 The `WHERE` references both `customers` (the existing row) and `EXCLUDED` (the would-be-inserted row). This is "max(existing, incoming)" expressed as an upsert — the canonical pattern for syncing a counter or a high-water-mark from an external source.
 
-> **Dialect note:** SQL Server uses `MERGE`. MySQL has `INSERT … ON DUPLICATE KEY UPDATE`. SQLite supports both `ON CONFLICT` and `INSERT OR REPLACE`. Postgres's `ON CONFLICT` is the most explicit and least error-prone of the lot — once you're used to it, the others read awkwardly.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQL Server uses `MERGE`. MySQL has `INSERT … ON DUPLICATE KEY UPDATE`. SQLite supports both `ON CONFLICT` and `INSERT OR REPLACE`. Postgres's `ON CONFLICT` is the most explicit and least error-prone of the lot — once you're used to it, the others read awkwardly.
+
+</div>
 
 ---
 
@@ -413,7 +417,11 @@ The `UPDATE … RETURNING count` is the **exact production query** behind codefo
 
 `RETURNING *` returns every column, like `SELECT *` does. Same caveats apply (don't ship it; list columns explicitly).
 
-> **Dialect note:** SQL Server uses `OUTPUT` for the same feature. Oracle has `RETURNING INTO`. MySQL doesn't have a portable equivalent — common workaround is `LAST_INSERT_ID()` after the insert. The Postgres/SQLite `RETURNING` form is the most flexible.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQL Server uses `OUTPUT` for the same feature. Oracle has `RETURNING INTO`. MySQL doesn't have a portable equivalent — common workaround is `LAST_INSERT_ID()` after the insert. The Postgres/SQLite `RETURNING` form is the most flexible.
+
+</div>
 
 ---
 
@@ -556,6 +564,10 @@ Use the [sample schema](/synapse/programming-languages/sql/foundations/introduct
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 DML is where SQL meets production. Three patterns to internalise:
 
 1. **Always include the `WHERE` clause unless you genuinely mean every row.** A `WHERE`-less `UPDATE` or `DELETE` looks identical to one with a `WHERE` until it runs. The defence is discipline (and `BEGIN; … ROLLBACK;`), not syntax — SQL won't catch you.
@@ -563,6 +575,8 @@ DML is where SQL meets production. Three patterns to internalise:
 3. **Wrap interactive DML in transactions; keep them short.** `BEGIN; … COMMIT;` is the safety net for typed-into-psql changes. Long-running transactions are themselves a problem — they hold locks, block `VACUUM`, and bloat the database. Open, do the work, close.
 
 Master these three and DML becomes the boring, predictable layer it should be — leaving your attention free for the fun parts: joins, aggregations, and windows in the modules ahead.
+
+</div>
 
 ## Your Turn
 

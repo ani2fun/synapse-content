@@ -247,11 +247,17 @@ For codefolio, every query that hits the `/api/recent` or `/api/hello` endpoints
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 `EXPLAIN ANALYZE` turns "slow query" into "I know exactly why." Three patterns to internalise:
 
 1. **Estimated vs actual rows is the first thing to read.** Big gaps = stale statistics. `ANALYZE table_name` is the first fix.
 2. **The slowest node is usually the deepest sequential scan.** Adding an index on its filter column is usually the biggest win.
 3. **Make `EXPLAIN ANALYZE` part of every PR that touches a hot query.** Production query plans should be checked, not assumed.
+
+</div>
 
 ## Your Turn
 

@@ -134,7 +134,11 @@ SELECT CAST(score AS DECIMAL) / 1000 * 100 AS percentage FROM customers;
 
 The rule of thumb: **if you want a fractional answer, ensure at least one operand is non-integer.** Multiplying by `1.0` or `100.0` is the simplest trick; explicit `CAST` is more readable in production code.
 
-> **Dialect note:** SQLite has dynamic typing — `7 / 2` returns `3` (because both operands are integer literals) but `7 / 2.0` returns `3.5`. SQL Server does integer division if both operands are typed integer; cast one side. Postgres and MySQL behave like the standard.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQLite has dynamic typing — `7 / 2` returns `3` (because both operands are integer literals) but `7 / 2.0` returns `3.5`. SQL Server does integer division if both operands are typed integer; cast one side. Postgres and MySQL behave like the standard.
+
+</div>
 
 ## Modulo
 
@@ -169,7 +173,11 @@ SELECT
   ROUND(3.456, 2) AS round_to_2dp; -- 3.46
 ```
 
-> **Banker's rounding subtlety:** "round half to even" (banker's rounding) rounds 2.5 to 2, 3.5 to 4. This avoids the upward bias of always-round-half-up across many calculations. SQL Server, Postgres (for some types), and Python's `round` use it. SQLite's `ROUND` uses round-half-away-from-zero. **Don't depend on which rule applies for `0.5` cases**; always specify the precision and test.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Banker's rounding subtlety:** "round half to even" (banker's rounding) rounds 2.5 to 2, 3.5 to 4. This avoids the upward bias of always-round-half-up across many calculations. SQL Server, Postgres (for some types), and Python's `round` use it. SQLite's `ROUND` uses round-half-away-from-zero. **Don't depend on which rule applies for `0.5` cases**; always specify the precision and test.
+
+</div>
 
 The two-argument form `ROUND(value, decimals)` rounds to a specific decimal place. `ROUND(3.456, 2) = 3.46`; `ROUND(345.6, -1) = 350` (negative `decimals` means rounding to tens, hundreds, etc.).
 
@@ -193,7 +201,11 @@ SELECT
   LEAST(3, 7, 2)    AS min_of_args;   -- 2
 ```
 
-> **Dialect note:** `LOG` is base-10 in SQL Server / Oracle / Postgres. In MySQL and standard SQL, `LOG()` is natural log (base e), and `LOG10()` is base 10. To be portable, use `LN(x)` for natural log, `LOG(10, x)` (Postgres) or `LOG10(x)` (MySQL) for base 10.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** `LOG` is base-10 in SQL Server / Oracle / Postgres. In MySQL and standard SQL, `LOG()` is natural log (base e), and `LOG10()` is base 10. To be portable, use `LN(x)` for natural log, `LOG(10, x)` (Postgres) or `LOG10(x)` (MySQL) for base 10.
+
+</div>
 
 `GREATEST` and `LEAST` deserve a closer look. They take any number of arguments and return the largest/smallest *non-NULL* value across them. Useful for "the more recent of two timestamps," "the higher of two scores":
 
@@ -360,6 +372,10 @@ Integer division (`/ 1000 / 3600 * 3600`) for the bucketing — *intentional* in
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Numeric SQL is mostly arithmetic and rounding. Three patterns to internalise:
 
 1. **Pick the right type for the domain.** `INT` for counts. `BIGINT` for unbounded counters and timestamps. `NUMERIC(p, s)` for money and any computation where binary-float error would compound. `DOUBLE PRECISION` only when approximate is fine.
@@ -367,6 +383,8 @@ Numeric SQL is mostly arithmetic and rounding. Three patterns to internalise:
 3. **Guard your divisors with `NULLIF`.** `a / NULLIF(b, 0)` returns `NULL` instead of crashing — turning a runtime error into a missing-value, which downstream code can handle. Build this reflex; you'll be the engineer who doesn't take the dashboard down on the day a zero shows up in production.
 
 Master these three and numeric handling becomes the routine layer it should be.
+
+</div>
 
 ## Your Turn
 

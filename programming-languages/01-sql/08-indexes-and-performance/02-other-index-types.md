@@ -278,11 +278,17 @@ Each index type has its niche; mixing them in one schema is normal.
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 B-tree is the default; specialised index types are the answer for specific query shapes. Three patterns to internalise:
 
 1. **Match the index type to the query shape.** Containment → GIN; range overlap / geometry → GiST; sequentially-ordered huge tables → BRIN.
 2. **Partial and expression indexes are powerful refinements.** Not a different *type*, but a different *coverage*. Use to tailor an index to the actual query patterns.
 3. **`pg_stat_user_indexes` shows which indexes get used.** Drop the ones that don't. Index maintenance has a real cost.
+
+</div>
 
 ## Your Turn
 

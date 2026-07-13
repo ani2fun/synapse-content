@@ -18,7 +18,7 @@ You can't sort the table differently to fix it — you get one primary order, an
 
 <div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
 
-ℹ️ **Definition.** An *index* is a data structure, separate from the table, that maps the value of one or more columns to the location(s) of the matching rows. It is redundant by design: everything in it is derived from the table, so you could drop it and rebuild it. Its only job is to let a query skip rows it would otherwise have to read.
+📘 **Definition.** An *index* is a data structure, separate from the table, that maps the value of one or more columns to the location(s) of the matching rows. It is redundant by design: everything in it is derived from the table, so you could drop it and rebuild it. Its only job is to let a query skip rows it would otherwise have to read.
 
 </div>
 
@@ -65,7 +65,7 @@ The consequence is **secondary-index indirection**. In a clustered world there i
 
 <div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
 
-ℹ️ **Definition.** A **secondary index** is any index that is not the primary key — created with `CREATE INDEX`. Its values need not be unique (many rows can share an email-domain, a `status`, a `user_id`), so the engine either stores a **postings list** of row IDs per value or appends a row identifier to make each entry unique [p. 132].
+📘 **Definition.** A **secondary index** is any index that is not the primary key — created with `CREATE INDEX`. Its values need not be unique (many rows can share an email-domain, a `status`, a `user_id`), so the engine either stores a **postings list** of row IDs per value or appends a row identifier to make each entry unique [p. 132].
 
 </div>
 

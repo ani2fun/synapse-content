@@ -327,7 +327,11 @@ LIMIT 50;
 
 The `(score, id) < (750, 3)` is **row-value comparison**: tuple-wise lexicographic. It's `TRUE` when `score < 750`, *or* `score = 750 AND id < 3`. That's exactly "in the ordering, strictly after `(750, 3)`."
 
-> **Dialect note:** Row-value comparison is standard SQL and works in PostgreSQL and SQLite. MySQL supports it too. SQL Server doesn't — there you write the predicate explicitly: `WHERE score < 750 OR (score = 750 AND id < 3)`.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** Row-value comparison is standard SQL and works in PostgreSQL and SQLite. MySQL supports it too. SQL Server doesn't — there you write the predicate explicitly: `WHERE score < 750 OR (score = 750 AND id < 3)`.
+
+</div>
 
 ## Why this is fast
 
@@ -471,6 +475,10 @@ Functional in dev. Linearly slower in prod. After a year of `/api/hello` traffic
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 `ORDER BY` and `LIMIT` look like they cap off a query for presentation. They're really the gateway to two of the most production-relevant questions in SQL: how do you sort large data, and how do you paginate without melting?
 
 1. **`ORDER BY` makes order part of the contract; without it, row order is undefined and changes silently.** Always include enough sort keys for a *total* order — typically the primary key as a tiebreaker — so that pagination is deterministic.
@@ -478,6 +486,8 @@ Functional in dev. Linearly slower in prod. After a year of `/api/hello` traffic
 3. **Keyset pagination is the production answer for infinite scroll, time-series feeds, and any "load more" UI.** Track the cursor, not the offset. With the right composite index, every page is `O(log n + page_size)` regardless of where you are in the sequence — and a row inserted while you're scrolling doesn't shift the page under you.
 
 Internalise these three and your sort-and-page queries scale from prototype to production without rewrites.
+
+</div>
 
 ## Your Turn
 

@@ -273,6 +273,10 @@ The `FOR UPDATE` ensures only one worker proceeds even if multiple try at the sa
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 MVCC and locking are how SQL handles concurrent access. Three patterns to internalise:
 
 1. **MVCC means readers don't block writers (and vice versa).** Each update creates a new row version; readers see the version active at their snapshot. The cost is bloat from dead rows; `VACUUM` cleans up.
@@ -280,6 +284,8 @@ MVCC and locking are how SQL handles concurrent access. Three patterns to intern
 3. **Lock in a consistent order to avoid deadlocks; use `SKIP LOCKED` for queue workers; advisory locks for application-level coordination beyond rows.** These three primitives cover most real-world concurrency needs.
 
 With this chapter, the [Transactions and Concurrency](/synapse/programming-languages/sql/transactions-and-concurrency/index) module is complete. The final module ([Advanced Patterns](/synapse/programming-languages/sql/index)) covers JSON, hierarchies, pivoting, and time-series patterns that don't fit cleanly elsewhere.
+
+</div>
 
 ## Your Turn
 

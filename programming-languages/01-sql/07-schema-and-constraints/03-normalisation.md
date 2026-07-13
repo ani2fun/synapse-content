@@ -257,11 +257,17 @@ Don't denormalise prematurely. Don't tolerate update anomalies; normalise. Denor
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Normalisation eliminates redundancy. Three patterns to internalise:
 
 1. **Every fact lives in exactly one place.** That's the whole game. The normal forms are formal expressions of this rule for different cases.
 2. **Aim for 3NF; reach for BCNF if it costs nothing extra.** Most production schemas live here. Lower forms have anomalies; higher forms have diminishing returns.
 3. **Denormalise deliberately, never accidentally.** Cached columns, materialised views, immutable historical fields — each with a documented reason and a sync strategy. Drift is the tax.
+
+</div>
 
 ## Your Turn
 

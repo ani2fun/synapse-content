@@ -128,7 +128,11 @@ FROM customers;
 
 Standard arithmetic operators: `+`, `-`, `*`, `/`, `%` (modulo), `^` (exponent in Postgres; varies by dialect). Integer division behaves the way C/Java do: `7 / 2 = 3`, not `3.5`. To force a real-number division, cast one operand: `score * 1.0 / 1000` or `CAST(score AS DECIMAL) / 1000`.
 
-> **Dialect note:** SQL Server's `/` on integers returns an integer too. SQLite returns a real number. Postgres returns an integer. When you're not sure, cast — it's free and explicit.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQL Server's `/` on integers returns an integer too. SQLite returns a real number. Postgres returns an integer. When you're not sure, cast — it's free and explicit.
+
+</div>
 
 ## String operations
 
@@ -141,7 +145,11 @@ FROM customers;
 
 Returns `'Maria from Germany'`, `'John from USA'`, etc.
 
-> **Dialect note:** SQL Server uses `+` for string concatenation, not `||`. MySQL uses `CONCAT(a, b, c)`. Postgres and SQLite use `||`. The Postgres-canonical syntax in this book is `||`. If you switch to MySQL, swap to `CONCAT()`.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQL Server uses `+` for string concatenation, not `||`. MySQL uses `CONCAT(a, b, c)`. Postgres and SQLite use `||`. The Postgres-canonical syntax in this book is `||`. If you switch to MySQL, swap to `CONCAT()`.
+
+</div>
 
 A subtlety: `||` propagates `NULL`. `'hello' || NULL` is `NULL`, not `'hello'`. If `country` is `NULL` for a customer, the entire `bio` for that row is `NULL`. Use `COALESCE(country, 'unknown')` to substitute a default. We'll meet `COALESCE` properly in [NULL and three-valued logic](/synapse/programming-languages/sql/index).
 
@@ -294,7 +302,11 @@ JOIN orders AS o ON c.id = o.customer_id;
 
 Two aliases (`c`, `o`) for the two tables. `c.id` is unambiguously the `customers.id`. **Table aliases are conventionally short** — `c`, `o`, `e` — because they're written many times in a single query. Long table aliases (`customers AS customer_table`) hurt more than they help.
 
-> **Style note:** the `AS` between `customers` and `c` is optional and most engineers drop it for table aliases (`FROM customers c`) while keeping it for column aliases (`SELECT name AS n`). This book follows that convention.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Style note:** the `AS` between `customers` and `c` is optional and most engineers drop it for table aliases (`FROM customers c`) while keeping it for column aliases (`SELECT name AS n`). This book follows that convention.
+
+</div>
 
 When all referenced columns are unambiguous (i.e., only one source table has a column by that name), prefixes are optional. But making a habit of *always* prefixing in multi-table queries makes them easier to read and refactor — six months from now, when you add a third table, you don't have to chase down which `id` belongs to which table.
 
@@ -461,7 +473,11 @@ ORDER BY bonus DESC;
 
 `HAVING` runs at step 5, *before* `SELECT` at step 6 — so by the rules, aliases shouldn't work there either. In standard SQL they don't. Postgres extends this: HAVING *can* reference aggregate-function results from `SELECT`, but only by repeating the expression. For now, when in doubt, use the full expression in `WHERE` and `HAVING`; use the alias in `ORDER BY`.
 
-> **MySQL exception:** MySQL allows aliases in `WHERE` and `HAVING` in some versions. **Don't write code that depends on this.** It's a non-standard extension, doesn't work on Postgres or SQLite or SQL Server, and breaks the moment you change engines. Standard-SQL habit will save you a 3 a.m. debugging session in a year.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **MySQL exception:** MySQL allows aliases in `WHERE` and `HAVING` in some versions. **Don't write code that depends on this.** It's a non-standard extension, doesn't work on Postgres or SQLite or SQL Server, and breaks the moment you change engines. Standard-SQL habit will save you a 3 a.m. debugging session in a year.
+
+</div>
 
 ---
 
@@ -595,6 +611,10 @@ Five columns in the output, four of them computed. Aliases on every computed col
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 The column list looks simple. It's the place where the most production-grade habits get formed.
 
 1. **`SELECT *` is for exploration; explicit columns are for shipped code.** A `SELECT *` is a contract you didn't write down — and the day someone adds a column to the table is the day you find out.
@@ -602,6 +622,8 @@ The column list looks simple. It's the place where the most production-grade hab
 3. **`DISTINCT` is the right tool when the data has duplicates, the wrong tool when your join has a bug.** When you reach for it, ask which one you're dealing with.
 
 Master these three and the column list becomes invisible — exactly as it should be, so you can focus on the harder parts of the query.
+
+</div>
 
 ## Your Turn
 

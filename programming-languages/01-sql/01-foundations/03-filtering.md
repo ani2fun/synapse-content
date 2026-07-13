@@ -95,7 +95,11 @@ The six standard comparison operators:
 | `<` | strictly less than | `score < 500` | `TRUE` if score is 499 or less |
 | `<=` | less than or equal | `score <= 500` | `TRUE` if score is 500 or less |
 
-> **`<>` vs `!=`:** The standard form is `<>`, inherited from older SQL. `!=` is supported by every major dialect today and is conventionally read as "not equal." This book uses `<>` to match the standard but recognises `!=` is more common in modern code.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **`<>` vs `!=`:** The standard form is `<>`, inherited from older SQL. `!=` is supported by every major dialect today and is conventionally read as "not equal." This book uses `<>` to match the standard but recognises `!=` is more common in modern code.
+
+</div>
 
 The comparison operators work on more than just numbers. They work on **strings** (lexicographic ordering — `'apple' < 'banana'`), on **dates** (chronological — `'2026-01-01' < '2026-02-01'`), on **booleans** (`FALSE < TRUE`), and on **anything else with an ordering**.
 
@@ -398,7 +402,11 @@ WHERE LOWER(first_name) LIKE 'm%'
 WHERE first_name ILIKE 'm%'
 ```
 
-> **Dialect note:** `ILIKE` is Postgres-only. SQLite, MySQL, and SQL Server all default to *case-insensitive* `LIKE` if the column's collation is case-insensitive, and case-sensitive otherwise. The `LOWER()` form is the most portable.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** `ILIKE` is Postgres-only. SQLite, MySQL, and SQL Server all default to *case-insensitive* `LIKE` if the column's collation is case-insensitive, and case-sensitive otherwise. The `LOWER()` form is the most portable.
+
+</div>
 
 ## Escaping
 
@@ -671,6 +679,10 @@ Spin up the [sample schema](/synapse/programming-languages/sql/foundations/intro
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 `WHERE` is the row-filtering clause and looks deceptively simple. Three patterns to internalise:
 
 1. **`WHERE` keeps rows where the predicate is `TRUE`. `FALSE` and `UNKNOWN` both drop the row.** The asymmetry between "FALSE" and "UNKNOWN" is silent — and is the source of nearly every NULL bug in beginner SQL.
@@ -678,6 +690,8 @@ Spin up the [sample schema](/synapse/programming-languages/sql/foundations/intro
 3. **Half-open ranges (`>= start AND < end_plus_one`) for time windows; closed ranges (`BETWEEN`) for plain `DATE` columns.** This single habit prevents an entire class of "we missed the rows from 30 April after lunch" bugs.
 
 Internalise those three and `WHERE` becomes the predictable, boring clause it should be — leaving your attention free for the joins, aggregations, and windows that *are* hard.
+
+</div>
 
 ## Your Turn
 

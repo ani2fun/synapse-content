@@ -383,6 +383,10 @@ Postgres 16+'s `IGNORE NULLS` carries the most recent non-NULL price forward to 
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Value functions reach into specific rows of the window. Three patterns to internalise:
 
 1. **`LAG`/`LEAD` for "previous/next row" computations.** The cleanest tool for day-over-day changes, gap detection, and "compare to N rows back." They take an offset directly and ignore the frame.
@@ -390,6 +394,8 @@ Value functions reach into specific rows of the window. Three patterns to intern
 3. **`NTH_VALUE` is rare; `ROW_NUMBER = N` is usually cleaner.** When you want the n-th row of a group, ranking + filter beats `NTH_VALUE` for readability.
 
 Master these three and you can answer every "what value did the row N positions away have?" question in a single window expression — replacing self-joins and correlated subqueries that were the only options before windows existed.
+
+</div>
 
 ## Your Turn
 

@@ -217,11 +217,15 @@ GROUP BY country
 ORDER BY country;
 ```
 
-> **Dialect note:**
-> - **PostgreSQL & SQL Server (2017+)**: `STRING_AGG(col, ', ')`
-> - **MySQL & SQLite**: `GROUP_CONCAT(col, ', ')` (the second arg is optional; defaults to `,`)
-> - **Standard SQL**: `LISTAGG(col, ', ') WITHIN GROUP (ORDER BY col)` — Oracle, DB2, sometimes others
-> The runnable blocks above use `GROUP_CONCAT` because Piston's SQLite supports it. In Postgres-canonical writing, you'd use `STRING_AGG(first_name, ', ')`.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:**
+- **PostgreSQL & SQL Server (2017+)**: `STRING_AGG(col, ', ')`
+- **MySQL & SQLite**: `GROUP_CONCAT(col, ', ')` (the second arg is optional; defaults to `,`)
+- **Standard SQL**: `LISTAGG(col, ', ') WITHIN GROUP (ORDER BY col)` — Oracle, DB2, sometimes others
+The runnable blocks above use `GROUP_CONCAT` because Piston's SQLite supports it. In Postgres-canonical writing, you'd use `STRING_AGG(first_name, ', ')`.
+
+</div>
 
 `STRING_AGG` shines for "give me a comma-separated list of X per group" — a tags-on-a-blog-post column, all the products in a category, every email recipient for a notification. Postgres also lets you `STRING_AGG(... ORDER BY col)` to get them sorted, which is essential for deterministic output.
 
@@ -497,6 +501,10 @@ Six columns of summary statistics per customer, ranked by total sales. Five rows
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Aggregate functions summarise rows into one value per group. Three patterns to internalise:
 
 1. **`COUNT(*)` counts rows; `COUNT(column)` counts non-NULL values; `COUNT(DISTINCT column)` counts unique non-NULL values.** Pick the one that matches the question. After a `LEFT JOIN`, `COUNT(*)` is almost always wrong — use `COUNT(some_right_side_column)` instead.
@@ -504,6 +512,8 @@ Aggregate functions summarise rows into one value per group. Three patterns to i
 3. **`FILTER` lets one `SELECT` produce multiple aggregates over different subsets in one pass.** "Total customers / German customers / high-score customers" should be three `FILTER`ed aggregates in one query, not three separate queries combined later. Faster, cleaner, atomic.
 
 Master these three and aggregate functions become the predictable workhorses they should be.
+
+</div>
 
 ## Your Turn
 

@@ -234,7 +234,11 @@ ORDER BY first_name;
 
 One row: Alice-UK.
 
-> **Dialect note:** Oracle calls it `MINUS` instead of `EXCEPT`. Postgres/SQLite/SQL Server use `EXCEPT`. MySQL added it in 8.0.31 alongside `INTERSECT`.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** Oracle calls it `MINUS` instead of `EXCEPT`. Postgres/SQLite/SQL Server use `EXCEPT`. MySQL added it in 8.0.31 alongside `INTERSECT`.
+
+</div>
 
 ## EXCEPT for reconciliation
 
@@ -431,6 +435,10 @@ Use the [sample schema](/synapse/programming-languages/sql/foundations/introduct
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Set operators combine result-sets, not tables. Three patterns to internalise:
 
 1. **Default to `UNION ALL`. Reach for `UNION` only when you genuinely need deduplication.** `UNION ALL` streams rows; `UNION` sorts the entire combined result. The default should be the cheaper one.
@@ -438,6 +446,8 @@ Set operators combine result-sets, not tables. Three patterns to internalise:
 3. **The column count and types must match on both sides.** When they don't, inject literals or `NULL`s to force the shapes to align — and consider tagging each row with its source so the consumer knows where it came from.
 
 Master these three and set operators become a clean, predictable second tool — joins for related tables, set operators for similar-shaped result-sets.
+
+</div>
 
 ## Your Turn
 

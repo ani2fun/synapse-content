@@ -152,7 +152,11 @@ GROUP BY country
 ORDER BY country;
 ```
 
-> **Dialect note:** `GROUP_CONCAT` is the SQLite/MySQL spelling. Postgres uses `STRING_AGG(col, ', ')`, with an explicit separator. SQL Server uses `STRING_AGG(col, ', ')` since 2017. Standard SQL is `LISTAGG`. We'll meet these in [Aggregate Functions](/synapse/programming-languages/sql/aggregation/aggregate-functions).
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** `GROUP_CONCAT` is the SQLite/MySQL spelling. Postgres uses `STRING_AGG(col, ', ')`, with an explicit separator. SQL Server uses `STRING_AGG(col, ', ')` since 2017. Standard SQL is `LISTAGG`. We'll meet these in [Aggregate Functions](/synapse/programming-languages/sql/aggregation/aggregate-functions).
+
+</div>
 
 ## A quirk: MySQL's `ONLY_FULL_GROUP_BY` is off-by-default
 
@@ -466,6 +470,10 @@ The deeper production move is to *materialise* such aggregations — precompute 
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 `GROUP BY` collapses rows into groups; aggregates summarise each group. Three patterns to internalise:
 
 1. **The single-value-per-group rule is the engine telling you your query is ambiguous.** Every `SELECT` column must be either grouped or aggregated. The fix is always one of: add the column to `GROUP BY` (changes the granularity), wrap it in an aggregate (`MIN`, `MAX`, `STRING_AGG`), or remove it.
@@ -473,6 +481,8 @@ The deeper production move is to *materialise* such aggregations — precompute 
 3. **Aggregating after a join? Watch for row inflation.** A customer with 10 orders contributes their score 10 times after a `JOIN`. The fix is to aggregate the many-side *first* (in a subquery or CTE), then join to the one-side.
 
 Master these three and aggregation queries become straightforward. Most production aggregation bugs trace back to one of them.
+
+</div>
 
 ## Your Turn
 

@@ -290,7 +290,11 @@ WHERE score_band = 'high';
 
 `WHERE` runs at step 2; aliases bind at step 6. The alias doesn't exist yet either. Either repeat the expression in `WHERE`, or wrap the whole thing in a subquery / CTE so the alias exists before the outer `WHERE` runs.
 
-> **Dialect note:** MySQL is unusually lenient and *does* let you reference SELECT aliases in WHERE in some versions. PostgreSQL, SQLite, and SQL Server enforce the standard. Don't rely on the MySQL-specific leniency — it'll bite you when you change engines.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** MySQL is unusually lenient and *does* let you reference SELECT aliases in WHERE in some versions. PostgreSQL, SQLite, and SQL Server enforce the standard. Don't rely on the MySQL-specific leniency — it'll bite you when you change engines.
+
+</div>
 
 **(c)** **You *can* reference a `SELECT` alias in `ORDER BY`.**
 
@@ -541,6 +545,10 @@ Each problem below has a hint, not a solution. The point is to make you flex the
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 SQL is not just "the syntax for talking to a database." It's a particular *way of thinking* about data — declarative, set-oriented, no loops — that pays off the moment you stop fighting it. Three patterns to internalise:
 
 1. **You describe *what*, not *how*.** The planner picks the loop, the index, the join order, the parallelism. You name the columns, the table, and the condition. The skill is learning to *trust* the planner 90% of the time and to *override* it with intent the other 10%.
@@ -548,6 +556,8 @@ SQL is not just "the syntax for talking to a database." It's a particular *way o
 3. **The relational model is austere on purpose.** Tables, rows, columns, primary keys, foreign keys. No nesting. The constraint is what lets the *same data* answer questions the original schema designer never anticipated — which is the entire point of using a relational database in the first place.
 
 Master those three and the rest of this curriculum — every join, every aggregate, every window — falls into place.
+
+</div>
 
 ## Your Turn
 

@@ -368,6 +368,10 @@ For each hour, the latest event. The pattern: bucket → `PARTITION BY` the buck
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Ranking functions label each row with its position. Three patterns to internalise:
 
 1. **`ROW_NUMBER` for unique sequence; `RANK` for ties-with-gaps; `DENSE_RANK` for ties-without-gaps; `NTILE(N)` for N buckets.** Pick based on how you want ties handled. Add a tiebreaker `ORDER BY` for determinism.
@@ -375,6 +379,8 @@ Ranking functions label each row with its position. Three patterns to internalis
 3. **Window functions can't appear in `WHERE`.** Wrap any rank-based filter in a CTE or subquery. This is the consistent rule across all window functions and the most common "wait, why does this fail" moment when learning them.
 
 With these and frames, the [Window Functions](/synapse/programming-languages/sql/window-functions/index) module is mostly in your fingertips. The next chapter ([Value Functions](/synapse/programming-languages/sql/window-functions/value-functions)) covers the row-relative functions (`LAG`, `LEAD`, etc.), and the [final chapter](/synapse/programming-languages/sql/window-functions/window-patterns) ties everything together with the canonical production patterns.
+
+</div>
 
 ## Your Turn
 

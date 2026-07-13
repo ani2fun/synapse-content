@@ -104,7 +104,11 @@ stateDiagram-v2
 
 If a statement *inside* a transaction fails (constraint violation, syntax error, etc.), most engines auto-rollback the transaction. Postgres puts the transaction into an "aborted" state where every subsequent statement errors with "current transaction is aborted, commands ignored until end of transaction block" — you must `ROLLBACK` to recover.
 
-> **Dialect note:** SQL Server uses `BEGIN TRANSACTION` (or `BEGIN TRAN`); MySQL/Postgres/SQLite accept just `BEGIN`. `ROLLBACK` and `COMMIT` are universal.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQL Server uses `BEGIN TRANSACTION` (or `BEGIN TRAN`); MySQL/Postgres/SQLite accept just `BEGIN`. `ROLLBACK` and `COMMIT` are universal.
+
+</div>
 
 ---
 
@@ -256,11 +260,17 @@ The pattern: `BEGIN` → work → `COMMIT` (with `ROLLBACK` on any failure). Hik
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 ACID is the foundation of relational SQL. Three patterns to internalise:
 
 1. **Multi-statement operations need explicit transactions.** Single statements get implicit autocommit transactions; multi-statement work needs `BEGIN`/`COMMIT`.
 2. **Always pair `BEGIN` with a try/catch and matching `COMMIT`/`ROLLBACK`.** Open transactions left dangling hold locks and bloat the database.
 3. **Side effects outside the database aren't transactional.** Emails, webhooks, payments — handle these *after* commit, ideally via the outbox pattern.
+
+</div>
 
 ## Your Turn
 

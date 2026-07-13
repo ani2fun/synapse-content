@@ -396,6 +396,10 @@ These two queries cover most of what an analytics dashboard around `hello_events
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Window patterns are the production toolkit. Three patterns to internalise:
 
 1. **Memorise the canonical shapes.** Top-N per group, running total, percent of total, gap detection, sessionisation, gaps-and-islands, dedup-keep-latest. Most analytical SQL is one of these or a combination.
@@ -403,6 +407,8 @@ Window patterns are the production toolkit. Three patterns to internalise:
 3. **Tiebreakers are mandatory for any rank-and-filter query.** Without one, the answer is non-deterministic. The PK is the safest choice.
 
 With this chapter, the [Window Functions](/synapse/programming-languages/sql/window-functions/index) module — and Phase 3 of the curriculum — is complete. You can now write the analytical SQL that powers dashboards, reports, and recommender systems. The remaining phases (CTEs/recursion, schema, indexes, transactions, advanced patterns) round out the toolkit but are increasingly specialised; the patterns in this module are what you'll reach for daily.
+
+</div>
 
 ## Your Turn
 

@@ -350,6 +350,10 @@ For Postgres with native timestamps, `RANGE BETWEEN INTERVAL '5 minutes' PRECEDI
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Frames are how you control which rows a window function sees. Three patterns to internalise:
 
 1. **The default frame depends on whether `ORDER BY` is in `OVER`.** No `ORDER BY` → whole partition. With `ORDER BY` → unbounded preceding through current row. The "moving average computed as running total" bug traces here.
@@ -357,6 +361,8 @@ Frames are how you control which rows a window function sees. Three patterns to 
 3. **Specify frames explicitly in production code.** Defaults are convenient but easy to misread. `ROWS BETWEEN N PRECEDING AND CURRENT ROW` is the most common explicit form — moving windows of fixed size are the bread and butter of analytics SQL.
 
 Master these three and the moving-window patterns in the [Window Patterns](/synapse/programming-languages/sql/window-functions/window-patterns) chapter become straightforward applications of frame control.
+
+</div>
 
 ## Your Turn
 

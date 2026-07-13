@@ -391,6 +391,10 @@ Use the [sample schema](/synapse/programming-languages/sql/foundations/introduct
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Anti-joins are "rows where no match." Three patterns to internalise:
 
 1. **`NOT EXISTS` is the default.** Null-safe, reads correctly, optimises to the same plan as the alternatives. Reach for it first.
@@ -398,6 +402,8 @@ Anti-joins are "rows where no match." Three patterns to internalise:
 3. **Reconciliation queries — the workhorse use case for anti-joins — should be on a schedule.** "Rows in source not in target," "orphan FKs," "events without their corresponding customer record." Wire them to alerting; the day they return rows is the day your pipeline drifted, and you want to know before users do.
 
 Master these three and the anti-join shape becomes routine. With this chapter, the [Working with Multiple Tables](/synapse/programming-languages/sql/multiple-tables/index) module is complete — you can now combine rows from any number of tables, in any of the standard shapes.
+
+</div>
 
 ## Your Turn
 

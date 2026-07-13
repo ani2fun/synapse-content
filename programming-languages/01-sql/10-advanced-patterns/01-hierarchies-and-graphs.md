@@ -224,11 +224,17 @@ For graph-shaped data (user friendships, knowledge graphs), SQL is workable for 
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Hierarchical SQL has four canonical shapes. Three patterns to internalise:
 
 1. **Adjacency list is the default.** Simple, write-friendly. Query with recursive CTEs.
 2. **Closure table for read-heavy hot paths.** Trades write cost for read speed.
 3. **Postgres `ltree` is the modern Postgres-native answer.** Built-in operators + GiST indexing.
+
+</div>
 
 ## Your Turn
 

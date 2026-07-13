@@ -290,6 +290,10 @@ Four CTEs, each named, each one transformation step. Easy to read, easy to debug
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 CTEs are the readability tool of modern SQL. Three patterns to internalise:
 
 1. **Reach for a CTE whenever you would have written a 2+ level subquery.** Same plan in modern Postgres; vastly more readable.
@@ -297,6 +301,8 @@ CTEs are the readability tool of modern SQL. Three patterns to internalise:
 3. **Trust the planner's CTE inlining; reach for `MATERIALIZED` only after profiling.** The old "CTEs are an optimisation barrier" advice no longer applies.
 
 Master these three and your analytical SQL becomes top-to-bottom readable.
+
+</div>
 
 ## Your Turn
 

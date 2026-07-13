@@ -117,7 +117,11 @@ flowchart TD
 
 `UNION ALL` keeps duplicates (faster). `UNION` de-duplicates (sometimes needed for cycle protection in graphs).
 
-> **Dialect note:** All major dialects support `WITH RECURSIVE` — Postgres, MySQL 8+, SQLite, SQL Server (calls it just `WITH`, no `RECURSIVE` keyword). Syntax is otherwise standard.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** All major dialects support `WITH RECURSIVE` — Postgres, MySQL 8+, SQLite, SQL Server (calls it just `WITH`, no `RECURSIVE` keyword). Syntax is otherwise standard.
+
+</div>
 
 ---
 
@@ -346,6 +350,10 @@ Generate a complete time-axis (no gaps for empty hours), then `LEFT JOIN` the ac
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Recursive CTEs walk trees and graphs. Three patterns to internalise:
 
 1. **Anchor + recursive member, joined by `UNION ALL`.** The anchor is the seed; the recursive member produces the next level. Iteration is automatic.
@@ -353,6 +361,8 @@ Recursive CTEs walk trees and graphs. Three patterns to internalise:
 3. **Cycles need protection.** `UNION` deduplicates; explicit path-tracking with arrays is more robust. For deep graphs, consider denormalising into closure tables instead of pure recursion.
 
 With this chapter, the [CTEs and Recursion](/synapse/programming-languages/sql/ctes-and-recursion/index) module is complete.
+
+</div>
 
 ## Your Turn
 

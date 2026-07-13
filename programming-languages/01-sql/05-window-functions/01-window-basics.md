@@ -370,6 +370,10 @@ Per-row detail with per-group context — exactly what window functions exist fo
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Window functions add per-row context without collapsing rows. Three patterns to internalise:
 
 1. **`OVER (...)` is the marker.** Any aggregate plus `OVER (...)` becomes a window function. No `GROUP BY` involved; every row stays in the result, and the aggregate is computed over a window of related rows.
@@ -377,6 +381,8 @@ Window functions add per-row context without collapsing rows. Three patterns to 
 3. **The presence of `ORDER BY` inside `OVER` flips the default frame from "entire window" to "running through current row."** This is the single most consequential detail: `SUM(x) OVER (PARTITION BY g)` is the per-group total; `SUM(x) OVER (PARTITION BY g ORDER BY t)` is the per-group running total. Same aggregate, different question.
 
 Master these three and the rest of the window-functions module — frames, ranking, value functions — falls into place.
+
+</div>
 
 ## Your Turn
 

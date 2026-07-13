@@ -111,9 +111,13 @@ GROUP BY GROUPING SETS (
 ORDER BY c.country NULLS LAST, year_month NULLS LAST;
 ```
 
-> **Dialect note:** `GROUPING SETS` is in standard SQL and supported by PostgreSQL, SQL Server, Oracle. **SQLite does not support `GROUPING SETS`, `ROLLUP`, or `CUBE`** as of writing — SQLite is the runtime in this book's runnable blocks, so the block above will error in the runner. Read the query, not the runner output. The conceptual semantics still apply.
->
-> The portable workaround in SQLite: write the `UNION ALL` form by hand, as in the chapter's hook.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** `GROUPING SETS` is in standard SQL and supported by PostgreSQL, SQL Server, Oracle. **SQLite does not support `GROUPING SETS`, `ROLLUP`, or `CUBE`** as of writing — SQLite is the runtime in this book's runnable blocks, so the block above will error in the runner. Read the query, not the runner output. The conceptual semantics still apply.
+
+The portable workaround in SQLite: write the `UNION ALL` form by hand, as in the chapter's hook.
+
+</div>
 
 The result has three shards interleaved:
 
@@ -350,6 +354,10 @@ These exercises assume Postgres-or-better. SQLite users: read the queries; the c
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Multi-dimensional aggregation gives you subtotals at multiple levels in one pass. Three patterns to internalise:
 
 1. **`ROLLUP` for hierarchies, `CUBE` for "every combination," `GROUPING SETS` for cherry-picked combinations.** Pick the operator that matches the shape of the question. `ROLLUP` is by far the most common in real BI/finance work.
@@ -357,6 +365,8 @@ Multi-dimensional aggregation gives you subtotals at multiple levels in one pass
 3. **One query, one pass over the data, atomic snapshot.** Compared to four `UNION ALL`'d queries, the multi-dimensional operators are faster and consistent. They're why BI tools generate this syntax under the hood — and why your dashboards should too once you're past prototype scale.
 
 With this chapter, the [Aggregation](/synapse/programming-languages/sql/aggregation/index) module — and Phase 2 of the SQL curriculum — is complete. You can now combine rows from multiple tables and summarise them at any level; the next module ([Row Functions](/synapse/programming-languages/sql/index)) shifts back to per-row computations: strings, dates, numbers, and the `CASE` expression.
+
+</div>
 
 ## Your Turn
 

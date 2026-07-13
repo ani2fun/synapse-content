@@ -85,7 +85,11 @@ INSERT INTO customers VALUES (1,'Maria','Germany'),(2,'John','USA'),(3,'Georg','
 SELECT first_name || ' from ' || country AS bio FROM customers;
 ```
 
-> **Dialect note:** SQL Server uses `+` for string concat (and errors on `||`). MySQL uses `CONCAT(s1, s2, ...)` by default and re-purposes `||` to logical-OR (unless `PIPES_AS_CONCAT` mode is on). The portable form is `CONCAT(...)`.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQL Server uses `+` for string concat (and errors on `||`). MySQL uses `CONCAT(s1, s2, ...)` by default and re-purposes `||` to logical-OR (unless `PIPES_AS_CONCAT` mode is on). The portable form is `CONCAT(...)`.
+
+</div>
 
 A subtlety: **`||` propagates `NULL`**. `'hello' || NULL` is `NULL`, not `'hello'`. If `country` is NULL for a row, the entire `bio` for that row is NULL. Use `COALESCE` to substitute a default:
 
@@ -126,7 +130,11 @@ Case is a frequent source of join misses (the chapter's hook bug). Two engineeri
 1. **For comparisons**: lowercase both sides. `WHERE LOWER(a) = LOWER(b)` is the bread-and-butter case-insensitive join.
 2. **For storage**: pick a normalised form (usually lowercase) and store it that way. Store `email` as lowercase on insert; comparisons are then exact-match. This is the production pattern — repair-on-read works in pinches but adds latency to every join.
 
-> **Dialect note:** Postgres has `ILIKE` for case-insensitive `LIKE` (`first_name ILIKE 'm%'`). SQLite's `LIKE` is case-insensitive *by default for ASCII* (and case-sensitive for non-ASCII). MySQL's `LIKE` case sensitivity depends on the column's collation. The `LOWER(...) = LOWER(...)` form is the most portable.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** Postgres has `ILIKE` for case-insensitive `LIKE` (`first_name ILIKE 'm%'`). SQLite's `LIKE` is case-insensitive *by default for ASCII* (and case-sensitive for non-ASCII). MySQL's `LIKE` case sensitivity depends on the column's collation. The `LOWER(...) = LOWER(...)` form is the most portable.
+
+</div>
 
 ---
 
@@ -143,7 +151,11 @@ SELECT first_name,
 FROM customers;
 ```
 
-> **`LENGTH` vs `CHAR_LENGTH` vs `OCTET_LENGTH`**: in Postgres, `LENGTH` and `CHAR_LENGTH` are character counts (Unicode-aware); `OCTET_LENGTH` is bytes. In MySQL, `LENGTH` is bytes and `CHAR_LENGTH` is characters. **For text-counting use `CHAR_LENGTH` for portability.** For bytes (e.g., enforcing a 64-byte input limit), use `OCTET_LENGTH`.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **`LENGTH` vs `CHAR_LENGTH` vs `OCTET_LENGTH`**: in Postgres, `LENGTH` and `CHAR_LENGTH` are character counts (Unicode-aware); `OCTET_LENGTH` is bytes. In MySQL, `LENGTH` is bytes and `CHAR_LENGTH` is characters. **For text-counting use `CHAR_LENGTH` for portability.** For bytes (e.g., enforcing a 64-byte input limit), use `OCTET_LENGTH`.
+
+</div>
 
 `SUBSTRING(s FROM start FOR len)` is the standard form; positions are 1-based. Postgres also accepts the function-call form `SUBSTRING(s, start, len)`; SQLite uses `SUBSTR(s, start, len)`. SQL Server uses `SUBSTRING(s, start, len)`.
 
@@ -381,6 +393,10 @@ The `WHERE email <> LOWER(TRIM(email))` filter is the trick: only update the row
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 String functions are the per-row data-cleanup layer. Three patterns to internalise:
 
 1. **Normalise on insert; reach for repair-on-read only when you can't.** `LOWER(TRIM(...))` joins work but pay the cost on every query and block index use. Storing the normalised form once trades a write-time cost for read-time speed.
@@ -388,6 +404,8 @@ String functions are the per-row data-cleanup layer. Three patterns to internali
 3. **`||` propagates NULL; `CONCAT_WS` doesn't.** Pick the operator that matches your intent. When a column might be NULL and you want a sensible default, `COALESCE(col, '')` makes the choice explicit.
 
 Master these three and string handling becomes a routine layer of every query — not the source of half your data-quality bugs.
+
+</div>
 
 ## Your Turn
 

@@ -198,7 +198,11 @@ LEFT JOIN orders o ON o.customer_id = c.id        -- LEFT JOIN equivalent below
 ORDER BY c.id, o.order_id;
 ```
 
-> **Style note:** in production code, prefer `LEFT JOIN` over `RIGHT JOIN`. The two are equivalent — `A RIGHT JOIN B` produces the same result as `B LEFT JOIN A` — and pinning the "primary" table on the left makes the query read top-down. Most senior engineers I know never write `RIGHT JOIN` voluntarily.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Style note:** in production code, prefer `LEFT JOIN` over `RIGHT JOIN`. The two are equivalent — `A RIGHT JOIN B` produces the same result as `B LEFT JOIN A` — and pinning the "primary" table on the left makes the query read top-down. Most senior engineers I know never write `RIGHT JOIN` voluntarily.
+
+</div>
 
 `FULL OUTER JOIN` keeps every row from **both** tables. Customers without orders appear with NULL order columns; orders without customers appear with NULL customer columns; matched pairs appear once.
 
@@ -217,7 +221,11 @@ ORDER BY COALESCE(c.id, 999), o.order_id;
 
 7 rows: 5 matched + Peter (no orders) + order 1006 (no customer). Useful when you genuinely want to inventory both sides — typical use case is a reconciliation query: "find rows that exist on one side and not the other."
 
-> **Dialect note:** MySQL doesn't support `FULL OUTER JOIN`. The portable workaround is `LEFT JOIN UNION RIGHT JOIN`, which is verbose. SQLite gained `FULL OUTER JOIN` in 3.39 (June 2022), so older SQLite versions may not support it.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** MySQL doesn't support `FULL OUTER JOIN`. The portable workaround is `LEFT JOIN UNION RIGHT JOIN`, which is verbose. SQLite gained `FULL OUTER JOIN` in 3.39 (June 2022), so older SQLite versions may not support it.
+
+</div>
 
 ---
 
@@ -503,6 +511,10 @@ Use the [sample schema](/synapse/programming-languages/sql/foundations/introduct
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Joins are 80% of multi-table SQL. Three patterns to internalise:
 
 1. **Pick the join shape that matches your business question.** "I want both sides matched" → `INNER`. "I want every row from the primary side, with optional info from the other" → `LEFT`. "I want every row from both sides" → `FULL`. The wrong shape silently produces the wrong rows.
@@ -510,6 +522,8 @@ Joins are 80% of multi-table SQL. Three patterns to internalise:
 3. **Always alias your tables, especially in multi-table joins.** Two-letter abbreviations (`c`, `o`, `p`) are the convention; long names (`customer_table`, `orders_table`) hurt readability without adding precision.
 
 Master these three and joins become predictable. Most production join bugs trace back to one of them.
+
+</div>
 
 ## Your Turn
 

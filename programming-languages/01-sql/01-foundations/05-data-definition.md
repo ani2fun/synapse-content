@@ -171,7 +171,11 @@ The big three rules:
 
 `VARCHAR(n)` is useful when you want the database to enforce a length cap *as a constraint*, e.g., for a column receiving externally-validated input where exceeding the length is a sign of a bug. `CHAR(n)` is rarely useful — the trailing-space padding behaviour surprises people.
 
-> **Dialect note:** SQL Server's `VARCHAR` historically had stricter behaviour (case sensitivity depends on collation). MySQL's `TEXT` is a different type from `VARCHAR` (with subtly different indexing behaviour). The note-book material this chapter inherits uses `VARCHAR(50)` everywhere for SQL Server compatibility; this book uses `TEXT` because we're Postgres-canonical.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQL Server's `VARCHAR` historically had stricter behaviour (case sensitivity depends on collation). MySQL's `TEXT` is a different type from `VARCHAR` (with subtly different indexing behaviour). The note-book material this chapter inherits uses `VARCHAR(50)` everywhere for SQL Server compatibility; this book uses `TEXT` because we're Postgres-canonical.
+
+</div>
 
 ## Date and time
 
@@ -607,6 +611,10 @@ Use a scratch database (or `docker compose exec db psql -U codefolio` and a temp
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 DDL is the half of SQL most engineers learn last and use least often — but the half where mistakes are slowest to fix and most expensive when they go wrong in production. Three patterns to internalise:
 
 1. **Default to `NOT NULL`.** `NULL`-everywhere schemas push the "is this present?" question into application code, where it ends up being asked inconsistently. `NOT NULL` lets the database be the gatekeeper, exactly once.
@@ -614,6 +622,8 @@ DDL is the half of SQL most engineers learn last and use least often — but the
 3. **Schema migrations have a lifecycle: forward-only in production, transactional where possible, and aware of locks.** Postgres's transactional DDL is a quiet superpower; use it. The migration that almost causes an incident is the one that holds an `ACCESS EXCLUSIVE` lock for two minutes during peak traffic — the one that takes a second in dev where the table has 100 rows.
 
 Master those three and the rest of DDL — types, indexes, foreign keys, normalisation — are details, not surprises.
+
+</div>
 
 ## Your Turn
 

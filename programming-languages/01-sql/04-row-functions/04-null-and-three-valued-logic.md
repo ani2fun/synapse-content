@@ -242,7 +242,11 @@ WHERE old_country IS DISTINCT FROM new_country;
 
 Standard `<>` would silently miss NULL→Germany transitions. `IS DISTINCT FROM` catches them.
 
-> **Dialect note:** `IS DISTINCT FROM` is standard SQL and supported by Postgres, SQLite, SQL Server (since 2012). MySQL has the equivalent `<=>` operator (the "spaceship" operator) for `IS NOT DISTINCT FROM`. Other engines have varying support — check the docs.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** `IS DISTINCT FROM` is standard SQL and supported by Postgres, SQLite, SQL Server (since 2012). MySQL has the equivalent `<=>` operator (the "spaceship" operator) for `IS NOT DISTINCT FROM`. Other engines have varying support — check the docs.
+
+</div>
 
 ---
 
@@ -403,6 +407,10 @@ ORDER BY hour_bucket;
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 NULL is the one piece of SQL that surprises every engineer at least once. Three patterns to internalise:
 
 1. **NULL is "unknown," not "missing." Comparisons return `UNKNOWN`, which `WHERE` drops.** The asymmetry between `FALSE` (deliberately rejected) and `UNKNOWN` (silently rejected) is where every NULL bug lives.
@@ -410,6 +418,8 @@ NULL is the one piece of SQL that surprises every engineer at least once. Three 
 3. **`NOT IN` against a subquery is the most common NULL bug.** The fix is `NOT EXISTS`, which is null-safe by construction. (Covered fully in [Anti-joins and Existence](/synapse/programming-languages/sql/multiple-tables/anti-joins-and-existence).)
 
 Master these three and NULL becomes a tool you wield deliberately, not a trap that catches you.
+
+</div>
 
 ## Your Turn
 

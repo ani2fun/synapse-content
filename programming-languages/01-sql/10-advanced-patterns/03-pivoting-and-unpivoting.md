@@ -127,7 +127,11 @@ Two arguments: the source query and the column-list query. The result is the piv
 
 In practice, the `CASE`-based form is more readable than `crosstab` for hand-written queries. `crosstab` is useful when you're generating the pivot programmatically.
 
-> **Dialect note:** SQL Server has a built-in `PIVOT` operator. Oracle has `PIVOT`. MySQL has neither — `CASE` is the answer.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQL Server has a built-in `PIVOT` operator. Oracle has `PIVOT`. MySQL has neither — `CASE` is the answer.
+
+</div>
 
 ---
 
@@ -235,11 +239,17 @@ The classic unpivot: **converting wide imports to long format** for storage. CSV
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Pivot/unpivot reshape data between long and wide. Three patterns to internalise:
 
 1. **Pivot with `SUM(CASE WHEN ... THEN ... END)`.** Portable, readable, the universal answer.
 2. **Unpivot with `UNION ALL` of one `SELECT` per source column.** Works everywhere.
 3. **Hard-coded column lists are the limitation; for dynamic pivots, generate SQL in the application or use BI-tool pivoting.**
+
+</div>
 
 ## Your Turn
 

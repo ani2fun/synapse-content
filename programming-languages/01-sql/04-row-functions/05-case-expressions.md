@@ -443,6 +443,10 @@ For **storing** the tier (e.g., as a denormalised column), the `CASE` would move
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 `CASE` is SQL's if-else. Three patterns to internalise:
 
 1. **Bucketing:** assign one row to one category. Order `WHEN` clauses from most-specific to least.
@@ -450,6 +454,8 @@ For **storing** the tier (e.g., as a denormalised column), the `CASE` would move
 3. **Custom logic that's more than a substitution:** when `COALESCE`/`NULLIF` aren't enough — multiple NULL branches, derived values, custom orderings — reach for `CASE`. It's the universal fallback for "I need a per-row computed value with branching logic."
 
 With this chapter, the [Row Functions](/synapse/programming-languages/sql/row-functions/index) module is complete. You can now compute on strings, numbers, dates, NULLs, and arbitrary conditions — the per-row layer of every SQL query. The next module, [Window Functions](/synapse/programming-languages/sql/window-functions/index), generalises aggregation: per-row results that *also* incorporate context from other rows.
+
+</div>
 
 ## Your Turn
 

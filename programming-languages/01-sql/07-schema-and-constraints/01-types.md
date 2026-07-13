@@ -81,7 +81,11 @@ The decisions:
 
 `CHAR(n)` is rarely useful. Padding to length surprises. Avoid.
 
-> **Dialect note:** MySQL distinguishes between `VARCHAR` (max ~65k characters) and `TEXT`/`MEDIUMTEXT`/`LONGTEXT` (longer); the indexing behaviour differs. SQL Server has `VARCHAR(MAX)` for unlimited. Postgres's `TEXT` is the simplest.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** MySQL distinguishes between `VARCHAR` (max ~65k characters) and `TEXT`/`MEDIUMTEXT`/`LONGTEXT` (longer); the indexing behaviour differs. SQL Server has `VARCHAR(MAX)` for unlimited. Postgres's `TEXT` is the simplest.
+
+</div>
 
 ---
 
@@ -112,7 +116,11 @@ is_active BOOLEAN NOT NULL DEFAULT TRUE
 
 Postgres's first-class `BOOLEAN` accepts `TRUE`, `FALSE`, `NULL`. Use it.
 
-> **Dialect note:** SQL Server uses `BIT`. MySQL aliases `BOOLEAN` to `TINYINT(1)`. Postgres's true `BOOLEAN` is the cleanest.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Dialect note:** SQL Server uses `BIT`. MySQL aliases `BOOLEAN` to `TINYINT(1)`. Postgres's true `BOOLEAN` is the cleanest.
+
+</div>
 
 ---
 
@@ -258,6 +266,10 @@ Each choice reflects the type-selection rules above. The schema was designed bef
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Type choice is permanent. Three patterns to internalise:
 
 1. **Default to the type that survives growth.** `BIGINT` for IDs, `TEXT` for text, `TIMESTAMPTZ` for timestamps, `NUMERIC` for money. Migration costs are real.
@@ -265,6 +277,8 @@ Type choice is permanent. Three patterns to internalise:
 3. **JSONB for genuinely schemaless data; columns for everything else.** Reach for JSONB last, after considering whether the data should be modelled as columns.
 
 Master these three and your schemas survive the prototype-to-production transition without painful rewrites.
+
+</div>
 
 ## Your Turn
 

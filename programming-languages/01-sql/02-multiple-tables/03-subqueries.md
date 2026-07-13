@@ -484,6 +484,10 @@ Use the [sample schema](/synapse/programming-languages/sql/foundations/introduct
 
 # Final Takeaway
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Final takeaway.**
+
 Subqueries are queries-inside-queries. Three patterns to internalise:
 
 1. **Pick the flavour by shape, not by habit.** Scalar subquery for a single value; derived table for a result-set in `FROM`; `EXISTS`/`NOT EXISTS` for membership; correlated subquery for per-row computation. Each has its niche; none is universally best.
@@ -491,6 +495,8 @@ Subqueries are queries-inside-queries. Three patterns to internalise:
 3. **Correlated subqueries are powerful but watch the cost.** Logically run once per outer row; planners usually rewrite into joins, but not always. Profile with `EXPLAIN` for any correlated subquery in a hot path. When you have the option, a `LEFT JOIN + GROUP BY` (or a window function) often runs faster.
 
 Master these three and subqueries become a clean fourth tool — alongside joins, set operators, and (next chapter) anti-joins — for combining result-sets.
+
+</div>
 
 ## Your Turn
 
