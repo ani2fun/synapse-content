@@ -8,9 +8,27 @@ prereqs: []
 
 Python does arithmetic the way you'd expect from school — mostly. The thesis of this chapter is the "mostly": **a few specific rules — the two kinds of division, operator precedence, and how decimals are stored — explain every arithmetic result that looks surprising.** Learn those rules and you can predict what any expression evaluates to before you run it, which is exactly the skill that prevents silent wrong answers later.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A few specific rules explain every surprising result.
+- Those rules: the two kinds of division, operator precedence, and how decimals are stored.
+- Learn them and you can **predict any expression before running it**.
+
+</div>
+
 Every output below was produced by running the code. As you read, change the numbers and predict the new result before clicking Run.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -63,7 +81,11 @@ print(type(6 / 2))
 
 `6 / 2` is `3.0`, a `float`, not `3` the `int` — the result type is decided by the *operator*, not by whether the answer happens to be whole.
 
-*Earned rule.* `+`, `-`, `*` keep `int`s as `int`s, but `/` always gives a `float`. The cost surfaces later: some operations (like picking an item at a position) demand an `int` and reject `3.0`, so when you want whole-number division you need a different operator — the next section's `//`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** `+`, `-`, `*` keep `int`s as `int`s, but `/` always gives a `float`. The cost surfaces later: some operations (like picking an item at a position) demand an `int` and reject `3.0`, so when you want whole-number division you need a different operator — the next section's `//`.
+
+</div>
 
 ---
 
@@ -100,7 +122,11 @@ print(-7 // 2)    # NOT -3 — it rounds down to -4
 
 `7 // 2` is `3` (chopping and flooring agree). But `-7 // 2` is `-4`, not `-3`: true division gives `-3.5`, and flooring rounds *down* to `-4`. "Chopping the decimal" would have given `-3` — the wrong answer. The remainder follows the same rule, so `%` with negatives can surprise too: `-7 % 2` is `1`, not `-1`.
 
-*Earned rule.* Use `//` for whole-number division and `%` for remainders, but remember `//` floors toward −∞ — for negative numbers it is *not* the same as discarding the decimal. The cost of forgetting is an off-by-one bug that only appears once a value goes negative, which is exactly when it's hardest to notice.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `//` for whole-number division and `%` for remainders, but remember `//` floors toward −∞ — for negative numbers it is *not* the same as discarding the decimal. The cost of forgetting is an off-by-one bug that only appears once a value goes negative, which is exactly when it's hardest to notice.
+
+</div>
 
 ---
 
@@ -135,7 +161,11 @@ print(-2 ** 2)    # is this 4, or -4?
 
 You might read `-2 ** 2` as "(−2) squared = 4." Python reads it as `-(2 ** 2)` = `-(4)` = `-4`, because `**` runs before the minus. To square negative two, you must group it: `(-2) ** 2` gives `4`.
 
-*Earned rule.* `**` is exponentiation and has very high precedence — higher than unary minus — so parenthesise when a negative base is involved. The cost of the default is silent sign errors: `-2 ** 2` gives a perfectly valid number, just not the one you meant, so nothing flags the mistake.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** `**` is exponentiation and has very high precedence — higher than unary minus — so parenthesise when a negative base is involved. The cost of the default is silent sign errors: `-2 ** 2` gives a perfectly valid number, just not the one you meant, so nothing flags the mistake.
+
+</div>
 
 ---
 
@@ -172,7 +202,11 @@ print((1 + 2 + 3) / 3)    # the average you actually meant
 
 `1 + 2 + 3 / 3` looks like "average of 1, 2, 3 = 2," but `/` binds tighter than `+`, so Python computes `3 / 3 = 1.0` first, then `1 + 2 + 1.0 = 4.0`. The average you intended needs parentheses around the sum: `(1 + 2 + 3) / 3` is `2.0`.
 
-*Earned rule.* Memorise the core order — `**` first, then `* / // %`, then `+ -` — but **parenthesise anything non-obvious** rather than trusting the reader (often future-you) to recall it. The cost of getting precedence wrong is the worst kind: no error at all, just a confidently wrong number.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Memorise the core order — `**` first, then `* / // %`, then `+ -` — but **parenthesise anything non-obvious** rather than trusting the reader (often future-you) to recall it. The cost of getting precedence wrong is the worst kind: no error at all, just a confidently wrong number.
+
+</div>
 
 ---
 
@@ -216,7 +250,11 @@ print(round(total, 2))    # 0.3, rounded to 2 decimal places
 0.3
 ```
 
-*Earned rule.* Treat `float` results as accurate-but-approximate: round for display, and never assume two floats are *exactly* equal (a trap you'll meet head-on with `==` in [Tutorial 6](/synapse/programming-languages/python/control-flow/booleans-and-logic)). The cost of the approximation is the whole reason it exists — floats trade exactness for the ability to represent a vast range of magnitudes efficiently; when you need exact decimals (money, especially), work in integer units like cents, or reach for the `decimal` module much later.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Treat `float` results as accurate-but-approximate: round for display, and never assume two floats are *exactly* equal (a trap you'll meet head-on with `==` in [Tutorial 6](/synapse/programming-languages/python/control-flow/booleans-and-logic)). The cost of the approximation is the whole reason it exists — floats trade exactness for the ability to represent a vast range of magnitudes efficiently; when you need exact decimals (money, especially), work in integer units like cents, or reach for the `decimal` module much later.
+
+</div>
 
 ---
 
@@ -232,15 +270,23 @@ print(round(total, 2))    # 0.3, rounded to 2 decimal places
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Got a `float` where you wanted a whole number →** you used `/`; switch to `//` for floor division.
 - **Negative `//` or `%` looks off by one →** `//` floors toward −∞; for `-7 // 2` that's `-4`, by design.
 - **`-x ** 2` came out negative →** `**` binds tighter than the minus; write `(-x) ** 2`.
 - **A formula gives the wrong number with no error →** precedence bit you; add parentheses around the part that must go first.
 - **`0.1 + 0.2` isn't `0.3` / decimals look slightly wrong →** binary float approximation; `round(value, n)` for display, integer cents for money.
 
+</div>
+
 ---
 
-*Predict, then check.* Without running them, write down the value **and the type** of each: `9 / 3`, `9 // 2`, `-9 // 2`, `2 + 2 ** 3`, and `(0.1 + 0.1 + 0.1)`. Two of these have results that surprise most beginners — predict all five, then build a runnable block to check. Being able to do this reliably is the entire goal of the chapter.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Without running them, write down the value **and the type** of each: `9 / 3`, `9 // 2`, `-9 // 2`, `2 + 2 ** 3`, and `(0.1 + 0.1 + 0.1)`. Two of these have results that surprise most beginners — predict all five, then build a runnable block to check. Being able to do this reliably is the entire goal of the chapter.
+
+</div>
 
 ## Your Turn
 

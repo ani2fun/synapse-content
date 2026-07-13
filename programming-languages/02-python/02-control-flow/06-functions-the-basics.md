@@ -8,9 +8,27 @@ prereqs: []
 
 A **function** packages a piece of work under a name so you can run it again with different inputs, instead of copy-pasting. The thesis for this gentle pass: **a function takes inputs (parameters), does work, and hands back a result (`return`)** — and keeping "hands back" (`return`) distinct from "prints" (`print`) is the distinction that trips up every beginner. This is the foundation [Functions in Depth](/synapse/programming-languages/python/how-python-works/functions-in-depth) builds on later for closures, decorators, and more; here we cover the everyday core.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A function names a **reusable piece of work**.
+- It takes inputs (parameters), does work, and **hands back a result** (`return`).
+- Keep `return` (hands back) distinct from `print` (shows).
+
+</div>
+
 Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -65,7 +83,11 @@ NameError: name 'greet' is not defined
 
 Line 1 calls `greet`, but the `def` on line 2 hasn't run, so the name doesn't exist yet — `NameError`, the same "use before defined" rule as variables ([Tutorial 2](/synapse/programming-languages/python/first-steps/variables-and-types)).
 
-*Earned rule.* Define a function before the code that calls it. The cost is just ordering discipline — and the boundary worth knowing: a function may *call* another function defined later in the file, as long as the *call happens* after both `def`s have run (e.g. both are defined, then `main()` runs at the bottom).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Define a function before the code that calls it. The cost is just ordering discipline — and the boundary worth knowing: a function may *call* another function defined later in the file, as long as the *call happens* after both `def`s have run (e.g. both are defined, then `main()` runs at the bottom).
+
+</div>
 
 ---
 
@@ -108,7 +130,11 @@ TypeError: greet() missing 1 required positional argument: 'name'
 
 `greet()` supplied no argument for the required `name`, so the call fails with a `TypeError` that names exactly what's missing.
 
-*Earned rule.* Pass one argument per required parameter, in order. The cost of a mismatch is an immediate, specific `TypeError` (Python won't guess a missing value) — the message tells you which parameter went unfilled, so it's a fast fix. Defaults (§4) let you make some arguments optional.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Pass one argument per required parameter, in order. The cost of a mismatch is an immediate, specific `TypeError` (Python won't guess a missing value) — the message tells you which parameter went unfilled, so it's a fast fix. Defaults (§4) let you make some arguments optional.
+
+</div>
 
 ---
 
@@ -160,7 +186,11 @@ result is: None
 
 The `25` you see is from the *inside* `print`. But `square(5)` itself returned nothing, so `result` is `None` — you can't add it, store it meaningfully, or build on it. The function showed a number but didn't give one back.
 
-*Earned rule.* Use `return` to produce a value the caller will use; use `print` only for output meant for a human. The cost of confusing them: a function that "works" (you see the number) but is useless in expressions, because it returns `None` — when `result` is mysteriously `None`, check whether the function `print`s where it should `return`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `return` to produce a value the caller will use; use `print` only for output meant for a human. The cost of confusing them: a function that "works" (you see the number) but is useless in expressions, because it returns `None` — when `result` is mysteriously `None`, check whether the function `print`s where it should `return`.
+
+</div>
 
 ---
 
@@ -201,7 +231,11 @@ SyntaxError: parameter without a default follows parameter with a default
 
 If `greeting` has a default but `name` (after it) doesn't, a call like `greet("Ada")` would be ambiguous — is `"Ada"` the greeting or the name? Python forbids the definition outright with a `SyntaxError`.
 
-*Earned rule.* List required parameters first, defaulted ones last. The cost is just ordering — and a *warning* for later: defaults are evaluated **once**, when the function is defined, which is harmless for simple values like `"Hello"` but a notorious trap for mutable defaults like `[]`, covered in [Functions in Depth](/synapse/programming-languages/python/how-python-works/functions-in-depth).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** List required parameters first, defaulted ones last. The cost is just ordering — and a *warning* for later: defaults are evaluated **once**, when the function is defined, which is harmless for simple values like `"Hello"` but a notorious trap for mutable defaults like `[]`, covered in [Functions in Depth](/synapse/programming-languages/python/how-python-works/functions-in-depth).
+
+</div>
 
 ---
 
@@ -247,7 +281,11 @@ UnboundLocalError: cannot access local variable 'counter' where it is not associ
 
 Because `increment` *assigns* to `counter`, Python treats `counter` as local throughout the function — so the `counter + 1` on the right tries to read a *local* `counter` that hasn't been set yet. The global `counter` is shadowed, and you get `UnboundLocalError`.
 
-*Earned rule.* Don't mutate globals from inside functions; instead, take inputs as parameters and hand results back with `return` (`counter = increment(counter)`). The cost of the local rule is this surprising `UnboundLocalError` — and the boundary is that the proper escape hatches (`global` and `nonlocal`) exist but are usually a design smell, a topic [Functions in Depth](/synapse/programming-languages/python/how-python-works/functions-in-depth) treats fully.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Don't mutate globals from inside functions; instead, take inputs as parameters and hand results back with `return` (`counter = increment(counter)`). The cost of the local rule is this surprising `UnboundLocalError` — and the boundary is that the proper escape hatches (`global` and `nonlocal`) exist but are usually a design smell, a topic [Functions in Depth](/synapse/programming-languages/python/how-python-works/functions-in-depth) treats fully.
+
+</div>
 
 ---
 
@@ -263,15 +301,23 @@ Because `increment` *assigns* to `counter`, Python treats `counter` as local thr
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`NameError` calling a function →** the `def` hasn't run yet (called too early) or the name is misspelled.
 - **`TypeError: missing ... required positional argument` →** you passed too few arguments; match one per required parameter.
 - **A function's result is `None` →** it `print`s instead of `return`s; use `return` to hand a value back.
 - **`SyntaxError: parameter without a default follows ...` →** reorder so required parameters come before defaulted ones.
 - **`UnboundLocalError` →** you assigned to a name that's also global; pass it in as a parameter and `return` the new value.
 
+</div>
+
 ---
 
-*Predict, then check.* Write `def total_price(price, tax_rate=0.1):` that returns `price + price * tax_rate`. Predict the result of `total_price(100)` and `total_price(100, 0.2)`. Now predict what `print(total_price(100))` shows versus a *broken* version that `print`s inside and returns nothing — what is `result = broken(100)` then? Build both and confirm. This `return`-vs-`print` distinction is the one to carry into every function you write.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write `def total_price(price, tax_rate=0.1):` that returns `price + price * tax_rate`. Predict the result of `total_price(100)` and `total_price(100, 0.2)`. Now predict what `print(total_price(100))` shows versus a *broken* version that `print`s inside and returns nothing — what is `result = broken(100)` then? Build both and confirm. This `return`-vs-`print` distinction is the one to carry into every function you write.
+
+</div>
 
 ## Your Turn
 

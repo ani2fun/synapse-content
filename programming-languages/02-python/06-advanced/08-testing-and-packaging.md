@@ -8,9 +8,27 @@ prereqs: []
 
 The last step of real Python is making code you (and others) can rely on and run. The thesis: **tests pin behaviour so you can change code without fear, and packaging plus virtual environments make that code reproducible on someone else's machine** — the two disciplines that turn a script into software. Along the way, `logging` replaces `print` for debugging you can leave in.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Tests **pin behaviour** so you can change code without fear.
+- Packaging plus virtual environments make code **reproducible** on another machine.
+- `logging` replaces `print` for debugging you can leave in.
+
+</div>
+
 This is the capstone; it builds on [errors](/synapse/programming-languages/python/how-python-works/errors-and-exceptions) and [modules](/synapse/programming-languages/python/how-python-works/modules-and-packages). Every runnable output below was produced by running the code; the `pytest`, virtual-environment, and packaging examples are shown statically (they're external tools / shell commands the sandbox doesn't run), clearly marked.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -70,7 +88,11 @@ the assertion did NOT fail - bug!
 
 `assert (1 == 2, "msg")` asserts a two-element *tuple*, and a non-empty tuple is always truthy ([Tutorial 6](/synapse/programming-languages/python/control-flow/booleans-and-logic)) — so the check is silently disabled and the next line runs. (Python prints a `SyntaxWarning: assertion is always true, perhaps remove parentheses?` to stderr — heed it.) Write `assert cond, "msg"` with **no** parentheses around the pair.
 
-*Earned rule.* Use `assert` for tests and internal sanity checks, with the `cond, "message"` form (never parenthesised). The cost/boundary: `assert` statements are **stripped** when Python runs with `-O` (optimised) mode, so never use `assert` for runtime validation that must always happen (input checks, security) — raise a real exception there; reserve `assert` for tests and "this can't happen" invariants.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `assert` for tests and internal sanity checks, with the `cond, "message"` form (never parenthesised). The cost/boundary: `assert` statements are **stripped** when Python runs with `-O` (optimised) mode, so never use `assert` for runtime validation that must always happen (input checks, security) — raise a real exception there; reserve `assert` for tests and "this can't happen" invariants.
+
+</div>
 
 ---
 
@@ -119,7 +141,11 @@ test 'passed' - but it never verified the result
 
 `add` is clearly broken (it subtracts), yet `test_add` "passes" — because it only *calls* `add` without checking the result. A test without an assertion is theatre: it runs, it's green, and it catches nothing.
 
-*Earned rule.* Every test must assert an expected *result*, and should cover typical, edge, and error cases (use `pytest.raises` for the error ones). The cost of a test is writing and maintaining it; the cost of a *fake* test (no assertion, or asserting something trivially true) is worse than none — it's false confidence that hides real bugs.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Every test must assert an expected *result*, and should cover typical, edge, and error cases (use `pytest.raises` for the error ones). The cost of a test is writing and maintaining it; the cost of a *fake* test (no assertion, or asserting something trivially true) is worse than none — it's false confidence that hides real bugs.
+
+</div>
 
 ---
 
@@ -174,7 +200,11 @@ test_math.py:5: AssertionError
 
 *Concrete bite.* The discovery rules are strict, and silently skip what doesn't match: a test function not named `test_*` (e.g. `check_add`), or in a file not named `test_*.py`, is **never collected** — it doesn't run, and pytest reports success as if all is well. People add a test, see "passed," and don't notice their misnamed test never executed. Follow the `test_` naming convention exactly.
 
-*Earned rule.* Use `pytest` for any real project — install it (`pip install pytest`), name files `test_*.py` and functions `test_*`, write plain `assert`s, and use `pytest.raises` for errors. The cost is a dependency and the naming discipline; the payoff is automatic discovery, readable failures, fixtures, and parametrisation — the difference between tests you write once and tests you actually maintain.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `pytest` for any real project — install it (`pip install pytest`), name files `test_*.py` and functions `test_*`, write plain `assert`s, and use `pytest.raises` for errors. The cost is a dependency and the naming discipline; the payoff is automatic discovery, readable failures, fixtures, and parametrisation — the difference between tests you write once and tests you actually maintain.
+
+</div>
 
 ---
 
@@ -220,7 +250,11 @@ ERROR: something failed
 
 The `debug` line produced **nothing** — it's below the `INFO` threshold, so it was filtered. That's the feature (verbose logs off by default), but it confuses anyone who expects every log call to print. Lower the level to `logging.DEBUG` to see it.
 
-*Earned rule.* Use `logging` (not `print`) for diagnostics you want to keep — pick a level per message and configure the threshold per environment (DEBUG in dev, INFO/WARNING in prod). For *interactive* stepping through a live bug, reach for the debugger: `breakpoint()` drops into `pdb` (`n` next, `s` step, `p var` print, `c` continue). The cost of `print`-debugging is the cleanup (and the noise you forget to remove); logging and `breakpoint()` are the tools that scale past a one-off.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `logging` (not `print`) for diagnostics you want to keep — pick a level per message and configure the threshold per environment (DEBUG in dev, INFO/WARNING in prod). For *interactive* stepping through a live bug, reach for the debugger: `breakpoint()` drops into `pdb` (`n` next, `s` step, `p var` print, `c` continue). The cost of `print`-debugging is the cleanup (and the noise you forget to remove); logging and `breakpoint()` are the tools that scale past a one-off.
+
+</div>
 
 ---
 
@@ -259,7 +293,11 @@ With that, `pip install .` installs your project, and `python -m build` produces
 
 *Concrete bite.* Skipping the venv and `pip install`-ing globally is the classic mess: two projects needing different versions of the same library **can't coexist** — installing one breaks the other (and on system Python you can break OS tools). It surfaces as `ImportError`/version-mismatch bugs that depend on *which project you installed last* — irreproducible and maddening, and exactly what a per-project venv prevents.
 
-*Earned rule.* One virtual environment per project, always; declare dependencies in `pyproject.toml` (and/or pin a `requirements.txt`) so anyone can recreate the environment. The cost is a little ceremony per project (create, activate, install); the payoff is reproducibility — the difference between code that runs only on your laptop and code you can actually ship. (Tools like `uv`, `poetry`, and `pipenv` automate this further.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** One virtual environment per project, always; declare dependencies in `pyproject.toml` (and/or pin a `requirements.txt`) so anyone can recreate the environment. The cost is a little ceremony per project (create, activate, install); the payoff is reproducibility — the difference between code that runs only on your laptop and code you can actually ship. (Tools like `uv`, `poetry`, and `pipenv` automate this further.)
+
+</div>
 
 ---
 
@@ -275,6 +313,8 @@ With that, `pip install .` installs your project, and `python -m build` produces
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **An `assert` never fails →** you parenthesised it into a tuple; write `assert cond, "msg"` (heed the `SyntaxWarning`).
 - **Validation vanished in production →** `assert` is stripped under `-O`; use real exceptions for runtime checks.
 - **A test is green but the code is broken →** the test doesn't assert a result; add a real assertion.
@@ -282,9 +322,15 @@ With that, `pip install .` installs your project, and `python -m build` produces
 - **A `logging.debug` didn't print →** it's below the configured level; set `level=logging.DEBUG`.
 - **"Works on my machine" / version conflicts →** you installed globally; use a per-project virtual environment and declare deps in `pyproject.toml`.
 
+</div>
+
 ---
 
-*Predict, then check.* Write `def test_clamp():` with three assertions for a `clamp(x, lo, hi)` function (one in-range, one below, one above), then run it. Predict what happens if you accidentally write `assert (clamp(5, 0, 10) == 5,)` with a trailing comma. Then predict which of `logging.debug`/`info`/`warning` appear at the default `INFO` level. The assert-tuple and the logging-level filters are the two traps that quietly disable your safety nets.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write `def test_clamp():` with three assertions for a `clamp(x, lo, hi)` function (one in-range, one below, one above), then run it. Predict what happens if you accidentally write `assert (clamp(5, 0, 10) == 5,)` with a trailing comma. Then predict which of `logging.debug`/`info`/`warning` appear at the default `INFO` level. The assert-tuple and the logging-level filters are the two traps that quietly disable your safety nets.
+
+</div>
 
 ## Your Turn
 

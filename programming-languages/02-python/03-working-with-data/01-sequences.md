@@ -8,9 +8,27 @@ prereqs: []
 
 Lists, tuples, and strings look like three separate topics. They aren't. They're three implementations of **one abstraction — the sequence**: an ordered collection you can index, slice, and iterate. Learn the shared protocol once and three "topics" collapse into one, with the differences reducing to a single axis: *mutable or not*.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- List, tuple, and string are three implementations of **one abstraction — the sequence**.
+- One shared protocol serves all three: index, slice, iterate.
+- The only difference is a single axis: **mutable or not**.
+
+</div>
+
 This is the deep pass of [Lists, the Basics](/synapse/programming-languages/python/control-flow/lists-the-basics) and [Strings, the Basics](/synapse/programming-languages/python/first-steps/strings-the-basics) — it assumes you've met both and pushes into slicing, tuples, unpacking, and complexity. Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -68,7 +86,11 @@ print(second_and_last("hello"))
 
 One function, no type checks, works on a list, a tuple, and a string — because all three honor the indexing protocol.
 
-*Earned rule.* Don't study lists, tuples, and strings as three unrelated APIs; learn the *sequence operations* once (index, slice, `len`, `in`, `+`, `*`, iterate), then treat each type as "a sequence that holds X and is (im)mutable." The payoff is that intuitions and code generalize across all three, and you only memorize the *differences* (mutability, and each type's extra methods).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Don't study lists, tuples, and strings as three unrelated APIs; learn the *sequence operations* once (index, slice, `len`, `in`, `+`, `*`, iterate), then treat each type as "a sequence that holds X and is (im)mutable." The payoff is that intuitions and code generalize across all three, and you only memorize the *differences* (mutability, and each type's extra methods).
+
+</div>
 
 ---
 
@@ -111,7 +133,11 @@ IndexError: list index out of range
 
 The error is a feature: it turns an off-by-one into a loud failure at the point of the bug, instead of a `None` that propagates and explodes somewhere unrelated later.
 
-*Earned rule.* Use `-1`/`-2` for "from the end" instead of `len(seq)-1` math — it's shorter and removes a class of off-by-one mistakes. And trust that out-of-range access *raises*: don't wrap every index in defensive checks, but do guard (`seq[i] if i < len(seq) else default`) where the index genuinely might be out of bounds.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `-1`/`-2` for "from the end" instead of `len(seq)-1` math — it's shorter and removes a class of off-by-one mistakes. And trust that out-of-range access *raises*: don't wrap every index in defensive checks, but do guard (`seq[i] if i < len(seq) else default`) where the index genuinely might be out of bounds.
+
+</div>
 
 ---
 
@@ -164,7 +190,11 @@ print(nums)        # correct
 
 The first loop's iterator advances by index over a list that's shrinking underneath it, so it steps past `4` — leaving `[4]`. Looping over `nums[:]` iterates a fixed snapshot while you mutate the original safely, giving the correct `[]`.
 
-*Earned rule.* Three slice idioms are worth muscle memory: `seq[::-1]` (reverse), `seq[:]` (shallow copy), `seq[a:b]` (sub-range). And remember slicing *copies* — that's what makes `for x in lst[:]` the canonical safe-removal pattern (or, often cleaner, build a new list with a [comprehension](/synapse/programming-languages/python/working-with-data/comprehensions) instead of mutating in place). The cost of `[:]` is an O(n) copy, negligible unless the sequence is huge and the loop is hot.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Three slice idioms are worth muscle memory: `seq[::-1]` (reverse), `seq[:]` (shallow copy), `seq[a:b]` (sub-range). And remember slicing *copies* — that's what makes `for x in lst[:]` the canonical safe-removal pattern (or, often cleaner, build a new list with a [comprehension](/synapse/programming-languages/python/working-with-data/comprehensions) instead of mutating in place). The cost of `[:]` is an O(n) copy, negligible unless the sequence is huge and the loop is hot.
+
+</div>
 
 ---
 
@@ -209,7 +239,11 @@ print(rows)                # all three rows are the same list
 
 You wanted three empty lists; you got one list pointed at three times, so appending to "row 0" appears in all of them. Safe for immutable elements (`[0] * 3` is genuinely fine), dangerous for mutable ones.
 
-*Earned rule.* Use `*` freely to build repeated sequences of *immutable* elements (`[0] * n`, `"-" * 40`). For repeated *mutable* elements, never use `*` — use a comprehension that constructs a fresh object each iteration: `[[] for _ in range(3)]`. The tell is: if the element is itself a list/dict/set, reach for the comprehension.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `*` freely to build repeated sequences of *immutable* elements (`[0] * n`, `"-" * 40`). For repeated *mutable* elements, never use `*` — use a comprehension that constructs a fresh object each iteration: `[[] for _ in range(3)]`. The tell is: if the element is itself a list/dict/set, reach for the comprehension.
+
+</div>
 
 ---
 
@@ -251,7 +285,11 @@ None
 
 `[3, 1, 2].sort()` sorts an anonymous list and returns `None`, which you then bound to `lst`. The sorted data is gone.
 
-*Earned rule.* Memorize the split: **"make a new one" vs "change this one."** `sorted(lst)` / `reversed(lst)` return new results (assign them); `lst.sort()` / `lst.reverse()` mutate in place (call them on their own line, don't assign). When in doubt, check whether a method returns the object or `None` — `None` means it mutated. Lists are your default container for ordered, growable, changeable data.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Memorize the split: **"make a new one" vs "change this one."** `sorted(lst)` / `reversed(lst)` return new results (assign them); `lst.sort()` / `lst.reverse()` mutate in place (call them on their own line, don't assign). When in doubt, check whether a method returns the object or `None` — `None` means it mutated. Lists are your default container for ordered, growable, changeable data.
+
+</div>
 
 ---
 
@@ -321,7 +359,11 @@ TypeError: unhashable type: 'list'
 
 The tuple looks immutable, but because it holds a mutable list, it can't be hashed — so it can't be a dict key or set member after all. A tuple is only *fully* immutable (and hashable) if everything inside it is — a fact [Dictionaries & Sets](/synapse/programming-languages/python/working-with-data/dictionaries-and-sets) leans on.
 
-*Earned rule.* Reach for a tuple when a fixed group of values belongs together and shouldn't change — coordinates `(x, y)`, a DB row, a multi-value return. Immutability buys two things: **hashability** (usable as dict keys / set members, *provided the contents are hashable too*) and a clear "this won't change" signal. Watch the single-element comma (`(5,)`), and don't assume a tuple is hashable without checking its contents.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for a tuple when a fixed group of values belongs together and shouldn't change — coordinates `(x, y)`, a DB row, a multi-value return. Immutability buys two things: **hashability** (usable as dict keys / set members, *provided the contents are hashable too*) and a clear "this won't change" signal. Watch the single-element comma (`(5,)`), and don't assume a tuple is hashable without checking its contents.
+
+</div>
 
 ---
 
@@ -388,7 +430,11 @@ for chunk in pieces:
 result = "".join(parts)   # one pass, O(N)
 ```
 
-*Earned rule.* Build strings by accumulating pieces in a list and calling `"".join(parts)` once — never grow a string with `+=` in a loop. Master `split` / `join` / `strip` / `replace` and f-string format specs; they cover the vast majority of real text work. Commit the `"sep".join(items)` direction to memory (the *separator* owns the method) — it's the one everyone forgets.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Build strings by accumulating pieces in a list and calling `"".join(parts)` once — never grow a string with `+=` in a loop. Master `split` / `join` / `strip` / `replace` and f-string format specs; they cover the vast majority of real text work. Commit the `"sep".join(items)` direction to memory (the *separator* owns the method) — it's the one everyone forgets.
+
+</div>
 
 ---
 
@@ -434,7 +480,11 @@ ValueError: too many values to unpack (expected 2)
 
 Three values can't bind to two names. (Use `a, b, *_ = [1, 2, 3]` to deliberately ignore extras, or `a, *rest = ...` to capture them.)
 
-*Earned rule.* Prefer unpacking over manual indexing (`x = pair[0]; y = pair[1]`) — it's clearer and the count-mismatch error catches bugs early. It's the same machinery behind `for i, x in enumerate(seq)` and `for k, v in d.items()` (each iteration yields a 2-tuple that unpacks). Use `*rest` for variable-length tails and `*_` to discard pieces you don't need.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Prefer unpacking over manual indexing (`x = pair[0]; y = pair[1]`) — it's clearer and the count-mismatch error catches bugs early. It's the same machinery behind `for i, x in enumerate(seq)` and `for k, v in d.items()` (each iteration yields a 2-tuple that unpacks). Use `*rest` for variable-length tails and `*_` to discard pieces you don't need.
+
+</div>
 
 ---
 
@@ -467,7 +517,11 @@ for x in stream:            # n items
 
 Swapping `seen` to a `set` makes each `in` O(1), collapsing the whole loop to O(n). (Full treatment in [Dictionaries & Sets](/synapse/programming-languages/python/working-with-data/dictionaries-and-sets).)
 
-*Earned rule.* Match the structure to the operation. Need fast **membership/uniqueness**? Use a `set` (O(1)), not a list (O(n)) — especially inside loops. Need fast **front** insertion/removal? Use `collections.deque`, not `list.insert(0, x)` (O(n)). Lists are ideal for ordered, index-accessed, append-at-end data; reach for the right neighbor when your hot operation is one a list does slowly. Strings and tuples share the array-access profile but, being immutable, have no in-place mutation cost (or capability).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Match the structure to the operation. Need fast **membership/uniqueness**? Use a `set` (O(1)), not a list (O(n)) — especially inside loops. Need fast **front** insertion/removal? Use `collections.deque`, not `list.insert(0, x)` (O(n)). Lists are ideal for ordered, index-accessed, append-at-end data; reach for the right neighbor when your hot operation is one a list does slowly. Strings and tuples share the array-access profile but, being immutable, have no in-place mutation cost (or capability).
+
+</div>
 
 ---
 
@@ -486,6 +540,8 @@ Swapping `seen` to a `set` makes each `in` O(1), collapsing the whole loop to O(
 
 ### Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`lst = lst.sort()` set my list to `None` →** in-place methods return `None`; use `sorted(lst)` or call `lst.sort()` alone.
 - **`(5)` isn't a tuple →** use `(5,)` (the comma makes the tuple).
 - **`[[]] * 3` shares one inner list →** use `[[] for _ in range(3)]`.
@@ -494,9 +550,15 @@ Swapping `seen` to a `set` makes each `in` O(1), collapsing the whole loop to O(
 - **Modifying a list while iterating skips items →** iterate over a copy (`lst[:]`) or build a new collection.
 - **`x in big_list` inside a loop is slow →** O(n²); convert to a `set` first.
 
+</div>
+
 ---
 
-*Predict, then check.* Retype the slicing examples (§3) and predict each output, including `seq[:] is seq`. When you can explain why a full slice is a copy but a plain assignment (`b = a`) is an alias, you've connected slicing to [the object model](/synapse/programming-languages/python/how-python-works/the-object-model) — the subject waiting in Tier 3.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Retype the slicing examples (§3) and predict each output, including `seq[:] is seq`. When you can explain why a full slice is a copy but a plain assignment (`b = a`) is an alias, you've connected slicing to [the object model](/synapse/programming-languages/python/how-python-works/the-object-model) — the subject waiting in Tier 3.
+
+</div>
 
 ## Your Turn
 

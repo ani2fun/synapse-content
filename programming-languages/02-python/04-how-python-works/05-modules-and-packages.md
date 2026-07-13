@@ -8,11 +8,29 @@ prereqs: []
 
 Every program past a few hundred lines spans multiple files. The thesis: **a module is just a `.py` file; `import` runs it once, caches it, and binds its names so other files can use them** — and a *package* is a directory of modules. Get the "runs once, then cached" model and imports stop being mysterious.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A module is just a `.py` file.
+- `import` **runs it once**, caches it, and binds its names.
+- A package is a directory of modules.
+
+</div>
+
 > **A note on this chapter's runner.** The ▶ Run sandbox executes a **single file**, so it can't `import` a *custom* module you'd write in a second file. Examples that import the **standard library** (`math`, `sys`) are fully runnable; genuinely multi-file ideas (a module importing another) are shown as **static** file listings, clearly labeled, with their behavior explained. Everything testable in one file is run and verified.
 
 Every runnable output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -69,7 +87,11 @@ NameError: name 'sqrt' is not defined
 
 `import math` bound only `math`, not `sqrt`. To call `sqrt` bare you need `from math import sqrt`; otherwise it's `math.sqrt`.
 
-*Earned rule.* Prefer `import mod` and qualified access (`mod.func`) — it keeps origins clear and avoids name clashes; use `from mod import name` for a few frequently-used names. The cost of `from mod import *` (import everything) is namespace pollution and shadowed names — avoid it outside the interactive prompt.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Prefer `import mod` and qualified access (`mod.func`) — it keeps origins clear and avoids name clashes; use `from mod import name` for a few frequently-used names. The cost of `from mod import *` (import everything) is namespace pollution and shadowed names — avoid it outside the interactive prompt.
+
+</div>
 
 ---
 
@@ -112,7 +134,11 @@ True
 
 After the first `import math`, it's in `sys.modules`. The second `import math` doesn't re-run anything — `sys.modules["math"] is math` confirms it's the very same cached object. (This is why editing a module mid-session doesn't take effect until you restart or explicitly `importlib.reload`.)
 
-*Earned rule.* Rely on import being cached and cheap — import freely at the top of every file that needs a module; you're not paying to re-run it. The cost/boundary: top-level code in a module runs *once at first import* (good for setup, bad for anything you expected to run each time), and a running program won't see edits to an already-imported module without a reload.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Rely on import being cached and cheap — import freely at the top of every file that needs a module; you're not paying to re-run it. The cost/boundary: top-level code in a module runs *once at first import* (good for setup, bad for anything you expected to run each time), and a running program won't see edits to an already-imported module without a reload.
+
+</div>
 
 ---
 
@@ -155,7 +181,11 @@ import greet   # prints BOTH lines, because greet's main() runs on import
 
 Importing `greet` from `other.py` would print `module-level code runs on import!` *and* `the real work` — the import dragged the script's work along. Wrapping `main()` in `if __name__ == "__main__":` fixes it: importing then prints only the module-level line, and `main()` runs only when `greet.py` is launched directly.
 
-*Earned rule.* Put a module's "run as a script" code under `if __name__ == "__main__":`, and keep reusable definitions (functions, classes) at the top level. The cost of omitting the guard is import side effects — importing your file to reuse one function accidentally runs its whole main routine.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Put a module's "run as a script" code under `if __name__ == "__main__":`, and keep reusable definitions (functions, classes) at the top level. The cost of omitting the guard is import side effects — importing your file to reuse one function accidentally runs its whole main routine.
+
+</div>
 
 ---
 
@@ -190,7 +220,11 @@ import myapp.models.user as user_mod    # the submodule itself, aliased
 
 *Concrete bite.* The most common package error is a *relative* vs *absolute* import mix-up: inside a package, `import user` (expecting a sibling) fails — the runner searches the top-level path, not the current package, so it raises `ModuleNotFoundError`. The fix is an absolute path (`from myapp.models import user`) or an explicit relative import (`from . import user`). (The mechanics of "where Python looks" are §5.)
 
-*Earned rule.* Structure a project as a package tree with `__init__.py` files, and use **absolute imports** (`from myapp.models.user import User`) from the project root — they're unambiguous and survive file moves better than relative ones. The cost is a bit of boilerplate (`__init__.py` files, a consistent root); the payoff is a codebase that scales past one file without import chaos. (Tier 5's [Testing & Packaging](/synapse/programming-languages/python/advanced/testing-and-packaging) covers turning a package into a distributable.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Structure a project as a package tree with `__init__.py` files, and use **absolute imports** (`from myapp.models.user import User`) from the project root — they're unambiguous and survive file moves better than relative ones. The cost is a bit of boilerplate (`__init__.py` files, a consistent root); the payoff is a codebase that scales past one file without import chaos. (Tier 5's [Testing & Packaging](/synapse/programming-languages/python/advanced/testing-and-packaging) covers turning a package into a distributable.)
+
+</div>
 
 ---
 
@@ -217,7 +251,11 @@ ModuleNotFoundError: No module named 'nonexistent_module_xyz'
 
 *Concrete bite.* Name a file after a stdlib module and you shadow it — `import random` then finds *your* file. This needs two files, so statically: a file named `random.py` in your project makes `import random` elsewhere import your file (likely missing `randint`, etc.), producing a baffling `AttributeError: module 'random' has no attribute 'randint'`. The module you wanted is masked by your same-named file sitting earlier on `sys.path`.
 
-*Earned rule.* Never name your files after standard-library modules (`random.py`, `string.py`, `email.py`, `queue.py`) — the local file silently wins and breaks the real import. The cost of `ModuleNotFoundError` is usually a missing install (fix with `pip` inside a virtual environment) or a path issue; the cost of *shadowing* is far nastier, since the import "works" but gives the wrong module.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Never name your files after standard-library modules (`random.py`, `string.py`, `email.py`, `queue.py`) — the local file silently wins and breaks the real import. The cost of `ModuleNotFoundError` is usually a missing install (fix with `pip` inside a virtual environment) or a path issue; the cost of *shadowing* is far nastier, since the import "works" but gives the wrong module.
+
+</div>
 
 ---
 
@@ -233,15 +271,23 @@ ModuleNotFoundError: No module named 'nonexistent_module_xyz'
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`NameError` for an imported function →** `import mod` needs `mod.func`; use `from mod import func` for the bare name.
 - **Edits to a module didn't take effect →** it's cached in `sys.modules`; restart, or `importlib.reload`.
 - **Importing a file ran its whole script →** put that code under `if __name__ == "__main__":`.
 - **`ModuleNotFoundError` →** typo, not installed (`pip install` in a venv), or a path/structure issue.
 - **A real module behaves wrong / `AttributeError` on a stdlib import →** you have a local file with the same name shadowing it; rename your file.
 
+</div>
+
 ---
 
-*Predict, then check.* In the runnable block, predict the output of `import math as m` followed by `print(m.__name__)` and `print(m is __import__("math"))`. Then reason through the static `greet.py`/`other.py` example: with `main()` called *unguarded* at module level, exactly what does `import greet` print — and what changes once you wrap it in `if __name__ == "__main__":`? That guard is the single most important convention in this chapter.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** In the runnable block, predict the output of `import math as m` followed by `print(m.__name__)` and `print(m is __import__("math"))`. Then reason through the static `greet.py`/`other.py` example: with `main()` called *unguarded* at module level, exactly what does `import greet` print — and what changes once you wrap it in `if __name__ == "__main__":`? That guard is the single most important convention in this chapter.
+
+</div>
 
 ## Your Turn
 

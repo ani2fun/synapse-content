@@ -8,9 +8,27 @@ prereqs: []
 
 The single most clarifying idea in Python: **everything is an object, and variables are just names bound to objects.** Once this clicks, a whole category of "weird" behavior — aliasing bugs, mutable-default traps, copy surprises, `is` vs `==` confusion — stops being weird and becomes predictable. This is the foundation the rest of the language sits on.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- An object lives in memory.
+- A name is a label pointing at an object.
+- Assignment points a name at an object — it **never copies** the object.
+
+</div>
+
 This is the deep pass of [Variables & Basic Types](/synapse/programming-languages/python/first-steps/variables-and-types) and the identity/truthiness ideas from [Booleans, Comparisons & Logic](/synapse/programming-languages/python/control-flow/booleans-and-logic) — it assumes you've met both and now asks *what is actually happening in memory*. The aliasing trap previewed in [Lists, the Basics](/synapse/programming-languages/python/control-flow/lists-the-basics) gets its full explanation here. Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -66,7 +84,11 @@ print(DEFAULTS)          # you edited the shared original
 
 You meant to give `user` its own settings and instead mutated the program-wide defaults, because `user = DEFAULTS` never made a second dict. Every later caller now reads `retries == 99`.
 
-*Earned rule.* Treat `=` as "attach a label," never "make a copy." When you actually need an independent object — anything you'll mutate without disturbing the source — you must copy *deliberately* (`dict(d)`, `list(x)`, `x[:]`, or `copy.deepcopy`; see §5). The cost of forgetting isn't a crash — it's silent shared state, the hardest kind of bug to find.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Treat `=` as "attach a label," never "make a copy." When you actually need an independent object — anything you'll mutate without disturbing the source — you must copy *deliberately* (`dict(d)`, `list(x)`, `x[:]`, or `copy.deepcopy`; see §5). The cost of forgetting isn't a crash — it's silent shared state, the hardest kind of bug to find.
+
+</div>
 
 ---
 
@@ -150,7 +172,11 @@ arr is None      # False  <- correct and safe
 
 `float('nan')` breaks `==` from the other side — it isn't even equal to itself (`nan == nan` is `False`), yet `nan is nan` is `True`.
 
-*Earned rule.* "`is None`, never `== None`" isn't style — it's choosing the comparison that *can't be hijacked*. Use `is` for the three singletons (`None`, `True`, `False`), where you mean "literally *this* object"; reserve `==` for "equal in value," where routing through `__eq__` is the whole point. Corollary: never use `is` on numbers or strings (Python warns you), because the caching that makes it *sometimes* work is an implementation accident.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** "`is None`, never `== None`" isn't style — it's choosing the comparison that *can't be hijacked*. Use `is` for the three singletons (`None`, `True`, `False`), where you mean "literally *this* object"; reserve `==` for "equal in value," where routing through `__eq__` is the whole point. Corollary: never use `is` on numbers or strings (Python warns you), because the caching that makes it *sometimes* work is an implementation accident.
+
+</div>
 
 ---
 
@@ -220,7 +246,11 @@ for chunk in pieces:
 result = "".join(parts)       # one pass, O(N)
 ```
 
-*Earned rule.* Immutable means "value fixed for life; 'editing' makes a new object." So accumulate with a mutable buffer and convert once — `parts = []; parts.append(chunk); "".join(parts)` — turning O(N²) into O(N). And choose *immutable* types when you need a value that's safe to share freely or to use as a dict key / set member (§5, and [Dictionaries & Sets](/synapse/programming-languages/python/working-with-data/dictionaries-and-sets)), since nothing can mutate it out from under you.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Immutable means "value fixed for life; 'editing' makes a new object." So accumulate with a mutable buffer and convert once — `parts = []; parts.append(chunk); "".join(parts)` — turning O(N²) into O(N). And choose *immutable* types when you need a value that's safe to share freely or to use as a dict key / set member (§5, and [Dictionaries & Sets](/synapse/programming-languages/python/working-with-data/dictionaries-and-sets)), since nothing can mutate it out from under you.
+
+</div>
 
 ---
 
@@ -263,7 +293,11 @@ print(board)              # one edit hit "every row"
 
 `[inner] * 3` doesn't make three lists — it makes three references to the single `inner`. Setting `board[0][0]` mutates that one shared list, so it appears in "all three rows." People lose hours to this exact bug.
 
-*Earned rule.* Whenever you have a mutable object reachable by more than one name (including elements built by `*` repetition, or an argument passed into a function), assume a change through any path is visible through all of them — and copy deliberately if you need isolation. The correct grid is a [comprehension](/synapse/programming-languages/python/working-with-data/comprehensions) that builds a fresh inner list each time: `[[0] * 3 for _ in range(3)]`. Knowing *which* kind of copy you need is the next section.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Whenever you have a mutable object reachable by more than one name (including elements built by `*` repetition, or an argument passed into a function), assume a change through any path is visible through all of them — and copy deliberately if you need isolation. The correct grid is a [comprehension](/synapse/programming-languages/python/working-with-data/comprehensions) that builds a fresh inner list each time: `[[0] * 3 for _ in range(3)]`. Knowing *which* kind of copy you need is the next section.
+
+</div>
 
 ---
 
@@ -350,7 +384,11 @@ print(template)                # original mutated anyway!
 
 The shallow copy gave a new outer list while still sharing the inner rows, so editing `grid` corrupted `template`. Only `copy.deepcopy(template)` (or rebuilding inner lists) isolates them.
 
-*Earned rule.* Match copy depth to structure. **Flat** data (a list of numbers/strings, a dict of scalars)? Shallow is correct and cheap — `list(x)`, `x[:]`, `dict(x)`. **Nested** data you'll mutate independently? You need `deepcopy`. The tradeoff is real: `deepcopy` walks the entire object graph and is correspondingly slow, so don't reach for it reflexively — reach for it precisely when nested-mutation independence matters.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Match copy depth to structure. **Flat** data (a list of numbers/strings, a dict of scalars)? Shallow is correct and cheap — `list(x)`, `x[:]`, `dict(x)`. **Nested** data you'll mutate independently? You need `deepcopy`. The tradeoff is real: `deepcopy` walks the entire object graph and is correspondingly slow, so don't reach for it reflexively — reach for it precisely when nested-mutation independence matters.
+
+</div>
 
 ---
 
@@ -406,7 +444,11 @@ print(data)        # caller's list got reordered as a side effect
 
 The caller just wanted the top three and unknowingly had their original list permanently reordered, because `.sort()` mutated the shared object.
 
-*Earned rule.* A function that *mutates* an argument changes the caller's world; a function that *rebinds* a parameter does not. Default to **not** mutating inputs — compute and `return` a new object (`sorted(scores)` instead of `scores.sort()`), or copy at the top if you must mutate locally. When a function genuinely is meant to mutate (like `list.sort` itself), make that obvious in its name and docs. This is also exactly why mutable default arguments are a trap (see [Functions in Depth](/synapse/programming-languages/python/how-python-works/functions-in-depth)).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** A function that *mutates* an argument changes the caller's world; a function that *rebinds* a parameter does not. Default to **not** mutating inputs — compute and `return` a new object (`sorted(scores)` instead of `scores.sort()`), or copy at the top if you must mutate locally. When a function genuinely is meant to mutate (like `list.sort` itself), make that obvious in its name and docs. This is also exactly why mutable default arguments are a trap (see [Functions in Depth](/synapse/programming-languages/python/how-python-works/functions-in-depth)).
+
+</div>
 
 ---
 
@@ -459,7 +501,11 @@ print(fixed(0))          # correct
 
 `timeout or 30` silently overrides a deliberate `0`; `if timeout is None` distinguishes "the caller passed nothing" from "the caller passed a falsy value." (This is the deep version of the truthiness rules from [Booleans, Comparisons & Logic](/synapse/programming-languages/python/control-flow/booleans-and-logic).)
 
-*Earned rule.* Use `is` for the three singletons (`None`, `True`, `False`) whenever you mean "literally this object" — it's the one place `is` is unequivocally correct, and it's why the idiom is `if x is None`, not `== None` or `if not x`. Reserve truthiness (`if not x`) for when you really do mean "empty or zero or false," and reach for `is None` when you mean "no value was supplied." Mixing the two is one of the most common real bugs in Python.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `is` for the three singletons (`None`, `True`, `False`) whenever you mean "literally this object" — it's the one place `is` is unequivocally correct, and it's why the idiom is `if x is None`, not `== None` or `if not x`. Reserve truthiness (`if not x`) for when you really do mean "empty or zero or false," and reach for `is None` when you mean "no value was supplied." Mixing the two is one of the most common real bugs in Python.
+
+</div>
 
 ---
 
@@ -479,6 +525,8 @@ Everything above is generated by a handful of core facts:
 
 ### Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Expecting `b = a` to copy a list →** it's an alias; use `a[:]`, `list(a)`, or `copy.deepcopy`.
 - **Using `is` to compare numbers or strings →** use `==`; `is` is only for identity/singletons (Python warns you).
 - **Shallow-copying a nested structure and mutating an inner element →** inner objects are shared; use `deepcopy`.
@@ -486,9 +534,15 @@ Everything above is generated by a handful of core facts:
 - **A function unexpectedly changing the caller's list →** it mutated the shared object; return a new one instead.
 - **`if x == None` →** write `if x is None`; and `x or default` silently overrides falsy values like `0`/`""`.
 
+</div>
+
 ---
 
-*Predict, then check.* Retype the §5 copy example and predict each of the four outputs before running — the moment you can explain why `shallow` sees the change but `deep` doesn't, you own Python's memory model. Next comes [Iterators & Generators](/synapse/programming-languages/python/how-python-works/iterators-and-generators), where the same "object, not a box" lens explains lazy evaluation.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Retype the §5 copy example and predict each of the four outputs before running — the moment you can explain why `shallow` sees the change but `deep` doesn't, you own Python's memory model. Next comes [Iterators & Generators](/synapse/programming-languages/python/how-python-works/iterators-and-generators), where the same "object, not a box" lens explains lazy evaluation.
+
+</div>
 
 ## Your Turn
 

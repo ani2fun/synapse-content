@@ -8,9 +8,27 @@ prereqs: []
 
 Dicts and sets are Python's **hash-based** collections, and they share one engine: **hashing**, which buys near-constant-time lookup. A dict maps keys to values; a set is a dict with keys but no values. Understand hashing once and both their power and their constraints (why keys must be hashable, why sets have no order) follow directly.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Dicts and sets share one engine: **hashing**.
+- Hashing buys near-constant-time lookup.
+- A dict maps keys to values; a set is keys with no values.
+
+</div>
+
 This builds on [Sequences](/synapse/programming-languages/python/working-with-data/sequences) — especially the tuple-hashability discussion — and on [list membership being O(n)](/synapse/programming-languages/python/control-flow/lists-the-basics). Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -67,7 +85,11 @@ TypeError: unhashable type: 'list'
 
 Python refuses a list key rather than let you create an entry that could later be lost in the wrong bucket. (Contrast a tuple key, which is allowed — it can't change.)
 
-*Earned rule.* "Can X be a dict key or set element?" reduces to "is X immutable/hashable?" Strings, numbers, bools, and tuples-of-hashables: yes. Lists, dicts, sets: no — convert (`tuple(my_list)`, `frozenset(my_set)`) first. The single hashing mechanism explains *everything* downstream: the O(1) speed, the key constraint, and the lack of set ordering.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** "Can X be a dict key or set element?" reduces to "is X immutable/hashable?" Strings, numbers, bools, and tuples-of-hashables: yes. Lists, dicts, sets: no — convert (`tuple(my_list)`, `frozenset(my_set)`) first. The single hashing mechanism explains *everything* downstream: the O(1) speed, the key constraint, and the lack of set ordering.
+
+</div>
 
 ---
 
@@ -130,7 +152,11 @@ RuntimeError: dictionary changed size during iteration
 
 Adding keys during iteration would invalidate the view's cursor, so Python stops you. (Iterate over `list(d)` if you must add/remove while looping.)
 
-*Earned rule.* Use a dict whenever you have a *lookup* relationship (name → record, word → count, id → object) — access stays fast at any size. Iterate pairs with `.items()`, and rely on insertion-order being preserved (handy for the dedup trick in §9). When you need to modify a dict's size during a loop, iterate a *materialized snapshot* (`list(d)`), not the live view.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a dict whenever you have a *lookup* relationship (name → record, word → count, id → object) — access stays fast at any size. Iterate pairs with `.items()`, and rely on insertion-order being preserved (handy for the dedup trick in §9). When you need to modify a dict's size during a loop, iterate a *materialized snapshot* (`list(d)`), not the live view.
+
+</div>
 
 ---
 
@@ -176,7 +202,11 @@ KeyError: 'b'
 
 `counts['b']` is read before it's ever written. `counts.get(ch, 0) + 1` supplies the implicit zero, so the first occurrence starts at one cleanly.
 
-*Earned rule.* Reach for `get` whenever a key might be absent and you have a sensible fallback — it replaces the clumsy `if key in d: ... else: ...`. Burn the frequency-count idiom (`d.get(k, 0) + 1`) into muscle memory; counting occurrences is one of the most common patterns in all of programming. (For accumulating into lists, `d.setdefault(k, []).append(x)` is the analog.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for `get` whenever a key might be absent and you have a sensible fallback — it replaces the clumsy `if key in d: ... else: ...`. Burn the frequency-count idiom (`d.get(k, 0) + 1`) into muscle memory; counting occurrences is one of the most common patterns in all of programming. (For accumulating into lists, `d.setdefault(k, []).append(x)` is the analog.)
+
+</div>
 
 ---
 
@@ -223,7 +253,11 @@ TypeError: cannot unpack non-iterable int object
 
 `for k in d` hands you `1`, then `2` — single keys, not pairs — so unpacking into `k, v` blows up. The fix is `for k, v in d.items()`. (Insidiously, with 2-character string keys this *accidentally* "works" by splitting the key into two chars — masking the bug until your keys change.)
 
-*Earned rule.* When you need values too, always iterate `d.items()`, never bare `d`. Use dict comprehensions to transform or filter mappings idiomatically — invert with `{v: k for k, v in d.items()}`, index objects with `{obj.id: obj for obj in objs}`, filter with a trailing `if`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** When you need values too, always iterate `d.items()`, never bare `d`. Use dict comprehensions to transform or filter mappings idiomatically — invert with `{v: k for k, v in d.items()}`, index objects with `{obj.id: obj for obj in objs}`, filter with a trailing `if`.
+
+</div>
 
 ---
 
@@ -267,7 +301,11 @@ TypeError: unhashable type: 'list'
 
 `grid[(row, col)] = value` is the canonical 2D-grid idiom precisely because tuples are hashable; lists can't fill that role. Convert with `tuple([2, 3])` when you have a list.
 
-*Earned rule.* Before using something as a key or set element, ask "is it immutable?" Strings/numbers/bools/tuples-of-immutables: yes. Lists/dicts/sets: no — convert (`tuple(lst)`, `frozenset(s)`). Composite keys (coordinates, pairs) are the textbook reason tuples earn their keep.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Before using something as a key or set element, ask "is it immutable?" Strings/numbers/bools/tuples-of-immutables: yes. Lists/dicts/sets: no — convert (`tuple(lst)`, `frozenset(s)`). Composite keys (coordinates, pairs) are the textbook reason tuples earn their keep.
+
+</div>
 
 ---
 
@@ -304,7 +342,11 @@ print({**defaults, **user})     # correct: user overrides
 
 Put the *lower-priority* source first and the *override* last; reverse it and your carefully chosen user settings vanish under the defaults.
 
-*Earned rule.* "Later wins" → place the authoritative source last: `{**defaults, **overrides}` gives overrides priority. Choose `{**a, **b}` / `a | b` for a new dict (leaving inputs intact), `a.update(b)` / `a |= b` to mutate in place. The layering pattern `{**defaults, **user_settings}` is one you'll write constantly — get the order reflexively right.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** "Later wins" → place the authoritative source last: `{**defaults, **overrides}` gives overrides priority. Choose `{**a, **b}` / `a | b` for a new dict (leaving inputs intact), `a.update(b)` / `a |= b` to mutate in place. The layering pattern `{**defaults, **user_settings}` is one you'll write constantly — get the order reflexively right.
+
+</div>
 
 ---
 
@@ -359,7 +401,11 @@ print(a & b)           # elements in both, no nested loop
 {3, 4}
 ```
 
-*Earned rule.* Reach for a set when you care about *presence and uniqueness*, not order or position: "in both groups?" → `a & b`; "new in the second list?" → `set(b) - set(a)`; "deduplicate" → `set(x)`. Set operations collapse nested-loop logic into one fast, readable expression. The price — no order, no indexing, hashable elements only — is usually irrelevant for these questions.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for a set when you care about *presence and uniqueness*, not order or position: "in both groups?" → `a & b`; "new in the second list?" → `set(b) - set(a)`; "deduplicate" → `set(x)`. Set operations collapse nested-loop logic into one fast, readable expression. The price — no order, no indexing, hashable elements only — is usually irrelevant for these questions.
+
+</div>
 
 ---
 
@@ -399,7 +445,11 @@ for x in stream:        # n items
 
 Change `seen = []` to `seen = set()` and each `in` becomes O(1), turning the whole loop into O(n) — instant.
 
-*Earned rule.* This is one of the highest-leverage moves in everyday Python: **if you test membership repeatedly, put the data in a set first.** "Have I seen this?" loops, dedup, intersection — all want a set. The cost (hashable elements only, no order) is real but almost always worth it when the question is simply "is it in here?".
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** This is one of the highest-leverage moves in everyday Python: **if you test membership repeatedly, put the data in a set first.** "Have I seen this?" loops, dedup, intersection — all want a set. The cost (hashable elements only, no order) is real but almost always worth it when the question is simply "is it in here?".
+
+</div>
 
 ---
 
@@ -451,7 +501,11 @@ print(list(dict.fromkeys(items)))    # first-seen order kept
 
 Dedup a playlist or a log with `set()` and you may shuffle it; `dict.fromkeys` preserves the original sequence.
 
-*Earned rule.* Use `frozenset` when you need a set-of-sets or a set as a key — e.g., an unordered pair as a key is `frozenset({a, b})`. For dedup, ask: *do I need order?* No → `set(x)` (fastest). Yes → `list(dict.fromkeys(x))`. The order-preserving trick surprises people who reach for `set()` reflexively.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `frozenset` when you need a set-of-sets or a set as a key — e.g., an unordered pair as a key is `frozenset({a, b})`. For dedup, ask: *do I need order?* No → `set(x)` (fastest). Yes → `list(dict.fromkeys(x))`. The order-preserving trick surprises people who reach for `set()` reflexively.
+
+</div>
 
 ---
 
@@ -470,6 +524,8 @@ Dedup a playlist or a log with `set()` and you may shuffle it; `dict.fromkeys` p
 
 ### Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`d[k]` on a missing key → `KeyError`:** use `d.get(k, default)`.
 - **List/dict as a key → `unhashable type`:** convert to a tuple/frozenset.
 - **`for k, v in d` → unpacking error:** that iterates keys; use `d.items()`.
@@ -478,9 +534,15 @@ Dedup a playlist or a log with `set()` and you may shuffle it; `dict.fromkeys` p
 - **Dict merge clobbered your overrides:** it's last-wins; put the priority source last (`{**defaults, **user}`).
 - **`x in list` inside a loop → O(n²):** build a `set` once, then test against it.
 
+</div>
+
 ---
 
-*Predict, then check.* Build the §3 frequency-counter from memory (`counts.get(ch, 0) + 1`) on the word `"mississippi"`, and predict the exact dict, **including key order**. Then rewrite the §8 membership check with `seen = set()` and reason about why it changes the loop from O(n²) to O(n). Those two patterns — counting with `get` and set membership — are the most common dict/set moves in real code.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Build the §3 frequency-counter from memory (`counts.get(ch, 0) + 1`) on the word `"mississippi"`, and predict the exact dict, **including key order**. Then rewrite the §8 membership check with `seen = set()` and reason about why it changes the loop from O(n²) to O(n). Those two patterns — counting with `get` and set membership — are the most common dict/set moves in real code.
+
+</div>
 
 ## Your Turn
 

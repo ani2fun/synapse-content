@@ -8,9 +8,28 @@ prereqs: []
 
 You've seen exceptions since [Tutorial 1](/synapse/programming-languages/python/first-steps/what-is-python) — every traceback in this book is one. Now you learn to *handle* them. The thesis: **an exception is a value that propagates *up* the call stack, aborting each function in turn, until some `try`/`except` catches it — or it reaches the top and crashes the program.** Handling is about deciding *where* to catch and *what* to do, and Python's culture leans toward "try the operation and handle failure" (EAFP) over "check everything first" (LBYL).
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- An exception is a **value** that propagates *up* the call stack.
+- It aborts each function until a `try`/`except` catches it — or the program crashes.
+- Handling is deciding **where** to catch and **what** to do.
+- Python culture prefers EAFP ("try it") over LBYL ("check first").
+
+</div>
+
 Every output below was produced by running the code — including the deliberate tracebacks.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -85,7 +104,11 @@ ValueError: invalid literal for int() with base 10: 'oops'
 
 `int("oops")` raises `ValueError`, but the `except` only catches `KeyError`. No match, so the `ValueError` propagates uncaught and crashes — the handler never runs.
 
-*Earned rule.* Catch the **specific** exception type(s) you expect and know how to handle. The cost of matching the wrong type is no protection at all (the real error still crashes you); the benefit of specificity is in §2 — a narrow `except` won't accidentally swallow unrelated failures.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Catch the **specific** exception type(s) you expect and know how to handle. The cost of matching the wrong type is no protection at all (the real error still crashes you); the benefit of specificity is in §2 — a narrow `except` won't accidentally swallow unrelated failures.
+
+</div>
 
 ---
 
@@ -124,7 +147,11 @@ something went wrong
 
 `compute` doesn't exist, so this raises `NameError` — a *programming* bug, not a runtime condition. But `except Exception` catches it too, printing a bland message and hiding a typo that should have crashed loudly. You'd debug for hours.
 
-*Earned rule.* Catch the **narrowest** type that covers what you actually expect (`except ValueError`, not `except Exception`); reserve broad catches for top-level "log and keep the server alive" boundaries, and even then re-raise or log the full traceback. The cost of a bare `except:` or `except Exception:` is masked bugs — it turns a loud, locatable crash into a silent wrong behavior.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Catch the **narrowest** type that covers what you actually expect (`except ValueError`, not `except Exception`); reserve broad catches for top-level "log and keep the server alive" boundaries, and even then re-raise or log the full traceback. The cost of a bare `except:` or `except Exception:` is masked bugs — it turns a loud, locatable crash into a silent wrong behavior.
+
+</div>
 
 ---
 
@@ -173,7 +200,11 @@ ZeroDivisionError: division by zero
 
 There's no `except` here, so the `ZeroDivisionError` propagates and crashes — but `finally` *still ran first*, printing its message before the traceback. Cleanup happens whether or not anyone handles the error.
 
-*Earned rule.* Put success-only logic in `else`, and guaranteed cleanup (closing files, releasing locks) in `finally`. The cost of skipping `finally` is leaked resources when an error strikes mid-operation — though for the common case of files and locks, the `with` statement ([Tutorial 21](/synapse/programming-languages/python/how-python-works/files-and-context-managers)) does this for you more cleanly.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Put success-only logic in `else`, and guaranteed cleanup (closing files, releasing locks) in `finally`. The cost of skipping `finally` is leaked resources when an error strikes mid-operation — though for the common case of files and locks, the `with` statement ([Tutorial 21](/synapse/programming-languages/python/how-python-works/files-and-context-managers)) does this for you more cleanly.
+
+</div>
 
 ---
 
@@ -221,7 +252,11 @@ TypeError: exceptions must derive from BaseException
 
 You can't `raise "string"` — Python requires an exception. The fix is `raise ValueError("something broke")` (or your own subclass).
 
-*Earned rule.* Raise built-in types when one fits (`ValueError` for a bad value, `TypeError` for a bad type), and define custom exceptions for your domain so callers can catch them by name. The cost of custom exceptions is a little ceremony (a class per error category); the payoff is precise handling — callers catch `WithdrawalError` without also catching every unrelated `Exception`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Raise built-in types when one fits (`ValueError` for a bad value, `TypeError` for a bad type), and define custom exceptions for your domain so callers can catch them by name. The cost of custom exceptions is a little ceremony (a class per error category); the payoff is precise handling — callers catch `WithdrawalError` without also catching every unrelated `Exception`.
+
+</div>
 
 ---
 
@@ -272,7 +307,11 @@ isdigit says not a number
 
 `"-42".isdigit()` is `False` — `isdigit` rejects the minus sign — so the LBYL branch wrongly declares `-42` "not a number." But `int("-42")` happily returns `-42`. The check didn't match the operation; EAFP, which *is* the operation, gets it right.
 
-*Earned rule.* Prefer EAFP — try the operation, catch the specific exception — especially when the precondition is tricky (number parsing, file access, network calls) or could change between check and use. The cost of LBYL is double work and the subtle bug above (a check that disagrees with the operation); the cost of EAFP is needing to know which exception to catch — but that's knowable and precise.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Prefer EAFP — try the operation, catch the specific exception — especially when the precondition is tricky (number parsing, file access, network calls) or could change between check and use. The cost of LBYL is double work and the subtle bug above (a check that disagrees with the operation); the cost of EAFP is needing to know which exception to catch — but that's knowable and precise.
+
+</div>
 
 ---
 
@@ -288,15 +327,23 @@ isdigit says not a number
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **The error still crashed despite an `except` →** the `except` type didn't match; catch the actual type (read the traceback's last line).
 - **A typo/logic bug vanished →** a broad `except Exception`/bare `except:` swallowed it; catch narrowly.
 - **A resource leaked on error →** put cleanup in `finally` (or use `with`, Tutorial 21).
 - **`TypeError: exceptions must derive from BaseException` →** you raised a non-exception; `raise ValueError(msg)` or a custom subclass.
 - **A validity check rejects valid input →** the LBYL check disagrees with the operation; switch to EAFP (`try` the operation, catch its specific error).
 
+</div>
+
 ---
 
-*Predict, then check.* Write a `safe_divide(a, b)` that returns `a / b` but catches `ZeroDivisionError` and returns `None` instead, with a `finally` that prints `"done"`. Predict the full output of `safe_divide(10, 2)` and `safe_divide(10, 0)`, including the order of the `finally` print. Then predict whether `"3.14".isdigit()` is `True` or `False`, and what `int("3.14")` does — a two-part trap that captures why EAFP wins.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write a `safe_divide(a, b)` that returns `a / b` but catches `ZeroDivisionError` and returns `None` instead, with a `finally` that prints `"done"`. Predict the full output of `safe_divide(10, 2)` and `safe_divide(10, 0)`, including the order of the `finally` print. Then predict whether `"3.14".isdigit()` is `True` or `False`, and what `int("3.14")` does — a two-part trap that captures why EAFP wins.
+
+</div>
 
 ## Your Turn
 

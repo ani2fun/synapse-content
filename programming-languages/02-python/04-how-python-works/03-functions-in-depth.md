@@ -8,9 +8,27 @@ prereqs: []
 
 Most of what looks like a grab-bag of "advanced function features" — lambdas, closures, decorators, higher-order functions — is really *one idea* seen from different angles: **in Python a function is a value**, a first-class object like `5` or `"hello"`. Internalize that and the rest stops being a list of syntax to memorize and becomes a set of *consequences*.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Lambdas, closures, and decorators look like a grab-bag of features.
+- Really they are **one idea**: a function is a **value**, a first-class object like `5` or `"hello"`.
+- Master that and the rest becomes a set of *consequences*.
+
+</div>
+
 This is the deep pass of [Functions, the Basics](/synapse/programming-languages/python/control-flow/functions-the-basics) — it assumes you've met `def`, `return`, and parameters, and pushes into the object nature of functions, scope, closures, decorators, and purity. It builds directly on [The Object Model](/synapse/programming-languages/python/how-python-works/the-object-model) (functions are objects with attributes) and on the generator expressions from [Comprehensions](/synapse/programming-languages/python/working-with-data/comprehensions). Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -79,7 +97,11 @@ print(ops["+"](3, 4))     # the function was stored in a dict and looked up by k
 
 The functions live in a dict like any other value; `ops["+"]` retrieves one and `(3, 4)` calls it. No `if op == "+"` ladder needed.
 
-*Earned rule.* Internalize "a function is a value" and the rest of this chapter stops being a list of features and becomes *consequences*: lambdas (nameless function values), closures (functions carrying state), decorators (functions that transform functions), and higher-order functions (functions taking/returning functions) all follow from this one fact. Whenever you catch yourself writing a long `if`/`elif` over a fixed set of cases, ask whether a dict of functions is cleaner.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Internalize "a function is a value" and the rest of this chapter stops being a list of features and becomes *consequences*: lambdas (nameless function values), closures (functions carrying state), decorators (functions that transform functions), and higher-order functions (functions taking/returning functions) all follow from this one fact. Whenever you catch yourself writing a long `if`/`elif` over a fixed set of cases, ask whether a dict of functions is cleaner.
+
+</div>
 
 ---
 
@@ -132,7 +154,11 @@ TypeError: unsupported operand type(s) for *: 'NoneType' and 'int'
 
 You see `6` on screen and assume `total == 6`, but `make_total` returned `None`, so the arithmetic explodes.
 
-*Earned rule.* Keep "show a human" (`print`) and "give the caller a value" (`return`) strictly separate. If another part of your code needs the result, `return` it; printing is only for display and debugging. A function whose result you'll compute with must `return`, not `print`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Keep "show a human" (`print`) and "give the caller a value" (`return`) strictly separate. If another part of your code needs the result, `return` it; printing is only for display and debugging. A function whose result you'll compute with must `return`, not `print`.
+
+</div>
 
 ---
 
@@ -170,7 +196,11 @@ create_user("Ada", admin=True, active=False, verified=True)   # self-explaining
 
 The first call is a guessing game and a silent-bug magnet if two flags are swapped; the keyword call documents itself and resists transposition.
 
-*Earned rule.* Pass values positionally only when their meaning is obvious from context (`point(x, y)`); use keyword arguments the moment a bare value would be cryptic, especially for booleans and option flags. Encode "the value most callers want" as a default so callers specify only the unusual. (To *force* clarity, you can make parameters keyword-only — see §14.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Pass values positionally only when their meaning is obvious from context (`point(x, y)`); use keyword arguments the moment a bare value would be cryptic, especially for booleans and option flags. Encode "the value most callers want" as a default so callers specify only the unusual. (To *force* clarity, you can make parameters keyword-only — see §14.)
+
+</div>
 
 ---
 
@@ -238,7 +268,11 @@ print(f.__defaults__)        # (['leak'],)  -- the stored default was mutated!
 
 The default lives on `f.__defaults__` and persists; appending through one call is visible to the next.
 
-*Earned rule.* Never use a mutable object (`[]`, `{}`, `set()`) as a default — it's a single object reused forever. Use the `None`-sentinel pattern (`def f(x=None): if x is None: x = []`) to get a fresh object per call. Immutable defaults (`0`, `""`, `None`, `()`, tuples) are safe because you can't mutate them in place.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Never use a mutable object (`[]`, `{}`, `set()`) as a default — it's a single object reused forever. Use the `None`-sentinel pattern (`def f(x=None): if x is None: x = []`) to get a fresh object per call. Immutable defaults (`0`, `""`, `None`, `()`, tuples) are safe because you can't mutate them in place.
+
+</div>
 
 ---
 
@@ -296,7 +330,11 @@ def trace(fn):
 
 `wrapper` doesn't know or care what `fn`'s parameters are; `*args, **kwargs` capture them on the way in and re-spread them on the way out, so `trace` works on functions of every shape.
 
-*Earned rule.* Use `*args`/`**kwargs` in a definition when a function should accept a variable number of arguments, and the unpacking form at a call to spread an existing list/dict into one. The "gather then scatter" pattern (`def w(*a, **k): return fn(*a, **k)`) is the idiom for any transparent wrapper, proxy, or decorator.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `*args`/`**kwargs` in a definition when a function should accept a variable number of arguments, and the unpacking form at a call to spread an existing list/dict into one. The "gather then scatter" pattern (`def w(*a, **k): return fn(*a, **k)`) is the idiom for any transparent wrapper, proxy, or decorator.
+
+</div>
 
 ---
 
@@ -343,7 +381,11 @@ print(lo, hi, avg)
 
 You can index `result` because it's genuinely a tuple, not a special multi-value construct.
 
-*Earned rule.* Lean on this freely — `return a, b, c` then `x, y, z = f(...)` is clean and Pythonic. It's the same tuple machinery behind `for i, x in enumerate(...)` and `a, b = b, a`. If a function returns more than ~3 values, consider a small dataclass or named tuple so callers read fields by name instead of position.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Lean on this freely — `return a, b, c` then `x, y, z = f(...)` is clean and Pythonic. It's the same tuple machinery behind `for i, x in enumerate(...)` and `a, b = b, a`. If a function returns more than ~3 values, consider a small dataclass or named tuple so callers read fields by name instead of position.
+
+</div>
 
 ---
 
@@ -421,7 +463,11 @@ UnboundLocalError: cannot access local variable 'count' where it is not associat
 
 Because `count` is assigned in `bump`, it's treated as *local* for the whole function — so the `count` on the right-hand side has no value yet. Adding `global count` (or `nonlocal` for a nested function) fixes it.
 
-*Earned rule.* Reading outer variables is automatic; *rebinding* them is not, by design, so functions don't silently clobber outer state. Prefer returning values over `global` mutation. Reach for `nonlocal` mainly inside closures (counters, accumulators), and remember: assigning a name *anywhere* in a function makes it local *everywhere* in that function.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reading outer variables is automatic; *rebinding* them is not, by design, so functions don't silently clobber outer state. Prefer returning values over `global` mutation. Reach for `nonlocal` mainly inside closures (counters, accumulators), and remember: assigning a name *anywhere* in a function makes it local *everywhere* in that function.
+
+</div>
 
 ---
 
@@ -469,7 +515,11 @@ xy
 
 `add("x", "y")` happily concatenates strings; the `int` hints are documentation that a type checker would flag *before* running, but the interpreter ignores them.
 
-*Earned rule.* Treat annotations as intent and tooling fuel, not runtime guarantees — pair them with `mypy`/IDE checks to get real value. Write a one-line docstring on anything non-trivial; it's cheap and surfaces in `help()`, IDEs, and tooling. When you need actual runtime validation, write explicit checks (or use a library like `pydantic`).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Treat annotations as intent and tooling fuel, not runtime guarantees — pair them with `mypy`/IDE checks to get real value. Write a one-line docstring on anything non-trivial; it's cheap and surfaces in `help()`, IDEs, and tooling. When you need actual runtime validation, write explicit checks (or use a library like `pydantic`).
+
+</div>
 
 ---
 
@@ -517,7 +567,11 @@ print(transform_all(["a", "b"], str.upper))         # ['A', 'B']
 
 Without higher-order functions you'd write a separate loop for "square each" and "uppercase each"; here one function takes the operation as data.
 
-*Earned rule.* Use higher-order functions to **parameterize behavior**, not just data — it's the abstraction behind `sorted(key=...)`, `map`, `filter`, callbacks, and decorators. When you notice two functions that differ only in one inner operation, factor that operation out as a function argument.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use higher-order functions to **parameterize behavior**, not just data — it's the abstraction behind `sorted(key=...)`, `map`, `filter`, callbacks, and decorators. When you notice two functions that differ only in one inner operation, factor that operation out as a function argument.
+
+</div>
 
 ---
 
@@ -597,7 +651,11 @@ running quit
 
 Every lambda closed over the *same* `name`, which ended as `"quit"`. The fix is `lambda name=name: print(f"running {name}")`, freezing each value at definition time.
 
-*Earned rule.* A function remembers *where* to look (the variable), not *what* it found (a value) — unless you force an early snapshot with a default argument. Reserve lambdas for short throwaway functions passed to higher-order functions (`key=`, `map`); if a lambda needs a statement, a name, or reuse, write a `def`. And whenever you build functions in a loop that reference the loop variable, capture it with `var=var`. (This is the *same* definition-time-vs-call-time rule as the mutable-default trap in §4 — there it bit, here you wield it deliberately.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** A function remembers *where* to look (the variable), not *what* it found (a value) — unless you force an early snapshot with a default argument. Reserve lambdas for short throwaway functions passed to higher-order functions (`key=`, `map`); if a lambda needs a statement, a name, or reuse, write a `def`. And whenever you build functions in a loop that reference the loop variable, capture it with `var=var`. (This is the *same* definition-time-vs-call-time rule as the mutable-default trap in §4 — there it bit, here you wield it deliberately.)
+
+</div>
 
 ---
 
@@ -647,7 +705,11 @@ print(add0(10))     # 12  -- expected 10; all three captured the same final i = 
 
 All three lambdas close over one `i` that ended at `2`. Capture per-iteration with `lambda x, i=i: x + i` to get independent adders.
 
-*Earned rule.* A closure is a lightweight stateful object — one function plus hidden state — and the functional alternative to a small class for things like configured functions (a "multiply-by-3" machine), counters, and accumulators. Use `nonlocal` (§7) when the closure must *update* its captured state. Beware shared-variable capture in loops; snapshot with a default argument when you need independence.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** A closure is a lightweight stateful object — one function plus hidden state — and the functional alternative to a small class for things like configured functions (a "multiply-by-3" machine), counters, and accumulators. Use `nonlocal` (§7) when the closure must *update* its captured state. Beware shared-variable capture in loops; snapshot with a default argument when you need independence.
+
+</div>
 
 ---
 
@@ -712,7 +774,11 @@ TypeError: <lambda>() missing 1 required positional argument: 'b'
 
 `key` passes *one* element, so a two-parameter lambda raises. The correct form extracts a sort value from a single element: `key=lambda p: p[1]`. (For genuine two-argument comparison, wrap it with `functools.cmp_to_key`.)
 
-*Earned rule.* Prefer comprehensions over `map`/`filter` for readability (`[x*x for x in xs]` beats `list(map(lambda x: x*x, xs))`), but master `key=` — it's everywhere and irreplaceable. The "return a tuple for tie-breaking" idiom (`key=lambda p: (p[1], p[0])`) is the single most common lambda use in real code and interviews.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Prefer comprehensions over `map`/`filter` for readability (`[x*x for x in xs]` beats `list(map(lambda x: x*x, xs))`), but master `key=` — it's everywhere and irreplaceable. The "return a tuple for tie-breaking" idiom (`key=lambda p: (p[1], p[0])`) is the single most common lambda use in real code and interviews.
+
+</div>
 
 ---
 
@@ -769,7 +835,11 @@ RecursionError: maximum recursion depth exceeded
 
 Even a *correct* recursion fails this way if the depth exceeds the limit — e.g. naive recursion over a 100,000-element list overflows the stack long before it finishes.
 
-*Earned rule.* Recursion shines on *self-similar* problems — trees, divide-and-conquer, backtracking — where the base case is a floor you stand on and the recursive case always moves toward it. For linear problems prefer an iterative loop: it's faster and stack-safe. Don't recurse just because you can; reach for it when the problem's structure is itself recursive.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Recursion shines on *self-similar* problems — trees, divide-and-conquer, backtracking — where the base case is a floor you stand on and the recursive case always moves toward it. For linear problems prefer an iterative loop: it's faster and stack-safe. Don't recurse just because you can; reach for it when the problem's structure is itself recursive.
+
+</div>
 
 ---
 
@@ -854,7 +924,11 @@ split_file("data.csv", in_place=True)  # forced to be readable
 
 The `*` makes `split_file("data.csv", True)` illegal, so nobody can leave a bare `True` whose meaning is unclear at the call site — exactly why `sorted(xs, reverse=True)` can't be passed positionally.
 
-*Earned rule.* Use keyword-only (`*`) to force clarity on flags and options (anything where a bare value would be cryptic). Use positional-only (`/`) when parameter *names* are implementation details you don't want to freeze as API (common in the standard library, e.g. `len(obj, /)`). Together they let you design signatures that are hard to misuse.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use keyword-only (`*`) to force clarity on flags and options (anything where a bare value would be cryptic). Use positional-only (`/`) when parameter *names* are implementation details you don't want to freeze as API (common in the standard library, e.g. `len(obj, /)`). Together they let you design signatures that are hard to misuse.
+
+</div>
 
 ---
 
@@ -947,7 +1021,11 @@ wrapper
 
 `compute.__name__` is now `'wrapper'`, so logs, `help()`, debuggers, and anything keyed on function names misreport it. `@functools.wraps(fn)` on `wrapper` fixes it.
 
-*Earned rule.* A decorator is just "wrap this function in another function"; the `*args/**kwargs` forwarding makes it work on any signature, and the three-layer structure is mechanical for parameterized decorators. **Always** put `@functools.wraps(fn)` on the wrapper so metadata survives. Use decorators for cross-cutting concerns — timing, caching, logging, access control, retries — that you want to bolt onto many functions uniformly.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** A decorator is just "wrap this function in another function"; the `*args/**kwargs` forwarding makes it work on any signature, and the three-layer structure is mechanical for parameterized decorators. **Always** put `@functools.wraps(fn)` on the wrapper so metadata survives. Use decorators for cross-cutting concerns — timing, caching, logging, access control, retries — that you want to bolt onto many functions uniformly.
+
+</div>
 
 ---
 
@@ -1006,7 +1084,11 @@ print(sys.getsizeof((x for x in range(1_000_000))))   # the generator
 
 The list comprehension allocates all million integers up front (~8 MB); the generator expression is a fixed 192 bytes regardless of range size, computing each value only when pulled. For `sum`/`any`/`max` over large data, that's free memory savings — and the only feasible option for infinite streams.
 
-*Earned rule.* Use a generator when the sequence is large, infinite, or expensive and you consume values once, in order, without needing them all in memory. `yield` gives you an iterator with no boilerplate. Rule of thumb: if you'll loop over results a single time, prefer a generator expression `(...)` over a list comprehension `[...]`. The cost: you can't index a generator or reuse it after exhaustion.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a generator when the sequence is large, infinite, or expensive and you consume values once, in order, without needing them all in memory. `yield` gives you an iterator with no boilerplate. Rule of thumb: if you'll loop over results a single time, prefer a generator expression `(...)` over a list comprehension `[...]`. The cost: you can't index a generator or reuse it after exhaustion.
+
+</div>
 
 ---
 
@@ -1067,7 +1149,11 @@ hits=28, misses=31
 
 The 31 *misses* are the only real computations — one per distinct value of `n` from 0 to 30 — and the 28 *hits* are returns straight from the cache. The exponential `O(2ⁿ)` call tree has collapsed to `O(n)`.
 
-*Earned rule.* `functools` is where "functions as values" pays off practically: `partial` for specialization, `lru_cache` for one-line memoization, `reduce` for folding, `wraps` for honest decorators. Reach for `lru_cache` the moment a *pure* recursive function recomputes the same inputs (memoization requires the function be effectively side-effect-free and its arguments hashable). The cost is memory for the cache (bound it with `maxsize` when inputs are unbounded).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** `functools` is where "functions as values" pays off practically: `partial` for specialization, `lru_cache` for one-line memoization, `reduce` for folding, `wraps` for honest decorators. Reach for `lru_cache` the moment a *pure* recursive function recomputes the same inputs (memoization requires the function be effectively side-effect-free and its arguments hashable). The cost is memory for the cache (bound it with `maxsize` when inputs are unbounded).
+
+</div>
 
 ---
 
@@ -1121,7 +1207,11 @@ print(add_tax(cart, 0.1))        # same call, taxed AGAIN
 
 Calling `add_tax` twice taxes the already-taxed list, because it mutated `cart` (the ragged decimals are ordinary [float rounding](/synapse/programming-languages/python/first-steps/numbers-and-arithmetic), a separate issue). A pure version computing `[p * (1 + rate) for p in prices]` returns a new list, leaves `cart` untouched, and gives the same answer every time.
 
-*Earned rule.* Purity buys predictability and testability — pure functions are trivial to test, safe to cache (`lru_cache` effectively *requires* purity), and easy to parallelize and reason about. You can't make everything pure (programs must do I/O), but push side effects to the edges and keep core logic pure. When debugging "it works sometimes," suspect hidden side effects and shared mutable state first.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Purity buys predictability and testability — pure functions are trivial to test, safe to cache (`lru_cache` effectively *requires* purity), and easy to parallelize and reason about. You can't make everything pure (programs must do I/O), but push side effects to the edges and keep core logic pure. When debugging "it works sometimes," suspect hidden side effects and shared mutable state first.
+
+</div>
 
 ---
 
@@ -1144,6 +1234,8 @@ The whole chapter compressed into the ideas that generate the rest:
 
 ### Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Mutable default argument** (`def f(x, acc=[])`) → use the `None` sentinel.
 - **Lambda/closure in a loop** all returning the last value → capture with `var=var` default.
 - **`key=` given a two-argument lambda** (Java reflex) → it takes *one* element.
@@ -1153,9 +1245,15 @@ The whole chapter compressed into the ideas that generate the rest:
 - **Deep recursion in Python** (no tail-call optimization) → `RecursionError`; consider iteration.
 - **Printing instead of returning** a result you need to compute with → `TypeError` on `None`.
 
+</div>
+
 ---
 
-*Predict, then check.* Retype the two famous traps — the mutable default (§4) and the lambda late-binding loop (§10) — from memory, and predict each output before running. When you can explain why *both* come down to one rule — "defaults and closures are decided at definition time, bodies run at call time" — you've understood the deepest thing this chapter teaches, and you're ready for [Errors & Exceptions](/synapse/programming-languages/python/how-python-works/errors-and-exceptions).
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Retype the two famous traps — the mutable default (§4) and the lambda late-binding loop (§10) — from memory, and predict each output before running. When you can explain why *both* come down to one rule — "defaults and closures are decided at definition time, bodies run at call time" — you've understood the deepest thing this chapter teaches, and you're ready for [Errors & Exceptions](/synapse/programming-languages/python/how-python-works/errors-and-exceptions).
+
+</div>
 
 ## Your Turn
 

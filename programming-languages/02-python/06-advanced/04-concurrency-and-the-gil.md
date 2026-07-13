@@ -8,9 +8,28 @@ prereqs: []
 
 "Make it faster by doing things at once" is more subtle in Python than in most languages, because of one design decision. The thesis: **CPython has a Global Interpreter Lock (GIL) that lets only one thread execute Python bytecode at a time** — so threads give you concurrency for *waiting* (I/O-bound work overlaps), but **not** parallelism for *computing* (CPU-bound work doesn't speed up); for that you need separate *processes*, which sidestep the GIL but can't share memory directly. This chapter builds that model from the ground up — what a thread actually *is*, what the GIL actually *protects*, when it lets go — because with the mechanism in hand, every "why is my code not faster?" question answers itself.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- CPython's **GIL** lets only one thread run Python bytecode at a time.
+- Threads give concurrency for **waiting** (I/O overlaps).
+- They give **no parallelism** for computing (CPU-bound work).
+- For that you need separate **processes**, which sidestep the GIL.
+
+</div>
+
 This builds on [functions](/synapse/programming-languages/python/how-python-works/functions-in-depth) and sets up [Async Python](/synapse/programming-languages/python/advanced/async-python) and [Async in Practice](/synapse/programming-languages/python/advanced/async-in-practice). Every runnable output below was produced by running the code; timing figures are marked illustrative (they vary), and the multiprocessing and free-threaded examples are static — the sandbox can't spawn processes or swap interpreters — with outputs captured on a normal machine.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -103,7 +122,11 @@ pa <-> pb: "no shared memory —\ndata is pickled across" {
 
 *Concrete bite.* "Threads share everything" cuts both ways. Passing a 100 MB structure to a thread costs nothing (it's the same object); passing it to a process means serialising all 100 MB across. But sharing is also the danger: two threads *mutating* the same object interleave unpredictably (§4), a problem processes are immune to by construction.
 
-*Earned rule.* Threads = cheap to share, dangerous to mutate; processes = safe by isolation, expensive to communicate. Every concurrency decision in Python is a position on that line. The cost of learning the layout is nil — it's the same picture in every language; what's CPython-specific is only the GIL on top.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Threads = cheap to share, dangerous to mutate; processes = safe by isolation, expensive to communicate. Every concurrency decision in Python is a position on that line. The cost of learning the layout is nil — it's the same picture in every language; what's CPython-specific is only the GIL on top.
+
+</div>
 
 ---
 
@@ -137,7 +160,11 @@ print(results)
 
 *Concrete bite.* The catch is what overlaps: threads help only when the work *releases the GIL* (I/O, `sleep`). For pure computation they don't (§3). Many people add threads to a CPU-heavy loop expecting a speedup and get none — the bite is in the next section, where the timing makes it undeniable.
 
-*Earned rule.* Reach for `ThreadPoolExecutor` to overlap **I/O-bound** work (HTTP requests, file/db reads) — the win scales with how much time is spent waiting. The cost: threads share memory, so any *shared mutable state* needs locking (§4), and they do nothing for CPU-bound work.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for `ThreadPoolExecutor` to overlap **I/O-bound** work (HTTP requests, file/db reads) — the win scales with how much time is spent waiting. The cost: threads share memory, so any *shared mutable state* needs locking (§4), and they do nothing for CPU-bound work.
+
+</div>
 
 ---
 
@@ -220,7 +247,11 @@ sequential=0.246s  2-threads=0.219s
 
 *Concrete bite.* The numbers are the bite: `2-threads` is *not* meaningfully faster than `sequential` — nowhere near the ~2× a real parallel speedup would give. Adding threads to CPU-bound work buys nothing (and can be slightly slower from switching overhead). The intuitive "more threads = faster" is simply false for computation in CPython.
 
-*Earned rule.* Don't use threads to speed up CPU-bound work — use **processes** (§6), or read §7 for where CPython itself is heading. Threads are for overlapping waits. The cost/boundary: this is a *CPython* property, the price of its no-locks-in-single-threaded-code bargain; one more C-extension nuance worth knowing is that heavy NumPy/hash-computation code often releases the GIL itself, which is why "it scaled fine in NumPy" and "pure-Python loops don't scale" are both true.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Don't use threads to speed up CPU-bound work — use **processes** (§6), or read §7 for where CPython itself is heading. Threads are for overlapping waits. The cost/boundary: this is a *CPython* property, the price of its no-locks-in-single-threaded-code bargain; one more C-extension nuance worth knowing is that heavy NumPy/hash-computation code often releases the GIL itself, which is why "it scaled fine in NumPy" and "pure-Python loops don't scale" are both true.
+
+</div>
 
 ---
 
@@ -279,7 +310,11 @@ dis.dis(inc)
 
 *Concrete bite.* `c += 1` is `LOAD_FAST` (read) → `BINARY_OP` (add) → `STORE_FAST` (write) — three steps. If a thread switch happens *between* the read and the write, two threads read the same value, both add one, and both write back the same result: **one increment is lost**. The GIL guarantees each *bytecode* is atomic, but not a *sequence* of them. Here is the properly unsettling part: on today's CPython this race is *hard to catch* — the switch interval is an eternity next to three bytecodes, so the unlocked counter usually comes out right, run after run (even deliberately shrinking the interval rarely exposes it). "The GIL is not your lock" is therefore a rule you must take from the mechanism, not from a failing test — the race is real, it simply hides until production load, a slower compound update, or a different interpreter build (§7) finally lands a switch inside the window.
 
-*Earned rule.* Protect every shared mutable variable with a `Lock` (or avoid sharing — pass data via a `queue.Queue` (§5), or return results from `pool.map`). Don't trust the GIL to make your updates safe: it serialises bytecodes, not your logic. The cost of a lock is contention (threads wait for it) and the risk of deadlock if you hold several — so keep critical sections small and lock ordering consistent.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Protect every shared mutable variable with a `Lock` (or avoid sharing — pass data via a `queue.Queue` (§5), or return results from `pool.map`). Don't trust the GIL to make your updates safe: it serialises bytecodes, not your logic. The cost of a lock is contention (threads wait for it) and the risk of deadlock if you hold several — so keep critical sections small and lock ordering consistent.
+
+</div>
 
 ---
 
@@ -338,7 +373,11 @@ all done
 
 *Concrete bite.* The subtle shutdown bug: with two consumers and only *one* sentinel that isn't re-enqueued, one consumer exits and the other blocks in `q.get()` forever — the program never finishes. Coordination bugs move from "corrupted data" to "hangs"; the sentinel-passing idiom (or one sentinel per consumer) is the standard cure.
 
-*Earned rule.* Prefer message passing over shared state: threads connected by queues, each owning its own data, with ownership *transferred* by `put`/`get`. The cost is queue overhead and an explicit shutdown protocol — a price worth paying because the failure mode shifts from silent corruption (races) to visible hangs, and hangs get found. You'll meet this exact pattern again with one thread and `asyncio.Queue` in [Async in Practice](/synapse/programming-languages/python/advanced/async-in-practice).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Prefer message passing over shared state: threads connected by queues, each owning its own data, with ownership *transferred* by `put`/`get`. The cost is queue overhead and an explicit shutdown protocol — a price worth paying because the failure mode shifts from silent corruption (races) to visible hangs, and hangs get found. You'll meet this exact pattern again with one thread and `asyncio.Queue` in [Async in Practice](/synapse/programming-languages/python/advanced/async-in-practice).
+
+</div>
 
 ---
 
@@ -409,7 +448,11 @@ parent's results list:   []
 
 *Concrete bite.* The vanishing-mutation demo above is the trap in its purest form — no error, no warning, just a parent list that never changes. The variants all follow: unpicklable arguments (lambdas, open files, sockets) raise at submit time; huge arguments make pickling the bottleneck; and forgetting the `__main__` guard spawns workers that re-execute your top-level code.
 
-*Earned rule.* Use processes for **CPU-bound** parallelism — heavy computation that the GIL otherwise serialises; one worker per core is the usual sizing. Communicate by *returning* results; reach for `multiprocessing.Queue` or shared memory only when returns genuinely can't express the flow. The cost is real — pickling, startup, isolation, the guard — so processes pay off for *coarse* chunks of heavy work, not for many tiny tasks where the overhead dominates.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use processes for **CPU-bound** parallelism — heavy computation that the GIL otherwise serialises; one worker per core is the usual sizing. Communicate by *returning* results; reach for `multiprocessing.Queue` or shared memory only when returns genuinely can't express the flow. The cost is real — pickling, startup, isolation, the guard — so processes pay off for *coarse* chunks of heavy work, not for many tiny tasks where the overhead dominates.
+
+</div>
 
 ---
 
@@ -455,7 +498,11 @@ sequential=0.266s  2-threads=0.137s  speedup=1.9x
 
 *Concrete bite.* §4's hidden race is the bite, sharpened: code that silently relied on the GIL's coarse atomicity ("it's just a dict update, the GIL makes it safe-ish") loses that accidental protection here. The lesson's locking rules weren't pedantry — they were forward compatibility.
 
-*Earned rule.* Write locking-correct threaded code *today* (locks around shared mutations, queues for hand-off) and it runs correctly on both builds — the GIL build forgives, the free-threaded build rewards. The cost of adopting free-threading now: single-thread overhead, maturing C-extension support, and a second build to test against; the benefit, when it fits: §6-style parallelism without pickling, in shared memory.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Write locking-correct threaded code *today* (locks around shared mutations, queues for hand-off) and it runs correctly on both builds — the GIL build forgives, the free-threaded build rewards. The cost of adopting free-threading now: single-thread overhead, maturing C-extension support, and a second build to test against; the benefit, when it fits: §6-style parallelism without pickling, in shared memory.
+
+</div>
 
 ---
 
@@ -490,7 +537,11 @@ train a model in pure Python     CPU-bound   -> processes
 
 *Concrete bite.* The classic mistake is reaching for `ProcessPoolExecutor` to "speed up" downloading many URLs. Processes there add pickling and startup cost for work that's just *waiting* — threads (or async) would overlap the waits with none of that overhead. Tool-to-workload mismatch makes concurrent code slower *and* more complex than the sequential version.
 
-*Earned rule.* I/O-bound → threads (`ThreadPoolExecutor`) or async; CPU-bound → processes (`ProcessPoolExecutor`), with free-threaded builds as the emerging alternative; neither → keep it sequential (concurrency adds bugs and overhead — only pay for it when there's a real bottleneck). The cost of every concurrency tool is added complexity (races, deadlocks, pickling, debugging), so reach for it only when measurement ([Performance & Profiling](/synapse/programming-languages/python/advanced/performance-and-profiling)) shows the bottleneck is real.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** I/O-bound → threads (`ThreadPoolExecutor`) or async; CPU-bound → processes (`ProcessPoolExecutor`), with free-threaded builds as the emerging alternative; neither → keep it sequential (concurrency adds bugs and overhead — only pay for it when there's a real bottleneck). The cost of every concurrency tool is added complexity (races, deadlocks, pickling, debugging), so reach for it only when measurement ([Performance & Profiling](/synapse/programming-languages/python/advanced/performance-and-profiling)) shows the bottleneck is real.
+
+</div>
 
 ---
 
@@ -509,6 +560,8 @@ train a model in pure Python     CPU-bound   -> processes
 
 ## 10. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Threads didn't speed up my computation →** the GIL serialises CPU work; use `ProcessPoolExecutor` (or a free-threaded build).
 - **A shared counter/list is occasionally wrong →** a race; guard shared mutable state with a `Lock` (don't trust the GIL — the race hiding in testing is the trap, not the reassurance).
 - **A multi-consumer queue program hangs at shutdown →** a consumer is blocked in `get()` with no sentinel left; re-enqueue the sentinel (or use one per consumer).
@@ -517,9 +570,15 @@ train a model in pure Python     CPU-bound   -> processes
 - **Assumed free-threading is the default →** it's a separate build; check `sys._is_gil_enabled()` before concluding anything about parallelism.
 - **Concurrency made it slower →** wrong tool (processes for I/O) or overhead exceeds the gain on tiny tasks; measure first.
 
+</div>
+
 ---
 
-*Predict, then check.* Take the §2 `fetch` example and predict its result list (and roughly its wall time vs sequential). Then predict whether wrapping the §3 `burn` in *four* threads instead of two would approach a 4× speedup — and why not — and what the same change does on a free-threaded build. Next, §5's queue: predict what happens if the producer forgets to `put(DONE)` entirely. Finally, reason about the §4 counter: with the `Lock` it's `400000`; without it, why is the result *unpredictable in principle yet usually correct in practice* — and why is that the worst possible combination for testing? That last question is the GIL's subtlety in one sentence.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Take the §2 `fetch` example and predict its result list (and roughly its wall time vs sequential). Then predict whether wrapping the §3 `burn` in *four* threads instead of two would approach a 4× speedup — and why not — and what the same change does on a free-threaded build. Next, §5's queue: predict what happens if the producer forgets to `put(DONE)` entirely. Finally, reason about the §4 counter: with the `Lock` it's `400000`; without it, why is the result *unpredictable in principle yet usually correct in practice* — and why is that the worst possible combination for testing? That last question is the GIL's subtlety in one sentence.
+
+</div>
 
 ## Your Turn
 

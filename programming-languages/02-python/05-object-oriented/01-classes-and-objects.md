@@ -8,9 +8,27 @@ prereqs: []
 
 You have used objects since [Tutorial 1](/synapse/programming-languages/python/first-steps/what-is-python) — a `list`, a `dict`, a `str` are all objects, and you have called their methods (`.append`, `.get`, `.upper`). Now you build your own. The thesis: **a class is a blueprint that bundles *data* (attributes) with *behaviour* (methods); an instance is one concrete thing made from that blueprint; and `self` is how a method names the particular instance it was called on.** A `Dog` class describes what every dog has and can do; `Dog("Rex")` makes one specific dog.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A class is a **blueprint** bundling data (attributes) with behaviour (methods).
+- An instance is one concrete thing built from it.
+- `self` names the **particular instance** a method was called on.
+
+</div>
+
 Classes are not a new kind of value — they sit squarely on top of the [object model](/synapse/programming-languages/python/how-python-works/the-object-model) you already know, and methods are just [functions](/synapse/programming-languages/python/control-flow/functions-the-basics) that live on a class. Every output below was produced by running the code — including the deliberate tracebacks.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -72,7 +90,11 @@ False
 
 `Dog() is Dog()` is `False`: two separate calls, two separate objects, two separate identities. `a is b` is `False` for the same reason, and `id(a) == id(b)` confirms they live at different addresses. `is` tests *identity* — "the same object" — not contents (see [the object model](/synapse/programming-languages/python/how-python-works/the-object-model)).
 
-*Earned rule.* Use the class name to *make* instances and `isinstance(x, Cls)` to *ask* whether something is one; reach for `is` only when you genuinely mean "the very same object," not "looks equal." The cost of confusing them is real bugs: two freshly built objects compare unequal under `is` even when they should be interchangeable, so identity checks on fresh instances almost always surprise you.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use the class name to *make* instances and `isinstance(x, Cls)` to *ask* whether something is one; reach for `is` only when you genuinely mean "the very same object," not "looks equal." The cost of confusing them is real bugs: two freshly built objects compare unequal under `is` even when they should be interchangeable, so identity checks on fresh instances almost always surprise you.
+
+</div>
 
 ---
 
@@ -121,7 +143,11 @@ AttributeError: 'Dog' object has no attribute 'age'
 
 `__init__` set `name` but never `age`, so `d.age` has nothing to read and raises `AttributeError`. Attributes are not declared up front the way fields are in some languages — they spring into existence the moment they are assigned, and not a moment sooner.
 
-*Earned rule.* Set *every* attribute an instance is meant to have inside `__init__`, even ones that start empty or `None`, so the object is fully formed the instant it exists. The cost of skipping one is the error above — an `AttributeError` that fires far from `__init__`, at the unrelated line that happened to read the missing attribute first.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Set *every* attribute an instance is meant to have inside `__init__`, even ones that start empty or `None`, so the object is fully formed the instant it exists. The cost of skipping one is the error above — an `AttributeError` that fires far from `__init__`, at the unrelated line that happened to read the missing attribute first.
+
+</div>
 
 ---
 
@@ -197,7 +223,11 @@ Rex says woof
 Rex says woof
 ```
 
-*Earned rule.* Give every instance method a first parameter named `self`, and read `instance.method(args)` mentally as `Class.method(instance, args)`. The cost of dropping `self` is the `TypeError` above — and because the count is off by exactly one, the message can look baffling until you remember the instance is an invisible argument.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Give every instance method a first parameter named `self`, and read `instance.method(args)` mentally as `Class.method(instance, args)`. The cost of dropping `self` is the `TypeError` above — and because the count is off by exactly one, the message can look baffling until you remember the instance is an invisible argument.
+
+</div>
 
 ---
 
@@ -253,7 +283,11 @@ Rex
 
 You meant `d.name = "Buddy"` but typed `d.naem`. Python obliges — it cannot know `naem` is a typo, because adding attributes freely is a *feature* (it is exactly what `a.age = 3` relied on). So `d.__dict__` now carries a stray `naem`, while `d.name` is still the original `"Rex"`. No error fires; your "rename" simply did not take. (This is the same permissiveness explored in [the object model](/synapse/programming-languages/python/how-python-works/the-object-model).)
 
-*Earned rule.* Lean on open instances for legitimate per-object state, but treat attribute *assignment* as the place typos hide — when a value you "set" mysteriously fails to change behaviour, print `obj.__dict__` and look for an extra, misspelled key. The cost of Python's freedom is that no spell-checker guards attribute names; the benefit is that you never have to declare them in advance.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Lean on open instances for legitimate per-object state, but treat attribute *assignment* as the place typos hide — when a value you "set" mysteriously fails to change behaviour, print `obj.__dict__` and look for an extra, misspelled key. The cost of Python's freedom is that no spell-checker guards attribute names; the benefit is that you never have to declare them in advance.
+
+</div>
 
 ---
 
@@ -323,7 +357,11 @@ print(dogs)
 
 Printing a list calls `repr` on each element. Without `__repr__`, you get two anonymous addresses — you cannot even tell which dog is Rex. Add the `Dog({self.name!r})` repr from above and the same list prints as `[Dog('Rex'), Dog('Fido')]`, which is the difference between a debuggable program and a frustrating one.
 
-*Earned rule.* Define `__repr__` on every class you expect to inspect, log, or store in a collection, and make it unambiguous (ideally resembling the constructor call). The cost is one short method; the payoff is that error messages, debugger views, and `print` of a list all become legible instead of a wall of hex addresses.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Define `__repr__` on every class you expect to inspect, log, or store in a collection, and make it unambiguous (ideally resembling the constructor call). The cost is one short method; the payoff is that error messages, debugger views, and `print` of a list all become legible instead of a wall of hex addresses.
+
+</div>
 
 ---
 
@@ -339,15 +377,23 @@ Printing a list calls `repr` on each element. Without `__repr__`, you get two an
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Two fresh instances compare unequal under `is` →** `is` tests identity, and each call makes a distinct object; use `==`/`isinstance`, not `is`, unless you mean the *same* object.
 - **`AttributeError: 'X' object has no attribute 'y'` →** nothing assigned `y`; set every attribute in `__init__`, even to `None`.
 - **`TypeError: ... takes 0 positional arguments but 1 was given` →** the method is missing `self`; the instance is always passed as the first argument.
 - **A "rename" silently did nothing →** you assigned a misspelled attribute (`d.naem`), which created a new one; print `obj.__dict__` to spot the stray key.
 - **`print(obj)` shows `<... object at 0x...>` →** no `__repr__`; define one (e.g. `return f"Dog({self.name!r})"`) so objects display their data.
 
+</div>
+
 ---
 
-*Predict, then check.* Write a `Cat` class whose `__init__` takes a `name`, with a `meow(self)` method returning `f"{self.name} says meow"` and a `__repr__` returning `f"Cat({self.name!r})"`. Predict the exact output of `print([Cat("Tom"), Cat("Felix")])`. Then predict what `Cat("Tom") is Cat("Tom")` returns, and — without running it — predict the precise error you get if you rewrite `meow` as `def meow():` and call `c.meow()`. Three predictions that capture instances, identity, and the invisible `self`.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write a `Cat` class whose `__init__` takes a `name`, with a `meow(self)` method returning `f"{self.name} says meow"` and a `__repr__` returning `f"Cat({self.name!r})"`. Predict the exact output of `print([Cat("Tom"), Cat("Felix")])`. Then predict what `Cat("Tom") is Cat("Tom")` returns, and — without running it — predict the precise error you get if you rewrite `meow` as `def meow():` and call `c.meow()`. Three predictions that capture instances, identity, and the invisible `self`.
+
+</div>
 
 ## Your Turn
 

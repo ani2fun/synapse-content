@@ -8,9 +8,27 @@ prereqs: []
 
 So far our values have been used once and forgotten. A **variable** fixes that: it is **a name attached to a value, so you can refer to that value again later.** And every value carries a **type** — whole number, decimal, text, true/false — and **the type decides what the value can do.** Those two ideas (a name points at a value; the value has a type) are the entire content of this chapter, and they quietly underpin every program you'll ever write.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A variable is a **name attached to a value**.
+- The name lets you refer to that value again later.
+- Every value has a **type** that decides what it can do.
+
+</div>
+
 This is a gentle first pass. Much later, [The Object Model](/synapse/programming-languages/python/how-python-works/the-object-model) revisits "names point at values" with full rigour — but you won't need that depth for a long time. Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -75,7 +93,11 @@ NameError: name 'score' is not defined
 
 The `score = 10` on line 2 would have worked fine — but line 1 ran first (top to bottom, as always), and at that moment `score` didn't refer to anything yet.
 
-*Earned rule.* A name exists only **after** you assign to it, so define before you use. The cost of the rule is the flip side of [Tutorial 1's halt-on-error](/synapse/programming-languages/python/first-steps/what-is-python): a name used too early is a `NameError`, not a blank or a zero — Python refuses to guess a value you never gave.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** A name exists only **after** you assign to it, so define before you use. The cost of the rule is the flip side of [Tutorial 1's halt-on-error](/synapse/programming-languages/python/first-steps/what-is-python): a name used too early is a `NameError`, not a blank or a zero — Python refuses to guess a value you never gave.
+
+</div>
 
 ---
 
@@ -112,7 +134,11 @@ print(count)
 
 The clean `11` is the proof: `=` is assignment ("becomes"), not equality.
 
-*Earned rule.* Read `x = expr` as "**x becomes the value of expr**," always right-side-first. The benefit is that updating a value is natural (`count = count + 1`, or its shorthand `count += 1`); the cost is that `=` looks like the maths equals sign but doesn't behave like it — a confusion worth unlearning early, because the equality *question* is a different operator (`==`, in [Tutorial 6](/synapse/programming-languages/python/control-flow/booleans-and-logic)).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Read `x = expr` as "**x becomes the value of expr**," always right-side-first. The benefit is that updating a value is natural (`count = count + 1`, or its shorthand `count += 1`); the cost is that `=` looks like the maths equals sign but doesn't behave like it — a confusion worth unlearning early, because the equality *question* is a different operator (`==`, in [Tutorial 6](/synapse/programming-languages/python/control-flow/booleans-and-logic)).
+
+</div>
 
 ---
 
@@ -159,7 +185,11 @@ TypeError: can only concatenate str (not "int") to str
 
 `+` between two strings means "join them," and between two numbers means "add them" — but `str + int` has no agreed meaning, so Python refuses with a `TypeError` rather than guessing.
 
-*Earned rule.* Types are not interchangeable; an operator's meaning depends on the types it's given. The cost of mixing them is a `TypeError` — which is a *good* thing, because the alternative (a silent wrong guess) would be a far worse bug. When you genuinely need to combine a number with text, convert it deliberately (`str(age)`) or use an f-string — both are in [Tutorial 4](/synapse/programming-languages/python/first-steps/strings-the-basics) and [Tutorial 5](/synapse/programming-languages/python/first-steps/input-and-output).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Types are not interchangeable; an operator's meaning depends on the types it's given. The cost of mixing them is a `TypeError` — which is a *good* thing, because the alternative (a silent wrong guess) would be a far worse bug. When you genuinely need to combine a number with text, convert it deliberately (`str(age)`) or use an f-string — both are in [Tutorial 4](/synapse/programming-languages/python/first-steps/strings-the-basics) and [Tutorial 5](/synapse/programming-languages/python/first-steps/input-and-output).
+
+</div>
 
 ---
 
@@ -200,7 +230,11 @@ print(type(10.0))
 
 `10` is an `int`; `10.0` is a `float`. They represent the same quantity but are different types, and that difference will matter the moment you divide (next chapter, where `/` always produces a `float`).
 
-*Earned rule.* Reach for `type(x)` whenever behaviour surprises you — it's the fastest way to diagnose a `TypeError`. The boundary: `type()` tells you *what a value is*, not whether two values are *equal* — that's `==`, a separate idea you'll meet in [Tutorial 6](/synapse/programming-languages/python/control-flow/booleans-and-logic).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for `type(x)` whenever behaviour surprises you — it's the fastest way to diagnose a `TypeError`. The boundary: `type()` tells you *what a value is*, not whether two values are *equal* — that's `==`, a separate idea you'll meet in [Tutorial 6](/synapse/programming-languages/python/control-flow/booleans-and-logic).
+
+</div>
 
 ---
 
@@ -237,7 +271,11 @@ SyntaxError: invalid decimal literal
 
 Seeing `2n…`, Python tries to read a number, then hits letters and gives up — a `SyntaxError`. Note this is different from a `NameError`: nothing ran, because the code couldn't be understood in the first place.
 
-*Earned rule.* Names start with a letter or underscore, then any mix of letters, digits, and underscores; write them in `snake_case` and make them descriptive. The cost of a bad name is split: an illegal *form* is a `SyntaxError` (caught instantly), but a *legal-but-vague* name like `x2` or `data` costs you every time you re-read the code and have to remember what it meant — a slower, more expensive kind of error.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Names start with a letter or underscore, then any mix of letters, digits, and underscores; write them in `snake_case` and make them descriptive. The cost of a bad name is split: an illegal *form* is a `SyntaxError` (caught instantly), but a *legal-but-vague* name like `x2` or `data` costs you every time you re-read the code and have to remember what it meant — a slower, more expensive kind of error.
+
+</div>
 
 ---
 
@@ -254,15 +292,23 @@ Seeing `2n…`, Python tries to read a number, then hits letters and gives up �
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`NameError: name 'X' is not defined` →** you used `X` before assigning it (or misspelled it); assign it on an earlier line.
 - **`TypeError: can only concatenate str (not "int") to str` →** you joined text and a number with `+`; convert with `str(n)` or use an f-string (Tutorials 4–5).
 - **`SyntaxError: invalid decimal literal` →** a name starts with a digit; rename it to start with a letter or underscore.
 - **A value behaves unexpectedly →** check `type(x)`; `10` (int) and `10.0` (float) are different even though they look alike.
 - **Reused a confusing one-letter name →** legal but costly; rename to a descriptive `snake_case` name.
 
+</div>
+
 ---
 
-*Predict, then check.* Without running it, decide what each line of this program does — and which one fails: `temperature = 20`; then `temperature = temperature + 5`; then `print("Temp: " + temperature)`. Which line errors, what's the error's name, and how would you fix it so it prints `Temp: 25`? Then write it as a runnable block and confirm. (Hint: two different tools from this chapter can fix the last line — `str()` or, after the next two chapters, an f-string.)
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Without running it, decide what each line of this program does — and which one fails: `temperature = 20`; then `temperature = temperature + 5`; then `print("Temp: " + temperature)`. Which line errors, what's the error's name, and how would you fix it so it prints `Temp: 25`? Then write it as a runnable block and confirm. (Hint: two different tools from this chapter can fix the last line — `str()` or, after the next two chapters, an f-string.)
+
+</div>
 
 ## Your Turn
 

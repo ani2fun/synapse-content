@@ -8,9 +8,27 @@ prereqs: []
 
 A loop is how you tell the computer to **repeat work** without writing it out N times. Python has two, and the thesis is to pick by what you're repeating *for*: **`while` repeats as long as a condition stays true; `for` repeats once per item in a sequence.** Most "do this to each thing" jobs are `for` loops; `while` is for "keep going until something changes." Both run an indented block, exactly like the conditionals in [the last chapter](/synapse/programming-languages/python/control-flow/conditionals).
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A loop **repeats work** without copy-paste.
+- `while` repeats as long as a condition stays true.
+- `for` repeats once per item in a sequence.
+
+</div>
+
 Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -83,7 +101,11 @@ while count < 3:        # < instead of <= stops one short
 
 We wanted 1, 2, 3 but got 1, 2: with `<` instead of `<=`, the loop exits as soon as `count` is `3`, one iteration short.
 
-*Earned rule.* Guarantee progress toward the exit (update the loop variable) and check the **boundary** condition carefully — `<` vs `<=` is a whole iteration. The cost of getting it wrong is a hang (infinite loop — forgetting `count = count + 1` here would print `1` forever) or a quiet off-by-one. If a `while` ever hangs, the body isn't changing what the condition tests.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Guarantee progress toward the exit (update the loop variable) and check the **boundary** condition carefully — `<` vs `<=` is a whole iteration. The cost of getting it wrong is a hang (infinite loop — forgetting `count = count + 1` here would print `1` forever) or a quiet off-by-one. If a `while` ever hangs, the body isn't changing what the condition tests.
+
+</div>
 
 ---
 
@@ -124,7 +146,11 @@ for i in range(3):
 
 `range(3)` is `0, 1, 2` — three values, but they're `0`-based, so the largest is `2`. It does **not** include `3`, and it does **not** start at `1`.
 
-*Earned rule.* `range(n)` gives `n` values, `0` to `n − 1`. To count `1` to `n`, use `range(1, n + 1)` (next section). The cost of zero-based, stop-exclusive ranges is the constant temptation to off-by-one — but it's the same rule as string indexing ([Tutorial 4](/synapse/programming-languages/python/first-steps/strings-the-basics)) and slicing, so it pays to internalise once.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** `range(n)` gives `n` values, `0` to `n − 1`. To count `1` to `n`, use `range(1, n + 1)` (next section). The cost of zero-based, stop-exclusive ranges is the constant temptation to off-by-one — but it's the same rule as string indexing ([Tutorial 4](/synapse/programming-languages/python/first-steps/strings-the-basics)) and slicing, so it pays to internalise once.
+
+</div>
 
 ---
 
@@ -166,7 +192,11 @@ TypeError: string indices must be integers, not 'str'
 
 `i` is `"c"`, `"a"`, `"t"` — *characters* — so `"cat"[i]` tries to index with a string and raises `TypeError`. The loop already gave you the character; there's nothing to index.
 
-*Earned rule.* Loop directly over items (`for letter in word`) and use the item. The cost/boundary: when you genuinely need the position too, ask for both with `enumerate` — `for i, letter in enumerate(word)` gives index *and* character — rather than looping over indices and re-indexing.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Loop directly over items (`for letter in word`) and use the item. The cost/boundary: when you genuinely need the position too, ask for both with `enumerate` — `for i, letter in enumerate(word)` gives index *and* character — rather than looping over indices and re-indexing.
+
+</div>
 
 ---
 
@@ -209,7 +239,11 @@ liftoff
 
 `range(3, 0, -1)` counts `3, 2, 1` — it stops *before* `0`, so `0` isn't printed. To count down to and include `0`, you'd write `range(3, -1, -1)`.
 
-*Earned rule.* Read `range(a, b, s)` as "from `a`, step `s`, stop before `b`." The cost is that the exclusive `stop` flips meaning with a negative step (it's now a lower bound you stop before), so countdowns need a `stop` one past where you want to end.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Read `range(a, b, s)` as "from `a`, step `s`, stop before `b`." The cost is that the exclusive `stop` flips meaning with a negative step (it's now a lower bound you stop before), so countdowns need a `stop` one past where you want to end.
+
+</div>
 
 ---
 
@@ -240,7 +274,11 @@ for row in range(2):
 
 *Concrete bite.* That multiplication is easy to underestimate — the output above is six lines from loops of "2" and "3," not five. With larger ranges it compounds fast: two nested `range(1000)` loops run the body **a million** times. A triple nest of 1000 is a *billion*.
 
-*Earned rule.* Reach for nested loops to cover every combination (grids, pairs), but watch the multiplied cost — it's the difference between instant and frozen. The boundary: when nesting gets deep or slow, that's the signal to look for a better data structure or algorithm, a theme [Performance](/synapse/programming-languages/python/advanced/performance-and-profiling) returns to in Tier 5.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for nested loops to cover every combination (grids, pairs), but watch the multiplied cost — it's the difference between instant and frozen. The boundary: when nesting gets deep or slow, that's the signal to look for a better data structure or algorithm, a theme [Performance](/synapse/programming-languages/python/advanced/performance-and-profiling) returns to in Tier 5.
+
+</div>
 
 ---
 
@@ -257,15 +295,23 @@ for row in range(2):
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Loop never ends (hang) →** the `while` body doesn't change what the condition tests; ensure progress toward false.
 - **Loop runs one too few/many times →** off-by-one; check `<` vs `<=`, and that `range` stop is exclusive.
 - **`range(n)` didn't include `n` / started at 0 →** by design; use `range(1, n+1)` for `1..n`.
 - **`TypeError: string indices must be integers` →** the `for` variable is the item (a character), not an index; use it directly or `enumerate`.
 - **Nested loop is unexpectedly slow →** iterations multiply; reconsider the structure for large sizes.
 
+</div>
+
 ---
 
-*Predict, then check.* Without running it, write down everything this prints: `for i in range(1, 4):` with a nested `for j in range(1, 4):` whose body is `print(i, "x", j, "=", i * j)`. How many lines? Then change the outer to `range(1, 10)` and (don't run) estimate how many lines a full times-table would be. Build the 1–3 version and confirm your line-by-line prediction.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Without running it, write down everything this prints: `for i in range(1, 4):` with a nested `for j in range(1, 4):` whose body is `print(i, "x", j, "=", i * j)`. How many lines? Then change the outer to `range(1, 10)` and (don't run) estimate how many lines a full times-table would be. Build the 1–3 version and confirm your line-by-line prediction.
+
+</div>
 
 ## Your Turn
 

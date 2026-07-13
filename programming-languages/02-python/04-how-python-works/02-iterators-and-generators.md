@@ -8,9 +8,28 @@ prereqs: []
 
 Every `for` loop you've written ([Tutorial 8](/synapse/programming-languages/python/control-flow/loops)) and every comprehension and generator expression ([Tutorial 14](/synapse/programming-languages/python/working-with-data/comprehensions)) rests on one small protocol. The thesis: **`for` is syntactic sugar — under it, `iter()` produces an *iterator*, `next()` pulls one item at a time, and a `StopIteration` signal ends the loop** — and `yield` is the easy way to write your own iterators that produce values *lazily*, one at a time, without ever building a list.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- `for` is **syntactic sugar** over a small protocol.
+- `iter()` makes an iterator; `next()` pulls one item at a time.
+- `StopIteration` ends the loop.
+- `yield` writes your own iterators that produce values **lazily**.
+
+</div>
+
 This is the deep pass of [loops](/synapse/programming-languages/python/control-flow/loops) and [generator expressions](/synapse/programming-languages/python/working-with-data/comprehensions). Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -81,7 +100,11 @@ StopIteration
 
 The first `next` returns `1`; the second finds the iterator empty and raises `StopIteration`. Inside a `for` loop you never see this — the loop catches it and stops — but by hand it's a real, uncaught exception.
 
-*Earned rule.* Think of `for x in obj` as "get an iterator from `obj`, pull with `next` until `StopIteration`." This is why anything implementing the protocol — lists, strings, dicts, files, generators — works in a `for` loop with no special-casing. The cost of the abstraction is that calling `next` manually means handling `StopIteration` yourself (or passing a default: `next(it, None)`).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Think of `for x in obj` as "get an iterator from `obj`, pull with `next` until `StopIteration`." This is why anything implementing the protocol — lists, strings, dicts, files, generators — works in a `for` loop with no special-casing. The cost of the abstraction is that calling `next` manually means handling `StopIteration` yourself (or passing a default: `next(it, None)`).
+
+</div>
 
 ---
 
@@ -126,7 +149,11 @@ False
 
 `iter(it) is it` is `True` — an iterator handed back itself. `iter(nums) is nums` is `False` — a list handed back a *separate* iterator object. That's why a list survives repeated looping and a raw iterator doesn't.
 
-*Earned rule.* Store **iterables** (lists, ranges) when you need to loop more than once; treat **iterators** (and generators, §3) as single-use streams. The cost of confusing them is the silent `[]` (or a loop body that never runs) on the second pass — when a second iteration mysteriously does nothing, you're re-using a spent iterator.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Store **iterables** (lists, ranges) when you need to loop more than once; treat **iterators** (and generators, §3) as single-use streams. The cost of confusing them is the silent `[]` (or a loop body that never runs) on the second pass — when a second iteration mysteriously does nothing, you're re-using a spent iterator.
+
+</div>
 
 ---
 
@@ -177,7 +204,11 @@ running the body
 
 `gen()` printed nothing — it just built the generator. Only `next(g)` ran the body (`running the body`) up to the `yield`. The "created" line printing *before* "running the body" proves the laziness.
 
-*Earned rule.* Use a generator (`yield`) whenever you'd otherwise build a list just to loop over it once — it's lazy, memory-light, and reads like ordinary code. The cost is that it's an iterator: single-use, no `len()`, no indexing. When you need those, collect it with `list(...)`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a generator (`yield`) whenever you'd otherwise build a list just to loop over it once — it's lazy, memory-light, and reads like ordinary code. The cost is that it's an iterator: single-use, no `len()`, no indexing. When you need those, collect it with `list(...)`.
+
+</div>
 
 ---
 
@@ -224,7 +255,11 @@ print(sys.getsizeof(gen), 'bytes (generator)')
 
 The list holds 100,000 integers — ~800 KB. The generator holds ~192 bytes regardless of how many values it will eventually produce, because it stores its *recipe*, not its *results*.
 
-*Earned rule.* Reach for generators for large or unbounded streams and for "compute as you go" pipelines — constant memory, no upfront cost. The cost/boundary is real: an infinite generator must always be bounded by the consumer (`islice`, `takewhile`, a `break`), or it hangs forever. Never call `list()`, `sum()`, or `sorted()` on an unbounded generator.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for generators for large or unbounded streams and for "compute as you go" pipelines — constant memory, no upfront cost. The cost/boundary is real: an infinite generator must always be bounded by the consumer (`islice`, `takewhile`, a `break`), or it hangs forever. Never call `list()`, `sum()`, or `sorted()` on an unbounded generator.
+
+</div>
 
 ---
 
@@ -260,7 +295,11 @@ squaring 2
 
 *Concrete bite.* The interleaved output is the proof: `squaring 1` appears *between* the two `print(next(...))` calls, not all at once up front. If `squares` eagerly built a list, you'd see `squaring 1`, `squaring 2`, `squaring 3` immediately at construction — instead you see each only when pulled. Demand drives computation.
 
-*Earned rule.* Chain generators to process streams (read → filter → transform → consume) with flat memory and early termination — the consumer can stop after one item and upstream stages never run for the rest. The cost is the usual iterator caveats (single-use, no random access) plus harder debugging: because nothing runs until consumed, a bug in an early stage only surfaces when the end pulls. ([The Data Model](/synapse/programming-languages/python/advanced/the-data-model) shows how this protocol unifies with the rest of Python.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Chain generators to process streams (read → filter → transform → consume) with flat memory and early termination — the consumer can stop after one item and upstream stages never run for the rest. The cost is the usual iterator caveats (single-use, no random access) plus harder debugging: because nothing runs until consumed, a bug in an early stage only surfaces when the end pulls. ([The Data Model](/synapse/programming-languages/python/advanced/the-data-model) shows how this protocol unifies with the rest of Python.)
+
+</div>
 
 ---
 
@@ -277,15 +316,23 @@ squaring 2
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`StopIteration` from a manual `next()` →** the iterator is exhausted; use `next(it, default)` or a `for` loop, which handles it.
 - **Second loop over it does nothing / returns `[]` →** you re-used a spent iterator/generator; rebuild it, or keep the iterable instead.
 - **A generator function "didn't run" →** calling it only builds the generator; iterate (or `next`) it to run the body.
 - **`list()`/`sum()` on an infinite generator hangs →** bound it with `itertools.islice`/`takewhile` or a `break`.
 - **`len(gen)` / `gen[0]` fails →** generators have no length or indexing; collect with `list(gen)` first if you need them.
 
+</div>
+
 ---
 
-*Predict, then check.* Write `def evens():` that yields `0, 2, 4, …` forever. Predict what `list(itertools.islice(evens(), 4))` produces, and what `list(evens())` would do (don't run the second). Then build a tracing generator like §5's `squares` and predict the exact interleaving of `"pipeline built"` and the per-item prints for two `next()` calls. The interleaving is the whole point — when you can predict it, you understand laziness.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write `def evens():` that yields `0, 2, 4, …` forever. Predict what `list(itertools.islice(evens(), 4))` produces, and what `list(evens())` would do (don't run the second). Then build a tracing generator like §5's `squares` and predict the exact interleaving of `"pipeline built"` and the per-item prints for two `next()` calls. The interleaving is the whole point — when you can predict it, you understand laziness.
+
+</div>
 
 ## Your Turn
 

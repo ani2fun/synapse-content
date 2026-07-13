@@ -8,9 +8,27 @@ prereqs: []
 
 Making code fast is mostly about *not optimising the wrong thing*. The thesis: **measure before you optimise, because intuition about what's slow is usually wrong — and when something genuinely is slow, the cause is almost always algorithmic complexity, not the micro-details people fixate on.** This chapter gives you the measuring tools (`timeit`, `cProfile`), shows why a better data structure beats a hundred micro-tweaks, and covers `__slots__` for memory.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- **Measure before you optimise** — intuition about what's slow is usually wrong.
+- When something genuinely is slow, the cause is almost always **algorithmic complexity**.
+- Not the micro-details people fixate on.
+
+</div>
+
 This draws on [complexity](/synapse/programming-languages/python/working-with-data/sequences) and [sets](/synapse/programming-languages/python/working-with-data/dictionaries-and-sets). Every output below was produced by running the code; timing figures are marked illustrative because they vary run to run, but the *relationships* between them are the point.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -48,7 +66,11 @@ print(f"10000 runs took {t:.4f}s")
 
 *Concrete bite.* The classic misread is treating the result as per-call. The `0.0058s` above is for **10,000** runs — per call it's `0.0058 / 10000 ≈ 0.6 microseconds`. Report a snippet as "0.0058 seconds" without dividing and you'll overstate it by 10,000×. Always divide by `number` for a per-call figure.
 
-*Earned rule.* Use `timeit` for small, fast snippets (with a large `number`), and divide by `number` for per-call time; for whole programs use a profiler (§4) instead. The cost/boundary: microbenchmarks are notoriously misleading out of context — a snippet's speed in isolation rarely reflects its impact in the real program, which is why profiling the actual workload (§4) matters more than benchmarking fragments.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `timeit` for small, fast snippets (with a large `number`), and divide by `number` for per-call time; for whole programs use a profiler (§4) instead. The cost/boundary: microbenchmarks are notoriously misleading out of context — a snippet's speed in isolation rarely reflects its impact in the real program, which is why profiling the actual workload (§4) matters more than benchmarking fragments.
+
+</div>
 
 ---
 
@@ -77,7 +99,11 @@ list: 0.4454s   set: 0.000031s   ratio: 14377x
 
 *Concrete bite.* The numbers are the bite: **14,000×** from one data-structure change. Programmers routinely spend hours shaving constant factors (a faster loop, a `+=` tweak — [Tutorial 15](/synapse/programming-languages/python/working-with-data/strings-in-depth)) while an `O(n²)` algorithm hides in plain sight. The hours-long micro-optimisation is dwarfed by a one-line `list` → `set`.
 
-*Earned rule.* Before optimising anything, ask "what's the complexity?" — fix `O(n²)`/`O(n)` hot paths (right data structure, right algorithm) before touching constants. The cost of the wrong structure is unbounded as data grows; the cost of fixing it is usually a one-line change to the right container. Micro-optimisation is the *last* resort, not the first.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Before optimising anything, ask "what's the complexity?" — fix `O(n²)`/`O(n)` hot paths (right data structure, right algorithm) before touching constants. The cost of the wrong structure is unbounded as data grows; the cost of fixing it is usually a one-line change to the right container. Micro-optimisation is the *last* resort, not the first.
+
+</div>
 
 ---
 
@@ -138,7 +164,11 @@ AttributeError: 'Point' object has no attribute 'z' and no __dict__ for setting 
 
 `p.z = 3` raises because there's no `__dict__` to hold an undeclared attribute. That rigidity is exactly what saves the memory — but it also means no dynamic attributes, and it interacts awkwardly with multiple inheritance.
 
-*Earned rule.* Reach for `__slots__` when you have *many* instances of a small class and memory matters (data points, graph nodes, ORM rows); skip it otherwise — the flexibility of `__dict__` is worth more than bytes for ordinary objects. The cost is rigidity (no new attributes, `__slots__` must be coordinated across a class hierarchy), so it's a targeted optimisation, not a default. (Measure first — `sys.getsizeof` and a memory profiler tell you if it's worth it.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for `__slots__` when you have *many* instances of a small class and memory matters (data points, graph nodes, ORM rows); skip it otherwise — the flexibility of `__dict__` is worth more than bytes for ordinary objects. The cost is rigidity (no new attributes, `__slots__` must be coordinated across a class hierarchy), so it's a targeted optimisation, not a default. (Measure first — `sys.getsizeof` and a memory profiler tell you if it's worth it.)
+
+</div>
 
 ---
 
@@ -182,7 +212,11 @@ cProfile.run("main()")
 
 *Concrete bite.* The bite is what the profile reveals vs. what you'd assume: people optimise the function they *think* is slow, but the profiler often fingers a different one — here, a tiny `<genexpr>` called a million times dominates, not the visually "big" `main`. Optimising anything *not* near the top of the `tottime` list is wasted effort, because it's not where the time is.
 
-*Earned rule.* Profile the real workload with `cProfile` (or `python -m cProfile script.py`) and optimise the top `tottime` entries first; ignore everything below them. The cost is profiling overhead (so profile representative inputs, not toy ones) — but it's the only way to know where time actually goes, which is the whole game.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Profile the real workload with `cProfile` (or `python -m cProfile script.py`) and optimise the top `tottime` entries first; ignore everything below them. The cost is profiling overhead (so profile representative inputs, not toy ones) — but it's the only way to know where time actually goes, which is the whole game.
+
+</div>
 
 ---
 
@@ -210,7 +244,11 @@ loop: 0.0264s   genexpr-sum: 0.0318s
 
 *Concrete bite.* The output is the bite: the supposedly-slower explicit loop beat the idiomatic `sum(genexpr)`. Anyone who "optimised" by blindly converting the loop to a comprehension here would have made it *slower* — and felt clever doing it. Folklore ("comprehensions are always faster," "`+=` is always quadratic" — [Tutorial 15](/synapse/programming-languages/python/working-with-data/strings-in-depth)) is how you optimise in the wrong direction.
 
-*Earned rule.* Write for **clarity first**, then measure if it's actually too slow, then optimise the measured hotspot — in that order. The cost of premature optimisation is real: complex, "fast" code that's harder to read and often no faster (or slower). "Measure, don't guess" is the whole chapter; the profiler and `timeit` are how you obey it.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Write for **clarity first**, then measure if it's actually too slow, then optimise the measured hotspot — in that order. The cost of premature optimisation is real: complex, "fast" code that's harder to read and often no faster (or slower). "Measure, don't guess" is the whole chapter; the profiler and `timeit` are how you obey it.
+
+</div>
 
 ---
 
@@ -226,15 +264,23 @@ loop: 0.0264s   genexpr-sum: 0.0318s
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Reported a snippet as too slow →** `timeit` returns total for `number` runs; divide for per-call.
 - **Optimised for hours with little gain →** you tuned constants; find and fix the `O(n²)`/`O(n)` hotspot instead.
 - **`AttributeError: ... no __dict__` →** the class has `__slots__`; declare the attribute in `__slots__` or drop it.
 - **Optimised the wrong function →** profile with `cProfile` and target the highest `tottime`.
 - **"Pythonic = faster" assumption →** not always; measure two approaches before rewriting, and prefer clarity.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the ratio between `x in a_list` and `x in a_set` for 1,000,000 elements (bigger or smaller than the 100k case?). Then predict whether `sum(i*i for i in range(N))` beats a plain loop at `N = 1_000_000` (does the ranking hold at larger sizes?). Build both with `timeit` and check — the goal is to *stop predicting and start measuring*, which is the entire discipline of performance work.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the ratio between `x in a_list` and `x in a_set` for 1,000,000 elements (bigger or smaller than the 100k case?). Then predict whether `sum(i*i for i in range(N))` beats a plain loop at `N = 1_000_000` (does the ranking hold at larger sizes?). Build both with `timeit` and check — the goal is to *stop predicting and start measuring*, which is the entire discipline of performance work.
+
+</div>
 
 ## Your Turn
 

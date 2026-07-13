@@ -8,9 +8,28 @@ prereqs: []
 
 Python's slogan is "batteries included," and the batteries that pay off most for everyday code live in three modules. The thesis: **`collections`, `itertools`, and `functools` give you specialised containers and composable building blocks that replace whole patterns of hand-written code** — often turning a ten-line loop into a one-liner that's faster and clearer. Knowing they exist is half the battle; this chapter is a tour of the highest-leverage tools and the one gotcha each carries.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- `collections`, `itertools`, and `functools` are the highest-leverage batteries.
+- They give **specialised containers** and composable building blocks.
+- They replace whole patterns of hand-written code.
+- Each carries **one gotcha** worth knowing.
+
+</div>
+
 This builds on [dicts & sets](/synapse/programming-languages/python/working-with-data/dictionaries-and-sets), [iterators](/synapse/programming-languages/python/how-python-works/iterators-and-generators), and [decorators](/synapse/programming-languages/python/how-python-works/functions-in-depth). Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -65,7 +84,11 @@ print(c["z"])   # a missing key is 0, not a KeyError
 
 `c["z"]` is `0` — convenient, and (unlike `defaultdict`) it doesn't add `"z"` to the counter. The trap is the reverse: `some_defaultdict[missing]` silently grows the dict, so checking membership with `[]` on a defaultdict pollutes it.
 
-*Earned rule.* Reach for `Counter` to tally and rank (`most_common`), and `defaultdict(list/int/set)` to group or accumulate without pre-initialising keys. The cost is the defaultdict surprise — *reading* a missing key inserts it — so use `key in d` (not `d[key]`) to test membership on a defaultdict.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for `Counter` to tally and rank (`most_common`), and `defaultdict(list/int/set)` to group or accumulate without pre-initialising keys. The cost is the defaultdict surprise — *reading* a missing key inserts it — so use `key in d` (not `d[key]`) to test membership on a defaultdict.
+
+</div>
 
 ---
 
@@ -111,7 +134,11 @@ deque([3, 4], maxlen=2)
 
 Creating it with `maxlen=2` immediately discarded the oldest (`1` → `deque([2, 3])`), and each `append` drops another from the left (`deque([3, 4])`). Perfect for "last N items," but if you didn't expect the dropping, data vanishes silently.
 
-*Earned rule.* Use `deque` for FIFO queues and both-ends work (`appendleft`/`popleft`), and `maxlen` for a fixed-size rolling buffer. The cost is O(n) indexing — if you need fast random access by position, keep a list; if you need a fast front, keep a deque.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `deque` for FIFO queues and both-ends work (`appendleft`/`popleft`), and `maxlen` for a fixed-size rolling buffer. The cost is O(n) indexing — if you need fast random access by position, keep a list; if you need a fast front, keep a deque.
+
+</div>
 
 ---
 
@@ -155,7 +182,11 @@ a 1
 
 The string `"aabba"` has three `a`s total, but `groupby` reports **two** `a`-groups (`a 2` and a later `a 1`) because the `a`s aren't all adjacent — the `bb` splits them. To group globally, **sort first** (`groupby(sorted(data))`).
 
-*Earned rule.* Compose `itertools` for lazy pipelines — `chain`/`islice`/`combinations`/`product`/`groupby` cover a huge range of loop-shaped problems. The cost/boundary: `groupby` only groups consecutive runs (sort first for global grouping), and the results are single-use iterators — wrap in `list()` if you need them twice.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Compose `itertools` for lazy pipelines — `chain`/`islice`/`combinations`/`product`/`groupby` cover a huge range of loop-shaped problems. The cost/boundary: `groupby` only groups consecutive runs (sort first for global grouping), and the results are single-use iterators — wrap in `list()` if you need them twice.
+
+</div>
 
 ---
 
@@ -206,7 +237,11 @@ TypeError: reduce() of empty iterable with no initial value
 
 With no items and no seed, there's no value to produce — `TypeError`. Always pass an initial value (`reduce(f, seq, 0)`) when the sequence might be empty.
 
-*Earned rule.* Use `lru_cache` to memoise pure functions with hashable arguments (huge wins on recursion), `partial` to specialise functions, and `reduce` *sparingly* — a plain loop or `sum`/`math.prod` is often clearer. The cost: `lru_cache` keeps results forever (memory) and needs hashable args; `reduce` with no initial value crashes on empty input.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `lru_cache` to memoise pure functions with hashable arguments (huge wins on recursion), `partial` to specialise functions, and `reduce` *sparingly* — a plain loop or `sum`/`math.prod` is often clearer. The cost: `lru_cache` keeps results forever (memory) and needs hashable args; `reduce` with no initial value crashes on empty input.
+
+</div>
 
 ---
 
@@ -256,7 +291,11 @@ AttributeError: can't set attribute
 
 `p.x = 2` raises `AttributeError` — a namedtuple is read-only, like the tuple it is. To "change" one, build a new instance (`p._replace(x=2)`).
 
-*Earned rule.* Use `namedtuple` for small immutable records where you want name access and tuple behaviour with zero boilerplate; reach for a `@dataclass` ([Tutorial 27](/synapse/programming-languages/python/object-oriented/advanced-oop)) when you need mutability, methods, or defaults. The cost is immutability (a feature for hashability/safety, a constraint when you need to mutate — use `_replace`).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `namedtuple` for small immutable records where you want name access and tuple behaviour with zero boilerplate; reach for a `@dataclass` ([Tutorial 27](/synapse/programming-languages/python/object-oriented/advanced-oop)) when you need mutability, methods, or defaults. The cost is immutability (a feature for hashability/safety, a constraint when you need to mutate — use `_replace`).
+
+</div>
 
 ---
 
@@ -272,6 +311,8 @@ AttributeError: can't set attribute
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A `defaultdict` grew keys I only read →** reading a missing key inserts it; test with `key in d`, not `d[key]`.
 - **`deque` indexing felt slow →** it's O(n); use a list for random access, a deque for the ends.
 - **`maxlen` deque lost data →** by design it drops the far end on overflow.
@@ -279,9 +320,15 @@ AttributeError: can't set attribute
 - **`reduce()` of empty iterable →** pass an initial value: `reduce(f, seq, start)`.
 - **`AttributeError: can't set attribute` on a namedtuple →** it's immutable; use `p._replace(field=value)`.
 
+</div>
+
 ---
 
-*Predict, then check.* Use `Counter` on `"mississippi"` and predict `.most_common(2)`. Then predict the output of `itertools.groupby("aaabbbaaa")` (how many groups, and why?) versus `groupby(sorted("aaabbbaaa"))`. Finally, memoise a recursive `factorial` with `@lru_cache` and predict `cache_info()` after calling `factorial(5)` once. The `groupby` one is the trap that catches everyone.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Use `Counter` on `"mississippi"` and predict `.most_common(2)`. Then predict the output of `itertools.groupby("aaabbbaaa")` (how many groups, and why?) versus `groupby(sorted("aaabbbaaa"))`. Finally, memoise a recursive `factorial` with `@lru_cache` and predict `cache_info()` after calling `factorial(5)` once. The `groupby` one is the trap that catches everyone.
+
+</div>
 
 ## Your Turn
 

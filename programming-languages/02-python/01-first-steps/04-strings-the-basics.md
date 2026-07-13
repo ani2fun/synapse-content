@@ -8,9 +8,27 @@ prereqs: []
 
 Text in Python is a **string** (`str`), and the one idea that explains almost all of its behaviour is this: **a string is a fixed sequence of characters, and every operation that "changes" a string actually builds and returns a new one — the original is never modified.** Concatenation, the methods, slicing — all of them produce fresh strings. Hold that idea and the chapter's central trap (calling a method and seeing "nothing happen") becomes obvious.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A string is a **fixed sequence of characters**.
+- Every operation that "changes" it builds and returns a **new** string.
+- The original is **never modified**.
+
+</div>
+
 This is the gentle pass; [Strings in Depth](/synapse/programming-languages/python/working-with-data/strings-in-depth) returns later for the format mini-language and text algorithms, and [The Object Model](/synapse/programming-languages/python/how-python-works/the-object-model) explains *why* strings can't be changed in place. Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -68,7 +86,11 @@ SyntaxError: unterminated string literal (detected at line 1)
 
 Python read `'it'` as the whole string, then found `s broken'` — junk it can't parse — and reported an *unterminated* string. The apostrophe closed the string prematurely.
 
-*Earned rule.* Choose the quote style that *isn't* in your text (use `"..."` for text with apostrophes), or escape the clashing quote with a backslash. The cost of getting it wrong is a `SyntaxError` at parse time — the program won't even start — but it's an easy fix once you recognise the "unterminated string literal" message.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Choose the quote style that *isn't* in your text (use `"..."` for text with apostrophes), or escape the clashing quote with a backslash. The cost of getting it wrong is a `SyntaxError` at parse time — the program won't even start — but it's an easy fix once you recognise the "unterminated string literal" message.
+
+</div>
 
 ---
 
@@ -111,7 +133,11 @@ TypeError: can't multiply sequence by non-int of type 'float'
 
 `2.0` is a `float`, and there's no such thing as repeating text a fractional number of times, so Python refuses. (The same strictness is why `"Age: " + 25` failed back in Tutorial 2 — `+` won't mix a string with a number.)
 
-*Earned rule.* Use `+` to join strings (both operands must be strings) and `* n` to repeat one (`n` must be an `int`). The cost of `+`'s strictness is that you can't drop a number straight into text with it — which is precisely the problem f-strings solve, next.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `+` to join strings (both operands must be strings) and `* n` to repeat one (`n` must be an `int`). The cost of `+`'s strictness is that you can't drop a number straight into text with it — which is precisely the problem f-strings solve, next.
+
+</div>
 
 ---
 
@@ -151,7 +177,11 @@ Ada is here
 
 The first line had no `f`, so Python printed the characters `{name}` verbatim. The second, with `f`, substituted the value. Nothing crashed — you just get the wrong text.
 
-*Earned rule.* Prefix with `f` whenever you want values inside a string, and let it handle the type conversion `+` won't. The cost is the quietest kind of bug: a missing `f` produces no error, only literal `{...}` in your output — so when you see braces in your text, suspect a forgotten `f` first.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Prefix with `f` whenever you want values inside a string, and let it handle the type conversion `+` won't. The cost is the quietest kind of bug: a missing `f` produces no error, only literal `{...}` in your output — so when you see braces in your text, suspect a forgotten `f` first.
+
+</div>
 
 ---
 
@@ -198,7 +228,11 @@ HELLO
 
 The first `s.upper()` *did* produce `"HELLO"` — but we didn't store it, so it vanished, and `s` was still `"hello"`. Only when we wrote `s = s.upper()`, capturing the returned string, did `s` change.
 
-*Earned rule.* Treat string methods as "give me a new string" and **assign the result** (`s = s.strip()`); a bare `s.strip()` is almost always a bug. The cost of immutability is this extra assignment, but the payoff is large and comes later: because a string can never change under you, it's safe to share freely and to use as a dictionary key ([Tutorial 13](/synapse/programming-languages/python/working-with-data/dictionaries-and-sets)).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Treat string methods as "give me a new string" and **assign the result** (`s = s.strip()`); a bare `s.strip()` is almost always a bug. The cost of immutability is this extra assignment, but the payoff is large and comes later: because a string can never change under you, it's safe to share freely and to use as a dictionary key ([Tutorial 13](/synapse/programming-languages/python/working-with-data/dictionaries-and-sets)).
+
+</div>
 
 ---
 
@@ -243,7 +277,11 @@ IndexError: string index out of range
 
 `"Python"` has 6 characters at indices `0`–`5`; index `6` would be the seventh, which doesn't exist, so Python raises `IndexError`. Because counting starts at 0, "the length" is always one past the last valid index.
 
-*Earned rule.* The first index is `0` and the last is `len(s) - 1`; use negative indices to reach the end without computing the length. The cost of zero-based counting is the perennial off-by-one error at the boundary — when an `IndexError` fires, check whether you used the length where you meant length-minus-one. (Pulling out a whole *range* of characters — slicing — comes in [Sequences](/synapse/programming-languages/python/working-with-data/sequences).)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** The first index is `0` and the last is `len(s) - 1`; use negative indices to reach the end without computing the length. The cost of zero-based counting is the perennial off-by-one error at the boundary — when an `IndexError` fires, check whether you used the length where you meant length-minus-one. (Pulling out a whole *range* of characters — slicing — comes in [Sequences](/synapse/programming-languages/python/working-with-data/sequences).)
+
+</div>
 
 ---
 
@@ -259,15 +297,23 @@ IndexError: string index out of range
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`SyntaxError: unterminated string literal` →** a quote inside the string matched the opening quote early; switch quote styles or escape with `\`.
 - **`TypeError: can't multiply sequence by non-int` →** you repeated a string by a `float`; the count must be an `int`.
 - **Your output literally shows `{name}` →** you forgot the `f` before the opening quote.
 - **A method "did nothing" →** you discarded its result; assign it back, e.g. `s = s.replace(a, b)`.
 - **`IndexError: string index out of range` →** you indexed at `len(s)` or beyond; the last valid index is `len(s) - 1`.
 
+</div>
+
 ---
 
-*Predict, then check.* Start with `name = "ada lovelace"`. Without running it, predict the output of each line, then build a runnable block to confirm: `print(name.upper())`, then `print(name)` again (did `name` change?), then `print(name[0])`, then `print(name[-1])`, and finally `print(f"{name} has {len(name)} characters")`. The one that catches most people is the second line — and knowing *why* `name` is unchanged is the whole point of this chapter.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Start with `name = "ada lovelace"`. Without running it, predict the output of each line, then build a runnable block to confirm: `print(name.upper())`, then `print(name)` again (did `name` change?), then `print(name[0])`, then `print(name[-1])`, and finally `print(f"{name} has {len(name)} characters")`. The one that catches most people is the second line — and knowing *why* `name` is unchanged is the whole point of this chapter.
+
+</div>
 
 ## Your Turn
 

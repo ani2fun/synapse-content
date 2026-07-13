@@ -8,9 +8,27 @@ prereqs: []
 
 This is the deep pass of [Strings, the Basics](/synapse/programming-languages/python/first-steps/strings-the-basics). The thesis: **almost all real text work is a small, composable toolkit** — the format mini-language, the `split`/`join` pair, a few search-and-edit methods, and slicing — and once you have those, the only remaining question is how to *accumulate* text efficiently. That last question has a famous answer ("never `+=` in a loop, it's quadratic") that turns out to be more interesting than the slogan suggests.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Almost all real text work is a **small, composable toolkit**.
+- The toolkit: the format mini-language, `split`/`join`, a few search-and-edit methods, and slicing.
+- The one remaining question is how to **accumulate** text efficiently.
+
+</div>
+
 Every output below was produced by running the code — including the performance measurements, which are marked illustrative because exact timings vary.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -72,7 +90,11 @@ ValueError: Unknown format code 'f' for object of type 'str'
 
 `.2f` asks for fixed-point formatting, which a string can't provide, so Python raises `ValueError`. (Strings accept alignment/width specs like `:>10`, just not numeric ones.)
 
-*Earned rule.* Memorize the high-value specs — `.2f` (money/measurements), `,` (readable big numbers), `>`/`<`/`^` with a width (aligned columns), `.1%` (rates). The cost of a type/spec mismatch is a `ValueError` at format time — so keep numeric specs for numbers and alignment specs for either.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Memorize the high-value specs — `.2f` (money/measurements), `,` (readable big numbers), `>`/`<`/`^` with a width (aligned columns), `.1%` (rates). The cost of a type/spec mismatch is a `ValueError` at format time — so keep numeric specs for numbers and alignment specs for either.
+
+</div>
 
 ---
 
@@ -117,7 +139,11 @@ TypeError: sequence item 0: expected str instance, int found
 
 `join` can't concatenate an `int`, so it raises. Convert first: `"-".join(str(n) for n in [1, 2, 3])` (a generator expression — [Tutorial 14](/synapse/programming-languages/python/working-with-data/comprehensions)) gives `"1-2-3"`.
 
-*Earned rule.* `split`/`join` are your primary text↔list bridge; reach for them over manual character loops. Remember two things: the *separator owns* `join` (`sep.join(items)`, the direction everyone forgets), and `join` needs all-string items, so map non-strings through `str()` first. The cost is nil — this is the idiomatic, fast path.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** `split`/`join` are your primary text↔list bridge; reach for them over manual character loops. Remember two things: the *separator owns* `join` (`sep.join(items)`, the direction everyone forgets), and `join` needs all-string items, so map non-strings through `str()` first. The cost is nil — this is the idiomatic, fast path.
+
+</div>
 
 ---
 
@@ -165,7 +191,11 @@ ValueError: substring not found
 
 `index("z")` can't find `z`, so unlike `find` (which would return `-1`), it raises `ValueError`.
 
-*Earned rule.* Use `find` (or, better, `if "z" in s`) when absence is normal and expected; use `index` only when absence is a genuine error you *want* to raise. The cost of confusing them is an unhandled `ValueError` where you expected a quiet `-1` — and the `-1` itself is a trap, since `if s.find(x):` is true for index `0` too; prefer `in` for presence tests.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `find` (or, better, `if "z" in s`) when absence is normal and expected; use `index` only when absence is a genuine error you *want* to raise. The cost of confusing them is an unhandled `ValueError` where you expected a quiet `-1` — and the `-1` itself is a trap, since `if s.find(x):` is true for index `0` too; prefer `in` for presence tests.
+
+</div>
 
 ---
 
@@ -211,7 +241,11 @@ TypeError: 'str' object does not support item assignment
 
 You can *read* `s[0:2]` but not *assign* to it — strings never change in place. To "edit," build a new string: `"HE" + s[2:]`.
 
-*Earned rule.* Keep the three text-slice idioms handy — `s[::-1]` (reverse), `s[::2]` (stride), `s[a:b]` (substring) — and remember they only read. The cost of immutability is that every "edit" allocates a new string, which leads directly to the accumulation question below.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Keep the three text-slice idioms handy — `s[::-1]` (reverse), `s[::2]` (stride), `s[a:b]` (substring) — and remember they only read. The cost of immutability is that every "edit" allocates a new string, which leads directly to the accumulation question below.
+
+</div>
 
 ---
 
@@ -251,7 +285,11 @@ n= 800000  plus=0.0245s  join=0.0176s  ratio=1.4x
 
 *Concrete bite.* The trap is that this is a **CPython implementation detail, not a language guarantee** — and it silently evaporates. It's absent on other implementations (PyPy, Jython, IronPython), and it disappears the moment the string gains another reference: keep a snapshot each step (`history.append(s)`) and every `+=` must copy again, restoring the O(N²) behavior — and the growing copies exhaust memory fast. So code that's perfectly fast on CPython today can become a quadratic hang after an innocent refactor that holds onto the string, or when run on a different interpreter.
 
-*Earned rule.* Build strings with `"".join(parts)`: it's **guaranteed O(n) on every implementation**, it can't be sabotaged by an extra reference, and it states the intent ("assemble these pieces") plainly. Treat CPython's `+=` optimization as a convenience you never *rely* on. The cost of `join` is a temporary list buffer and one extra pass — negligible, and a price worth paying to never depend on a fragile optimization. (The deeper "measure before you optimize" discipline is [Performance & Profiling](/synapse/programming-languages/python/advanced/performance-and-profiling) in Tier 5.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Build strings with `"".join(parts)`: it's **guaranteed O(n) on every implementation**, it can't be sabotaged by an extra reference, and it states the intent ("assemble these pieces") plainly. Treat CPython's `+=` optimization as a convenience you never *rely* on. The cost of `join` is a temporary list buffer and one extra pass — negligible, and a price worth paying to never depend on a fragile optimization. (The deeper "measure before you optimize" discipline is [Performance & Profiling](/synapse/programming-languages/python/advanced/performance-and-profiling) in Tier 5.)
+
+</div>
 
 ---
 
@@ -268,6 +306,8 @@ n= 800000  plus=0.0245s  join=0.0176s  ratio=1.4x
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`ValueError: Unknown format code 'f' ...` →** a numeric format spec on a string; use alignment specs for strings, numeric for numbers.
 - **`TypeError: ... expected str instance, int found` →** `join` got non-strings; `sep.join(str(x) for x in items)`.
 - **`split(",")` gave empty strings →** consecutive separators produce empties; that's correct — use `split()` (no arg) for word-splitting.
@@ -275,9 +315,15 @@ n= 800000  plus=0.0245s  join=0.0176s  ratio=1.4x
 - **`s[a:b] = ...` failed →** strings are immutable; rebuild (`s[:a] + new + s[b:]`).
 - **Worried `+=` in a loop is quadratic →** on CPython it's usually linear, but use `"".join(parts)` for a guarantee that survives refactors and other interpreters.
 
+</div>
+
 ---
 
-*Predict, then check.* Build a function that formats a price as `"$1,234.50"` from the number `1234.5` using one f-string (hint: `,` and `.2f` combine as `:,.2f`). Then take `"the quick brown fox"`, split it into words, and `join` them back with newlines — predict the output before running. Finally, re-run the §5 benchmark at `n = [100000, 200000, 400000]` and confirm the `+=` time scales *linearly* (doubles, not quadruples) on this CPython runner.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Build a function that formats a price as `"$1,234.50"` from the number `1234.5` using one f-string (hint: `,` and `.2f` combine as `:,.2f`). Then take `"the quick brown fox"`, split it into words, and `join` them back with newlines — predict the output before running. Finally, re-run the §5 benchmark at `n = [100000, 200000, 400000]` and confirm the `+=` time scales *linearly* (doubles, not quadruples) on this CPython runner.
+
+</div>
 
 ## Your Turn
 

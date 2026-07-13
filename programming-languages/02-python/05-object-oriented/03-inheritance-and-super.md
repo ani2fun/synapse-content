@@ -8,9 +8,28 @@ prereqs: []
 
 You can build a new class on top of an existing one. A `Cat` is an `Animal`, so it should get everything an animal has — for free — plus whatever is cat-specific. The thesis: **a subclass IS-A superclass: it *inherits* the parent's attributes and methods, can *override* them to specialise behaviour, and uses `super()` to *extend* the parent rather than replace it.** Inheritance is reuse plus the freedom to differ where it matters.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A subclass **IS-A** superclass.
+- It **inherits** the parent's attributes and methods.
+- It can **override** them to specialise.
+- `super()` **extends** the parent rather than replacing it.
+
+</div>
+
 This builds on [Classes & Objects](/synapse/programming-languages/python/object-oriented/classes-and-objects) and the [class-vs-instance](/synapse/programming-languages/python/object-oriented/class-vs-instance) lookup rule — inheritance simply extends that lookup up a chain of classes. Every output below was produced by running the code — including the deliberate traceback.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -63,7 +82,11 @@ True
 
 *Concrete bite.* Inheritance is not copying — the subclass *defers* to the parent at lookup time. `isinstance` and `issubclass` ask the relationship directly: `isinstance(c, Animal)` is `True` because `Cat`'s chain includes `Animal`, and `issubclass(Cat, Animal)` is `True` for the same structural reason. A `Cat` satisfies "is an `Animal`" everywhere that test is made, with no duplicated code to keep in sync.
 
-*Earned rule.* Subclass when the new type genuinely *is a kind of* the base — the "is-a" test — so it can stand in wherever the base is expected. The cost of inheriting without a true is-a relationship is a subclass that drags along methods that make no sense for it; the benefit, when the relationship holds, is reuse the language keeps consistent automatically.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Subclass when the new type genuinely *is a kind of* the base — the "is-a" test — so it can stand in wherever the base is expected. The cost of inheriting without a true is-a relationship is a subclass that drags along methods that make no sense for it; the benefit, when the relationship holds, is reuse the language keeps consistent automatically.
+
+</div>
 
 ---
 
@@ -103,7 +126,11 @@ some sound
 
 *Concrete bite.* Because the *object's class* drives the choice, the same call site produces different results depending on what it is given — this is polymorphism. A loop calling `.speak()` over `[Cat(), Dog(), Animal()]` would print `meow`, `woof`, `some sound` in turn, with no `if`/`else` on the type; each object brings its own version of the method. The caller writes one line; the objects supply the behaviour.
 
-*Earned rule.* Override a method when the subclass needs different behaviour for the *same operation*, and keep the signature compatible so callers cannot tell which subclass they hold. The cost of an incompatible override (different parameters, different return shape) is that polymorphism breaks — a caller that works for the base will fail for the subclass; the benefit of a compatible one is branch-free code that handles every subtype uniformly.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Override a method when the subclass needs different behaviour for the *same operation*, and keep the signature compatible so callers cannot tell which subclass they hold. The cost of an incompatible override (different parameters, different return shape) is that polymorphism breaks — a caller that works for the base will fail for the subclass; the benefit of a compatible one is branch-free code that handles every subtype uniformly.
+
+</div>
 
 ---
 
@@ -167,7 +194,11 @@ AttributeError: 'Dog' object has no attribute 'name'
 
 `Dog.__init__` sets `breed` but never calls `super().__init__`, so `Animal.__init__` *never runs* and `name` is never set. `d.breed` works (`Labrador`), masking the problem — then `d.name` raises `AttributeError`. The error fires far from the real cause: the bug is the missing `super()` call in `__init__`, not the line that reads `name`.
 
-*Earned rule.* When a subclass overrides `__init__` (or any method) but still wants the parent's work done, call `super().__init__(...)` — almost always *first*, before adding subclass state. The cost of omitting it is the trap above: a half-initialised object whose `AttributeError` points at the innocent reader, not the guilty constructor — so when an inherited attribute goes missing, suspect a forgotten `super()`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** When a subclass overrides `__init__` (or any method) but still wants the parent's work done, call `super().__init__(...)` — almost always *first*, before adding subclass state. The cost of omitting it is the trap above: a half-initialised object whose `AttributeError` points at the innocent reader, not the guilty constructor — so when an inherited attribute goes missing, suspect a forgotten `super()`.
+
+</div>
 
 ---
 
@@ -224,7 +255,11 @@ True
 
 A `Cat` *is* an `Animal` in every behavioural sense, yet `type(c) is Animal` reports `False` because it demands an exact class match. Code that gates on `type(x) is Animal` silently rejects every subclass — so a perfectly valid `Cat` is turned away. `isinstance` gets it right.
 
-*Earned rule.* Use `isinstance(x, Cls)` for "can I treat this as a `Cls`?" — the question you almost always mean — and reserve `type(x) is Cls` for the rare case where subclasses must be *excluded* deliberately. The cost of reaching for `type() is` by habit is code that breaks the moment someone subclasses your type; `isinstance` is the inheritance-aware default for a reason.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `isinstance(x, Cls)` for "can I treat this as a `Cls`?" — the question you almost always mean — and reserve `type(x) is Cls` for the rare case where subclasses must be *excluded* deliberately. The cost of reaching for `type() is` by habit is code that breaks the moment someone subclasses your type; `isinstance` is the inheritance-aware default for a reason.
+
+</div>
 
 ---
 
@@ -283,7 +318,11 @@ Cat -> Animal: "is-a"
 
 *Concrete bite.* Inheritance leaks: a subclass is exposed to *all* of the parent's methods and internals, so a change to the parent can silently alter — or break — the child. Composition limits the surface to the methods you *choose* to call: `Car.start` uses only `engine.start()`, so the rest of `Engine` can change freely without touching `Car`. Swapping in an `ElectricEngine` with the same `start()` needs no change to `Car` at all — whereas re-parenting in an inheritance tree ripples through every subclass.
 
-*Earned rule.* Prefer composition (has-a) unless there is a genuine is-a relationship that you want to expose through the type system; reach for inheritance when subtypes must be *substitutable* for the base (§4's `isinstance`). The cost of deep inheritance is fragility — long chains where a parent change breaks distant descendants and behaviour is scattered across levels; composition trades a little forwarding boilerplate for parts you can reason about, test, and replace in isolation.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Prefer composition (has-a) unless there is a genuine is-a relationship that you want to expose through the type system; reach for inheritance when subtypes must be *substitutable* for the base (§4's `isinstance`). The cost of deep inheritance is fragility — long chains where a parent change breaks distant descendants and behaviour is scattered across levels; composition trades a little forwarding boilerplate for parts you can reason about, test, and replace in isolation.
+
+</div>
 
 ---
 
@@ -299,15 +338,23 @@ Cat -> Animal: "is-a"
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **An inherited attribute is missing (`AttributeError`) →** the override of `__init__` forgot `super().__init__(...)`; call it (usually first).
 - **A subclass instance fails a `type(x) is Base` check →** that demands an *exact* class; use `isinstance(x, Base)` to accept subclasses.
 - **A `type()`-based gate rejects valid subclasses →** swap `type(x) is C` for `isinstance(x, C)` — the inheritance-aware test.
 - **An override "doesn't take effect" →** the method name or signature differs from the parent's; match the name exactly (and keep the signature compatible).
 - **A subclass breaks when the parent changes →** the inheritance coupling is too deep; model the relationship as has-a (composition) unless it is truly is-a.
 
+</div>
+
 ---
 
-*Predict, then check.* Define `class Vehicle:` with `__init__(self, wheels)` setting `self.wheels`, then `class Motorcycle(Vehicle):` whose `__init__(self)` sets `self.wheels = 2` *without* calling `super().__init__`. Predict whether `Motorcycle()` works and what `m.wheels` prints (does skipping `super()` matter when the child sets the attribute itself?). Then predict `isinstance(Motorcycle(), Vehicle)` versus `type(Motorcycle()) is Vehicle`. Two predictions that capture when `super()` is optional and the isinstance-vs-`type() is` split.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Define `class Vehicle:` with `__init__(self, wheels)` setting `self.wheels`, then `class Motorcycle(Vehicle):` whose `__init__(self)` sets `self.wheels = 2` *without* calling `super().__init__`. Predict whether `Motorcycle()` works and what `m.wheels` prints (does skipping `super()` matter when the child sets the attribute itself?). Then predict `isinstance(Motorcycle(), Vehicle)` versus `type(Motorcycle()) is Vehicle`. Two predictions that capture when `super()` is optional and the isinstance-vs-`type() is` split.
+
+</div>
 
 ## Your Turn
 

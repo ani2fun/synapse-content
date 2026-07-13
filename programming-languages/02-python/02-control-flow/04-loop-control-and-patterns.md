@@ -8,9 +8,27 @@ prereqs: []
 
 The loops in [the last chapter](/synapse/programming-languages/python/control-flow/loops) ran to completion. This chapter adds the controls to **steer** them — `break` to stop early, `continue` to skip a pass — and the handful of **accumulator patterns** that turn a loop into an answer: a running sum, a count, a built-up list. The thesis: **almost every useful loop is a simple loop plus one of a few reusable shapes**, and once you recognise the shapes, you stop reinventing them.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- `break` stops a loop early; `continue` skips a pass.
+- Accumulator patterns turn a loop into an answer: a sum, a count, a built-up list.
+- **Almost every useful loop is a simple loop plus one of a few reusable shapes.**
+
+</div>
+
 Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -64,7 +82,11 @@ for a in range(3):
 
 For each `a`, the inner loop prints `b = 0`, then hits `b == 1` and `break`s the *inner* loop — but the *outer* loop keeps going. So `a` still runs `0, 1, 2`; only the inner loop is cut short each time.
 
-*Earned rule.* Use `break` to stop as soon as you're done, but remember it escapes only one loop level. The cost of that scoping: to break out of nested loops you need another mechanism — a flag variable, or (cleaner) moving the inner loop into a function and `return`ing ([Tutorial 11](/synapse/programming-languages/python/control-flow/functions-the-basics)).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `break` to stop as soon as you're done, but remember it escapes only one loop level. The cost of that scoping: to break out of nested loops you need another mechanism — a flag variable, or (cleaner) moving the inner loop into a function and `return`ing ([Tutorial 11](/synapse/programming-languages/python/control-flow/functions-the-basics)).
+
+</div>
 
 ---
 
@@ -111,7 +133,11 @@ flowchart TD
 
 *Concrete bite.* The output proves the skip: `2`, `4`, `6` never print, because `continue` jumped past their `print(n)`. Anything after a `continue` is unreachable on the passes where it fires — a common source of "why didn't this line run?" when a `continue` sits above it.
 
-*Earned rule.* Use `continue` to skip uninteresting items early and keep the body flat (avoiding a big `if` wrapping everything). The cost: code after a `continue` runs only on the passes that *didn't* skip, so put work you always want *above* the `continue` or outside the loop.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `continue` to skip uninteresting items early and keep the body flat (avoiding a big `if` wrapping everything). The cost: code after a `continue` runs only on the passes that *didn't* skip, so put work you always want *above* the `continue` or outside the loop.
+
+</div>
 
 ---
 
@@ -155,7 +181,11 @@ found 3
 
 Here `n == 3` matches, we `print` and `break`, so the `else` does **not** run. The two snippets together define it: `else` fires exactly when no `break` did.
 
-*Earned rule.* Use loop `else` for search-and-report-failure without a separate "found" flag. The cost is readability — the keyword genuinely misleads, so a brief comment (`# no break: not found`) earns its place every time.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use loop `else` for search-and-report-failure without a separate "found" flag. The cost is readability — the keyword genuinely misleads, so a brief comment (`# no break: not found`) earns its place every time.
+
+</div>
 
 ---
 
@@ -200,7 +230,11 @@ print(total)
 
 We expected `15`, but `total` is `5` — because `total = 0` runs at the *start of every iteration*, wiping the running sum. The final value reflects only the last `n` (5). The accumulator never accumulated.
 
-*Earned rule.* Initialise accumulators **before** the loop; update them **inside**. The cost of misplacing the initialiser is a silent wrong answer (no error), and it's the single most common loop bug — when a total comes out as just the last item, look for an initialiser hiding inside the loop.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Initialise accumulators **before** the loop; update them **inside**. The cost of misplacing the initialiser is a silent wrong answer (no error), and it's the single most common loop bug — when a total comes out as just the last item, look for an initialiser hiding inside the loop.
+
+</div>
 
 ---
 
@@ -238,7 +272,11 @@ None
 
 `append` added `5` to the list, then returned `None`; `squares = ...` then rebound `squares` to that `None`, throwing the list away. Now `squares` is `None`, not a list.
 
-*Earned rule.* Call `list.append(x)` as a statement — never `lst = lst.append(x)`. The cost/boundary is remembering which methods mutate-and-return-`None` (list `append`/`sort`/`reverse`) versus which return a new value (string methods); when a value mysteriously becomes `None`, suspect an assigned-back in-place method.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Call `list.append(x)` as a statement — never `lst = lst.append(x)`. The cost/boundary is remembering which methods mutate-and-return-`None` (list `append`/`sort`/`reverse`) versus which return a new value (string methods); when a value mysteriously becomes `None`, suspect an assigned-back in-place method.
+
+</div>
 
 ---
 
@@ -254,15 +292,23 @@ None
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`break` didn't escape all loops →** it exits one level; use a function + `return`, or a flag, for nested loops.
 - **A line after `continue` never runs →** `continue` skips the rest of the pass; move always-needed work above it.
 - **Loop `else` ran when you didn't expect →** it runs whenever no `break` fired; that includes empty/normal completion.
 - **A running total equals only the last item →** the accumulator is initialised inside the loop; move it above.
 - **A list became `None` →** you wrote `lst = lst.append(x)`; append mutates and returns `None` — call it as a statement.
 
+</div>
+
 ---
 
-*Predict, then check.* Build a loop over `range(1, 11)` that adds up only the numbers divisible by 3, using `continue` to skip the rest. Predict the total before running. Then add a loop `else` that prints `"scan complete"`, and predict whether it runs (did you `break`?). Finally, predict what happens if you move the `total = 0` line inside the loop. Build it and confirm all three predictions.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Build a loop over `range(1, 11)` that adds up only the numbers divisible by 3, using `continue` to skip the rest. Predict the total before running. Then add a loop `else` that prints `"scan complete"`, and predict whether it runs (did you `break`?). Finally, predict what happens if you move the `total = 0` line inside the loop. Build it and confirm all three predictions.
+
+</div>
 
 ## Your Turn
 

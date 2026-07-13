@@ -8,9 +8,28 @@ prereqs: []
 
 In Python you start with plain attributes — `self.radius = r`, and callers read `c.radius`. The thesis of this chapter: **`@property` lets that *same* attribute access run *method* code behind the scenes**, so you can compute a value on the fly, validate an assignment, or make an attribute read-only — all *without* changing how callers write `obj.x`. This is why Python culture says don't write `get_x()`/`set_x()` up front: a plain attribute can be *upgraded* to a managed one later, invisibly. Underneath `@property` sits the general **descriptor protocol** (`__get__`/`__set__`), the same mechanism that turns functions into bound methods.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- `@property` makes the *same* attribute access **run method code**.
+- You can compute, validate, or make an attribute read-only.
+- Callers still write `obj.x` — the API doesn't change.
+- The **descriptor protocol** (`__get__`/`__set__`) is the machinery underneath.
+
+</div>
+
 We build from the everyday tool (`@property`) down to the protocol that explains it. Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -77,7 +96,11 @@ computing area
 
 Two accesses, two computations. For a cheap formula that's ideal. For an expensive one, naive `@property` recomputes every time — reach for `functools.cached_property` to compute once and store the result.
 
-*Earned rule.* **Use `@property` for a value derived from other attributes, so it can never go stale.** The cost is that the getter runs on *every* access — fine for arithmetic, wasteful for expensive work (use `functools.cached_property` then, accepting that a cached value won't track later changes to its inputs).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Use `@property` for a value derived from other attributes, so it can never go stale.** The cost is that the getter runs on *every* access — fine for arithmetic, wasteful for expensive work (use `functools.cached_property` then, accepting that a cached value won't track later changes to its inputs).
+
+</div>
 
 ---
 
@@ -145,7 +168,11 @@ ValueError: radius must be non-negative, got -1
 
 `c.radius = -1` *looks* like a plain assignment, but it invoked the setter, which raised `ValueError`. The object can never hold a negative radius — the invariant is enforced at the boundary, not merely documented.
 
-*Earned rule.* **Add a setter when an attribute has an invariant to enforce on write (range, type, immutability of derived state).** The cost is the getter/setter pair plus a backing `_name` field; the benefit is that callers keep writing `obj.x = v` while *you* guarantee the value is always valid — the check lives in one place instead of at every call site.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Add a setter when an attribute has an invariant to enforce on write (range, type, immutability of derived state).** The cost is the getter/setter pair plus a backing `_name` field; the benefit is that callers keep writing `obj.x = v` while *you* guarantee the value is always valid — the check lives in one place instead of at every call site.
+
+</div>
 
 ---
 
@@ -205,7 +232,11 @@ AttributeError: property 'radius' of 'Circle' object has no setter
 
 On 3.13 the message is `property 'radius' of 'Circle' object has no setter` (older Pythons said the terser `can't set attribute`). It is an `AttributeError` either way — the read-only guarantee holds, and the message tells you precisely which property refused.
 
-*Earned rule.* **Omit the setter to make an attribute read-only through the public API.** The cost is that "read-only" is a convention, not a fortress — `c._radius = 5` still works, because the underscore field is only *protected by naming*. Use it to prevent *accidental* writes and to signal intent; don't mistake it for true immutability (for that, see `frozen=True` dataclasses in [advanced OOP](/synapse/programming-languages/python/object-oriented/advanced-oop)).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Omit the setter to make an attribute read-only through the public API.** The cost is that "read-only" is a convention, not a fortress — `c._radius = 5` still works, because the underscore field is only *protected by naming*. Use it to prevent *accidental* writes and to signal intent; don't mistake it for true immutability (for that, see `frozen=True` dataclasses in [advanced OOP](/synapse/programming-languages/python/object-oriented/advanced-oop)).
+
+</div>
 
 ---
 
@@ -262,7 +293,11 @@ print(a.balance)
 
 Same output as the plain-attribute version, same caller lines — but now negative balances are impossible. Had you exposed `getBalance()`/`setBalance()` instead, you'd have *forced* that ceremony on callers forever, for a check you didn't need yet.
 
-*Earned rule.* **Don't write getters/setters preemptively — expose a plain attribute, and reach for `@property` only when you actually need computation or validation.** The cost of guessing wrong (starting plain, upgrading later) is *zero*, because the upgrade is caller-invisible; the cost of defensive getters is permanent boilerplate and a clumsier API. Add the property the day the invariant appears, not before.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Don't write getters/setters preemptively — expose a plain attribute, and reach for `@property` only when you actually need computation or validation.** The cost of guessing wrong (starting plain, upgrading later) is *zero*, because the upgrade is caller-invisible; the cost of defensive getters is permanent boilerplate and a clumsier API. Add the property the day the invariant appears, not before.
+
+</div>
 
 ---
 
@@ -344,7 +379,11 @@ ValueError: price must be positive, got -5
 
 `self.price = price` in `__init__` routed through `Positive.__set__`, which rejected `-5`. One descriptor class enforces the rule for `price`, `quantity`, and any other `Positive()` attribute you add — no per-attribute boilerplate.
 
-*Earned rule.* **Reach for `@property` for one-off managed attributes; write a descriptor when the *same* managed behavior must be reused across many attributes or classes.** The cost of a descriptor is more concept (three dunders, data-vs-non-data priority, `__set_name__`); the payoff is DRY validation/computation logic — exactly what frameworks (ORM fields, typed-attribute libraries) are built on. For a single attribute, the descriptor is overkill: `@property` is the same machinery with less ceremony.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Reach for `@property` for one-off managed attributes; write a descriptor when the *same* managed behavior must be reused across many attributes or classes.** The cost of a descriptor is more concept (three dunders, data-vs-non-data priority, `__set_name__`); the payoff is DRY validation/computation logic — exactly what frameworks (ORM fields, typed-attribute libraries) are built on. For a single attribute, the descriptor is overkill: `@property` is the same machinery with less ceremony.
+
+</div>
 
 ---
 
@@ -361,15 +400,23 @@ ValueError: price must be positive, got -5
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Property returns the method object instead of a value →** you wrote `c.area()` with parentheses; a property is accessed as `c.area`, no call.
 - **`RecursionError` in a getter/setter →** the getter returned `self.radius` (itself) instead of the backing `self._radius`; store and read the private field.
 - **`AttributeError: property '…' has no setter` →** the property is getter-only (read-only by design); add a `@<name>.setter`, or write the backing `_field` directly.
 - **An expensive property is slow when read in a loop →** plain `@property` recomputes each access; use `functools.cached_property` (accepting it won't track later input changes).
 - **Validation in a custom descriptor never fires →** you defined only `__get__` (a non-data descriptor); the instance `__dict__` shadows it — add `__set__` to make it a data descriptor.
 
+</div>
+
 ---
 
-*Predict, then check.* Write a `Temperature` class storing `_celsius`, with a `celsius` property (getter + validating setter that rejects values below `-273.15`) and a `fahrenheit` property. Make `fahrenheit` *computed* from `celsius` on read (`c * 9 / 5 + 32`) with a setter that converts back and assigns through `self.celsius`. First predict what `t.fahrenheit = 32` then `t.celsius` prints. Then predict the exact error type and message (on 3.13) if you make `fahrenheit` getter-only and run `t.fahrenheit = 100`. Finally, predict whether converting `celsius` from a plain attribute to this property would require changing any code that does `t.celsius = 20` — and why.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write a `Temperature` class storing `_celsius`, with a `celsius` property (getter + validating setter that rejects values below `-273.15`) and a `fahrenheit` property. Make `fahrenheit` *computed* from `celsius` on read (`c * 9 / 5 + 32`) with a setter that converts back and assigns through `self.celsius`. First predict what `t.fahrenheit = 32` then `t.celsius` prints. Then predict the exact error type and message (on 3.13) if you make `fahrenheit` getter-only and run `t.fahrenheit = 100`. Finally, predict whether converting `celsius` from a plain attribute to this property would require changing any code that does `t.celsius = 20` — and why.
+
+</div>
 
 ## Your Turn
 

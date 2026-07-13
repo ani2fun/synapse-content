@@ -8,9 +8,27 @@ prereqs: []
 
 Every decision a program makes comes down to a **bool** — `True` or `False` (the type you met in [Tutorial 2](/synapse/programming-languages/python/first-steps/variables-and-types)). This chapter is about producing and combining those values, because the `if` and `while` of the next chapters do nothing more than check a bool and act on it. The thesis: **comparisons and logic operators turn data into `True`/`False`, and Python can judge the "truth" of *any* value at all** — which is the machinery every decision in the rest of the book runs on.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Comparisons and logic operators turn data into `True`/`False`.
+- Python can judge the **truth of any value at all**.
+- This is the machinery every decision in the book runs on.
+
+</div>
+
 Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -65,7 +83,11 @@ False
 
 `0.1 + 0.2` is `0.30000000000000004`, not exactly `0.3`, so the `==` is `False` — a comparison that "should" be true isn't.
 
-*Earned rule.* Use `==`/`!=`/`<`/`>` freely on integers, strings, and bools, but **never compare floats with `==`** — test closeness instead (`abs(a - b) < 1e-9`, or `math.isclose(a, b)`). The cost of forgetting is a condition that silently never fires; the boundary is that exact equality is only safe for values stored exactly, which floats usually aren't.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `==`/`!=`/`<`/`>` freely on integers, strings, and bools, but **never compare floats with `==`** — test closeness instead (`abs(a - b) < 1e-9`, or `math.isclose(a, b)`). The cost of forgetting is a condition that silently never fires; the boundary is that exact equality is only safe for values stored exactly, which floats usually aren't.
+
+</div>
 
 ---
 
@@ -104,7 +126,11 @@ blue
 
 You meant "is `color` red, or is `color` blue?" But Python reads it as `(color == "red") or ("blue")` — that's `False or "blue"`, and `or` hands back `"blue"` (a non-empty, truthy string). The condition is *always* truthy regardless of `color`, so a test you thought was selective accepts everything.
 
-*Earned rule.* Spell out **both** sides of each `and`/`or`: `color == "red" or color == "blue"` (or, more cleanly, `color in ("red", "blue")` — see §5). The cost of the shortcut is a condition that looks right in English but is always true, and never warns you.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Spell out **both** sides of each `and`/`or`: `color == "red" or color == "blue"` (or, more cleanly, `color in ("red", "blue")` — see §5). The cost of the shortcut is a condition that looks right in English but is always true, and never warns you.
+
+</div>
 
 ---
 
@@ -147,7 +173,11 @@ False
 
 The string `"0"` is **truthy** — it's a one-character string, and non-empty strings are always truthy, regardless of what that character is. Only the *number* `0` is falsy. So `if user_input:` accepts the text `"0"` as "present," which may not be what you want.
 
-*Earned rule.* Use truthiness for "is this empty/missing?" checks (`if items:`, `if name:`), but when the literal value matters — especially text that might be `"0"` or `"False"` — compare explicitly. The cost of truthiness is exactly this: it collapses every non-empty value to `True`, hiding the difference between `"0"` and `"yes"`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use truthiness for "is this empty/missing?" checks (`if items:`, `if name:`), but when the literal value matters — especially text that might be `"0"` or `"False"` — compare explicitly. The cost of truthiness is exactly this: it collapses every non-empty value to `True`, hiding the difference between `"0"` and `"yes"`.
+
+</div>
 
 ---
 
@@ -185,7 +215,11 @@ fallback
 
 `1 and 2` → `2` (1 is truthy, so the result is the second operand). `0 or 3` → `3` (0 is falsy, fall through to `3`). `"" or "fallback"` → `"fallback"`. That last one is the useful **default-value idiom**: `name or "Anonymous"` yields `name` when it's non-empty, else the fallback.
 
-*Earned rule.* Lean on short-circuiting to guard risky operations (`x != 0 and 10/x`) and to supply defaults (`value or default`). The cost/boundary: `value or default` replaces *every* falsy value — `0`, `0.0`, `""`, `False` — with the default, so if `0` is a legitimate input, use an explicit `if value is None` instead (a distinction [Tutorial 16](/synapse/programming-languages/python/how-python-works/the-object-model) sharpens).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Lean on short-circuiting to guard risky operations (`x != 0 and 10/x`) and to supply defaults (`value or default`). The cost/boundary: `value or default` replaces *every* falsy value — `0`, `0.0`, `""`, `False` — with the default, so if `0` is a legitimate input, use an explicit `if value is None` instead (a distinction [Tutorial 16](/synapse/programming-languages/python/how-python-works/the-object-model) sharpens).
+
+</div>
 
 ---
 
@@ -224,7 +258,11 @@ True
 
 `"Cat" in "cat"` is `False` (capital C ≠ lowercase c). `"cat" in "concatenate"` is `True` — `cat` appears inside `con·cat·enate`, even though "cat" isn't a *word* there. `in` finds substrings, not words.
 
-*Earned rule.* Use `in` for quick "contains?" checks, but normalise case first when you mean a case-insensitive match (`"cat" in text.lower()`), and remember it's a substring test, not a word test. The cost is false positives like `"cat" in "concatenate"`; for whole-word matching you need more than `in` (string methods or, later, splitting into words).
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `in` for quick "contains?" checks, but normalise case first when you mean a case-insensitive match (`"cat" in text.lower()`), and remember it's a substring test, not a word test. The cost is false positives like `"cat" in "concatenate"`; for whole-word matching you need more than `in` (string methods or, later, splitting into words).
+
+</div>
 
 ---
 
@@ -241,15 +279,23 @@ True
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A float comparison never matches →** don't use `==` on floats; test `abs(a-b) < 1e-9`.
 - **A condition is always true →** you wrote `x == a or b`; both sides of `or` need a full comparison, or use `x in (a, b)`.
 - **`"0"` or `"False"` treated as present →** truthiness only checks emptiness; non-empty strings are truthy, so compare the value explicitly.
 - **`value or default` ignored a real `0` →** `or` treats `0`/`""`/`False` as missing; use `if value is None` when zero is valid.
 - **A "contains" check matched the wrong thing →** `in` is a case-sensitive substring test; normalise case and remember it's not word-aware.
 
+</div>
+
 ---
 
-*Predict, then check.* Set `stock = 0`. Predict each: `print(stock > 0)`, `print(bool(stock))`, `print(stock or "out of stock")`, and `print(stock == False)`. The last one surprises almost everyone — and explaining *why* `0 == False` behaves as it does is a perfect warm-up for the object model in Tier 3. Build a runnable block and confirm.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Set `stock = 0`. Predict each: `print(stock > 0)`, `print(bool(stock))`, `print(stock or "out of stock")`, and `print(stock == False)`. The last one surprises almost everyone — and explaining *why* `0 == False` behaves as it does is a perfect warm-up for the object model in Tier 3. Build a runnable block and confirm.
+
+</div>
 
 ## Your Turn
 

@@ -8,9 +8,28 @@ prereqs: []
 
 Async is the other answer to "do many things at once," and it's a different shape from threads. The thesis: **`async`/`await` is *cooperative, single-threaded* concurrency — a coroutine runs until it hits an `await`, where it voluntarily yields control back to the event loop, which runs another coroutine while the first waits.** One thread juggles thousands of in-flight I/O operations, with no GIL contention and no locks (because only one piece of code runs at a time). Where threads are *preempted* by the OS at any instant ([last chapter](/synapse/programming-languages/python/advanced/concurrency-and-the-gil)), coroutines switch only at the `await`s you wrote — the switch points are visible in your source. The price is that you must use it "all the way," and a single blocking call freezes everything.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- `async`/`await` is **cooperative, single-threaded** concurrency.
+- A coroutine runs until an `await`, then **yields control** to the event loop.
+- The loop runs another coroutine while the first waits.
+- Switch points are only the `await`s you wrote — visible in your source.
+
+</div>
+
 This is the I/O-bound alternative to [threads](/synapse/programming-languages/python/advanced/concurrency-and-the-gil), built directly on [generators/coroutines](/synapse/programming-languages/python/how-python-works/iterators-and-generators) — this chapter cashes that connection in. The toolbox for running async at scale (tasks, task groups, timeouts, async iteration) is the [next chapter](/synapse/programming-languages/python/advanced/async-in-practice); this one builds the machine they all run on. Every runnable output below was produced by running the code; timing figures are illustrative (they vary slightly).
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -87,7 +106,11 @@ coroutine
 
 `greet("Ada")` returned a *coroutine object*, not `"Hello, Ada"` — the function body never ran. (Python also prints a `RuntimeWarning: coroutine 'greet' was never awaited` to stderr.) The result is useless until you `await` it or pass it to `asyncio.run`.
 
-*Earned rule.* Always `await` a coroutine (or hand it to `asyncio.run`/`gather`); a bare call just builds a frame. The cost of forgetting is silent no-ops and a `RuntimeWarning` — so when async code "does nothing," look for a missing `await` first.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Always `await` a coroutine (or hand it to `asyncio.run`/`gather`); a bare call just builds a frame. The cost of forgetting is silent no-ops and a `RuntimeWarning` — so when async code "does nothing," look for a missing `await` first.
+
+</div>
 
 ---
 
@@ -146,7 +169,11 @@ A1 B1 A2 B2 A3 B3
 
 *Concrete bite.* The loop runs coroutines *one at a time, to their next `await`* — so a coroutine that takes 3 seconds between awaits keeps everyone else frozen for 3 seconds. That's not a bug in your tasks; it's the contract: cooperative means *you* are the scheduler's only source of switch points (§4 shows it going wrong).
 
-*Earned rule.* Read `await` as "safe pause point — the loop may run others here," and structure async code as short hops between awaits. The cost of the cooperative bargain: fairness is your job; one greedy stretch of code with no `await` starves the whole program, and no OS preemption will save you.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Read `await` as "safe pause point — the loop may run others here," and structure async code as short hops between awaits. The cost of the cooperative bargain: fairness is your job; one greedy stretch of code with no `await` starves the whole program, and no OS preemption will save you.
+
+</div>
 
 ---
 
@@ -227,7 +254,11 @@ print(asyncio.run(main()))
 
 Two 0.2s waits awaited in sequence take ~0.4s — each `await` finishes before the next starts. Writing `await` per call is the easy way to *accidentally* serialise concurrent work; `gather` is what makes it overlap.
 
-*Earned rule.* Use `gather` (or the [next chapter](/synapse/programming-languages/python/advanced/async-in-practice)'s tasks and task groups) to run independent coroutines concurrently; reserve sequential `await`s for steps that genuinely depend on each other. The cost is failure handling you must choose deliberately: by default, the first exception propagates to your `await` while the *other coroutines keep running* — `gather` does **not** cancel the rest — and `return_exceptions=True` changes the contract again. The next chapter demonstrates all three failure modes side by side.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `gather` (or the [next chapter](/synapse/programming-languages/python/advanced/async-in-practice)'s tasks and task groups) to run independent coroutines concurrently; reserve sequential `await`s for steps that genuinely depend on each other. The cost is failure handling you must choose deliberately: by default, the first exception propagates to your `await` while the *other coroutines keep running* — `gather` does **not** cancel the rest — and `return_exceptions=True` changes the contract again. The next chapter demonstrates all three failure modes side by side.
+
+</div>
 
 ---
 
@@ -286,7 +317,11 @@ print(asyncio.run(main()))
 
 *Concrete bite.* The output is the bite: `0.6` instead of `0.2`. Swapping in the blocking `time.sleep` silently destroyed the concurrency — the program is now as slow as sequential, despite the `gather`. A real-world version is calling a synchronous `requests.get` (instead of an async HTTP client) inside a coroutine: it looks async, runs serial.
 
-*Earned rule.* Inside `async` code, use **async-native** calls (`await asyncio.sleep`, `aiohttp`, async DB drivers); for unavoidable blocking work, push it off the loop with `await asyncio.to_thread(fn, ...)`. The cost of one stray blocking call is the loss of *all* concurrency — which is why async demands async libraries throughout, and why `to_thread` (a thread per blocked call) is a bridge, not the architecture.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Inside `async` code, use **async-native** calls (`await asyncio.sleep`, `aiohttp`, async DB drivers); for unavoidable blocking work, push it off the loop with `await asyncio.to_thread(fn, ...)`. The cost of one stray blocking call is the loss of *all* concurrency — which is why async demands async libraries throughout, and why `to_thread` (a thread per blocked call) is a bridge, not the architecture.
+
+</div>
 
 ---
 
@@ -317,7 +352,11 @@ SyntaxError: 'await' outside async function
 
 *Concrete bite.* The `SyntaxError` above is the bite — you can't sprinkle `await` into ordinary code. Teams discover this when adding one async call deep in a sync codebase forces a cascade of `async def`s up the call chain (or an awkward `asyncio.run` in the middle, which has its own problems). Async is a property of the whole call stack, not a single function.
 
-*Earned rule.* Decide async at the *boundary*: an async program has `asyncio.run` once at the top and `async`/`await` throughout the I/O path. The cost is that async is "colored" — it doesn't mix freely with sync code — so adopt it for I/O-heavy programs as a whole, not as a local tweak to one function.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Decide async at the *boundary*: an async program has `asyncio.run` once at the top and `async`/`await` throughout the I/O path. The cost is that async is "colored" — it doesn't mix freely with sync code — so adopt it for I/O-heavy programs as a whole, not as a local tweak to one function.
+
+</div>
 
 ---
 
@@ -335,6 +374,8 @@ SyntaxError: 'await' outside async function
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Coroutine "didn't run" / `RuntimeWarning: never awaited` →** you called it without `await`/`asyncio.run`.
 - **Async code is as slow as sequential →** you `await`ed serially (use `gather`) or made a blocking call (use async I/O / `asyncio.to_thread`).
 - **`SyntaxError: 'await' outside async function` →** the enclosing function must be `async def`.
@@ -342,9 +383,15 @@ SyntaxError: 'await' outside async function
 - **Assumed `gather` cancels the rest when one fails →** it doesn't — the exception surfaces while siblings keep running; use a `TaskGroup` (next chapter) when you want all-or-nothing.
 - **Async feels like it's spreading everywhere →** it is ("colored"); commit to it at the program boundary, with one `asyncio.run` at the top.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the total time of `gather(slow(1), slow(2))` versus `await slow(1); await slow(2)` when each `slow` waits 0.3s. Then predict the §2 interleaving if `worker("A")` used `await asyncio.sleep(0)` but `worker("B")` printed all three steps with *no* await — and why B's part is then uninterruptible. Finally, predict what happens to the §4 timing if you change `time.sleep(0.2)` to `await asyncio.sleep(0.2)`. Those predictions are the entire async model: awaited overlaps, unawaited hogs, blocking ruins it.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the total time of `gather(slow(1), slow(2))` versus `await slow(1); await slow(2)` when each `slow` waits 0.3s. Then predict the §2 interleaving if `worker("A")` used `await asyncio.sleep(0)` but `worker("B")` printed all three steps with *no* await — and why B's part is then uninterruptible. Finally, predict what happens to the §4 timing if you change `time.sleep(0.2)` to `await asyncio.sleep(0.2)`. Those predictions are the entire async model: awaited overlaps, unawaited hogs, blocking ruins it.
+
+</div>
 
 ## Your Turn
 

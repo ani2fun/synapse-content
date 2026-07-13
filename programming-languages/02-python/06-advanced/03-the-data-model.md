@@ -8,9 +8,28 @@ prereqs: []
 
 You've met dunder methods piecemeal: `__iter__` for [iteration](/synapse/programming-languages/python/how-python-works/iterators-and-generators), `__enter__`/`__exit__` for [context managers](/synapse/programming-languages/python/how-python-works/files-and-context-managers), `__eq__`/`__add__`/`__len__` for [operator overloading](/synapse/programming-languages/python/object-oriented/dunder-methods). This chapter unifies them. The thesis: **Python's "data model" is one consistent design — virtually every built-in operation and bit of syntax (`len(x)`, `x + y`, `x[i]`, `for`, `with`, `x()`, `if x`) is defined to call a corresponding dunder method** — so making your objects first-class is just implementing the protocols you need, and the language treats your type exactly like its own.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- The data model is **one consistent design**.
+- Nearly all syntax (`len(x)`, `x + y`, `x[i]`, `for`, `with`) calls a **dunder** method.
+- Making your objects first-class is just implementing the protocols you need.
+- The language then treats your type exactly like its own.
+
+</div>
+
 This synthesizes Tiers 3–4. Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -76,7 +95,11 @@ TypeError: object of type 'Bare' has no len()
 
 `len()` is *defined* as "call `__len__`"; with no such method, Python raises `TypeError: object of type 'Bare' has no len()`. The built-in isn't magic — it's a dunder call.
 
-*Earned rule.* To make your object support a built-in operation, implement its dunder; check the data-model docs for which method a piece of syntax calls. The cost is that the mapping must be exact — `len()` needs `__len__` specifically (not `length` or `size`) — but the payoff is objects that work seamlessly with all of Python's syntax and built-ins.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** To make your object support a built-in operation, implement its dunder; check the data-model docs for which method a piece of syntax calls. The cost is that the mapping must be exact — `len()` needs `__len__` specifically (not `length` or `size`) — but the payoff is objects that work seamlessly with all of Python's syntax and built-ins.
+
+</div>
 
 ---
 
@@ -128,7 +151,11 @@ AttributeError: 'int' object has no attribute 'x'
 
 `Vec(1,2) + 5` calls `__add__` with `o = 5`; `5.x` doesn't exist, so `AttributeError`. A robust `__add__` checks `isinstance(o, Vec)` and returns `NotImplemented` otherwise, letting Python raise a clean `TypeError` (or try `__radd__`) instead of leaking this internal error.
 
-*Earned rule.* Overload operators when your type has a genuine arithmetic/comparison meaning (vectors, money, dates) — it makes call sites read naturally. The cost is handling foreign operands: guard with `isinstance` and return `NotImplemented` for types you don't support, so Python's operator machinery can do the right thing rather than crashing inside your method.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Overload operators when your type has a genuine arithmetic/comparison meaning (vectors, money, dates) — it makes call sites read naturally. The cost is handling foreign operands: guard with `isinstance` and return `NotImplemented` for types you don't support, so Python's operator machinery can do the right thing rather than crashing inside your method.
+
+</div>
 
 ---
 
@@ -173,7 +200,11 @@ TypeError: 'int' object is not callable
 
 `42()` fails with `TypeError: 'int' object is not callable` — `int` defines no `__call__`. (This is also the error behind the classic bug of shadowing a function name with a value, then trying to call it.)
 
-*Earned rule.* Use `__call__` when an object is conceptually "a function with state or configuration" — it reads more naturally than naming a `.run()` method. The cost/boundary: a callable object can be confusing if overused (readers expect `obj()` to be cheap and function-like), so reserve it for genuinely function-like roles.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `__call__` when an object is conceptually "a function with state or configuration" — it reads more naturally than naming a `.run()` method. The cost/boundary: a callable object can be confusing if overused (readers expect `obj()` to be cheap and function-like), so reserve it for genuinely function-like roles.
+
+</div>
 
 ---
 
@@ -228,7 +259,11 @@ falsy - __len__ returned 0
 
 `Empty()` has no `__bool__`, so `if e` falls back to `__len__`, which returns `0` → falsy. This is exactly why empty lists, strings, and dicts are falsy: their `__len__` is `0`. Your types inherit the same rule the moment you define `__len__`.
 
-*Earned rule.* Define `__bool__` (or rely on `__len__`) to control how your object behaves in conditions — and remember an empty container should be falsy. The cost/boundary: if `__len__` can be `0` for an object you want *always* truthy, define an explicit `__bool__` returning `True`, or `if x:` will surprise you when it's "empty."
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Define `__bool__` (or rely on `__len__`) to control how your object behaves in conditions — and remember an empty container should be falsy. The cost/boundary: if `__len__` can be `0` for an object you want *always* truthy, define an explicit `__bool__` returning `True`, or `if x:` will surprise you when it's "empty."
+
+</div>
 
 ---
 
@@ -299,7 +334,11 @@ TypeError: unhashable type: 'P'
 
 Adding `__eq__` made `P` unhashable, so it can't go in a set or be a dict key — defining one protocol (equality) disabled another (hashing). Restore it with `__hash__ = ...` (e.g. `return hash(self.x)`), keeping the contract "equal objects hash equally."
 
-*Earned rule.* Implement exactly the protocols your object should support, and respect the ones that interlock — define `__hash__` alongside `__eq__` for immutable value types, pair `__enter__` with `__exit__`, pair `__lt__` with the rest (or use `functools.total_ordering`). The cost of the data model's consistency is that these contracts are real: break one (equal-but-unequal-hash) and containers misbehave. ([dataclasses](/synapse/programming-languages/python/object-oriented/advanced-oop) handle the `__eq__`/`__hash__` pairing for you.)
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Implement exactly the protocols your object should support, and respect the ones that interlock — define `__hash__` alongside `__eq__` for immutable value types, pair `__enter__` with `__exit__`, pair `__lt__` with the rest (or use `functools.total_ordering`). The cost of the data model's consistency is that these contracts are real: break one (equal-but-unequal-hash) and containers misbehave. ([dataclasses](/synapse/programming-languages/python/object-oriented/advanced-oop) handle the `__eq__`/`__hash__` pairing for you.)
+
+</div>
 
 ---
 
@@ -316,15 +355,23 @@ Adding `__eq__` made `P` unhashable, so it can't go in a set or be a dict key �
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`TypeError: object of type 'X' has no len()` →** implement `__len__` (the exact dunder `len()` calls).
 - **`AttributeError` inside `__add__`/`__eq__` →** you assumed the other operand's shape; guard with `isinstance`, return `NotImplemented`.
 - **`TypeError: 'X' object is not callable` →** the type has no `__call__` (often a shadowed function name).
 - **An object I expected truthy is falsy →** its `__len__` returns 0; add an explicit `__bool__` returning `True`.
 - **`unhashable type` after adding `__eq__` →** define `__hash__` too (or use a frozen `@dataclass`).
 
+</div>
+
 ---
 
-*Predict, then check.* Build a `Range`-like class holding a `start` and `stop`, with `__len__` and `__getitem__`. Predict whether `len()`, `obj[0]`, `for x in obj`, and `x in obj` all work from just those two methods. Then add `__eq__` comparing `(start, stop)` and predict what `{Range(0,3)}` does — and how to fix it. That last step is the data model's core lesson: protocols are powerful *and* they interlock.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Build a `Range`-like class holding a `start` and `stop`, with `__len__` and `__getitem__`. Predict whether `len()`, `obj[0]`, `for x in obj`, and `x in obj` all work from just those two methods. Then add `__eq__` comparing `(start, stop)` and predict what `{Range(0,3)}` does — and how to fix it. That last step is the data model's core lesson: protocols are powerful *and* they interlock.
+
+</div>
 
 ## Your Turn
 

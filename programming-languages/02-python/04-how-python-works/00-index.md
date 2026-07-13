@@ -19,4 +19,12 @@ Six chapters, in order:
 
 Two of these are **deep passes** that revisit gentle Tier 0–1 topics with full rigour: [The Object Model](/synapse/programming-languages/python/how-python-works/the-object-model) deepens [Variables & Basic Types](/synapse/programming-languages/python/first-steps/variables-and-types), and [Functions in Depth](/synapse/programming-languages/python/how-python-works/functions-in-depth) deepens [Functions, the Basics](/synapse/programming-languages/python/control-flow/functions-the-basics). They reference the earlier passes rather than repeating them.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>

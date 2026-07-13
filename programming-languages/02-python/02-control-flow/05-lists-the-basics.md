@@ -8,9 +8,27 @@ prereqs: []
 
 A **list** holds many values in a single, ordered collection — `[3, 1, 4, 1, 5]`, `["red", "green"]`. You've already used lists in passing ([building one with `append`](/synapse/programming-languages/python/control-flow/loop-control-and-patterns)); now they get their own chapter. The one idea that sets lists apart from everything in Tier 0: **a list is *mutable* — you can change its contents in place, after it's created** — and that single property explains both their power (build and edit collections cheaply) and their sharpest trap (two names can point at the *same* list). This is a gentle pass; [Sequences](/synapse/programming-languages/python/working-with-data/sequences) returns in Tier 2 for the full sequence protocol and complexity.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A list holds many values in a single, ordered collection.
+- A list is **mutable** — you can change its contents in place.
+- That one property explains both its power and its aliasing trap.
+
+</div>
+
 Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -89,7 +107,11 @@ IndexError: list index out of range
 
 Three items live at indices `0, 1, 2`; index `3` is the (nonexistent) fourth, so Python raises `IndexError`.
 
-*Earned rule.* The last valid index is `len(lst) - 1`; use `-1` for the end and `in` to test membership without indexing. The cost is the familiar off-by-one at the boundary — the same rule as string indexing, now reused, which is the point of learning it once.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** The last valid index is `len(lst) - 1`; use `-1` for the end and `in` to test membership without indexing. The cost is the familiar off-by-one at the boundary — the same rule as string indexing, now reused, which is the point of learning it once.
+
+</div>
 
 ---
 
@@ -129,7 +151,11 @@ TypeError: 'str' object does not support item assignment
 
 A string can't be edited in place, so `word[0] = "b"` is a `TypeError`. To "change" a string you build a new one (`"b" + word[1:]`); to change a list, you edit it directly.
 
-*Earned rule.* Use lists when the collection needs to change (add, remove, reorder); use strings/tuples when it shouldn't. The cost of mutability is exactly §5's trap — a mutable object shared under two names can be changed through either — so mutability buys convenience at the price of aliasing surprises.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use lists when the collection needs to change (add, remove, reorder); use strings/tuples when it shouldn't. The cost of mutability is exactly §5's trap — a mutable object shared under two names can be changed through either — so mutability buys convenience at the price of aliasing surprises.
+
+</div>
 
 ---
 
@@ -174,7 +200,11 @@ ValueError: list.remove(x): x not in list
 
 There's no `9` in the list, so `remove` can't do its job and raises `ValueError`. (Check first with `if 9 in nums:`.)
 
-*Earned rule.* `append`/`pop` for stack-like ends, `insert`/`remove` for arbitrary positions/values — and guard `remove` with an `in` check, or be ready for `ValueError`. The cost/boundary: `insert(0, ...)` and `remove`/`in` scan or shift the whole list, so they're slower than `append` for big lists — a complexity point [Sequences](/synapse/programming-languages/python/working-with-data/sequences) makes precise.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** `append`/`pop` for stack-like ends, `insert`/`remove` for arbitrary positions/values — and guard `remove` with an `in` check, or be ready for `ValueError`. The cost/boundary: `insert(0, ...)` and `remove`/`in` scan or shift the whole list, so they're slower than `append` for big lists — a complexity point [Sequences](/synapse/programming-languages/python/working-with-data/sequences) makes precise.
+
+</div>
 
 ---
 
@@ -215,7 +245,11 @@ print(nums[1:3])     # indices 1 and 2, not 3
 
 `nums[1:3]` includes indices 1 and 2 — `[20, 30]` — but **not** index 3. Two items, not three: `stop − start = 3 − 1 = 2`.
 
-*Earned rule.* Read `lst[a:b]` as "from `a`, stop before `b`," giving `b − a` items. The cost is the same off-by-one temptation as everywhere else in Python's zero-based, half-open world — but the upside is clean idioms: `lst[:]` copies the whole list, `lst[:n]` takes the first `n`, `lst[-n:]` takes the last `n`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Read `lst[a:b]` as "from `a`, stop before `b`," giving `b − a` items. The cost is the same off-by-one temptation as everywhere else in Python's zero-based, half-open world — but the upside is clean idioms: `lst[:]` copies the whole list, `lst[:n]` takes the first `n`, `lst[-n:]` takes the last `n`.
+
+</div>
 
 ---
 
@@ -269,7 +303,11 @@ b: [1, 2, 3, 4]
 
 Now `b` is a separate list; appending to it leaves `a` alone.
 
-*Earned rule.* Remember `=` on a list shares, it doesn't copy; make a deliberate copy (`a[:]` or `list(a)`) when you need independence. The cost/boundary: even a copy via `[:]` is *shallow* — it copies the outer list but the two share any *inner* objects — a subtlety [The Object Model](/synapse/programming-languages/python/how-python-works/the-object-model) resolves with deep copies in Tier 3.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Remember `=` on a list shares, it doesn't copy; make a deliberate copy (`a[:]` or `list(a)`) when you need independence. The cost/boundary: even a copy via `[:]` is *shallow* — it copies the outer list but the two share any *inner* objects — a subtlety [The Object Model](/synapse/programming-languages/python/how-python-works/the-object-model) resolves with deep copies in Tier 3.
+
+</div>
 
 ---
 
@@ -285,15 +323,23 @@ Now `b` is a separate list; appending to it leaves `a` alone.
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`IndexError: list index out of range` →** you indexed at `len` or beyond; last valid index is `len(lst)-1`.
 - **`TypeError: 'str' object does not support item assignment` →** strings are immutable; build a new string, or use a list.
 - **`ValueError: list.remove(x): x not in list` →** the value isn't present; check `if x in lst` first.
 - **A slice has one fewer item than expected →** `stop` is exclusive; `lst[a:b]` has `b−a` items.
 - **Changing one list changed "another" →** they're the same list (`b = a` aliases); copy with `a[:]` or `list(a)`.
 
+</div>
+
 ---
 
-*Predict, then check.* Start with `scores = [50, 60, 70, 80, 90]`. Predict each step's result: `scores.append(100)`, then `scores[0] = 55`, then `top3 = scores[-3:]`, then `scores.pop()`. Now the trap: predict what `top3` looks like after the `pop()` — did popping `scores` change `top3`? (Think about whether `top3` is a copy or an alias.) Build it and confirm.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Start with `scores = [50, 60, 70, 80, 90]`. Predict each step's result: `scores.append(100)`, then `scores[0] = 55`, then `top3 = scores[-3:]`, then `scores.pop()`. Now the trap: predict what `top3` looks like after the `pop()` — did popping `scores` change `top3`? (Think about whether `top3` is a copy or an alias.) Build it and confirm.
+
+</div>
 
 ## Your Turn
 

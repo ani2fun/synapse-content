@@ -8,9 +8,27 @@ prereqs: []
 
 A **comprehension** is a loop that builds a collection, compressed into a single expression. The thesis: **one shape — `[expr for item in iterable if condition]` — replaces the "create empty, loop, append" pattern** ([Tutorial 9](/synapse/programming-languages/python/control-flow/loop-control-and-patterns)), and the *same* shape with different brackets builds lists, sets, dicts, and even lazy generators. Learn the shape once and you've learned four constructors.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- One shape — `[expr for item in iterable if condition]` — replaces "create empty, loop, append".
+- The **same shape** with different brackets builds lists, sets, dicts, and lazy generators.
+- Learn the shape once and you've learned four constructors.
+
+</div>
+
 This builds on [loops](/synapse/programming-languages/python/control-flow/loops) and [dicts & sets](/synapse/programming-languages/python/working-with-data/dictionaries-and-sets), and the generator expressions here feed straight into [Iterators & Generators](/synapse/programming-languages/python/how-python-works/iterators-and-generators). Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -64,7 +82,11 @@ NameError: name 'n' is not defined
 
 The `n` lived only inside the comprehension; once it finished, `n` is gone, so `print(n)` is a `NameError`. (A plain `for` loop *does* leak its variable; a comprehension does not.)
 
-*Earned rule.* Use a comprehension to build a list by transforming and/or filtering an iterable — it's more concise and usually faster than the equivalent append loop. The boundary: it doesn't leak its variable (good — no accidental shadowing) and it always builds the *whole* list in memory, so for huge or infinite sources reach for a generator (§4) instead.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a comprehension to build a list by transforming and/or filtering an iterable — it's more concise and usually faster than the equivalent append loop. The boundary: it doesn't leak its variable (good — no accidental shadowing) and it always builds the *whole* list in memory, so for huge or infinite sources reach for a generator (§4) instead.
+
+</div>
 
 ---
 
@@ -118,7 +140,11 @@ print([x if x % 2 == 0 else 0 for x in nums])   # transform: if/else at the FRON
 [0, 2, 0, 4]
 ```
 
-*Earned rule.* Position tells you the role: `if` at the **end** filters (keeps fewer items); `if/else` at the **front** transforms (same count, different values). The cost of mixing them up is a `SyntaxError` (for filter-with-else) or a wrong-length result — so decide first whether you're *selecting* items or *mapping* them.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Position tells you the role: `if` at the **end** filters (keeps fewer items); `if/else` at the **front** transforms (same count, different values). The cost of mixing them up is a `SyntaxError` (for filter-with-else) or a wrong-length result — so decide first whether you're *selecting* items or *mapping* them.
+
+</div>
 
 ---
 
@@ -160,7 +186,11 @@ set
 
 `{}` is the empty dict (dicts predate sets in the syntax), so the empty *set* must be written `set()`. With elements, `{1, 2}` is unambiguously a set.
 
-*Earned rule.* Reach for a dict comprehension to build mappings (`{obj.id: obj for obj in objs}`, invert with `{v: k for k, v in d.items()}`) and a set comprehension for unique results. Just remember the empty-set gotcha: `set()`, never `{}`. The cost is the same as any comprehension — the whole collection is built eagerly in memory.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for a dict comprehension to build mappings (`{obj.id: obj for obj in objs}`, invert with `{v: k for k, v in d.items()}`) and a set comprehension for unique results. Just remember the empty-set gotcha: `set()`, never `{}`. The cost is the same as any comprehension — the whole collection is built eagerly in memory.
+
+</div>
 
 ---
 
@@ -205,7 +235,11 @@ print(list(gen))    # already exhausted
 
 The first `list(gen)` pulled all three values; the second finds the generator exhausted and gets `[]`. A list can be iterated again and again; a generator flows past once and is gone.
 
-*Earned rule.* Use a generator expression when you'll consume the items **once** and want to avoid building a big list — `sum(...)`, `any(...)`, `max(...)`, or feeding a loop over millions of rows. Use a list comprehension when you need the result **more than once**, need its length, or need indexing. The cost of laziness is single-use and no `len()`; the cost of a list is the memory.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a generator expression when you'll consume the items **once** and want to avoid building a big list — `sum(...)`, `any(...)`, `max(...)`, or feeding a loop over millions of rows. Use a list comprehension when you need the result **more than once**, need its length, or need indexing. The cost of laziness is single-use and no `len()`; the cost of a list is the memory.
+
+</div>
 
 ---
 
@@ -245,7 +279,11 @@ NameError: name 'row' is not defined. Did you mean: 'pow'?
 
 `for x in row` comes first but `row` isn't defined until the *second* clause — so it's a `NameError`. The clause order must match nested-loop order: outer source first.
 
-*Earned rule.* Use a multi-`for` comprehension to flatten one level (`[x for row in M for x in row]`), keeping clause order = outer-to-inner. But stop there: a comprehension with two `for`s and an `if`, or any you can't read at a glance, is *less* clear than a plain loop. The cost of cleverness is unreadability — when a comprehension needs a comment to explain it, write the loop instead.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a multi-`for` comprehension to flatten one level (`[x for row in M for x in row]`), keeping clause order = outer-to-inner. But stop there: a comprehension with two `for`s and an `if`, or any you can't read at a glance, is *less* clear than a plain loop. The cost of cleverness is unreadability — when a comprehension needs a comment to explain it, write the loop instead.
+
+</div>
 
 ---
 
@@ -262,15 +300,23 @@ NameError: name 'row' is not defined. Did you mean: 'pow'?
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`SyntaxError` near `else` in a comprehension →** you put a filter-`if` with `else` at the end; move `a if c else b` to the front, or drop the `else`.
 - **`{}` gave me a dict, not a set →** empty braces are a dict; use `set()` for an empty set.
 - **My generator is empty the second time →** generators are single-use; rebuild it, or use a list comp if you need it twice.
 - **`NameError` for the inner variable in a nested comp →** clause order is outer-to-inner; put the source loop first.
 - **Comprehension is unreadable →** if it has multiple `for`s/`if`s and needs a comment, write a plain loop instead.
 
+</div>
+
 ---
 
-*Predict, then check.* Given `nums = [1, -2, 3, -4, 5]`, predict the output of three comprehensions: `[n for n in nums if n > 0]`, `[n if n > 0 else 0 for n in nums]`, and `{abs(n) for n in nums}` (will it have 5 elements?). Then predict what `g = (n for n in nums)` followed by `sum(g)` then `sum(g)` prints for each `sum`. The double-`sum` is the one that catches people — and it's the seed of the iterator protocol in Tier 3.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Given `nums = [1, -2, 3, -4, 5]`, predict the output of three comprehensions: `[n for n in nums if n > 0]`, `[n if n > 0 else 0 for n in nums]`, and `{abs(n) for n in nums}` (will it have 5 elements?). Then predict what `g = (n for n in nums)` followed by `sum(g)` then `sum(g)` prints for each `sum`. The double-`sum` is the one that catches people — and it's the seed of the iterator protocol in Tier 3.
+
+</div>
 
 ## Your Turn
 

@@ -8,9 +8,28 @@ prereqs: []
 
 Single inheritance is a chain; multiple inheritance is a graph, and a graph has no obvious "search order." The thesis of this chapter: **Python imposes one deterministic order on that graph — the MRO, computed by C3 linearization — and everything about multiple inheritance follows from it.** The MRO decides which method wins, and it's the exact path `super()` walks (so `super()` calls the *next class in the MRO*, not necessarily a literal parent). On top of that foundation, three tools shape real designs: **mixins** add slices of behavior, **abstract base classes** declare required methods, and **dataclasses** erase the `__init__`/`__repr__`/`__eq__` boilerplate.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Multiple inheritance is a graph with no obvious search order.
+- The **MRO** (C3 linearization) imposes one deterministic order.
+- It decides which method wins and the path `super()` walks.
+- Mixins, abstract base classes, and dataclasses build on top.
+
+</div>
+
 We start with the MRO because the rest is built on it, then layer the design tools. Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -89,7 +108,11 @@ TypeError: Cannot create a consistent method resolution order (MRO) for bases A,
 
 `class C(A, B)` demands `A` before `B` (you listed it first), but `B` is a *subclass* of `A`, so the child-before-parent rule demands `B` before `A`. The two orders contradict, so Python raises at class-creation time. The fix is to list bases most-derived-first: `class C(B, A)`.
 
-*Earned rule.* **Read `Class.__mro__` whenever multiple inheritance surprises you — it is the single source of truth for what method runs.** The cost of multiple inheritance is exactly this: you must reason about a linearized order, not a simple parent. When a hierarchy gets confusing enough that you're printing the MRO often, that's the signal to flatten it — prefer composition or a single mixin over a deep diamond.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Read `Class.__mro__` whenever multiple inheritance surprises you — it is the single source of truth for what method runs.** The cost of multiple inheritance is exactly this: you must reason about a linearized order, not a simple parent. When a hierarchy gets confusing enough that you're printing the MRO often, that's the signal to flatten it — prefer composition or a single mixin over a deep diamond.
+
+</div>
 
 ---
 
@@ -176,7 +199,11 @@ Base.__init__
 
 Identical `Left.__init__` code, two different targets for `super()`: `Base` when you make a `Left`, but `Right` when you make a `Child` — because `super()` reads the *instance's* MRO, and `Child`'s MRO inserts `Right` after `Left`. (The trailing `Base.__init__` in each case is the chain reaching its terminus — `Right.__init__` also calls `super()`, which lands on `Base`.) If you'd hard-coded `Base.__init__(self)` instead of `super()`, `Right.__init__` would be **skipped** when constructing a `Child`.
 
-*Earned rule.* **In a cooperative hierarchy, always call `super().method(...)` (never name a base class directly), and keep signatures compatible across the chain.** The cost is discipline — every participant must call `super()` and accept compatible arguments, or the chain breaks mid-way (often by silently skipping a class). The payoff is that mixins and diamonds initialize correctly in MRO order without each class needing to know its siblings.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **In a cooperative hierarchy, always call `super().method(...)` (never name a base class directly), and keep signatures compatible across the chain.** The cost is discipline — every participant must call `super()` and accept compatible arguments, or the chain breaks mid-way (often by silently skipping a class). The payoff is that mixins and diamonds initialize correctly in MRO order without each class needing to know its siblings.
+
+</div>
 
 ---
 
@@ -248,7 +275,11 @@ TypeError: Object of type set is not JSON serializable
 
 The mixin assumed every attribute is JSON-serializable; a `set` isn't, so `json.dumps` raises — and it surfaces only when `to_json` runs, deep in the mixin (note how the traceback descends all the way into the standard library's `json` encoder). The mixin's hidden precondition ("all attributes are serializable") wasn't enforced anywhere.
 
-*Earned rule.* **Use mixins to factor a single, reusable behavior onto classes that satisfy the mixin's implicit contract; keep them narrow and stateless.** The cost is that the contract is *implicit* — the mixin trusts the host to provide the right attributes, and violations show up at call time, not assembly time. Keep each mixin to one job and document what it assumes, or that convenience becomes a debugging hunt.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Use mixins to factor a single, reusable behavior onto classes that satisfy the mixin's implicit contract; keep them narrow and stateless.** The cost is that the contract is *implicit* — the mixin trusts the host to provide the right attributes, and violations show up at call time, not assembly time. Keep each mixin to one job and document what it assumes, or that convenience becomes a debugging hunt.
+
+</div>
 
 ---
 
@@ -308,7 +339,11 @@ TypeError: Can't instantiate abstract class Blob without an implementation for a
 
 `Blob` inherits `Shape` but never defines `area`, so `Blob()` raises `TypeError: Can't instantiate abstract class Blob without an implementation for abstract method 'area'` (the exact 3.13 wording). The same error guards the ABC itself — `Shape()` fails identically, because `Shape` has an abstract `area` too. The contract is enforced the moment someone tries to create an object.
 
-*Earned rule.* **Use an ABC when you want to *guarantee* subclasses implement an interface, and to fail loudly (at construction) if they don't.** The cost is ceremony and a hard dependency on inheriting your base — heavier than Python's usual duck typing, where any object with the right methods just works. Reach for ABCs at real boundaries (plugin systems, framework hooks) where an early, clear failure beats a late `AttributeError`; for informal contracts, duck typing is lighter.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Use an ABC when you want to *guarantee* subclasses implement an interface, and to fail loudly (at construction) if they don't.** The cost is ceremony and a hard dependency on inheriting your base — heavier than Python's usual duck typing, where any object with the right methods just works. Reach for ABCs at real boundaries (plugin systems, framework hooks) where an early, clear failure beats a late `AttributeError`; for informal contracts, duck typing is lighter.
+
+</div>
 
 ---
 
@@ -370,7 +405,11 @@ dataclasses.FrozenInstanceError: cannot assign to field 'x'
 
 `frozen=True` makes instances immutable: now they're hashable, so `{p, Point(1, 2)}` works and the two equal points collapse to one entry (`len` is `1`). The price is immutability — `p.x = 9` raises `FrozenInstanceError`, because a frozen dataclass overrides `__setattr__` to forbid writes (an object you can hash must not change its hashed fields). A plain `@dataclass Point` would instead raise `TypeError: unhashable type: 'Point'` the moment you put it in a set.
 
-*Earned rule.* **Reach for `@dataclass` for plain data-holding classes — it deletes the `__init__`/`__repr__`/`__eq__` boilerplate; add `frozen=True` when you need immutability or hashability (dict keys, set members).** The cost is small: `@dataclass` is for *data*, and adds machinery you don't want on classes that are mostly behavior or need custom construction logic. For a bag of fields, though, it's strictly less code and fewer bugs than hand-written dunders.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Reach for `@dataclass` for plain data-holding classes — it deletes the `__init__`/`__repr__`/`__eq__` boilerplate; add `frozen=True` when you need immutability or hashability (dict keys, set members).** The cost is small: `@dataclass` is for *data*, and adds machinery you don't want on classes that are mostly behavior or need custom construction logic. For a bag of fields, though, it's strictly less code and fewer bugs than hand-written dunders.
+
+</div>
 
 ---
 
@@ -387,6 +426,8 @@ dataclasses.FrozenInstanceError: cannot assign to field 'x'
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A method from the "wrong" base runs in multiple inheritance →** lookup follows the MRO, not your mental tree; print `Class.__mro__` to see the real order.
 - **`TypeError: Cannot create a consistent method resolution order` →** you listed a parent before its child in the bases; reorder most-derived-first (`class C(B, A)`).
 - **A base class's `__init__` is silently skipped →** someone called `Base.__init__(self)` directly instead of `super().__init__()`, breaking the cooperative chain.
@@ -394,9 +435,15 @@ dataclasses.FrozenInstanceError: cannot assign to field 'x'
 - **`TypeError: unhashable type` on a dataclass in a set/dict →** a plain `@dataclass` defines `__eq__` so it's unhashable; use `@dataclass(frozen=True)`.
 - **`FrozenInstanceError: cannot assign to field` →** the dataclass is `frozen=True` (immutable); build a new instance (e.g. `dataclasses.replace(obj, x=9)`) instead of mutating.
 
+</div>
+
 ---
 
-*Predict, then check.* Define a diamond: `Animal` with `speak(self)` returning `"..."`; `Dog(Animal)` and `Cat(Animal)` each overriding `speak`; and `Chimera(Dog, Cat)`. First predict `Chimera.__mro__` and what `Chimera().speak()` returns (which override wins?). Then make all four `__init__`s cooperative with `super().__init__()` and a print in each, and predict the order of prints when you construct a `Chimera`. Finally, rewrite `Animal` as `@dataclass(frozen=True)` with a `name: str` field and predict two things: whether `Animal("Rex") == Animal("Rex")` is `True`, and what happens if you then run `a = Animal("Rex"); a.name = "Max"`.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Define a diamond: `Animal` with `speak(self)` returning `"..."`; `Dog(Animal)` and `Cat(Animal)` each overriding `speak`; and `Chimera(Dog, Cat)`. First predict `Chimera.__mro__` and what `Chimera().speak()` returns (which override wins?). Then make all four `__init__`s cooperative with `super().__init__()` and a print in each, and predict the order of prints when you construct a `Chimera`. Finally, rewrite `Animal` as `@dataclass(frozen=True)` with a `name: str` field and predict two things: whether `Animal("Rex") == Animal("Rex")` is `True`, and what happens if you then run `a = Animal("Rex"); a.name = "Max"`.
+
+</div>
 
 ## Your Turn
 

@@ -8,9 +8,28 @@ prereqs: []
 
 You've used `len()`, `+`, `==`, `[]`, and `for … in` since the first tutorials — always on built-ins. The thesis of this chapter: **those operators and built-in functions are not special-cased for `list` and `dict`; they dispatch to *methods with double-underscore names* — the "dunders" — and your own classes can implement them too.** When you write `len(x)`, Python calls `x.__len__()`; when you write `a + b`, it calls `a.__add__(b)`. Implement the right dunders and your objects plug straight into Python's syntax, behaving like built-ins to every caller and every library that relies on those protocols.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Operators and built-ins aren't special-cased for `list`/`dict`.
+- They dispatch to **dunder** (double-underscore) methods.
+- `len(x)` calls `x.__len__()`; `a + b` calls `a.__add__(b)`.
+- Implement them and your objects behave like **built-ins**.
+
+</div>
+
 The discipline is to implement *only the dunders you actually need* — they form the [data model](/synapse/programming-languages/python/advanced/the-data-model), a large protocol surface, but each one is opt-in. Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -81,7 +100,11 @@ $5
 
 (The `0x…` address is non-deterministic — yours will differ; it is shown here only to illustrate the default form.) `print(m)` looks fine, but `[m]` falls back to `object.__repr__`, exposing `<__main__.Money object at 0x…>`. That is exactly what you see when debugging a list of your objects in the REPL — opaque and unhelpful.
 
-*Earned rule.* **Always define `__repr__`; define `__str__` only when the user-facing form genuinely differs.** The cost of `__repr__` is one method; the payoff is that the REPL, debuggers, logs, and every container show something meaningful. If you write just one of the two, make it `__repr__` — because `str()` falls back to it, but `repr()` never falls back to `__str__`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Always define `__repr__`; define `__str__` only when the user-facing form genuinely differs.** The cost of `__repr__` is one method; the payoff is that the REPL, debuggers, logs, and every container show something meaningful. If you write just one of the two, make it `__repr__` — because `str()` falls back to it, but `repr()` never falls back to `__str__`.
+
+</div>
 
 ---
 
@@ -158,7 +181,11 @@ True
 
 `hash((self.x, self.y))` reuses the tuple's hash, derived from exactly the fields that define equality. Now equal points hash equal: `{p, q}` collapses to one element, and membership testing works.
 
-*Earned rule.* **If you define `__eq__` and want instances usable in sets or as dict keys, define `__hash__` over the same fields — and only over fields that never change.** The cost is keeping the two methods in sync; the benefit is correct containers. If your objects are mutable and you mutate the hashed fields, leave them unhashable (the default after `__eq__`) — a mutating key silently corrupts a `dict`, which is far worse than a clear `TypeError`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **If you define `__eq__` and want instances usable in sets or as dict keys, define `__hash__` over the same fields — and only over fields that never change.** The cost is keeping the two methods in sync; the benefit is correct containers. If your objects are mutable and you mutate the hashed fields, leave them unhashable (the default after `__eq__`) — a mutating key silently corrupts a `dict`, which is far worse than a clear `TypeError`.
+
+</div>
 
 ---
 
@@ -214,7 +241,11 @@ c
 
 Python calls `p[0]`, `p[1]`, `p[2]`, then `p[3]` raises `IndexError` (from the inner list), which the `for` loop treats as "stop." No `__iter__` was needed.
 
-*Earned rule.* **Define `__len__` and `__getitem__` to make a class behave like a sequence; lean on the `__getitem__` iteration fallback only for genuinely index-addressable data.** The cost of relying on the fallback is that it forces *integer* indexing semantics and only stops on `IndexError` — for anything lazy or non-integer-keyed, define `__iter__` explicitly ([iterators and generators](/synapse/programming-languages/python/how-python-works/iterators-and-generators)) so iteration doesn't accidentally depend on `[i]`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Define `__len__` and `__getitem__` to make a class behave like a sequence; lean on the `__getitem__` iteration fallback only for genuinely index-addressable data.** The cost of relying on the fallback is that it forces *integer* indexing semantics and only stops on `IndexError` — for anything lazy or non-integer-keyed, define `__iter__` explicitly ([iterators and generators](/synapse/programming-languages/python/how-python-works/iterators-and-generators)) so iteration doesn't accidentally depend on `[i]`.
+
+</div>
 
 ---
 
@@ -272,7 +303,11 @@ AttributeError: 'int' object has no attribute 'x'
 
 `5` has no `.x`, so `other.x` raises `AttributeError` from *inside* your method — a leaky, confusing error. The disciplined version guards the type and returns `NotImplemented` for anything it can't handle (`if not isinstance(other, Vector): return NotImplemented`), which lets Python produce the standard `TypeError: unsupported operand type(s)` and gives the *other* operand a chance via `__radd__` (useful for, e.g., `5 + vec` or `sum(vectors)`).
 
-*Earned rule.* **Implement `__add__` to return a new object, and guard the operand type — return `NotImplemented` (don't raise) for types you don't support.** The cost is a type check and remembering that `NotImplemented` ≠ `NotImplementedError`; the payoff is correct interaction with other types, sane error messages, and reflected operations like `__radd__` working as Python intends.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Implement `__add__` to return a new object, and guard the operand type — return `NotImplemented` (don't raise) for types you don't support.** The cost is a type check and remembering that `NotImplemented` ≠ `NotImplementedError`; the payoff is correct interaction with other types, sane error messages, and reflected operations like `__radd__` working as Python intends.
+
+</div>
 
 ---
 
@@ -325,7 +360,11 @@ TypeError: '<' not supported between instances of 'Person' and 'Person'
 
 `sorted()` tries to compare two `Person`s with `<`, finds no `__lt__` (and no inherited ordering), and raises. The fix is the `__lt__` above — or, if you need the *full* set of `<`, `<=`, `>`, `>=` consistently, decorate the class with `@functools.total_ordering` and define just `__lt__` and `__eq__`; it fills in the rest.
 
-*Earned rule.* **Define `__lt__` for sortability; reach for `functools.total_ordering` only when you also need the other comparison operators.** The cost of `total_ordering` is a slightly slower derived comparison and a required `__eq__`; the benefit is not hand-writing four near-identical methods. For the common case of "I just want `sorted()` to work," a lone `__lt__` — or, simpler still, `sorted(people, key=lambda p: p.age)` with no dunder at all — is enough.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** **Define `__lt__` for sortability; reach for `functools.total_ordering` only when you also need the other comparison operators.** The cost of `total_ordering` is a slightly slower derived comparison and a required `__eq__`; the benefit is not hand-writing four near-identical methods. For the common case of "I just want `sorted()` to work," a lone `__lt__` — or, simpler still, `sorted(people, key=lambda p: p.age)` with no dunder at all — is enough.
+
+</div>
 
 ---
 
@@ -342,15 +381,23 @@ TypeError: '<' not supported between instances of 'Person' and 'Person'
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Your object prints as `<… object at 0x…>` in a list/log →** you defined only `__str__` (or neither); define `__repr__`.
 - **`TypeError: unhashable type` after adding `__eq__` →** Python set `__hash__` to `None`; define `__hash__` over the same (immutable) fields.
 - **A `dict` keyed on your object behaves erratically →** you hashed a field you later mutated; hash only never-changing fields, or keep the object unhashable.
 - **`AttributeError` from inside `__add__` when adding a non-matching type →** guard with `isinstance` and `return NotImplemented` instead of reading attributes blindly.
 - **`TypeError: '<' not supported between instances` from `sorted()` →** define `__lt__` (or pass `key=…`); use `@functools.total_ordering` if you need all four comparisons.
 
+</div>
+
 ---
 
-*Predict, then check.* Write a `Fraction` class with `__init__(self, num, den)`, a `__repr__` of the form `Fraction(1, 2)`, and an `__eq__` that treats `1/2` and `2/4` as equal (compare `num * other.den == other.num * den`). First predict what `{Fraction(1, 2), Fraction(2, 4)}` does *before* you add `__hash__` — set size, or an error? Then add a `__hash__` that makes the two collapse to one entry (hint: reduce by the gcd first, since equal fractions must hash equal), and predict the new `len(...)`. Finally, predict whether `sorted([Fraction(1, 2), Fraction(1, 3)])` works with no `__lt__` defined, and what error you'd see if not.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write a `Fraction` class with `__init__(self, num, den)`, a `__repr__` of the form `Fraction(1, 2)`, and an `__eq__` that treats `1/2` and `2/4` as equal (compare `num * other.den == other.num * den`). First predict what `{Fraction(1, 2), Fraction(2, 4)}` does *before* you add `__hash__` — set size, or an error? Then add a `__hash__` that makes the two collapse to one entry (hint: reduce by the gcd first, since equal fractions must hash equal), and predict the new `len(...)`. Finally, predict whether `sorted([Fraction(1, 2), Fraction(1, 3)])` works with no `__lt__` defined, and what error you'd see if not.
+
+</div>
 
 ## Your Turn
 

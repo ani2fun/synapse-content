@@ -21,7 +21,15 @@ Eight chapters, in order:
 
 These draw on everything before — especially [the object model](/synapse/programming-languages/python/how-python-works/the-object-model), [dunder methods](/synapse/programming-languages/python/object-oriented/dunder-methods) (which [The Data Model](/synapse/programming-languages/python/advanced/the-data-model) synthesizes), and [complexity](/synapse/programming-languages/python/working-with-data/sequences). A note on the runnable blocks: a few topics here use tools the in-browser sandbox can't fully run (`mypy`, `pytest`, multiprocessing) — those are shown as clearly-labelled static examples, while everything testable in one Python file (threads, async, `__slots__`, `timeit`, the data model) is runnable and verified.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 

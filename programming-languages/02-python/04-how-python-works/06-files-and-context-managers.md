@@ -8,9 +8,28 @@ prereqs: []
 
 Some resources must be released — files closed, locks freed, connections returned. The thesis: **the `with` statement pairs setup with guaranteed teardown through the context-manager protocol (`__enter__`/`__exit__`), so cleanup happens no matter how the block exits** — normal end, `return`, or exception. Files are the everyday example, and `with open(...)` is the idiom you'll use most.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- `with` pairs setup with **guaranteed teardown**.
+- The context-manager protocol is `__enter__`/`__exit__`.
+- Cleanup happens no matter how the block exits.
+- Files are the everyday example — `with open(...)`.
+
+</div>
+
 This connects to [`finally`](/synapse/programming-languages/python/how-python-works/errors-and-exceptions) (guaranteed cleanup) and is itself a protocol like [iteration](/synapse/programming-languages/python/how-python-works/iterators-and-generators). The runnable blocks below write and read real files in the sandbox; every output was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -52,7 +71,11 @@ world
 
 *Concrete bite.* The truncation in `"w"` is a real trap: opening an existing file for writing **erases it immediately**, before you write anything. Open your important `data.txt` with `"w"` by mistake and its previous contents are gone the instant `open` returns — no warning, no undo. (`"a"` appends; `"r+"` reads-and-writes without truncating.) Choosing the wrong mode is how people accidentally wipe files.
 
-*Earned rule.* Always open files with `with open(...) as f:`, and pick the mode deliberately: `"r"` to read, `"w"` to replace, `"a"` to add. The cost of `"w"` is the silent truncation — when in doubt about whether a file exists and matters, read it first or use `"a"`. The cost of `read()` on a huge file is loading it all into memory; iterate line by line (`for line in f:`) instead.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Always open files with `with open(...) as f:`, and pick the mode deliberately: `"r"` to read, `"w"` to replace, `"a"` to add. The cost of `"w"` is the silent truncation — when in doubt about whether a file exists and matters, read it first or use `"a"`. The cost of `read()` on a huge file is loading it all into memory; iterate line by line (`for line in f:`) instead.
+
+</div>
 
 ---
 
@@ -93,7 +116,11 @@ f.close()           # ...so the file is never closed (a leak)
 
 The fix is `with open("data.txt") as f:`, which closes `f` even if `process` raises. (Or, the older defensive form, `try: ... finally: f.close()` — exactly what `with` packages up for you.)
 
-*Earned rule.* Use `with` for every file (and lock, connection, etc.) — it's the leak-proof default, equivalent to a `try/finally: close()` but shorter and impossible to forget. The cost is essentially nil; the cost of *not* using it is leaked file descriptors that, under load, exhaust the OS limit and crash a long-running program.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `with` for every file (and lock, connection, etc.) — it's the leak-proof default, equivalent to a `try/finally: close()` but shorter and impossible to forget. The cost is essentially nil; the cost of *not* using it is leaked file descriptors that, under load, exhaust the OS limit and crash a long-running program.
+
+</div>
 
 ---
 
@@ -139,7 +166,11 @@ sequenceDiagram
 
 *Concrete bite.* A common mistake is forgetting that `as` binds the **return value of `__enter__`**, not the object itself. If `__enter__` returns `None` (e.g. you forgot `return self`), then `with Thing() as t:` makes `t` be `None`, and using `t` in the body fails with `AttributeError`. The object you wrote isn't automatically what `as` gives you — only what `__enter__` returns is.
 
-*Earned rule.* Implement `__enter__` (returning the resource, usually `self`) and `__exit__` (cleanup) to make any object usable with `with`. The cost is two methods; the payoff is leak-proof setup/teardown your callers get for free — and you must remember to `return self` from `__enter__` if you want `as` to bind the object.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Implement `__enter__` (returning the resource, usually `self`) and `__exit__` (cleanup) to make any object usable with `with`. The cost is two methods; the payoff is leak-proof setup/teardown your callers get for free — and you must remember to `return self` from `__enter__` if you want `as` to bind the object.
+
+</div>
 
 ---
 
@@ -194,7 +225,11 @@ ValueError: boom
 
 `__exit__` ran its cleanup (`exit ran`) — but because it returned `None` (falsy), the `ValueError` was *not* suppressed and crashed the program. Cleanup happened; the error still surfaced.
 
-*Earned rule.* Return falsy from `__exit__` (the default) so cleanup runs *and* errors still surface — suppressing exceptions is rarely right and hides bugs (the §2 lesson of [Errors & Exceptions](/synapse/programming-languages/python/how-python-works/errors-and-exceptions) again). Only return `True` when suppression is the deliberate point (like `contextlib.suppress`). The cost of accidentally returning `True` is a silently swallowed error — the context-manager version of a too-broad `except`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Return falsy from `__exit__` (the default) so cleanup runs *and* errors still surface — suppressing exceptions is rarely right and hides bugs (the §2 lesson of [Errors & Exceptions](/synapse/programming-languages/python/how-python-works/errors-and-exceptions) again). Only return `True` when suppression is the deliberate point (like `contextlib.suppress`). The cost of accidentally returning `True` is a silently swallowed error — the context-manager version of a too-broad `except`.
+
+</div>
 
 ---
 
@@ -241,7 +276,11 @@ def tag(name):
 
 Without the `try/finally`, a `raise` inside the `with` block would skip the closing `</p>` — the generator never resumes past a `yield` that raised. The `finally` restores the guarantee `with` is supposed to provide.
 
-*Earned rule.* Use `@contextmanager` for simple setup/teardown — it's far less boilerplate than a class — but **wrap the `yield` in `try/finally`** whenever the teardown must run on errors too. The cost of forgetting the `try/finally` is the exact bug `with` exists to prevent: cleanup that silently doesn't happen when the body fails.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `@contextmanager` for simple setup/teardown — it's far less boilerplate than a class — but **wrap the `yield` in `try/finally`** whenever the teardown must run on errors too. The cost of forgetting the `try/finally` is the exact bug `with` exists to prevent: cleanup that silently doesn't happen when the body fails.
+
+</div>
 
 ---
 
@@ -257,15 +296,23 @@ Without the `try/finally`, a `raise` inside the `with` block would skip the clos
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A file leaked / "too many open files" →** you opened without `with`; use `with open(...) as f:`.
 - **A file's contents vanished →** you opened it with `"w"` (truncates); use `"a"` to append or `"r"` to read.
 - **`as` target is `None` →** your `__enter__` didn't `return self` (or the resource).
 - **An exception silently disappeared in a `with` →** an `__exit__` returned `True`; return falsy unless suppression is intended.
 - **`@contextmanager` cleanup skipped on error →** wrap the `yield` in `try/finally`.
 
+</div>
+
 ---
 
-*Predict, then check.* Predict the exact output of writing `"a\nb\nc\n"` to a file with `"w"`, then re-opening it and printing `f.read()` (how many lines, including blanks?). Then trace the `Suppress` vs `NoSuppress` classes: for each, predict whether `print("after")` runs after a `with` block that raises `ValueError`. The difference is one `return True` — and it's the same "don't silently swallow errors" lesson from exceptions, wearing a context-manager hat.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict the exact output of writing `"a\nb\nc\n"` to a file with `"w"`, then re-opening it and printing `f.read()` (how many lines, including blanks?). Then trace the `Suppress` vs `NoSuppress` classes: for each, predict whether `print("after")` runs after a `with` block that raises `ValueError`. The difference is one `return True` — and it's the same "don't silently swallow errors" lesson from exceptions, wearing a context-manager hat.
+
+</div>
 
 ## Your Turn
 

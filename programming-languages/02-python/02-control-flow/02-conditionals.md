@@ -8,9 +8,27 @@ prereqs: []
 
 A conditional runs a block of code **only when a condition is true**. That's the whole idea, and it rests directly on [the previous chapter](/synapse/programming-languages/python/control-flow/booleans-and-logic): `if` checks a bool (or any truthy value) and decides whether to run the indented block beneath it. The thesis to hold onto: **indentation is not cosmetic — it is how Python knows which lines belong to the `if`.** Get that, and conditionals are straightforward; miss it, and you get the errors this chapter shows.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- A conditional runs a block **only when a condition is true**.
+- **Indentation is not cosmetic.**
+- It is how Python knows which lines belong to the `if`.
+
+</div>
+
 Every output below was produced by running the code.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -64,7 +82,11 @@ IndentationError: expected an indented block after 'if' statement on line 2
 
 After `if ...:`, Python *requires* an indented block; an unindented next line is an `IndentationError`, raised before anything runs.
 
-*Earned rule.* End every `if` line with `:` and indent its body (four spaces, consistently). The cost of Python's indentation rule is strictness — a stray space or a missing indent is an error, not a warning — but the payoff is that the visual structure of the code always matches what runs, with no `{ }` to misplace.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** End every `if` line with `:` and indent its body (four spaces, consistently). The cost of Python's indentation rule is strictness — a stray space or a missing indent is an error, not a warning — but the payoff is that the visual structure of the code always matches what runs, with no `{ }` to misplace.
+
+</div>
 
 ---
 
@@ -106,7 +128,11 @@ SyntaxError: invalid syntax. Maybe you meant '==' or ':=' instead of '='?
 
 A condition must be an *expression* that yields a value; `age = 18` is an assignment *statement*, which isn't allowed there. Python even suggests the fix: `==`.
 
-*Earned rule.* Use `==` to compare in a condition; `=` only assigns. The cost of the mix-up is mercifully a loud `SyntaxError` (Python forbids assignment in an `if` condition precisely to catch this) — heed the "Maybe you meant '=='?" hint and move on.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `==` to compare in a condition; `=` only assigns. The cost of the mix-up is mercifully a loud `SyntaxError` (Python forbids assignment in an `if` condition precisely to catch this) — heed the "Maybe you meant '=='?" hint and move on.
+
+</div>
 
 ---
 
@@ -171,7 +197,11 @@ C or better
 
 `score` is `95` — clearly an "A" — but `score >= 70` is checked first, matches, and wins. The `elif score >= 90` can *never* run, because anything ≥ 90 is also ≥ 70. The order silently swallowed a case.
 
-*Earned rule.* Order `elif` branches from **most specific / most restrictive to least** (highest score first). The cost of bad ordering is invisible — no error, just a branch that can never execute — so when a case "never happens," check whether an earlier condition is catching it first.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Order `elif` branches from **most specific / most restrictive to least** (highest score first). The cost of bad ordering is invisible — no error, just a branch that can never execute — so when a case "never happens," check whether an earlier condition is catching it first.
+
+</div>
 
 ---
 
@@ -219,7 +249,11 @@ User dashboard
 
 Same result, one level of indentation, and each branch's full requirement is visible on its own line.
 
-*Earned rule.* Nest when the inner decision only makes sense after the outer one; otherwise flatten with `and`/`elif`. The cost of nesting is readability — every extra level is another indent to track and another place for an `else` to attach wrongly — so prefer the flattest structure that still reads clearly.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Nest when the inner decision only makes sense after the outer one; otherwise flatten with `and`/`elif`. The cost of nesting is readability — every extra level is another indent to track and another place for an `else` to attach wrongly — so prefer the flattest structure that still reads clearly.
+
+</div>
 
 ---
 
@@ -249,7 +283,11 @@ checked
 
 *Concrete bite.* The output above is the proof: `"Ada"` is truthy (first `if` ran) but `"Ada" == True` is `False` (second `if` didn't). So `if name == True:` rejects every real name. Comparing to `True` breaks exactly when you rely on truthiness.
 
-*Earned rule.* Write `if x:` and `if not x:` — never `== True` / `== False`. The cost of the explicit comparison isn't just verbosity; it changes the meaning from "truthy" to "is literally the bool," which silently fails for the truthy non-bool values you usually care about.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Write `if x:` and `if not x:` — never `== True` / `== False`. The cost of the explicit comparison isn't just verbosity; it changes the meaning from "truthy" to "is literally the bool," which silently fails for the truthy non-bool values you usually care about.
+
+</div>
 
 ---
 
@@ -265,15 +303,23 @@ checked
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **`IndentationError: expected an indented block` →** indent the body under `if`/`elif`/`else`/`while` (four spaces).
 - **`SyntaxError ... Maybe you meant '=='?` →** you wrote `=` in a condition; use `==`.
 - **A branch never runs →** an earlier `elif`/`if` condition is broader and matches first; reorder most-specific first.
 - **An `else` pairs with the wrong `if` →** check indentation; `else` binds to the `if` at its own indent level.
 - **`if x == True:` skips a truthy value →** compare nothing; write `if x:` (and `if not x:`).
 
+</div>
+
 ---
 
-*Predict, then check.* Write a grade classifier for `score = 85` using `if`/`elif`/`else` that prints `A` (≥90), `B` (≥80), `C` (≥70), else `F`. Predict the output. Now deliberately reorder it worst-first (`if score >= 70` at the top) and predict what `85` prints with the broken order. Build both as runnable blocks and confirm — the contrast is the lesson of §3.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Write a grade classifier for `score = 85` using `if`/`elif`/`else` that prints `A` (≥90), `B` (≥80), `C` (≥70), else `F`. Predict the output. Now deliberately reorder it worst-first (`if score >= 70` at the top) and predict what `85` prints with the broken order. Build both as runnable blocks and confirm — the contrast is the lesson of §3.
+
+</div>
 
 ## Your Turn
 

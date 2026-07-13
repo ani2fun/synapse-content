@@ -8,9 +8,27 @@ prereqs: []
 
 In [Classes & Objects](/synapse/programming-languages/python/object-oriented/classes-and-objects) every attribute lived on the instance, set through `self`. But you can also attach attributes and methods to the *class itself*, and the two kinds behave very differently. The thesis: **attributes defined on the class are *shared* by all instances; attributes set on `self` are *per-instance*; and a lookup like `d.x` checks the instance first, then falls back to the class.** That single lookup rule explains a notorious trap, two method decorators, and Python's whole approach to "private" data.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Class attributes are **shared** by all instances.
+- Attributes set on `self` are **per-instance**.
+- A lookup like `d.x` checks the instance first, then falls back to the class.
+
+</div>
+
 This builds directly on instance attributes and `__dict__` from the previous tutorial. Every output below was produced by running the code — including the deliberate tracebacks.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -84,7 +102,11 @@ Canis
 
 `a.species = "Lupus"` wrote into `a.__dict__` (see the last two lines — `a` now carries `species`, `b` does not). Reads on `a` find that instance copy first, so `a.species` is `"Lupus"`. But `b.species` and `Dog.species` are unchanged at `"Canis"`: the assignment never touched the class. Writing through an instance always lands *on the instance*, never on the class behind it.
 
-*Earned rule.* Use class attributes for values genuinely common to all instances (constants, shared defaults) and instance attributes for anything that varies per object; remember that `instance.attr = value` always creates or updates an *instance* attribute, never the class one. The cost of forgetting this is the illusion that you edited shared state when you only shadowed it on one object — a bug that hides until another instance reveals the unchanged original.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use class attributes for values genuinely common to all instances (constants, shared defaults) and instance attributes for anything that varies per object; remember that `instance.attr = value` always creates or updates an *instance* attribute, never the class one. The cost of forgetting this is the illusion that you edited shared state when you only shadowed it on one object — a bug that hides until another instance reveals the unchanged original.
+
+</div>
 
 ---
 
@@ -144,7 +166,11 @@ False
 
 Now `self.tricks = []` runs once *per instance*, so `a` and `b` get different lists — `a.tricks is b.tricks` is `False`. Teaching `a` to `"sit"` leaves `b` empty, as intended. The rule: shared *immutable* defaults on the class are fine (you can only shadow them, never mutate them), but shared *mutable* state belongs in `__init__`.
 
-*Earned rule.* Put any attribute you will *mutate* (lists, dicts, sets, custom mutable objects) in `__init__` as `self.x = ...`; reserve class attributes for immutable shared values. This is the same hazard as the mutable-default-argument trap in [functions-in-depth](/synapse/programming-languages/python/how-python-works/functions-in-depth) — a mutable created once and silently shared. The cost of getting it wrong is cross-contamination between instances that looks impossible until you check `is`.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Put any attribute you will *mutate* (lists, dicts, sets, custom mutable objects) in `__init__` as `self.x = ...`; reserve class attributes for immutable shared values. This is the same hazard as the mutable-default-argument trap in [functions-in-depth](/synapse/programming-languages/python/how-python-works/functions-in-depth) — a mutable created once and silently shared. The cost of getting it wrong is cross-contamination between instances that looks impossible until you check `is`.
+
+</div>
 
 ---
 
@@ -202,7 +228,11 @@ True
 
 `whoami` returns `cls`, and the output is the *class* `Dog` (`Dog.whoami() is Dog` is `True`) — there is no instance anywhere in this code. That is the defining difference from an instance method: an instance method's `self` is one dog; a classmethod's `cls` is the `Dog` blueprint.
 
-*Earned rule.* Reach for `@classmethod` when a method needs the class but not a specific instance — most often as an alternate constructor (`from_string`, `from_dict`, `from_json`) that builds and returns `cls(...)`. The cost is remembering that `cls` is the class, so calling `cls()` *makes* an object rather than acting on an existing one; the payoff is one obvious, named entry point per construction shape instead of free-floating factory functions.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Reach for `@classmethod` when a method needs the class but not a specific instance — most often as an alternate constructor (`from_string`, `from_dict`, `from_json`) that builds and returns `cls(...)`. The cost is remembering that `cls` is the class, so calling `cls()` *makes* an object rather than acting on an existing one; the payoff is one obvious, named entry point per construction shape instead of free-floating factory functions.
+
+</div>
 
 ---
 
@@ -261,7 +291,11 @@ NameError: name 'self' is not defined
 
 Inside `human_years` there is no `self` — the decorator stripped it — so `self.age` is an undefined name. A method that needs the instance must be a regular method (or a classmethod for the class); `@staticmethod` is only for one that needs neither.
 
-*Earned rule.* Use `@staticmethod` for a helper that logically belongs with the class but uses no instance or class state — a small utility you want discoverable as `Dog.human_years` rather than buried among module-level functions. The cost is exactly the bite above (no access to `self`/`cls`); the judgement call is honesty — if it never needs either, a plain module function is often just as good, so reach for a staticmethod when the *grouping* genuinely aids readers.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `@staticmethod` for a helper that logically belongs with the class but uses no instance or class state — a small utility you want discoverable as `Dog.human_years` rather than buried among module-level functions. The cost is exactly the bite above (no access to `self`/`cls`); the judgement call is honesty — if it never needs either, a plain module function is often just as good, so reach for a staticmethod when the *grouping* genuinely aids readers.
+
+</div>
 
 ---
 
@@ -336,7 +370,11 @@ pin1234
 
 `acc._Account__secret` returns `"pin1234"`, and `acc.__dict__` shows the mangled key in plain sight. Name mangling exists to avoid *accidental* clashes (e.g. a subclass defining its own `__secret`), not to lock data away. Nothing in Python is truly private.
 
-*Earned rule.* Use a single leading underscore to mark "internal — not part of the public interface," and reserve double underscores for the narrow case of avoiding attribute-name collisions in subclasses. Lean on convention, not enforcement: the cost of Python's approach is that a determined caller *can* reach anything (so privacy is a social contract, not a guarantee); the benefit is that `_name` documents intent without the ceremony — and the rare maintenance escape hatch — of hard access control.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use a single leading underscore to mark "internal — not part of the public interface," and reserve double underscores for the narrow case of avoiding attribute-name collisions in subclasses. Lean on convention, not enforcement: the cost of Python's approach is that a determined caller *can* reach anything (so privacy is a social contract, not a guarantee); the benefit is that `_name` documents intent without the ceremony — and the rare maintenance escape hatch — of hard access control.
+
+</div>
 
 ---
 
@@ -352,15 +390,23 @@ pin1234
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **Editing `instance.attr` "didn't change the class" →** assignment through an instance shadows, never mutates the class attribute; assign to `Cls.attr` if you truly mean the shared one.
 - **One instance's list change appears on all instances →** it is a mutable *class* attribute (one shared object); move it into `__init__` as `self.x = []`.
 - **Inside a `@classmethod`, `cls(...)` confuses you →** `cls` *is* the class, so `cls(...)` builds an instance (it is the alternate-constructor idiom).
 - **`AttributeError` on a `__double` name from outside →** it was name-mangled to `_ClassName__name`; that is expected, not a bug.
 - **Treating `__x` as truly private →** it is obfuscation only — `obj._ClassName__x` still works; Python encapsulates by convention (`_x`), not enforcement.
 
+</div>
+
 ---
 
-*Predict, then check.* Define `class Counter:` with a class attribute `count = 0` and an `__init__` that does `Counter.count += 1`. Predict `Counter.count` after building three `Counter()` instances, and explain why `self.count += 1` would behave differently (hint: read-then-shadow). Then give a class a class attribute `log = []`, append to it from two instances, and predict whether the second instance sees the first's entry — and the one-line `__init__` fix. Two predictions that pin down shared-vs-shadowed and the mutable trap.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Define `class Counter:` with a class attribute `count = 0` and an `__init__` that does `Counter.count += 1`. Predict `Counter.count` after building three `Counter()` instances, and explain why `self.count += 1` would behave differently (hint: read-then-shadow). Then give a class a class attribute `log = []`, append to it from two instances, and predict whether the second instance sees the first's entry — and the one-line `__init__` fix. Two predictions that pin down shared-vs-shadowed and the mutable trap.
+
+</div>
 
 ## Your Turn
 

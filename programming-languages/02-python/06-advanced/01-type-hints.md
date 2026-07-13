@@ -8,9 +8,28 @@ prereqs: []
 
 Python is dynamically typed, but you can *annotate* code with the types it expects. The thesis to hold firmly: **type hints are checked by external tools (a type checker like `mypy`), not by Python at runtime — the interpreter parses them, stores them, and otherwise ignores them.** So hints buy you documentation, editor autocomplete, and a static safety net, but they never change what the program *does*.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- Type hints are checked by **external tools** like `mypy`.
+- Python **ignores them at runtime** — parses, stores, then moves on.
+- They buy documentation, autocomplete, and a static safety net.
+- They never change what the program *does*.
+
+</div>
+
 This builds on every type you've met and on [the object model](/synapse/programming-languages/python/how-python-works/the-object-model). Every runnable output below was produced by running the code; the one `mypy` example is marked, since the runner has no type checker installed.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -66,7 +85,11 @@ NameError: name 'x' is not defined
 
 `x: int` registered an annotation but bound nothing, so `print(x)` is a `NameError`. The annotation is metadata, not an assignment — proof that the interpreter treats it as inert.
 
-*Earned rule.* Annotate function signatures and tricky variables to document intent and unlock tooling; skip obvious locals (`count = 0` needs no `: int`). The cost is essentially nil at runtime, and the payoff is real only if you actually run a checker (§5) — hints you never check are just comments that look official.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Annotate function signatures and tricky variables to document intent and unlock tooling; skip obvious locals (`count = 0` needs no `: int`). The cost is essentially nil at runtime, and the payoff is real only if you actually run a checker (§5) — hints you never check are just comments that look official.
+
+</div>
 
 ---
 
@@ -93,7 +116,11 @@ abab
 
 *Concrete bite.* The output is the bite: a function "typed" for `int` happily returned `"abab"` from a `str` input. If you rely on hints to guarantee types, you'll be surprised — the guarantee doesn't exist at runtime. Only a separate static check (or an explicit `isinstance`/validation you write) catches it.
 
-*Earned rule.* Treat hints as *checked documentation*, not runtime contracts: to actually catch type errors, run a static checker like `mypy` (§5) in development/CI, or validate explicitly when you must enforce types at runtime (e.g. at a trust boundary). The cost of forgetting this is false confidence — annotated code is not validated code unless something checks it.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Treat hints as *checked documentation*, not runtime contracts: to actually catch type errors, run a static checker like `mypy` (§5) in development/CI, or validate explicitly when you must enforce types at runtime (e.g. at a trust boundary). The cost of forgetting this is false confidence — annotated code is not validated code unless something checks it.
+
+</div>
 
 ---
 
@@ -143,7 +170,11 @@ TypeError: unsupported operand type(s) for +: 'int' and 'str'
 
 `list[int]` didn't reject the list of strings; the program ran into `sum` and failed there (`sum` starts at `0`, and `0 + "a"` is the error). A checker would have flagged the *call site*; the runtime only fails once the values actually clash. The real payoff of `| None` is the same idea — a checker forces you to handle the `None` that `find` can return, before it becomes a runtime `AttributeError`.
 
-*Earned rule.* Annotate collection element types and use `X | None` for maybe-absent values — it documents the shape and makes the checker enforce `None`-handling. The cost is a little verbosity; the payoff is the most common real bug class (forgetting something can be `None`) caught statically rather than at 3 a.m.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Annotate collection element types and use `X | None` for maybe-absent values — it documents the shape and makes the checker enforce `None`-handling. The cost is a little verbosity; the payoff is the most common real bug class (forgetting something can be `None`) caught statically rather than at 3 a.m.
+
+</div>
 
 ---
 
@@ -181,7 +212,11 @@ print(f.__annotations__)   # local annotations are not recorded
 
 `f.__annotations__` is empty: the `y: int` inside the body left no trace. Python keeps annotations that describe an *interface* (parameters, return, class fields) and discards purely local ones — which is exactly why `@dataclass` ([Tutorial 27](/synapse/programming-languages/python/object-oriented/advanced-oop)) can read a class's annotated fields to build its `__init__`, but no library can act on a function-local hint.
 
-*Earned rule.* Lean on annotation-reading libraries (`dataclasses`, `pydantic`) when you want runtime structure from types — they turn hints into validation/construction for you. The cost/boundary: that behaviour comes from the *library*, not the language, so it applies only where you opt in; plain annotated code remains unchecked.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Lean on annotation-reading libraries (`dataclasses`, `pydantic`) when you want runtime structure from types — they turn hints into validation/construction for you. The cost/boundary: that behaviour comes from the *library*, not the language, so it applies only where you opt in; plain annotated code remains unchecked.
+
+</div>
 
 ---
 
@@ -239,7 +274,11 @@ TypeError: object of type 'int' has no len()
 error: Argument 1 to "describe" has incompatible type "int"; expected "Sized"  [arg-type]
 ```
 
-*Earned rule.* Use `Protocol` to type "anything shaped like this" (the Pythonic alternative to forcing inheritance), and run `mypy` (or `pyright`) in CI to convert the runtime `TypeError` above into a pre-run error. The cost is adopting a checker and keeping hints honest; the payoff is a large class of bugs caught statically — but only if you *run the checker*, since Python itself never will.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Use `Protocol` to type "anything shaped like this" (the Pythonic alternative to forcing inheritance), and run `mypy` (or `pyright`) in CI to convert the runtime `TypeError` above into a pre-run error. The cost is adopting a checker and keeping hints honest; the payoff is a large class of bugs caught statically — but only if you *run the checker*, since Python itself never will.
+
+</div>
 
 ---
 
@@ -255,15 +294,23 @@ error: Argument 1 to "describe" has incompatible type "int"; expected "Sized"  [
 
 ## 7. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **A wrong type "passed" despite hints →** hints aren't runtime checks; run `mypy`, or validate explicitly at trust boundaries.
 - **`AttributeError: 'NoneType' ...` →** an `X | None` value wasn't handled; check for `None` (a checker would have flagged it).
 - **Hints feel pointless →** they only pay off with a checker and an editor; add `mypy` to CI.
 - **Wanted runtime validation from types →** plain hints won't; use `dataclasses`/`pydantic`, which *read* `__annotations__`.
 - **Forcing inheritance just to satisfy a type →** use a `Protocol` and type by shape instead.
 
+</div>
+
 ---
 
-*Predict, then check.* Annotate a function `def clamp(x: int, lo: int, hi: int) -> int:` that returns `x` bounded to `[lo, hi]`. Predict what `clamp(5, 0, 10)` returns — and what `clamp("z", "a", "m")` does at runtime (does the hint stop it?). Then predict `clamp.__annotations__`. The middle one is the lesson: hints describe intent, the runtime obeys the actual types.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Annotate a function `def clamp(x: int, lo: int, hi: int) -> int:` that returns `x` bounded to `[lo, hi]`. Predict what `clamp(5, 0, 10)` returns — and what `clamp("z", "a", "m")` does at runtime (does the hint stop it?). Then predict `clamp.__annotations__`. The middle one is the lesson: hints describe intent, the runtime obeys the actual types.
+
+</div>
 
 ## Your Turn
 

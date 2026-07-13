@@ -8,9 +8,28 @@ prereqs: []
 
 The last chapter built the machine: coroutines are resumable frames, the event loop schedules them, `gather` overlaps their waits. This chapter is how you *run* that machine in a real program, and the thesis is one idea: **concurrency you start, you must own — every task needs an owner who awaits it, a plan for when it fails, and a deadline for how long it may wait.** `asyncio.create_task` starts background work; `TaskGroup` gives a set of tasks an owner and all-or-nothing failure semantics; `asyncio.timeout` and cancellation put bounds on waiting; and `async for` plus `asyncio.Queue` move streams of results between coroutines. None of it is new machinery — every tool here is the last chapter's loop, packaged for production.
 
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **The core idea.**
+
+- **Concurrency you start, you must own.**
+- Every task needs an **owner** who awaits it.
+- Every task needs a plan for when it **fails**.
+- Every task needs a **deadline** for how long it may wait.
+
+</div>
+
 This continues [Async Python](/synapse/programming-languages/python/advanced/async-python) (read it first — this chapter assumes the loop model) and completes the concurrency story begun with [threads and processes](/synapse/programming-languages/python/advanced/concurrency-and-the-gil); the capstone deliberately mirrors that chapter's `queue.Queue` pipeline in async form. Every runnable output below was produced by running the code; where scheduling makes output vary, it's labeled illustrative.
 
-> **How to read the Intuition boxes.** Each one is built in three moves: (1) the **mechanism** — what the interpreter is *actually doing*; (2) a **concrete bite** — a specific, runnable way the naive assumption fails; (3) the **earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **How to read the Intuition boxes.** Each one is built in three moves:
+
+1. **The mechanism** — what the interpreter is *actually doing*.
+2. **A concrete bite** — a specific, runnable way the naive assumption fails.
+3. **The earned rule** — the decision heuristic, now justified rather than asserted, plus its cost.
+
+</div>
 
 ---
 
@@ -83,7 +102,11 @@ stateDiagram-v2
 
 *Concrete bite.* Fire-and-forget is a leak: if you `create_task` and drop the reference, the task can be garbage-collected mid-flight, and if it fails, the exception is reported only as a cryptic "Task exception was never retrieved" at some later, unrelated moment. A task with no owner is a bug you'll meet weeks later in a log file.
 
-*Earned rule.* `create_task` when you want work progressing *while you do something else*; plain `await` when you need the result before the next line. But every task you create, something must eventually await (or explicitly cancel) — keep the reference. The cost of tasks is precisely that ownership obligation, and §2 is the tool that automates it.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** `create_task` when you want work progressing *while you do something else*; plain `await` when you need the result before the next line. But every task you create, something must eventually await (or explicitly cancel) — keep the reference. The cost of tasks is precisely that ownership obligation, and §2 is the tool that automates it.
+
+</div>
 
 ---
 
@@ -135,7 +158,11 @@ caught: ['boom']
 
 *Concrete bite.* Two of them. `except ValueError` does **not** catch an `ExceptionGroup` containing `ValueError`s — you need `except*`, and forgetting is a crash in your error handler. And a task that catches `CancelledError` without re-raising *swallows its own cancellation*: the group then waits forever for a task that decided not to die. Cancellation is a request delivered as an exception — handle, clean up, re-raise.
 
-*Earned rule.* Default to `TaskGroup` for any set of related concurrent tasks: nothing leaks, failure is all-or-nothing, and errors arrive structured. The cost is the discipline it enforces — `except*` at the boundary, `CancelledError` always re-raised, no fire-and-forget — which is exactly the discipline §1's bite showed you need anyway.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Default to `TaskGroup` for any set of related concurrent tasks: nothing leaks, failure is all-or-nothing, and errors arrive structured. The cost is the discipline it enforces — `except*` at the boundary, `CancelledError` always re-raised, no fire-and-forget — which is exactly the discipline §1's bite showed you need anyway.
+
+</div>
 
 ---
 
@@ -205,7 +232,11 @@ asyncio.run(main())
 
 *Concrete bite.* Mode 1's output *is* the bite — "caught the error" and "the work stopped" are different claims, and the survivor printing after the `except` proves it. In production this is the request handler that returned an error to the user while its orphaned sub-tasks kept writing to the database.
 
-*Earned rule.* Choose by outcome semantics: **all-or-nothing → `TaskGroup`**; **best-effort partial results → `gather(..., return_exceptions=True)`** then triage the list; plain `gather` only when its keep-running behavior is genuinely what you want (rare — treat it as legacy default, not a choice). The cost of the safe options: `except*` ceremony for the group, `isinstance` triage for the list.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Choose by outcome semantics: **all-or-nothing → `TaskGroup`**; **best-effort partial results → `gather(..., return_exceptions=True)`** then triage the list; plain `gather` only when its keep-running behavior is genuinely what you want (rare — treat it as legacy default, not a choice). The cost of the safe options: `except*` ceremony for the group, `isinstance` triage for the list.
+
+</div>
 
 ---
 
@@ -246,7 +277,11 @@ caught TimeoutError after 0.1s
 
 *Concrete bite.* Two failure patterns. A coroutine with a long stretch of *non-awaiting* work can't be cancelled during it — the deadline fires, but the cancellation waits for the next `await`, so the "0.1s timeout" takes as long as your longest await-free stretch. And a `finally` that itself awaits (say, an async close) can be *hit by the same cancellation again* — cleanup in cancellation paths should be quick and ideally synchronous.
 
-*Earned rule.* Put a deadline on **every** await whose completion you don't control — external calls, queue gets, joins; no exceptions for "it's always fast in dev." Write tasks cancellation-safe: cleanup in `finally`, `CancelledError` re-raised, cleanup itself cheap. The cost is ceremony on every boundary and the cancellation-safety discipline — the benefit is a program with no wait that can hang it forever.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Put a deadline on **every** await whose completion you don't control — external calls, queue gets, joins; no exceptions for "it's always fast in dev." Write tasks cancellation-safe: cleanup in `finally`, `CancelledError` re-raised, cleanup itself cheap. The cost is ceremony on every boundary and the cancellation-safety discipline — the benefit is a program with no wait that can hang it forever.
+
+</div>
 
 ---
 
@@ -284,7 +319,11 @@ got result-2 at 0.15s
 
 *Concrete bite.* `for` over an async generator is a `TypeError` (`'async_generator' object is not iterable`) — the sync protocol can't await. And an abandoned async generator (you `break` out and drop it) still holds whatever its `finally`/`async with` was guarding until the loop gets around to closing it; `async with contextlib.aclosing(gen)` makes the release deterministic.
 
-*Earned rule.* Stream (`async for`) when results should be processed as they arrive or the collection is large/unbounded; gather when you genuinely need everything before proceeding. The cost of streams: ordering is arrival-order by construction, and lifecycle (closing abandoned generators) becomes your concern.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Stream (`async for`) when results should be processed as they arrive or the collection is large/unbounded; gather when you genuinely need everything before proceeding. The cost of streams: ordering is arrival-order by construction, and lifecycle (closing abandoned generators) becomes your concern.
+
+</div>
 
 ---
 
@@ -339,7 +378,11 @@ pipeline drained
 
 *Concrete bite.* The two worlds don't mix silently: `queue.Queue.get()` inside a coroutine *blocks the loop* (the last chapter's cardinal sin), and `asyncio.Queue` offers no thread-safe access from outside the loop. Crossing the boundary has dedicated bridges (`asyncio.to_thread`, `loop.call_soon_threadsafe`) — reaching for the wrong queue type is the classic symptom of a design that hasn't decided which world each component lives in.
 
-*Earned rule.* Structure async programs as stages connected by bounded queues inside a `TaskGroup` — ownership, backpressure, failure, and shutdown all have one obvious home. The cost is the same as the threaded version (queue overhead, a shutdown protocol) plus one decision the threaded version didn't need: every component must know which world — loop or threads — it belongs to.
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Earned rule.** Structure async programs as stages connected by bounded queues inside a `TaskGroup` — ownership, backpressure, failure, and shutdown all have one obvious home. The cost is the same as the threaded version (queue overhead, a shutdown protocol) plus one decision the threaded version didn't need: every component must know which world — loop or threads — it belongs to.
+
+</div>
 
 ---
 
@@ -358,6 +401,8 @@ pipeline drained
 
 ## 8. Gotcha checklist
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
 - **"Task exception was never retrieved" long after the fact →** a fire-and-forget task failed; every task needs an eventual `await` (or a `TaskGroup`).
 - **`except ValueError` didn't catch the TaskGroup failure →** groups raise `ExceptionGroup`; use `except*` at the scope boundary.
 - **The group hangs forever after a failure →** a task caught `CancelledError` and didn't re-raise; cancellation must propagate.
@@ -366,9 +411,15 @@ pipeline drained
 - **`TypeError: 'async_generator' object is not iterable` →** you used `for` on an async generator; it needs `async for`.
 - **A coroutine blocks the whole loop at `queue.get()` →** that's the *threading* queue; inside coroutines use `asyncio.Queue` (and bridge worlds explicitly).
 
+</div>
+
 ---
 
-*Predict, then check.* Predict §1's three printed lines if you delete the `await asyncio.sleep(0.2)` — when does the task actually run, and what does `await task` do? Then predict §3 Mode 2's list if *all three* coroutines raise. Next, §4: predict the output order if `slow_fetch` had no `try/finally` at all. Finally, predict what §6 prints if the producer forgets `await q.put(DONE)` — which awaits deadlock, and would the `TaskGroup` exit? Each answer is one of this chapter's rules applied once.
+<div style="border-left:4px solid #6d28d9;background:rgba(109,40,217,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+🧪 **Predict, then check.** Predict §1's three printed lines if you delete the `await asyncio.sleep(0.2)` — when does the task actually run, and what does `await task` do? Then predict §3 Mode 2's list if *all three* coroutines raise. Next, §4: predict the output order if `slow_fetch` had no `try/finally` at all. Finally, predict what §6 prints if the producer forgets `await q.put(DONE)` — which awaits deadlock, and would the `TaskGroup` exit? Each answer is one of this chapter's rules applied once.
+
+</div>
 
 ## Your Turn
 
