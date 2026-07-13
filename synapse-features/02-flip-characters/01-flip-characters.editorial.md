@@ -103,9 +103,7 @@ Every box is checked with nothing extra needed. This is the purest direct applic
    - `left += 1`, `right -= 1`
 3. Done — the array is reversed in-place
 
-## Solution & Analysis
-
-### Solution
+## Solution
 
 ```python solution time=O(n) space=O(1)
 from typing import List
@@ -181,7 +179,7 @@ public class Main {
 }
 ```
 
-### Dry Run — Example 1
+## Dry Run — Example 1
 
 `arr = [a, e, i, o, u]`, `n = 5`
 
@@ -193,14 +191,14 @@ public class Main {
 
 The middle element at index 2 (`i`) is its own mirror — no swap needed.
 
-### Complexity Analysis
+## Complexity Analysis
 
 | | Complexity | Reasoning |
 |---|---|---|
 | **Time** | O(n) | Each character is visited once; `left` and `right` together make n/2 swaps |
 | **Space** | O(1) | Only two pointer variables — no auxiliary array |
 
-### Edge Cases
+## Edge Cases
 
 | Scenario | Input | Output | Note |
 |---|---|---|---|
