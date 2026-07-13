@@ -43,7 +43,7 @@ Time-series data has shape-specific challenges: bucketing into intervals, fillin
 
 # Time bucketing
 
-Group events into intervals. From [Dates and Times](/cortex/languages/sql/row-functions/dates-and-times):
+Group events into intervals. From [Dates and Times](/synapse/programming-languages/sql/row-functions/dates-and-times):
 
 ```sql
 -- Hourly buckets.
@@ -137,7 +137,7 @@ This is *the* canonical fix for time-series gaps.
 
 # Rolling windows
 
-7-day rolling average — covered in [Window Functions: Frames](/cortex/languages/sql/window-functions/frames):
+7-day rolling average — covered in [Window Functions: Frames](/synapse/programming-languages/sql/window-functions/frames):
 
 ```sql
 SELECT day, events,
@@ -181,7 +181,7 @@ Result: rows per (cohort, weeks_after) with counts of returning users. Pivot thi
 
 # Time-bound aggregations with FILTER
 
-From [Aggregate Functions: FILTER](/cortex/languages/sql/aggregation/aggregate-functions#filter-clause):
+From [Aggregate Functions: FILTER](/synapse/programming-languages/sql/aggregation/aggregate-functions#filter-clause):
 
 ```sql
 SELECT
@@ -239,9 +239,9 @@ For codefolio-scale data (thousands of events / day), regular Postgres handles a
 
 # Cross-links
 
-- **Previous in this module:** [Pivoting and Unpivoting](/cortex/languages/sql/advanced-patterns/pivoting-and-unpivoting).
+- **Previous in this module:** [Pivoting and Unpivoting](/synapse/programming-languages/sql/advanced-patterns/pivoting-and-unpivoting).
 - **Module complete. SQL section complete.**
-- **Cited:** [Dates and Times](/cortex/languages/sql/row-functions/dates-and-times), [Window Functions](/cortex/languages/sql/window-functions/index), [Aggregate Functions](/cortex/languages/sql/aggregation/aggregate-functions).
+- **Cited:** [Dates and Times](/synapse/programming-languages/sql/row-functions/dates-and-times), [Window Functions](/synapse/programming-languages/sql/window-functions/index), [Aggregate Functions](/synapse/programming-languages/sql/aggregation/aggregate-functions).
 
 ***
 
@@ -253,7 +253,7 @@ Time-series SQL is the same SQL with a few patterns. Three to internalise:
 2. **Fill gaps with `generate_series` + `LEFT JOIN` + `COALESCE`.** Empty buckets must show as 0, not absent.
 3. **`FILTER` aggregates for time-windowed summary stats.** "Total / last 24h / last hour" in one pass over the data.
 
-With this chapter, the **SQL section is complete**: 38 chapters across 10 modules. Next sections in the [Languages](/cortex/languages/index) book — Python, Scala, etc. — are planned but not yet written.
+With this chapter, the **SQL section is complete**: 38 chapters across 10 modules. Next sections in the [Languages](/synapse) book — Python, Scala, etc. — are planned but not yet written.
 
 ## Your Turn
 

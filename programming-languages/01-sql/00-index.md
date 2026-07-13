@@ -16,7 +16,7 @@ The goal is not breadth-as-a-checklist. The goal is for you to be able to **read
 
 - Every chapter opens with a hook — a real-world scenario or a "you've done this and not realised" moment — before any formal syntax.
 - Code blocks use **PostgreSQL** as the canonical dialect; brief inline callouts mark divergences for SQLite, MySQL, and SQL Server T-SQL when the difference matters in practice.
-- The same **sample schema** (three tables: `customers`, `orders`, `hello_events`) is used across every chapter. It's defined once in the [Introduction to SQL](/cortex/languages/sql/foundations/introduction-to-sql) chapter and re-used everywhere; you can always run any chapter's queries against the same data.
+- The same **sample schema** (three tables: `customers`, `orders`, `hello_events`) is used across every chapter. It's defined once in the [Introduction to SQL](/synapse/programming-languages/sql/foundations/introduction-to-sql) chapter and re-used everywhere; you can always run any chapter's queries against the same data.
 - Every chapter closes with **Production reality** (where this lives in real systems — Postgres internals, codefolio's own schema, real EXPLAIN output), a **Practice ladder** of 3–5 problems with hints (not solutions), and a **Final takeaway** of 2–4 punchy bullets.
 
 ---
@@ -25,7 +25,7 @@ The goal is not breadth-as-a-checklist. The goal is for you to be able to **read
 
 The curriculum is organised as **Modules → Tutorials**. Each module is a self-contained area you can read top-to-bottom; each tutorial states its prerequisites in frontmatter so you can navigate sideways too.
 
-1. [**Foundations**](/cortex/languages/sql/foundations/index) — what SQL is, the logical execution order, SELECT and projection, filtering, ordering and pagination, DDL, DML.
+1. [**Foundations**](/synapse/programming-languages/sql/foundations/index) — what SQL is, the logical execution order, SELECT and projection, filtering, ordering and pagination, DDL, DML.
 2. **Working with Multiple Tables** *(coming soon)* — joins, set operators, subqueries, anti-joins.
 3. **Aggregation** *(coming soon)* — GROUP BY, aggregate functions, ROLLUP/CUBE/GROUPING SETS.
 4. **Row Functions** *(coming soon)* — strings, numbers, dates, NULL handling and three-valued logic, CASE expressions.
@@ -155,7 +155,7 @@ The yellow nodes (Introduction, NULL/3VL, Window Basics, EXPLAIN) are the four l
 
 ## Sample schema
 
-Every chapter in this book uses one shared three-table schema. The full DDL and seed data live in the [Introduction to SQL](/cortex/languages/sql/foundations/introduction-to-sql) chapter; the high-level shape is:
+Every chapter in this book uses one shared three-table schema. The full DDL and seed data live in the [Introduction to SQL](/synapse/programming-languages/sql/foundations/introduction-to-sql) chapter; the high-level shape is:
 
 ```mermaid
 ---
@@ -188,7 +188,7 @@ erDiagram
   }
 ```
 
-`customers` and `orders` are the classic e-commerce pair — five customers, six orders, enough rows to demonstrate every join type without overwhelming the page. `hello_events` is the time-series table from codefolio's own [hello pipeline](/cortex/codefolio-onboarding/start-here-overview) — an append-only log of `(timestamp, visits)` pairs that gives us realistic data for window functions, time-bucketing, and JSON-in-SQL chapters.
+`customers` and `orders` are the classic e-commerce pair — five customers, six orders, enough rows to demonstrate every join type without overwhelming the page. `hello_events` is the time-series table from codefolio's own hello pipeline — an append-only log of `(timestamp, visits)` pairs that gives us realistic data for window functions, time-bucketing, and JSON-in-SQL chapters.
 
 When a chapter introduces a new query, it works against this same schema. You won't have to re-learn fourteen different schemas across the curriculum.
 
@@ -198,7 +198,7 @@ When a chapter introduces a new query, it works against this same schema. You wo
 
 SQL is a standard. SQL implementations are not. PostgreSQL, MySQL/MariaDB, SQLite, SQL Server, and Oracle all share an ANSI-shaped core but diverge on the edges — sometimes silently, sometimes spectacularly. This book chooses **PostgreSQL** as canonical because:
 
-1. It's what the codefolio stack uses (see [`docker-compose.yml`](/cortex/codefolio-onboarding/start-here-overview)), so every example runs on the same engine the user runs in production.
+1. It's what the codefolio stack uses (see `docker-compose.yml`), so every example runs on the same engine the user runs in production.
 2. It tracks the SQL standard most aggressively of the major engines — `LATERAL`, `WITHIN GROUP`, window `FILTER`, `ORDINAL`, `JSONB`, named windows, deferrable constraints, generated columns. If you learn standard SQL on Postgres, you learn the most of it.
 3. It has the deepest open documentation and the most introspectable internals (the `pg_*` system catalogues, `EXPLAIN ANALYZE` with rich plan output) — invaluable for the production-reality sections in later modules.
 
