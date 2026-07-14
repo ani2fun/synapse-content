@@ -2,6 +2,9 @@
 title: "Pattern 1"
 summary: "Print a solid n x n square of stars for any given n."
 essential: true
+kind: problem
+difficulty: easy
+topics: [patterns, loops]
 ---
 
 # Pattern 1
@@ -44,6 +47,52 @@ Print the pattern in the function given to you.
 ## Constraints
 
 `1 <= n <= 100`
+
+```python run
+class Solution:
+    # Function to print pattern1
+    def pattern1(self, n: int) -> None:
+        # Your code goes here — print an n x n square of '*'.
+        pass
+
+
+# Reads the test case's n, e.g. 4
+n = int(input())
+Solution().pattern1(n)
+```
+
+```java run
+import java.util.*;
+
+public class Main {
+    static class Solution {
+        // Function to print pattern1
+        void pattern1(int n) {
+            // Your code goes here — print an n x n square of '*'.
+        }
+    }
+
+    public static void main(String[] args) {
+        // Reads the test case's n, e.g. 4
+        int n = new Scanner(System.in).nextInt();
+        new Solution().pattern1(n);
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "n", "label": "n", "type": "int", "placeholder": "4" }
+  ],
+  "cases": [
+    { "args": { "n": "1" }, "expected": "*" },
+    { "args": { "n": "2" }, "expected": "**\n**" },
+    { "args": { "n": "3" }, "expected": "***\n***\n***" },
+    { "args": { "n": "5" }, "expected": "*****\n*****\n*****\n*****\n*****" }
+  ]
+}
+```
 
 ## Fun facts
 

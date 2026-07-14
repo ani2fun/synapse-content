@@ -1,0 +1,17 @@
+{
+  "args": [
+    { "id": "n", "label": "User Input", "type": "int", "placeholder": "7" }
+  ],
+  "cases": [
+    { "args": { "n": "7" }, "expected": "7" },
+    { "args": { "n": "-5" }, "expected": "-5" },
+    { "args": { "n": "0" }, "expected": "0" },
+    { "args": { "n": "1000" }, "expected": "1000" },
+    { "args": { "n": "-1000" }, "expected": "-1000" },
+    { "args": { "n": "1" }, "expected": "1" },
+    { "args": { "n": "-1" }, "expected": "-1" },
+    { "args": { "n": "42" }, "expected": "42" },
+    { "args": { "n": "-999" }, "expected": "-999" },
+    { "args": { "n": "500" }, "expected": "500" }
+  ]
+}

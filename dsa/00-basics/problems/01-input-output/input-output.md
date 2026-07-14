@@ -2,6 +2,9 @@
 title: "Input Output"
 summary: "Read an integer from the user and print it back — the first program in any language."
 essential: true
+kind: problem
+difficulty: easy
+topics: [basics, io]
 ---
 
 # Input Output
@@ -44,3 +47,47 @@ essential: true
 ## Constraints
 
 `-1000 <= User Input <= 1000`
+
+```python run
+class Solution:
+    # Function to take input and display output
+    def printNumber(self) -> None:
+        # Your code goes here — read an integer and print it.
+        pass
+
+
+# Driver code
+if __name__ == "__main__":
+    Solution().printNumber()
+```
+
+```java run
+import java.util.Scanner;
+
+public class Main {
+    static class Solution {
+        // Function to take input and display output
+        void printNumber(Scanner sc) {
+            // Your code goes here — read an integer and print it.
+        }
+    }
+
+    // Driver code
+    public static void main(String[] args) {
+        new Solution().printNumber(new Scanner(System.in));
+    }
+}
+```
+
+```testcases
+{
+  "args": [
+    { "id": "n", "label": "User Input", "type": "int", "placeholder": "7" }
+  ],
+  "cases": [
+    { "args": { "n": "7" }, "expected": "7" },
+    { "args": { "n": "-5" }, "expected": "-5" },
+    { "args": { "n": "0" }, "expected": "0" }
+  ]
+}
+```
