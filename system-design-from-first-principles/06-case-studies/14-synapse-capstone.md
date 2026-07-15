@@ -280,7 +280,7 @@ the homework:
   headers — the highest leverage-per-line change in the deployment.
 
 The full growth ladder — triggers, stages, and what deliberately never changes — is documented as
-the repo's [scaling plan](https://github.com/ani2fun/synapse/blob/main/docs/scaling-plan.md); this
+the repo's [scaling plan](https://github.com/ani2fun/synapse/blob/main/docs/architecture/scaling-plan.md); this
 lesson is its narrative form.
 
 ## Pitfalls & interview traps
@@ -348,7 +348,7 @@ not arguing it won't.
 
 - [ani2fun/synapse](https://github.com/ani2fun/synapse) — the implementation this lesson describes:
   the architecture decision records (`docs/adr-synapse/`), the C4 model (`docs/architecture/`), and
-  the [scaling plan](https://github.com/ani2fun/synapse/blob/main/docs/scaling-plan.md) whose
+  the [scaling plan](https://github.com/ani2fun/synapse/blob/main/docs/architecture/scaling-plan.md) whose
   napkin math this lesson shares.
 - [go-judge](https://github.com/criyle/go-judge) — the sandbox: namespace/cgroup isolation, process
   pooling, and the quota model the run path builds on.
