@@ -78,7 +78,7 @@ Reusable solution shapes that show up in every design — each grounded in the t
 
 ## 06 · Case Studies
 
-Thirteen interview-canonical systems, designed end-to-end: requirements → entities → API → high-level design → the deep-dives that decide the interview.
+Thirteen interview-canonical systems designed end-to-end — requirements → entities → API → high-level design → the deep-dives that decide the interview — plus a capstone: the platform serving you this book, designed with the same framework and checkable against its live deployment.
 
 - [Design a URL Shortener](/synapse/system-design-from-first-principles/case-studies/url-shortener)
 - [Design Ticketmaster](/synapse/system-design-from-first-principles/case-studies/ticketmaster)
@@ -93,6 +93,7 @@ Thirteen interview-canonical systems, designed end-to-end: requirements → enti
 - [Design Google Docs](/synapse/system-design-from-first-principles/case-studies/google-docs)
 - [Design a Payment System](/synapse/system-design-from-first-principles/case-studies/stripe-payments)
 - [Design a Distributed Job Scheduler](/synapse/system-design-from-first-principles/case-studies/job-scheduler)
+- [Capstone: Design Synapse — the Platform You're Reading](/synapse/system-design-from-first-principles/case-studies/synapse-capstone)
 
 ## 07 · Production Engineering
 
