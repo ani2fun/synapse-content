@@ -350,7 +350,7 @@ Just use CPython (standard Python). When execution happens, your code goes throu
 </div>
 
 ```python
-name = "Raj"           # string
+name = "Alex"           # string
 age = 25               # int
 city = "Mumbai"        # string
 
@@ -366,7 +366,7 @@ print(name, "lives in", city)
 A **STRING** is text data in Python. Anything inside quotes.
 
 ```python
-name = "Raj"
+name = "Alex"
 # Concatenation
 print("Hello " + name)
 
@@ -389,7 +389,7 @@ print(len(name)) # 3
 
 ```python
 print("Line 1\nLine 2")
-print("Name:\tRaj")
+print("Name:\tAlex")
 print("He said \"Hello\"")
 ```
 
@@ -398,7 +398,7 @@ print("He said \"Hello\"")
 Use f-strings to insert variables into text. This is the recommended way.
 
 ```python
-name = "Raj"
+name = "Alex"
 age = 25
 print(f"My name is {name} and I am {age} years old")
 ```
@@ -575,7 +575,7 @@ Reusable code blocks.
 def greet(name):
     print(f"Hello, {name}!")
 
-greet("Raj")   # Output: Hello, Raj!
+greet("Alex")   # Output: Hello, Alex!
 greet("Priya") # Output: Hello, Priya!
 ```
 
@@ -663,7 +663,7 @@ Keep coding, keep learning!
 
 Programming is practice. Keep writing code!
 
-## Python Libraries for DSA & Interviews
+## Python Libraries for DSA & Problem-Solving
 
 (Your Toolkit for Problem Solving)
 
@@ -674,7 +674,7 @@ Python provides powerful built-in libraries for data structures and algorithms. 
 ### Reasons to Learn
 
 - Save time (pre-written, optimized code)
-- Interview essential (expected knowledge)
+- Essential to know (expected knowledge)
 - Makes DSA problems easier
 - Industry standard
 
@@ -1404,7 +1404,7 @@ result = reduce(lambda x, y: x * y, arr)  # Product
 - Use **ITERTOOLS** for: Combinations/permutations, Cartesian products, grouping consecutive.
 - Use **FUNCTOOLS** for: Memoization needed, function composition, reducing sequences.
 
-## Common Interview Patterns
+## Common Coding Patterns
 
 ### Pattern 1: Two Sum
 

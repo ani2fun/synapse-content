@@ -350,7 +350,7 @@ There are four major factors that make OOP significantly used in the real world.
 Let us consider the codebase of a Bank.
 
 - **Classes:** Represent different entities in the bank, such as `Account`, `Customer`, and `Transaction`.
-- **Objects:** Specific instances of those classes, like Raj's `Account`, or John's `Transaction`.
+- **Objects:** Specific instances of those classes, like Alex's `Account`, or John's `Transaction`.
 - **Attributes:** Information associated with each entity, like a customer's name, balance, or account number.
 - **Methods:** Actions the bank entities can perform, such as `deposit()`, `withdraw()`, and `transfer()`.
 
@@ -419,7 +419,7 @@ class Main {
         Employee obj1 = new Employee();
 
         // Setting different attributes of object 1 using available methods
-        obj1.setName("Raj"); // Set name to "Raj"
+        obj1.setName("Alex"); // Set name to "Alex"
         obj1.setSalary(10000); // Set salary to 10,000
 
         // Creating another object of Employee class
@@ -442,7 +442,7 @@ class Main {
 
 - The class by itself doesn't take any memory. It is the object that takes up the memory once initialized.
 - The two objects (`obj1` and `obj2`) have separate memory allocated for them in the program though they have the same attributes and methods. Because of this, an object cannot access the attributes and methods of any other object and vice versa.
-- The code creates two separate objects (instances) of the `Employee` class representing two separate employees (Raj and Rahul), representing two real-life entities.
+- The code creates two separate objects (instances) of the `Employee` class representing two separate employees (Alex and Rahul), representing two real-life entities.
 
 ### Attributes and behaviours
 
@@ -512,10 +512,10 @@ Design a class `Student` that stores and displays information about students.
 
 **Input format.** Two lines on standard input — the `name`, then the `rollNumber`. The provided `Main` reads them and drives your class, so you only implement `Student`.
 
-**Example 1** — Input: `Striver`, `101`
+**Example 1** — Input: `Sam`, `101`
 
 ```text
-Name : Striver
+Name : Sam
 Roll Number : 101
 ```
 
@@ -567,7 +567,7 @@ class Main {
     { "id": "rollNumber", "label": "Roll Number", "type": "int" }
   ],
   "cases": [
-    { "args": { "name": "Striver", "rollNumber": "101" }, "expected": "Name : Striver\nRoll Number : 101" },
+    { "args": { "name": "Sam", "rollNumber": "101" }, "expected": "Name : Sam\nRoll Number : 101" },
     { "args": { "name": "Jax", "rollNumber": "10434" }, "expected": "Name : Jax\nRoll Number : 10434" }
   ]
 }
@@ -1012,7 +1012,7 @@ class Main {
     public static void main(String[] args) {
         /* Creating an object of Employee class and passing
         values for the parameterized constructor */
-        Employee obj = new Employee("Raj", 10000);
+        Employee obj = new Employee("Alex", 10000);
 
         // Output
         System.out.println("The salary of employee named " + obj.employeeName + " is " + obj.salary);
@@ -1054,7 +1054,7 @@ class Main {
     public static void main(String[] args) {
         /* Creating an object of Employee class and passing
         values for the parameterized constructor */
-        Employee obj = new Employee("Raj", 10000);
+        Employee obj = new Employee("Alex", 10000);
 
         // Creating a copy of obj using Copy constructor
         Employee objCopy = new Employee(obj);
@@ -1113,7 +1113,7 @@ class Main {
         System.out.println(); // Line break for clarity
 
         // Using Constructor with one parameter
-        Employee emp2 = new Employee("Raj");
+        Employee emp2 = new Employee("Alex");
         System.out.println("Details of Employee 2 (One Parameter Constructor):");
         emp2.displayDetails();
 

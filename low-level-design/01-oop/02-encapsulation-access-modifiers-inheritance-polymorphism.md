@@ -524,22 +524,22 @@ Design a class `Employee` that manages employee details using proper access modi
 
 **Input format.** Four lines on standard input: `name`, `employeeId`, initial `salary`, then `newSalary`. The provided `Main` constructs the employee, prints `getSalary()`, calls `setSalary(newSalary)`, then `displayEmployeeDetails()`.
 
-**Example 1** — Input: `Striver`, `9656`, `10000`, `15840`
+**Example 1** — Input: `Sam`, `9656`, `10000`, `15840`
 
 ```text
 Salary : 10000.00
-Name : Striver
+Name : Sam
 Employee Id : 9656
 Salary : 15840.00
 ```
 
-**Example 2** — Input: `Striver`, `9656`, `-1050`, `-9315`
+**Example 2** — Input: `Sam`, `9656`, `-1050`, `-9315`
 
 ```text
 Invalid salary
 Salary : 0.00
 Invalid salary
-Name : Striver
+Name : Sam
 Employee Id : 9656
 Salary : 0.00
 ```
@@ -599,8 +599,8 @@ class Main {
     { "id": "newSalary", "label": "New Salary", "type": "double" }
   ],
   "cases": [
-    { "args": { "name": "Striver", "employeeId": "9656", "salary": "10000", "newSalary": "15840" }, "expected": "Salary : 10000.00\nName : Striver\nEmployee Id : 9656\nSalary : 15840.00" },
-    { "args": { "name": "Striver", "employeeId": "9656", "salary": "-1050", "newSalary": "-9315" }, "expected": "Invalid salary\nSalary : 0.00\nInvalid salary\nName : Striver\nEmployee Id : 9656\nSalary : 0.00" }
+    { "args": { "name": "Sam", "employeeId": "9656", "salary": "10000", "newSalary": "15840" }, "expected": "Salary : 10000.00\nName : Sam\nEmployee Id : 9656\nSalary : 15840.00" },
+    { "args": { "name": "Sam", "employeeId": "9656", "salary": "-1050", "newSalary": "-9315" }, "expected": "Invalid salary\nSalary : 0.00\nInvalid salary\nName : Sam\nEmployee Id : 9656\nSalary : 0.00" }
   ]
 }
 ```
@@ -711,8 +711,8 @@ class Student extends School {
 // Main class to execute the program
 class Main {
     public static void main(String[] args) {
-        // Create a new student object with the name "Raj"
-        Student student = new Student("Raj");
+        // Create a new student object with the name "Alex"
+        Student student = new Student("Alex");
 
         // Print the student's name
         student.printStudentName();
@@ -1109,7 +1109,7 @@ class Main {
   ],
   "cases": [
     { "args": { "mName": "Jax", "mId": "101", "mTeamSize": "8", "eName": "William", "eId": "202", "eSpecialization": "Backend Developer" }, "expected": "Manager Details\nName : Jax\nId : 101\nTeam Size : 8\n\nEngineer Details\nName : William\nId : 202\nSpecialization : Backend Developer" },
-    { "args": { "mName": "Striver", "mId": "10434", "mTeamSize": "50", "eName": "Siddhant", "eId": "41241", "eSpecialization": "Full Stack Developer" }, "expected": "Manager Details\nName : Striver\nId : 10434\nTeam Size : 50\n\nEngineer Details\nName : Siddhant\nId : 41241\nSpecialization : Full Stack Developer" }
+    { "args": { "mName": "Sam", "mId": "10434", "mTeamSize": "50", "eName": "Siddhant", "eId": "41241", "eSpecialization": "Full Stack Developer" }, "expected": "Manager Details\nName : Sam\nId : 10434\nTeam Size : 50\n\nEngineer Details\nName : Siddhant\nId : 41241\nSpecialization : Full Stack Developer" }
   ]
 }
 ```

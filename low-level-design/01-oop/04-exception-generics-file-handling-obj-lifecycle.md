@@ -1254,7 +1254,7 @@ class Student {
 
 class Main {
     public static void main(String[] args) {
-        Student s = new Student("Raj");
+        Student s = new Student("Alex");
         System.out.println(s.name);
     }
 }
