@@ -486,53 +486,46 @@ Refer the sample example output to understand the output format.
 
 **Example 1**
 
-**Input :** name = "Central_Library"
+**Input:**
 
+```text
+name = "Central_Library"
 title = [ "Frankestein", "King_Arthur_and_the_Round_Table" ]
-
 author = [ "Mary_Shelley", "Rosemary_Sutcliff" ]
-
 changeIndex = 1
-
 newTitle = "Treasure_Island"
-
 new_author = "Robert_Louis_Stevenson"
+```
 
-**Output :**
+**Output:**
 
+```text
 Original Library :
-
 Library : Central_Library
-
 Book : Frankestein, Author : Mary_Shelley
-
 Book : King_Arthur_and_the_Round_Table, Author : Rosemary_Sutcliff
 
 After Modifications :
-
-Original Library :
-
 Library : Central_Library
-
 Book : Frankestein, Author : Mary_Shelley
-
 Book : Treasure_Island, Author : Robert_Louis_Stevenson
 
 Shallow Clone :
-
 Library : Central_Library
-
 Book : Frankestein, Author : Mary_Shelley
-
 Book : Treasure_Island, Author : Robert_Louis_Stevenson
 
 Deep Clone :
-
 Library : Central_Library
-
 Book : Frankestein, Author : Mary_Shelley
-
 Book : King_Arthur_and_the_Round_Table, Author : Rosemary_Sutcliff
+```
+
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **Insight.** As per output you can see, that the title and author for book at index = 1, have been changed in original library object and shallow clone object. But whereas the Deep clone object still has the old information.
+
+</div>
 
 **Explanation :**
 
@@ -557,7 +550,7 @@ This is what you should be able to achieve through your code.
 
 **Solution**
 
-```java
+```java run
 import java.util.*;
 
 // Book class supports cloning
@@ -644,24 +637,22 @@ class Main {
         System.out.println("Original Library :");
         library.display();
 
-        // Modify the book at changeIndex
+        // Create the clones BEFORE modifying, so the deep clone captures the original state
+        Library shallowClonedLibrary = library.shallowClone();
+        Library deepClonedLibrary = library.deepClone();
+
+        // Modify the book at changeIndex on the original library
         library.books.get(changeIndex).title = newTitle;
         library.books.get(changeIndex).author = newAuthor;
 
         System.out.println("\nAfter Modifications :");
         library.display();
 
-        // Create shallow clone
-        Library shallowClonedLibrary = library.shallowClone();
-
-        // Create deep clone
-        Library deepClonedLibrary = library.deepClone();
-
-        // Display shallow clone
+        // Display shallow clone — it shares the books list, so it reflects the change
         System.out.println("\nShallow Clone :");
         shallowClonedLibrary.display();
 
-        // Display deep clone
+        // Display deep clone — it is independent, so it keeps the original data
         System.out.println("\nDeep Clone :");
         deepClonedLibrary.display();
     }

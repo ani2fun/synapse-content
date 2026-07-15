@@ -28,7 +28,7 @@ Instead, different people should handle each task: one person cooks (chef), anot
 
 ### Significance of SRP
 
-Let us understand this with the example of the TUF+ compiler. Currently, the TUF+ compiler does the following things:
+Let us understand this with the example of an online compiler. Currently, the online compiler does the following things:
 
 - Adds driver code
 - Performs syntax check
@@ -36,7 +36,7 @@ Let us understand this with the example of the TUF+ compiler. Currently, the TUF
 - Stores the output in the database
 - Returns the necessary output to the user
 
-Now, implementing all the above functionalities in a single `TUFplusCompiler` class would violate the Single Responsibility Principle (SRP).
+Now, implementing all the above functionalities in a single `OnlineCompiler` class would violate the Single Responsibility Principle (SRP).
 
 Instead, we can break it down into smaller classes, each with a single responsibility:
 
