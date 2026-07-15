@@ -59,7 +59,7 @@ specification {
   element loadBalancer       { style { shape rectangle; color catApi } }
   element reverseProxy       { style { shape rectangle; color catApi } }
   element cdn                { style { shape rectangle; color catApi } }
-  element webhook            { style { shape rectangle; color catApi } }
+  element webhook            { style { shape component; color catApi } }
   element restApi            { style { shape component; color catApi } }
   element graphqlApi         { style { shape component; color catApi } }
   element grpcApi            { style { shape component; color catApi } }
@@ -85,7 +85,7 @@ specification {
   element wideColumnStore    { style { shape cylinder; color catData; icon tech:cassandra } }
   element searchIndex        { style { shape cylinder; color catData; icon tech:elasticsearch } }
   element dataWarehouse      { style { shape cylinder; color catData } }
-  element dataLake           { style { shape cylinder; color catData } }
+  element dataLake           { style { shape bucket; color catData } }
   element objectStorage      { style { shape bucket; color catData } }
   element fileStorage        { style { shape bucket; color catData } }
   element logStore           { style { shape document; color catData } }
@@ -98,7 +98,7 @@ specification {
   element eventBus            { style { shape queue; color catMessaging } }
   element eventStream         { style { shape queue; color catMessaging } }
   element pubSubTopic         { style { shape queue; color catMessaging } }
-  element notificationService { style { shape rectangle; color catMessaging } }
+  element notificationService { style { shape queue; color catMessaging } }
 
   // ── Infrastructure. `dockerContainer` is prompt.md's infra "container", renamed to avoid the
   //    clash with the C4 `container` kind above. ──
@@ -117,8 +117,8 @@ specification {
   element identityProvider      { style { shape rectangle; color catSecurity } }
   element authenticationService { style { shape rectangle; color catSecurity } }
   element authorizationService  { style { shape rectangle; color catSecurity } }
-  element secretsManager        { style { shape rectangle; color catSecurity } }
-  element certificateManager    { style { shape rectangle; color catSecurity } }
+  element secretsManager        { style { shape storage; color catSecurity } }
+  element certificateManager    { style { shape document; color catSecurity } }
   element firewall              { style { shape rectangle; color catSecurity } }
   element waf                   { style { shape rectangle; color catSecurity } }
   element apiSecurity           { style { shape rectangle; color catSecurity } }
@@ -127,14 +127,14 @@ specification {
   element monitoring { style { shape rectangle; color catObservability } }
   element tracing    { style { shape rectangle; color catObservability } }
   element alerting   { style { shape rectangle; color catObservability } }
-  element dashboard  { style { shape rectangle; color catObservability } }
+  element dashboard  { style { shape browser; color catObservability } }
   element logging    { style { shape document; color catObservability } }
 
   // ── DevOps ──
-  element sourceRepository      { style { shape rectangle; color catDevops } }
+  element sourceRepository      { style { shape storage; color catDevops } }
   element cicdPipeline          { style { shape rectangle; color catDevops } }
   element buildSystem           { style { shape rectangle; color catDevops } }
-  element artifactRepository    { style { shape rectangle; color catDevops } }
+  element artifactRepository    { style { shape bucket; color catDevops } }
   element deploymentEnvironment { style { shape rectangle; color catDevops } }
 
   // ── Cloud provider — NEUTRAL color (never vendor-branded). Preferred pattern: model the role
