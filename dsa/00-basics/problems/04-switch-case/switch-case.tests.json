@@ -1,0 +1,17 @@
+{
+  "args": [
+    { "id": "day", "label": "day", "type": "int", "placeholder": "3" }
+  ],
+  "cases": [
+    { "args": { "day": "0" }, "expected": "Invalid" },
+    { "args": { "day": "1" }, "expected": "Monday" },
+    { "args": { "day": "2" }, "expected": "Tuesday" },
+    { "args": { "day": "3" }, "expected": "Wednesday" },
+    { "args": { "day": "4" }, "expected": "Thursday" },
+    { "args": { "day": "5" }, "expected": "Friday" },
+    { "args": { "day": "6" }, "expected": "Saturday" },
+    { "args": { "day": "7" }, "expected": "Sunday" },
+    { "args": { "day": "8" }, "expected": "Invalid" },
+    { "args": { "day": "50" }, "expected": "Invalid" }
+  ]
+}

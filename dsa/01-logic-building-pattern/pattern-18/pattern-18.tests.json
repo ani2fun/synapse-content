@@ -1,0 +1,15 @@
+{
+  "args": [
+    { "id": "n", "label": "n", "type": "int", "placeholder": "4" }
+  ],
+  "cases": [
+    { "args": { "n": "1" }, "expected": "A " },
+    { "args": { "n": "2" }, "expected": "B \nA B " },
+    { "args": { "n": "3" }, "expected": "C \nB C \nA B C " },
+    { "args": { "n": "4" }, "expected": "D \nC D \nB C D \nA B C D " },
+    { "args": { "n": "5" }, "expected": "E \nD E \nC D E \nB C D E \nA B C D E " },
+    { "args": { "n": "8" }, "expected": "H \nG H \nF G H \nE F G H \nD E F G H \nC D E F G H \nB C D E F G H \nA B C D E F G H " },
+    { "args": { "n": "10" }, "expected": "J \nI J \nH I J \nG H I J \nF G H I J \nE F G H I J \nD E F G H I J \nC D E F G H I J \nB C D E F G H I J \nA B C D E F G H I J " },
+    { "args": { "n": "26" }, "expected": "Z \nY Z \nX Y Z \nW X Y Z \nV W X Y Z \nU V W X Y Z \nT U V W X Y Z \nS T U V W X Y Z \nR S T U V W X Y Z \nQ R S T U V W X Y Z \nP Q R S T U V W X Y Z \nO P Q R S T U V W X Y Z \nN O P Q R S T U V W X Y Z \nM N O P Q R S T U V W X Y Z \nL M N O P Q R S T U V W X Y Z \nK L M N O P Q R S T U V W X Y Z \nJ K L M N O P Q R S T U V W X Y Z \nI J K L M N O P Q R S T U V W X Y Z \nH I J K L M N O P Q R S T U V W X Y Z \nG H I J K L M N O P Q R S T U V W X Y Z \nF G H I J K L M N O P Q R S T U V W X Y Z \nE F G H I J K L M N O P Q R S T U V W X Y Z \nD E F G H I J K L M N O P Q R S T U V W X Y Z \nC D E F G H I J K L M N O P Q R S T U V W X Y Z \nB C D E F G H I J K L M N O P Q R S T U V W X Y Z \nA B C D E F G H I J K L M N O P Q R S T U V W X Y Z " }
+  ]
+}

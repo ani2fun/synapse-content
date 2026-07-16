@@ -1,0 +1,15 @@
+{
+  "args": [
+    { "id": "s", "label": "s", "type": "string", "placeholder": "dog" }
+  ],
+  "cases": [
+    { "args": { "s": "dog" }, "expected": "g" },
+    { "args": { "s": "goodforyou" }, "expected": "u" },
+    { "args": { "s": "lovecoding" }, "expected": "g" },
+    { "args": { "s": "a" }, "expected": "a" },
+    { "args": { "s": "z" }, "expected": "z" },
+    { "args": { "s": "hello" }, "expected": "o" },
+    { "args": { "s": "aaaaaaaaaa" }, "expected": "a" },
+    { "args": { "s": "abcdefghijklmnopqrstuvwxyz" }, "expected": "z" }
+  ]
+}

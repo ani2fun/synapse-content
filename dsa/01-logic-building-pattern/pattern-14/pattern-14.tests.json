@@ -1,0 +1,15 @@
+{
+  "args": [
+    { "id": "n", "label": "n", "type": "int", "placeholder": "4" }
+  ],
+  "cases": [
+    { "args": { "n": "1" }, "expected": "A" },
+    { "args": { "n": "2" }, "expected": "A\nAB" },
+    { "args": { "n": "3" }, "expected": "A\nAB\nABC" },
+    { "args": { "n": "4" }, "expected": "A\nAB\nABC\nABCD" },
+    { "args": { "n": "5" }, "expected": "A\nAB\nABC\nABCD\nABCDE" },
+    { "args": { "n": "6" }, "expected": "A\nAB\nABC\nABCD\nABCDE\nABCDEF" },
+    { "args": { "n": "7" }, "expected": "A\nAB\nABC\nABCD\nABCDE\nABCDEF\nABCDEFG" },
+    { "args": { "n": "10" }, "expected": "A\nAB\nABC\nABCD\nABCDE\nABCDEF\nABCDEFG\nABCDEFGH\nABCDEFGHI\nABCDEFGHIJ" }
+  ]
+}
