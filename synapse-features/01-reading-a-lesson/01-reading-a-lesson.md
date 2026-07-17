@@ -61,6 +61,51 @@ while left < right:
 print("[" + ", ".join(arr) + "]")
 ```
 
+## One block, many languages
+
+A run group isn't limited to Python and Java — the sandbox speaks eleven languages, and adjacent `run` fences
+become a **language picker** on one block. The same FizzBuzz below ships in **Rust**, **Kotlin**, and Python: use
+the ▶ pill in the toolbar to switch, then press **Run** — Rust compiles with `rustc -O`, Kotlin with `kotlinc`,
+each inside the same sandbox.
+
+```rust run
+fn main() {
+    for n in 1..=15 {
+        match (n % 3, n % 5) {
+            (0, 0) => println!("FizzBuzz"),
+            (0, _) => println!("Fizz"),
+            (_, 0) => println!("Buzz"),
+            _ => println!("{n}"),
+        }
+    }
+}
+```
+
+```kotlin run
+fun main() {
+    for (n in 1..15) {
+        when {
+            n % 15 == 0 -> println("FizzBuzz")
+            n % 3 == 0 -> println("Fizz")
+            n % 5 == 0 -> println("Buzz")
+            else -> println(n)
+        }
+    }
+}
+```
+
+```python run
+for n in range(1, 16):
+    if n % 15 == 0:
+        print("FizzBuzz")
+    elif n % 3 == 0:
+        print("Fizz")
+    elif n % 5 == 0:
+        print("Buzz")
+    else:
+        print(n)
+```
+
 That's a lesson in a nutshell: **read it, run it, watch it.** The next page turns this same idea into an
 interactive *problem* with a hidden test suite, and the one after shows how an *architecture diagram* can double as
 clickable documentation.
