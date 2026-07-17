@@ -91,19 +91,73 @@ A single-pointer traversal breaks here. If you walk forward and overwrite `arr[i
 
 Every box is checked with nothing extra needed. This is the purest direct application — the template and the algorithm are identical.
 
-**Why does every element have exactly one partner?** Because reversal is a bijection: element at position `i` maps to position `n-1-i`. Two pointers exploit this directly — `left` tracks "the element at distance 0 from the left" and `right` tracks "the element at distance 0 from the right." Every step, both advance one position inward, so the i-th iteration handles the i-th mirror pair. When `left >= right`, all pairs have been processed.
+## Brute Force
 
-**What breaks if you use one pointer instead?** A single forward pointer at position `i` can move `arr[i]` to its destination at `n-1-i`, but it has already overwritten whatever was at `n-1-i` — you need a temp variable and a second loop. Two pointers avoid this entirely: the swap is symmetric, so both elements land in their correct positions in one step, no temp array required.
+The most direct idea: **build a reversed copy, then write it back**. Walk a fresh array from the end of the original toward the front, then overwrite the input with it. It is obviously correct and easy to reason about.
 
-## Approach
+The catch is the temporary array: it costs **O(n) extra space**, which the problem's *"O(1) extra space"* constraint explicitly forbids. Two passes over `n` elements also do twice the memory traffic of the in-place swap. Reach for this only to confirm the answer, then optimise the space away.
 
-1. Set `left = 0`, `right = len(arr) - 1`
-2. While `left < right`:
-   - Swap `arr[left]` and `arr[right]`
-   - `left += 1`, `right -= 1`
-3. Done — the array is reversed in-place
+```python solution
+from typing import List
 
-## Solution
+class Solution:
+    def flip_characters(self, arr: List[str]) -> None:
+        n = len(arr)
+
+        # Build a reversed COPY: reversed_copy[i] is the element that
+        # belongs at index i after the reversal.
+        reversed_copy = [arr[n - 1 - i] for i in range(n)]
+
+        # Write it back over the input, in place of the originals.
+        for i in range(n):
+            arr[i] = reversed_copy[i]
+
+
+# Reads the test case's arr, e.g. [a, e, i, o, u]
+inner = input().strip()[1:-1].strip()
+arr = [t.strip() for t in inner.split(",")] if inner else []
+Solution().flip_characters(arr)
+print("[" + ", ".join(arr) + "]")
+```
+
+```java solution
+import java.util.*;
+
+public class Main {
+    static class Solution {
+        void flipCharacters(char[] arr) {
+            int n = arr.length;
+
+            // Build a reversed COPY, then write it back over the input.
+            char[] copy = new char[n];
+            for (int i = 0; i < n; i++) copy[i] = arr[n - 1 - i];
+            for (int i = 0; i < n; i++) arr[i] = copy[i];
+        }
+    }
+
+    public static void main(String[] args) {
+        char[] arr = parseCharArray(new Scanner(System.in).nextLine());
+        new Solution().flipCharacters(arr);
+        System.out.println(Arrays.toString(arr));
+    }
+
+    // "[a, e, i]" → {'a', 'e', 'i'} — reads the test case's arr
+    static char[] parseCharArray(String line) {
+        String inner = line.trim().replaceAll("^\\[|\\]$", "").trim();
+        if (inner.isEmpty()) return new char[0];
+        String[] parts = inner.split(",");
+        char[] out = new char[parts.length];
+        for (int i = 0; i < parts.length; i++) out[i] = parts[i].trim().charAt(0);
+        return out;
+    }
+}
+```
+
+**Time O(n)** — two linear passes. **Space O(n)** — the temporary copy is the whole point of what we fix next.
+
+## Optimal — Two Pointers
+
+Skip the copy entirely. `left` and `right` are the two ends of the current mirror pair; swapping them places **both** characters in their final positions in a single step, so no evicted value ever needs remembering. Walk the pointers inward until they meet or cross.
 
 ```python solution time=O(n) space=O(1)
 from typing import List
@@ -179,6 +233,8 @@ public class Main {
 }
 ```
 
+**Time O(n)** — `n/2` swaps. **Space O(1)** — just the two index variables. This is the answer the constraint asks for.
+
 ## Dry Run — Example 1
 
 `arr = [a, e, i, o, u]`, `n = 5`
@@ -191,12 +247,14 @@ public class Main {
 
 The middle element at index 2 (`i`) is its own mirror — no swap needed.
 
-## Complexity Analysis
+## Complexity Comparison
 
-| | Complexity | Reasoning |
-|---|---|---|
-| **Time** | O(n) | Each character is visited once; `left` and `right` together make n/2 swaps |
-| **Space** | O(1) | Only two pointer variables — no auxiliary array |
+| Approach | Time | Space | In-place? | Passes |
+|---|---|---|---|---|
+| **Brute Force** (reversed copy) | O(n) | **O(n)** | No — temp array | 2 |
+| **Optimal** (two pointers) | O(n) | **O(1)** | Yes | ½ |
+
+Both are linear in time — the win is entirely in space. The two-pointer version does half the passes and allocates nothing, which is why it satisfies the O(1)-space constraint the brute force violates.
 
 ## Edge Cases
 
@@ -210,4 +268,4 @@ The middle element at index 2 (`i`) is its own mirror — no swap needed.
 
 ## Key Takeaway
 
-Flip Characters is the two-pointer reversal applied to a character array — mechanics identical to reversing integers, only the element type differs. Every future two-pointer problem is a variation on this same swap-and-converge core.
+Flip Characters is the two-pointer reversal applied to a character array — mechanics identical to reversing integers, only the element type differs. The brute-force reversed-copy always works and is a fine sanity check, but two pointers turn its O(n) space into O(1) by swapping mirror pairs atomically. Every future two-pointer problem is a variation on this same swap-and-converge core.
