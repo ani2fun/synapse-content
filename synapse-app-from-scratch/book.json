@@ -1,0 +1,14 @@
+{
+    "title": "Synapse App From Scratch",
+    "description": "How the platform you are reading was designed, built and is operated — architecture and low-level design drawn from the real code, with UML, the decision record and the prices each decision paid, the technology stack and what it cost, the git-to-production content pipeline, and a case study of the four-node homelab it runs on: measured latency, real failure modes, and the outage that taught it fault tolerance. Every diagram matches the source; every number was measured.",
+    "tags": [
+        "architecture",
+        "rust",
+        "low-level-design",
+        "production-engineering",
+        "case-study"
+    ],
+    "estimatedReadingMinutes": 220,
+    "order": 9,
+    "slug": "synapse-app-from-scratch"
+}

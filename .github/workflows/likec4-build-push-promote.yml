@@ -1,8 +1,9 @@
 name: Build, Push, and Promote LikeC4
 
 # The lesson C4 diagrams live in THIS repo (the delta vs Cortex, whose content is
-# in-app): any .c4 push rebuilds the merged /c4 SPA. The build engine is the synapse
-# repo's reusable workflow — one canonical copy, referenced cross-repo (both public).
+# in-app): any .c4 push rebuilds the merged /c4 SPA. The build engine is vendored
+# here as `_build-push-promote.yml` — see the note on the `call` job for why the
+# cross-repo reference was dropped.
 
 on:
   push:

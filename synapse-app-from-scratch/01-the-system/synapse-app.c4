@@ -1,0 +1,160 @@
+// synapse-app-from-scratch — the model for the book's own architecture chapters.
+//
+// Goes one level deeper than the SDFP capstone (`rsy*`), which models the database as a single
+// flat box: here `safDb` nests its actual tables, so the data view and its click-docs can carry
+// the real DDL. Three views: container, component (the server hexagon), and data.
+//
+// Identifiers carry the `saf` prefix. There is NO `specification` here — the ONE workspace spec
+// lives in synapse-features/03-architecture-docs/client-server.c4, and a second one anywhere in
+// the merged workspace breaks every C4 iframe on the site. Explicit `include` lists only; a bare
+// `include *` would pull in every other book's model.
+//
+// Element and view ids are FROZEN once published: element ids key `_c4-docs/<id>.md`, view ids
+// key the `<iframe src="/c4/view/…">` in the lessons.
+
+model {
+  safReader = actor 'Reader' {
+    description 'Reads lessons anonymously. Signs in only to edit code and submit solutions — the read path never needs an identity.'
+  }
+  safAuthor = actor 'Author' {
+    description 'Publishes by pushing Markdown. There is no CMS and no admin upload: git push IS the deploy.'
+  }
+
+  safContentRepo = sourceRepository 'synapse-content' {
+    description 'Books as Markdown, plus .c4 models and hidden test suites. One writer, many readers — which is the entire consistency story.'
+    technology 'git (GitHub)'
+  }
+
+  safSys = system 'Synapse' {
+    description 'Interactive learning platform: prose, runnable code, step-through visualisation, and judged submissions.'
+
+    safEdge = cdn 'Edge' {
+      description 'Immutable-cached SPA assets; content JSON at max-age=60 + stale-while-revalidate=600. Measured ~49 ms cached vs ~153 ms to origin.'
+      technology 'Cloudflare'
+    }
+
+    safSpa = webApplication 'Reader client' {
+      description 'Fine-grained reactive SPA compiled to WebAssembly. Heavy work (editor, markdown, diagrams, tracers) is deferred to lazily-loaded TypeScript islands.'
+      technology 'Rust · Leptos · WASM'
+    }
+
+    safApi = service 'Origin API' {
+      description 'Stateless modular monolith. Seven bounded contexts, ports-and-adapters, one replica by design — the rate limiter is per-process state.'
+      technology 'Rust · axum · tokio'
+
+      safCatalog = component 'catalog' {
+        description 'Walks the content tree into a catalog, resolves lesson paths, serves lesson bodies. Version-gated cache keyed by the content commit SHA.'
+      }
+      safExecution = component 'execution' {
+        description 'Language vocabulary and the run path. Owns the CodeRunner port; supplies the submission context rather than duplicating a runner.'
+      }
+      safSubmission = component 'submission' {
+        description 'The submission aggregate. Accepts in 202, judges in a detached task, reconciles anything a dead process left unfinished.'
+      }
+      safIdentity = component 'identity' {
+        description 'JWKS verification against cached keys — local crypto, no per-request call to the IdP. Canonicalises usernames to lowercase exactly once.'
+      }
+      safBlog = component 'blog' {
+        description 'A deliberate near-twin of catalog over the same filesystem seam. Kept separate because their lifecycles differ.'
+      }
+      safTutoring = component 'tutoring' {
+        description 'Socratic coach over an OpenAI-compatible endpoint. Disabled by default — and disabled means the route is never mounted.'
+      }
+      safPlatform = component 'platform' {
+        description 'Cross-cutting: security headers, cache-control stamping, rate limiting, health and readiness, static and media serving, the /c4 proxy.'
+      }
+    }
+
+    safSync = worker 'Content sidecar' {
+      description 'Polls the content repository every 60s and flips an atomic symlink. The API re-reads the commit SHA per request, so new prose needs no redeploy.'
+      technology 'git-sync'
+    }
+
+    safSandbox = service 'Code sandbox' {
+      description 'Runs untrusted reader-submitted code. Network-isolated, resource-capped, privileged only where the sandbox itself requires it.'
+      technology 'go-judge'
+    }
+
+    safDb = relationalDatabase 'Submissions store' {
+      description 'The system of record, and the only thing that grows. Two tables, one check constraint doing the work of an invariant.'
+      technology 'PostgreSQL 17'
+
+      safSubmissions = component 'submissions' {
+        description 'One row per attempt. The state ADT flattens here and only here: (status, outcome jsonb, completed_at) with a biconditional check constraint.'
+        technology 'table'
+      }
+      safAllowlist = component 'submission_allowlist' {
+        description 'Who may submit-and-save. Keyed by the human-grantable lowercase IdP username — deliberately NOT a foreign key to submissions.user_id, which stores the opaque OIDC subject.'
+        technology 'table'
+      }
+    }
+
+    safIdp = identityProvider 'Identity provider' {
+      description 'OIDC authorization-code + PKCE, with GitHub as an upstream identity provider. On the sign-in path only.'
+      technology 'Keycloak'
+    }
+
+    safC4 = webApplication 'Diagram SPA' {
+      description 'The merged C4 workspace built from every .c4 in the content repo — including the diagram you are looking at. Reached through the API, never exposed directly.'
+      technology 'LikeC4 · nginx'
+    }
+  }
+
+  // NOTE: a container may not be related to its OWN child — nesting already expresses that, and
+  // LikeC4 rejects the file with "Invalid parent-child relationship". So the callers below point
+  // at the individual contexts rather than at `safApi`, which is what the component view wants
+  // anyway; the container view keeps the single `safSpa -> safApi` edge.
+
+  // ── read path ──
+  safReader -> safEdge 'reads lessons'
+  safEdge -> safSpa 'serves assets (immutable) + content JSON (60s + swr)'
+  safSpa -> safApi 'JSON over HTTPS'
+  safSpa -> safCatalog 'index, lesson bodies, component docs'
+  safCatalog -> safSync 'reads the checked-out tree'
+
+  // ── authoring path ──
+  safAuthor -> safContentRepo 'git push'
+  safContentRepo -> safSync 'polled every 60s'
+  safContentRepo -> safC4 'any .c4 change rebuilds the diagram image'
+
+  // ── run + submit path ──
+  safSpa -> safExecution 'run this code'
+  safExecution -> safSandbox 'execute, capped and isolated'
+  safSpa -> safSubmission 'submit solution'
+  safSubmission -> safExecution 'judge each case in authored order'
+  safSubmission -> safSubmissions 'insert pending → update judging → update completed'
+  safSubmission -> safAllowlist 'may this user submit?'
+
+  // ── identity ──
+  safSpa -> safIdp 'authorization code + PKCE'
+  safSpa -> safIdentity 'bearer on every authenticated call'
+  safIdentity -> safIdp 'fetches signing keys (cached 5 min)'
+
+  // ── diagrams ──
+  safPlatform -> safC4 'reverse-proxies /c4'
+}
+
+views {
+
+  view saf_container of safSys {
+    title 'Synapse — containers'
+    include
+      safReader, safAuthor, safContentRepo, safSys,
+      safEdge, safSpa, safApi, safSync, safSandbox, safDb, safIdp, safC4
+  }
+
+  view saf_component of safApi {
+    title 'Origin API — the seven bounded contexts'
+    include
+      safApi,
+      safCatalog, safExecution, safSubmission, safIdentity, safBlog, safTutoring, safPlatform,
+      safDb, safSandbox, safIdp, safC4, safSync
+  }
+
+  view saf_data of safDb {
+    title 'Data — two tables, and who writes to them'
+    include
+      safDb, safSubmissions, safAllowlist,
+      safSubmission, safIdentity
+  }
+}
