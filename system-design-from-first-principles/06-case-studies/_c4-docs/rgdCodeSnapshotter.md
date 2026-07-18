@@ -6,7 +6,7 @@ technology: Python
 
 ## Snapshotter
 
-**Snapshotter** owns `fold(doc_id) Snapshot` — the compaction step that keeps `state = fold(ops)` from meaning "replay two years of keystrokes." It reads the canonical sequence `OtEngine` has accepted, folds a log prefix into a single equivalent state, writes it to the snapshot store under a new `documentVersionId`, and flips the pointer in the metadata DB.
+**Snapshotter** owns `fold(doc_id) Snapshot` — the compaction step that keeps `state = fold(ops)` from meaning "replay 4 months of keystrokes." It reads the canonical sequence `OtEngine` has accepted, folds a log prefix into a single equivalent state, writes it to the snapshot store under a new `documentVersionId`, and flips the pointer in the metadata DB.
 
 **Responsibilities**
 
