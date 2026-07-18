@@ -97,6 +97,7 @@ New regions may be added over time.
 **Bad design — violates OCP:**
 
 ```java
+// ⚠️ ANTI-PATTERN — this is the version we are about to fix. Do not copy it.
 class InvoiceProcessor {
     public double calculateTotal(String region, double amount) {
         if (region.equalsIgnoreCase("India")) {
@@ -108,6 +109,16 @@ class InvoiceProcessor {
         } else {
             return amount; // No tax for unknown region
         }
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        InvoiceProcessor processor = new InvoiceProcessor();
+        System.out.println("Total (India): " + processor.calculateTotal("India", 1000.0));
+        System.out.println("Total (Germany): " + processor.calculateTotal("Germany", 1000.0));
+        System.out.println("Germany got no tax at all — supporting it correctly means editing InvoiceProcessor.calculateTotal itself. One class had to change for every new region: that's the OCP violation.");
     }
 }
 ```
@@ -186,9 +197,37 @@ Explanation:
 Assume that now we want to support Germany with 15% tax. In such a case, a simple code snippet can be introduced in the file:
 
 ```java
+// TaxCalculator and Invoice repeated here so this snippet compiles on its
+// own — they're unchanged from the fence above; only GermanyTaxCalculator is new.
+interface TaxCalculator {
+    double calculateTax(double amount);
+}
+
 class GermanyTaxCalculator implements TaxCalculator {
     public double calculateTax(double amount) {
         return amount * 0.15;
+    }
+}
+
+class Invoice {
+    private double amount;
+    private TaxCalculator taxCalculator;
+
+    public Invoice(double amount, TaxCalculator taxCalculator) {
+        this.amount = amount;
+        this.taxCalculator = taxCalculator;
+    }
+
+    public double getTotalAmount() {
+        return amount + taxCalculator.calculateTax(amount);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Invoice germanyInvoice = new Invoice(1000.0, new GermanyTaxCalculator());
+        System.out.println("Total (Germany): " + germanyInvoice.getTotalAmount());
     }
 }
 ```
@@ -479,6 +518,7 @@ Let's say you're designing Uber's app interfaces.
 **Bad interface design (violates ISP):**
 
 ```java
+// ⚠️ ANTI-PATTERN — this is the version we are about to fix. Do not copy it.
 interface UberUser {
     void bookRide();
     void acceptRide();
@@ -486,17 +526,58 @@ interface UberUser {
     void ratePassenger();
     void rateDriver();
 }
+
+// Demo implementor — stands in for a rider here; the real Rider
+// implementation (still forced to implement everything) comes next.
+class DemoUberUser implements UberUser {
+    public void bookRide() { System.out.println("Booking a ride..."); }
+    public void acceptRide() { /* not needed for a rider */ }
+    public void trackEarnings() { /* not needed for a rider */ }
+    public void ratePassenger() { /* not needed for a rider */ }
+    public void rateDriver() { System.out.println("Rating the driver..."); }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        UberUser rider = new DemoUberUser();
+        rider.bookRide();
+        rider.rateDriver();
+        System.out.println("A rider-only implementor still had to write bodies for acceptRide(), trackEarnings(), and ratePassenger() — methods it never calls. One fat interface, five unrelated responsibilities.");
+    }
+}
 ```
 
 Using such an interface would force riders to implement methods they don't need, like `acceptRide()` and `trackEarnings()`. For instance:
 
 ```java
+// ⚠️ ANTI-PATTERN — this is the version we are about to fix. Do not copy it.
+// UberUser repeated here so this fence compiles on its own — unchanged
+// from the fence above.
+interface UberUser {
+    void bookRide();
+    void acceptRide();
+    void trackEarnings();
+    void ratePassenger();
+    void rateDriver();
+}
+
 class Rider implements UberUser {
-    public void bookRide() { /* yes */ }
+    public void bookRide() { System.out.println("Booking a ride..."); }
     public void acceptRide() { /* not needed */ }
     public void trackEarnings() { /* not needed */ }
     public void ratePassenger() { /* not needed */ }
-    public void rateDriver() { /* yes */ }
+    public void rateDriver() { System.out.println("Rating the driver..."); }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Rider rider = new Rider();
+        rider.bookRide();
+        rider.rateDriver();
+        System.out.println("Rider implements UberUser and is forced to provide acceptRide(), trackEarnings(), and ratePassenger() even though it never uses them — a fat interface violating ISP.");
+    }
 }
 ```
 
@@ -517,20 +598,66 @@ interface DriverInterface {
     void trackEarnings();
     void ratePassenger();
 }
+
+// Demo implementor — exists only to demo the contract; the real Rider
+// and Driver classes come next.
+class DemoRider implements RiderInterface {
+    public void bookRide() { System.out.println("Booking a ride..."); }
+    public void rateDriver() { System.out.println("Rating the driver..."); }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        RiderInterface rider = new DemoRider();
+        rider.bookRide();
+        rider.rateDriver();
+        System.out.println("RiderInterface exposes only what a rider needs — no acceptRide(), no trackEarnings().");
+    }
+}
 ```
 
 Now, each class only implements what it actually needs:
 
 ```java
+// RiderInterface and DriverInterface repeated here so this fence compiles
+// on its own — unchanged from the fence above.
+interface RiderInterface {
+    void bookRide();
+    void rateDriver();
+}
+
+interface DriverInterface {
+    void acceptRide();
+    void trackEarnings();
+    void ratePassenger();
+}
+
 class Rider implements RiderInterface {
-    public void bookRide() { /* yes */ }
-    public void rateDriver() { /* yes */ }
+    public void bookRide() { System.out.println("Booking a ride..."); }
+    public void rateDriver() { System.out.println("Rating the driver..."); }
 }
 
 class Driver implements DriverInterface {
-    public void acceptRide() { /* yes */ }
-    public void trackEarnings() { /* yes */ }
-    public void ratePassenger() { /* yes */ }
+    public void acceptRide() { System.out.println("Accepting the ride..."); }
+    public void trackEarnings() { System.out.println("Tracking earnings..."); }
+    public void ratePassenger() { System.out.println("Rating the passenger..."); }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Rider rider = new Rider();
+        rider.bookRide();
+        rider.rateDriver();
+
+        Driver driver = new Driver();
+        driver.acceptRide();
+        driver.trackEarnings();
+        driver.ratePassenger();
+
+        System.out.println("Each class implements only the interface it needs — no unused methods.");
+    }
 }
 ```
 
@@ -612,6 +739,7 @@ Now let's see how Netflix might (badly) and should (correctly) implement this us
 **Without DIP — tightly coupled code:**
 
 ```java
+// ⚠️ ANTI-PATTERN — this is the version we are about to fix. Do not copy it.
 // Class implementing the recommendations based on recently added
 class RecentlyAdded {
     // Method to get the recommendations
@@ -626,6 +754,15 @@ class RecommendationEngine {
 
     public void recommend() {
         recommender.getRecommendations();
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        RecommendationEngine engine = new RecommendationEngine();
+        engine.recommend();
+        System.out.println("RecommendationEngine is hardwired to RecentlyAdded — switching to TrendingNow or GenreBased means editing this class's source, not configuring it. That's the DIP violation.");
     }
 }
 ```

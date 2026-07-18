@@ -15,6 +15,35 @@ To gain a better understanding of Dependency Injection, let's begin by examining
 Imagine we are building an OrderService and we write the following code:
 
 ```java
+// ⚠️ ANTI-PATTERN — this is the version we are about to fix. Do not copy it.
+class InventoryService {
+    void blockItems(Order order) {
+        System.out.println("InventoryService: blocked items for order " + order.id);
+    }
+}
+
+interface PaymentService {
+    void process(Order order);
+}
+
+class RazorpayPayment implements PaymentService {
+    @Override
+    public void process(Order order) {
+        System.out.println("RazorpayPayment: charged order " + order.id);
+    }
+}
+
+class NotificationService {
+    void sendConfirmation(Order order) {
+        System.out.println("NotificationService: confirmation sent for order " + order.id);
+    }
+}
+
+class Order {
+    String id;
+    Order(String id) { this.id = id; }
+}
+
 class OrderService {
     private InventoryService inventory = new InventoryService();
     private PaymentService payment = new RazorpayPayment();
@@ -24,6 +53,17 @@ class OrderService {
         inventory.blockItems(order);
         payment.process(order);
         notification.sendConfirmation(order);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        OrderService orderService = new OrderService();
+        orderService.checkout(new Order("o-1"));
+        // OrderService hardcodes RazorpayPayment inside itself — swapping to Stripe,
+        // or unit-testing checkout() with a mock PaymentService, means editing this class.
+        System.out.println("Violation: OrderService is hardwired to concrete InventoryService, RazorpayPayment, and NotificationService — it cannot be tested or extended without modifying this class.");
     }
 }
 ```
@@ -87,6 +127,34 @@ Here is the refactored code using Dependency Injection:
 ```java
 import java.util.*;
 
+class InventoryService {
+    void blockItems(Order order) {
+        System.out.println("InventoryService: blocked items for order " + order.id);
+    }
+}
+
+interface PaymentService {
+    void process(Order order);
+}
+
+class RazorpayPayment implements PaymentService {
+    @Override
+    public void process(Order order) {
+        System.out.println("RazorpayPayment: charged order " + order.id);
+    }
+}
+
+class NotificationService {
+    void sendConfirmation(Order order) {
+        System.out.println("NotificationService: confirmation sent for order " + order.id);
+    }
+}
+
+class Order {
+    String id;
+    Order(String id) { this.id = id; }
+}
+
 class OrderService2 {
     private InventoryService inventory;
     private PaymentService payment;
@@ -119,6 +187,7 @@ class Main {
         );
 
         // Now, we can use the orderService2 to perform operations
+        Order order = new Order("o-2");
         orderService2.checkout(order);
     }
 }
@@ -184,7 +253,16 @@ Constructor Injection is the most commonly used form of Dependency Injection. In
 
 ```java
 // Using Constructor Injection
-public class OrderService {
+interface PaymentService {
+    void process(Order order);
+}
+
+class Order {
+    String id;
+    Order(String id) { this.id = id; }
+}
+
+class OrderService {
     private final PaymentService payment;
 
     // Constructor
@@ -194,6 +272,15 @@ public class OrderService {
 
     public void checkout(Order order) {
         payment.process(order);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        PaymentService payment = order -> System.out.println("Charged order " + order.id);
+        OrderService orderService = new OrderService(payment);
+        orderService.checkout(new Order("o-3"));
     }
 }
 ```
@@ -212,7 +299,16 @@ In Setter Injection, dependencies are passed to the class via setter methods aft
 
 ```java
 // Using Setter Injection
-public class OrderService {
+interface PaymentService {
+    void process(Order order);
+}
+
+class Order {
+    String id;
+    Order(String id) { this.id = id; }
+}
+
+class OrderService {
     private PaymentService payment;
 
     // Setter method to inject dependencies
@@ -222,6 +318,15 @@ public class OrderService {
 
     public void checkout(Order order) {
         payment.process(order);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        OrderService orderService = new OrderService();
+        orderService.setPayment(order -> System.out.println("Charged order " + order.id));
+        orderService.checkout(new Order("o-4"));
     }
 }
 ```
@@ -240,13 +345,22 @@ In Interface Injection, the dependency provides an injector method that will inj
 
 ```java
 // Interface to inject PaymentService dependency
-public interface PaymentInjectable {
+interface PaymentInjectable {
     // Method to inject PaymentService
     void injectPayment(PaymentService payment);
 }
 
+interface PaymentService {
+    void process(Order order);
+}
+
+class Order {
+    String id;
+    Order(String id) { this.id = id; }
+}
+
 // Using Interface Injection
-public class OrderService implements PaymentInjectable {
+class OrderService implements PaymentInjectable {
     private PaymentService payment;
 
     // Inject PaymentService through the method
@@ -258,6 +372,15 @@ public class OrderService implements PaymentInjectable {
 
     public void checkout(Order order) {
         payment.process(order);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        OrderService orderService = new OrderService();
+        orderService.injectPayment(order -> System.out.println("Charged order " + order.id));
+        orderService.checkout(new Order("o-5"));
     }
 }
 ```
@@ -456,11 +579,40 @@ A fail-fast system detects errors early and stops further execution to prevent i
 </div>
 
 ```java
+class Product {
+    String id;
+    String name;
+    Product(String id, String name) { this.id = id; this.name = name; }
+}
+
+class ProductRepo {
+    Product find(String productId) {
+        return new Product(productId, "Wireless Mouse");
+    }
+}
+
 class ProductServiceFailFirst {
+    private final ProductRepo productRepo = new ProductRepo();
+
     public Product getProduct(String productId) {
         if (productId == null) throw new IllegalArgumentException("Product ID cannot be null");
         // fail-fast for invalid input
         return productRepo.find(productId);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        ProductServiceFailFirst service = new ProductServiceFailFirst();
+        Product product = service.getProduct("p-1");
+        System.out.println("Fetched: " + product.name);
+
+        try {
+            service.getProduct(null);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Fail-fast rejected the call: " + e.getMessage());
+        }
     }
 }
 ```
@@ -496,7 +648,21 @@ A fail-safe system continues running despite errors, using fallback mechanisms t
 
 ```java
 // Search Product in any of the websites..
+class Product {
+    String id;
+    String name;
+    Product(String id, String name) { this.id = id; this.name = name; }
+}
+
+class ProductRepo {
+    Product find(String productId) {
+        throw new RuntimeException("catalog service unavailable");
+    }
+}
+
 class ProductServiceFailSafe {
+    private final ProductRepo productRepo = new ProductRepo();
+
     public Product getProduct(String productId) {
         try {
             return productRepo.find(productId);
@@ -504,6 +670,15 @@ class ProductServiceFailSafe {
             // fail-safe: return default
             return new Product("default", "Fallback Product");
         }
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        ProductServiceFailSafe service = new ProductServiceFailSafe();
+        Product product = service.getProduct("p-1");
+        System.out.println("Fetched: " + product.name);
     }
 }
 ```
@@ -567,7 +742,7 @@ Here is a simple example that demonstrates a Checked Exception (IOException):
 ```java
 import java.io.*;
 
-class FileReaderExample {
+class Main {
     public void readFile(String filePath) throws IOException {
         FileReader reader = new FileReader(filePath);  // This may throw an IOException
         BufferedReader bufferedReader = new BufferedReader(reader);
@@ -577,7 +752,7 @@ class FileReaderExample {
     }
 
     public static void main(String[] args) {
-        FileReaderExample example = new FileReaderExample();
+        Main example = new Main();
         try {
             example.readFile("somefile.txt"); // Must handle the IOException
         } catch (IOException e) {
@@ -669,6 +844,18 @@ class CourseService {
         return false;  // For the sake of this example, assume the user doesn't have access
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        CourseService courseService = new CourseService();
+        try {
+            courseService.accessCourse("u-42");
+        } catch (CustomerNotPlusException e) {
+            System.out.println("Blocked: " + e.getMessage());
+        }
+    }
+}
 ```
 
 In this example:
@@ -751,7 +938,45 @@ When a live service or an external API fails, the system can fall back on cached
 In the provided code snippet, we have a RecommendationService class that fetches user recommendations. Here's how it works:
 
 ```java
+import java.util.*;
+
+class RecommendationCache {
+    List<String> getCachedRecommendations(String userId) {
+        return List.of("cached-movie-1");
+    }
+}
+
+class Logger {
+    void warn(String message) {
+        System.out.println("[WARN] " + message);
+    }
+}
+
+// The live recommendation service — a separate collaborator, injected in.
+class LiveRecommendationClient {
+    private final boolean reachable;
+
+    LiveRecommendationClient(boolean reachable) {
+        this.reachable = reachable;
+    }
+
+    public List<String> fetchLiveRecommendations(String userId) {
+        if (!reachable) {
+            throw new IllegalStateException("live recommendation service unreachable");
+        }
+        return List.of("movie-1", "movie-2");  // Simulated live recommendation data
+    }
+}
+
 class RecommendationService {
+    private final LiveRecommendationClient recommendationService;
+    private final RecommendationCache cacheService = new RecommendationCache();
+    private final Logger log = new Logger();
+
+    RecommendationService(LiveRecommendationClient recommendationService) {
+        this.recommendationService = recommendationService;
+    }
+
     public List<String> getRecommendedItems(String userId) {
         try {
             // Attempt to fetch live recommendations
@@ -762,9 +987,20 @@ class RecommendationService {
             return cacheService.getCachedRecommendations(userId);  // Fallback to cached data
         }
     }
+}
 
-    public List<String> fetchLiveRecommendations(String userId) {
-        return List.of("movie-1", "movie-2");  // Simulated live recommendation data
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        // Happy path — the live service answers.
+        RecommendationService healthy =
+                new RecommendationService(new LiveRecommendationClient(true));
+        System.out.println("Live:     " + healthy.getRecommendedItems("u-1"));
+
+        // Degraded path — the live service is down, so stale cache is served instead.
+        RecommendationService degraded =
+                new RecommendationService(new LiveRecommendationClient(false));
+        System.out.println("Fallback: " + degraded.getRecommendedItems("u-1"));
     }
 }
 ```
@@ -788,14 +1024,33 @@ This could be a message, a static version of the content, or a default view that
 Here’s how the code for showing fallback UI works:
 
 ```java
-// Show fallback UI
-public Menu getMenu(String restaurantId) {
-    try {
-        // Attempt to fetch the live menu
-        return menuService.fetchMenu(restaurantId);
-    } catch (Exception e) {
-        // If the live menu is unavailable, show a fallback message in the UI
-        return new Menu("Menu currently unavailable. Please try again later.");
+class Menu {
+    String content;
+    Menu(String content) { this.content = content; }
+}
+
+class MenuService {
+    Menu fetchMenu(String restaurantId) {
+        throw new RuntimeException("menu service timed out");
+    }
+}
+
+class Main {
+    static MenuService menuService = new MenuService();
+
+    // Show fallback UI
+    public static Menu getMenu(String restaurantId) {
+        try {
+            // Attempt to fetch the live menu
+            return menuService.fetchMenu(restaurantId);
+        } catch (Exception e) {
+            // If the live menu is unavailable, show a fallback message in the UI
+            return new Menu("Menu currently unavailable. Please try again later.");
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getMenu("r-1").content);
     }
 }
 ```
@@ -814,15 +1069,48 @@ This approach is effective for user-facing applications where it’s essential t
 Another graceful degradation strategy is queuing requests. When a service is temporarily unavailable or experiences high traffic, it’s crucial to prevent the system from becoming overloaded or failing outright. By queuing requests, the system can defer the action until the service is ready to process it, ensuring that no requests are lost, and users are not impacted by service interruptions.
 
 ```java
-// Queue request's
-public void placeOrder(Order order) {
-    try {
-        // Attempt to charge the payment
-        paymentService.charge(order);
-    } catch (Exception e) {
-        // If payment fails, queue the order for retry
-        orderRetryQueue.enqueue(order);
-        log.warn("Payment failed. Queued for retry.");
+class Order {
+    String id;
+    Order(String id) { this.id = id; }
+}
+
+class PaymentService {
+    void charge(Order order) {
+        throw new RuntimeException("payment gateway unreachable");
+    }
+}
+
+class RetryQueue {
+    void enqueue(Order order) {
+        System.out.println("Queued order " + order.id + " for retry");
+    }
+}
+
+class Logger {
+    void warn(String message) {
+        System.out.println("[WARN] " + message);
+    }
+}
+
+class Main {
+    static PaymentService paymentService = new PaymentService();
+    static RetryQueue orderRetryQueue = new RetryQueue();
+    static Logger log = new Logger();
+
+    // Queue request's
+    public static void placeOrder(Order order) {
+        try {
+            // Attempt to charge the payment
+            paymentService.charge(order);
+        } catch (Exception e) {
+            // If payment fails, queue the order for retry
+            orderRetryQueue.enqueue(order);
+            log.warn("Payment failed. Queued for retry.");
+        }
+    }
+
+    public static void main(String[] args) {
+        placeOrder(new Order("o-6"));
     }
 }
 ```
@@ -850,17 +1138,38 @@ The naive retry mechanism simply retries an operation a fixed number of times wh
 Here's an example of the naive retry mechanism:
 
 ```java
-// Naive retry example
-public String getETA() {
-    int retries = 3;  // Maximum retry attempts
-    while (retries-- > 0) {
-        try {
-            return etaService.getETA();  // Attempt to fetch ETA from service
-        } catch (Exception e) {
-            log.warn("Retrying ETA, attempts left: " + retries);
-        }
+class EtaService {
+    String getETA() {
+        throw new RuntimeException("ETA service unavailable");
     }
-    return "ETA unavailable";  // Return message if all retries fail
+}
+
+class Logger {
+    void warn(String message) {
+        System.out.println("[WARN] " + message);
+    }
+}
+
+class Main {
+    static EtaService etaService = new EtaService();
+    static Logger log = new Logger();
+
+    // Naive retry example
+    public static String getETA() {
+        int retries = 3;  // Maximum retry attempts
+        while (retries-- > 0) {
+            try {
+                return etaService.getETA();  // Attempt to fetch ETA from service
+            } catch (Exception e) {
+                log.warn("Retrying ETA, attempts left: " + retries);
+            }
+        }
+        return "ETA unavailable";  // Return message if all retries fail
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getETA());
+    }
 }
 ```
 
@@ -879,19 +1188,33 @@ A more sophisticated approach is the backoff strategy, which adds a delay betwee
 Here’s an example of the backoff strategy:
 
 ```java
-// Backoff strategy
-public String getETAWithBackoff() throws InterruptedException {
-    int retries = 3;
-    int delay = 1000; // Initial delay is 1 second
-    while (retries-- > 0) {
-        try {
-            return etaService.getETA();  // Attempt to fetch ETA from service
-        } catch (Exception e) {
-            Thread.sleep(delay);  // Wait before retrying
-            delay *= 2;  // Exponential backoff: double the delay each time
-        }
+class EtaService {
+    String getETA() {
+        throw new RuntimeException("ETA service unavailable");
     }
-    return "ETA unavailable";  // Return message if all retries fail
+}
+
+class Main {
+    static EtaService etaService = new EtaService();
+
+    // Backoff strategy
+    public static String getETAWithBackoff() throws InterruptedException {
+        int retries = 3;
+        int delay = 50; // Shortened from 1000ms for the sandbox; same exponential shape
+        while (retries-- > 0) {
+            try {
+                return etaService.getETA();  // Attempt to fetch ETA from service
+            } catch (Exception e) {
+                Thread.sleep(delay);  // Wait before retrying
+                delay *= 2;  // Exponential backoff: double the delay each time
+            }
+        }
+        return "ETA unavailable";  // Return message if all retries fail
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println(getETAWithBackoff());
+    }
 }
 ```
 
@@ -962,7 +1285,14 @@ Here’s how the Circuit Breaker pattern can be implemented using Spring Boot wi
 
 The circuit breaker is applied using the @CircuitBreaker annotation, which wraps the method with the defined circuit breaker and fallback mechanism.
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+⚠️ **Requires Resilience4j.** This example needs Spring Boot plus the Resilience4j library on the classpath — it won't run in the sandbox editor below.
+
+</div>
+
 ```java
+// requires: resilience4j — not runnable in the sandbox
 @Service
 class PaymentService {
 
@@ -987,7 +1317,14 @@ class PaymentService {
 
 You can also configure the circuit breaker programmatically by using a @Bean method:
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+⚠️ **Requires Resilience4j.** This is a Spring `@Bean` configuration method — it needs the framework container to run and won't compile standalone.
+
+</div>
+
 ```java
+// requires: resilience4j — not runnable in the sandbox
 @Bean
 public Customizer<CircuitBreakerConfigCustomizer> paymentCircuitBreakerConfig() {
     return CircuitBreakerConfigCustomizer.of("paymentService", builder -> builder

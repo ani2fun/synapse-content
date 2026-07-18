@@ -237,6 +237,8 @@ To integrate database design into the application layer, ER diagrams are mapped 
 **Example – Razorpay Class Model (Java):**
 
 ```java
+import java.util.*;
+
 class User {
     Long id;
     String name;
@@ -250,6 +252,37 @@ class Payment {
     Merchant merchant;
     Double amount;
     String method;
+}
+
+// Merchant is referenced by Payment but not shown above — minimal stub so the fence compiles.
+class Merchant {
+    Long id;
+    String name;
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Merchant merchant = new Merchant();
+        merchant.id = 1L;
+        merchant.name = "Acme Store";
+
+        User user = new User();
+        user.id = 100L;
+        user.name = "Alex";
+        user.email = "alex@example.com";
+        user.payments = new ArrayList<>();
+
+        Payment payment = new Payment();
+        payment.id = 5001L;
+        payment.user = user;
+        payment.merchant = merchant;
+        payment.amount = 499.00;
+        payment.method = "UPI";
+        user.payments.add(payment);
+
+        System.out.println(user.name + " paid " + payment.amount + " to " + merchant.name + " via " + payment.method);
+    }
 }
 ```
 
@@ -270,10 +303,48 @@ class Payment {
 **Example – Java DAO Interface:**
 
 ```java
-public interface PaymentDAO {
+import java.util.*;
+
+// Payment is referenced by the interface below but not defined in this fence — minimal stub.
+class Payment {
+    Long id;
+}
+
+interface PaymentDAO {
     Payment getPaymentById(Long id);
     List<Payment> getPaymentsByUser(Long userId);
     void save(Payment payment);
+}
+
+// DemoPaymentDAO exists only to demonstrate the contract — not the canonical implementation.
+class DemoPaymentDAO implements PaymentDAO {
+    private final Map<Long, Payment> store = new LinkedHashMap<>();
+
+    @Override
+    public Payment getPaymentById(Long id) {
+        return store.get(id);
+    }
+
+    @Override
+    public List<Payment> getPaymentsByUser(Long userId) {
+        return new ArrayList<>(store.values());
+    }
+
+    @Override
+    public void save(Payment payment) {
+        store.put(payment.id, payment);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        PaymentDAO dao = new DemoPaymentDAO();
+        Payment payment = new Payment();
+        payment.id = 1L;
+        dao.save(payment);
+        System.out.println("Fetched payment id: " + dao.getPaymentById(1L).id);
+    }
 }
 ```
 
@@ -291,7 +362,14 @@ The Repository pattern is an abstraction that provides a collection-like interfa
 
 **Example – Spring Repository:**
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+⚠️ **Watch out.** This snippet needs Spring Data JPA on the classpath — it won't compile standalone in the sandbox editor.
+
+</div>
+
 ```java
+// requires: spring-data-jpa — not runnable in the sandbox
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findByUserId(Long userId);
 }

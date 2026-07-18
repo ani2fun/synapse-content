@@ -15,6 +15,7 @@ Java provides a robust exception-handling framework to catch and handle such sit
 Consider the following example (If you run the program, it will crash without exception handling):
 
 ```java
+// expects-exception: shows what an unhandled ArithmeticException looks like
 import java.util.*;
 
 // Main class
@@ -86,11 +87,18 @@ Java provides the try-catch mechanism to handle exceptions.
 Syntax:
 
 ```java
-try {
-    // Code that might cause an exception
-}
-catch (ExceptionType e) {
-    // Code to handle the exception
+class Main {
+    public static void main(String[] args) {
+        // Generic try-catch syntax, shown here with a concrete exception
+        try {
+            // Code that might cause an exception
+            int result = 10 / 0;
+        }
+        catch (ArithmeticException e) { // ExceptionType -> concrete example
+            // Code to handle the exception
+            System.out.println("Caught: " + e);
+        }
+    }
 }
 ```
 
@@ -196,7 +204,17 @@ The throw statement is followed by an instance of an exception.
 Syntax:
 
 ```java
-throw new ExceptionType("Error Message");
+class Main {
+    public static void main(String[] args) {
+        // Generic throw syntax, shown here with a concrete exception
+        try {
+            throw new RuntimeException("Error Message"); // ExceptionType -> concrete example
+        }
+        catch (RuntimeException e) {
+            System.out.println("Caught: " + e.getMessage());
+        }
+    }
+}
 ```
 
 Note that the ExceptionType must be a subclass of Throwable (like ArithmeticException, NullPointerException, or a user-defined exception).
@@ -204,13 +222,14 @@ Note that the ExceptionType must be a subclass of Throwable (like ArithmeticExce
 Let's consider an example where we prevent a person from voting if their age is below 18:
 
 ```java
+// expects-exception: a checked exception thrown with no try-catch — the program terminates abruptly
 import java.util.*;
 
 // Main class
 class Main {
 
     // Method to Check Age
-    public static void checkAge(int age) {
+    public static void checkAge(int age) throws Exception {
         if (age < 18) {
             // Throwing an exception
             throw new Exception("Not eligible to vote.");
@@ -221,7 +240,7 @@ class Main {
     }
 
     // Main method
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         checkAge(15); // Throws an exception
     }
 }
@@ -244,8 +263,16 @@ This is useful when a method relies on external resources like files, databases,
 Syntax:
 
 ```java
-returnType methodName() throws ExceptionType {
-    // Method code that might throw an exception
+class Main {
+    // Generic method-signature syntax, shown here with concrete types
+    static String methodName() throws Exception { // returnType -> String, ExceptionType -> Exception
+        // Method code that might throw an exception
+        return "no exception this time";
+    }
+
+    public static void main(String[] args) throws Exception {
+        System.out.println(methodName());
+    }
 }
 ```
 
@@ -397,13 +424,18 @@ Example:
 import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 // Main class
 class Main {
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         File file = new File("test.txt");
+        file.createNewFile(); // ensures the file exists so this block is self-contained
+
         Scanner reader = new Scanner(file); // Must handle or declare exception
+        System.out.println("Scanner opened on: " + file.getName());
+        reader.close();
     }
 }
 ```
@@ -421,6 +453,7 @@ These occur at runtime and do not require explicit handling. They are usually du
 Example:
 
 ```java
+// expects-exception: shows an unchecked ArithmeticException with no try-catch at all
 import java.util.*;
 
 class Main {
@@ -547,6 +580,19 @@ Syntax:
 ```java
 class ClassName<T> {
     // T is a type parameter
+    private T value;
+
+    ClassName(T value) { this.value = value; }
+
+    T get() { return value; }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        ClassName<String> holder = new ClassName<>("Generic syntax demo");
+        System.out.println(holder.get());
+    }
 }
 ```
 
@@ -590,8 +636,17 @@ Syntax:
 
 ```java
 class ClassName {
+    // Generic method syntax
     <T> void methodName(T param) {
-        // Generic Method
+        System.out.println("methodName received: " + param);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        ClassName obj = new ClassName();
+        obj.methodName("Generic syntax demo");
     }
 }
 ```
@@ -640,8 +695,26 @@ class Main {
 Syntax:
 
 ```java
+// Minimal stub so the bounded-type syntax below compiles
+class SomeClass {
+    void describe() { System.out.println("SomeClass instance"); }
+}
+
 class ClassName<T extends SomeClass> {
     // Only classes extending SomeClass are allowed as T
+    private T value;
+
+    ClassName(T value) { this.value = value; }
+
+    T get() { return value; }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        ClassName<SomeClass> holder = new ClassName<>(new SomeClass());
+        holder.get().describe();
+    }
 }
 ```
 
@@ -819,6 +892,8 @@ class Main {
 
         rawBox.set("Hello");
         rawBox.set(100); // No compile-time error, but runtime issues may occur
+
+        System.out.println("rawBox now holds: " + rawBox.get());
     }
 }
 ```
@@ -832,6 +907,7 @@ Using raw types can lead to unchecked warnings and runtime exceptions.
 Example: Runtime Error with Raw Types
 
 ```java
+// expects-exception: type erasure lets this compile; the ClassCastException only surfaces when the mistyped value is read back
 import java.util.*;
 
 // Generic class
@@ -850,8 +926,10 @@ class Main {
 
         Box<Integer> intBox = rawBox; // Unsafe assignment (No type check)
 
-        // No error at compile-time, but type mismatch at runtime
-        intBox.set(100);
+        // No error at compile-time, but type mismatch at runtime:
+        // intBox believes it holds an Integer, but rawBox actually stored a String
+        Integer num = intBox.get(); // ClassCastException: String cannot be cast to Integer
+        System.out.println("Never reached: " + num);
     }
 }
 ```
@@ -886,6 +964,15 @@ class Box<T> {
     void set(T value) { this.value = value; }
     T get() { return value; }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Box<String> box = new Box<>();
+        box.set("Before erasure");
+        System.out.println(box.get());
+    }
+}
 ```
 
 After Compilation (Type Erasure)
@@ -900,6 +987,16 @@ class Box {  // `<T>` is erased
     // `<T>` replaced with `Object`
     void set(Object value) { this.value = value; }
     Object get() { return value; }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Box box = new Box();
+        box.set("After erasure");
+        String value = (String) box.get(); // explicit cast is exactly what the compiler now inserts for you
+        System.out.println(value);
+    }
 }
 ```
 
@@ -953,6 +1050,8 @@ class Main {
             } else {
                 System.out.println("File already exists.");
             }
+            // Clean up so re-running this example starts from the same state.
+            file.delete();
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
@@ -1052,12 +1151,23 @@ Example: Reading a File Using BufferedReader
 ```java
 import java.util.*;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 // Main class
 class Main {
     public static void main(String[] args) {
+
+        // Create the file first so this block is self-contained
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("example.txt"))) {
+            writer.write("Hello, world!");
+            writer.newLine();
+            writer.write("This is a sample file.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         BufferedReader reader = null;
 
@@ -1097,12 +1207,21 @@ Example: Using Try-with-Resources for File Reading
 ```java
 import java.util.*;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 // Main class
 class Main {
     public static void main(String[] args) {
+
+        // Create the file first so this block is self-contained
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("example.txt"))) {
+            writer.write("Hello from try-with-resources!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // Try with Resources (removes the need to close the file explicitly)
         try (BufferedReader reader = new BufferedReader(new FileReader("example.txt"))) {
@@ -1292,9 +1411,13 @@ class Main {
     public static void main(String[] args) {
         A a1 = new A(); // Object created
         A a2 = a1;      // Two references
+        System.out.println("a1 and a2 reference the same object: " + (a1 == a2));
 
         a1 = null;      // One reference remains
+        System.out.println("a1 set to null; a2 still references the object: " + (a2 != null));
+
         a2 = null;      // Now zero references -> Eligible for GC
+        System.out.println("a2 set to null; object is now unreachable and eligible for GC");
     }
 }
 ```
@@ -1402,6 +1525,9 @@ class Main {
         Node b = new Node();
         a.next = b;
         b.next = a; // Cyclic reference formed
+
+        System.out.println("Cycle formed: a.next == b? " + (a.next == b));
+        System.out.println("Cycle formed: b.next == a? " + (b.next == a));
     }
 }
 ```

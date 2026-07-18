@@ -312,13 +312,19 @@ The Iterator Pattern is deeply embedded in software systems where data needs to 
 In Java, every collection class, like ArrayList, HashSet, TreeSet, implements the Iterable interface, which returns an Iterator via the iterator() method:
 
 ```java
-List<String> fruits = new ArrayList<>();
-fruits.add("Apple");
-fruits.add("Banana");
+import java.util.*;
 
-Iterator<String> iterator = fruits.iterator();
-while (iterator.hasNext()) {
-    System.out.println(iterator.next());
+class Main {
+    public static void main(String[] args) {
+        List<String> fruits = new ArrayList<>();
+        fruits.add("Apple");
+        fruits.add("Banana");
+
+        Iterator<String> iterator = fruits.iterator();
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+    }
 }
 ```
 
@@ -331,13 +337,21 @@ Java Streams internally rely on a traversal mechanism called Spliterator (Split 
 For example, when you call stream() or parallelStream() on a collection, Java obtains a Spliterator behind the scenes to traverse elements and optionally split the workload.
 
 ```java
-List<Integer> nums = Arrays.asList(10, 20, 30, 40);
+import java.util.*;
 
-// Stream traversal (internally uses a Spliterator)
-nums.stream().forEach(System.out::println);
+class Main {
+    public static void main(String[] args) {
+        List<Integer> nums = Arrays.asList(10, 20, 30, 40);
 
-// Parallel stream traversal (Spliterator can split work across threads)
-nums.parallelStream().forEach(System.out::println);
+        // Stream traversal (internally uses a Spliterator)
+        nums.stream().forEach(System.out::println);
+
+        // Parallel stream traversal (Spliterator can split work across threads).
+        // forEachOrdered (not forEach) keeps this demo's output deterministic —
+        // forEach would interleave unpredictably across threads.
+        nums.parallelStream().forEachOrdered(System.out::println);
+    }
+}
 ```
 
 So even though you do not explicitly create an iterator here, Java is still using the same underlying idea: traversing elements sequentially without exposing how the collection is structured, which is exactly what the Iterator Pattern is about.
@@ -3008,7 +3022,7 @@ class ResumeEditor {
     }
 
     // Inner Memento class
-    public static class Memento {
+    static class Memento {
         private final String name;
         private final String education;
         private final String experience;
@@ -3055,7 +3069,7 @@ class ResumeHistory {
 }
 
 // Main driver
-public class Main {
+class Main {
     public static void main(String[] args) {
         ResumeEditor editor = new ResumeEditor();
         ResumeHistory history = new ResumeHistory();

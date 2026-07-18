@@ -181,6 +181,21 @@ class Person {
     private boolean isAdult(int age) {
         return age >= 18;
     }
+
+    // Added only so the driver below can exercise isAdult() — the private
+    // method above is the point being illustrated in the UML mapping.
+    public boolean checkAdult(int age) {
+        return isAdult(age);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Person person = new Person();
+        System.out.println("Is 20 an adult? " + person.checkAdult(20));
+        System.out.println("Is 15 an adult? " + person.checkAdult(15));
+    }
 }
 ```
 
@@ -207,10 +222,34 @@ For example, consider the following interface that can be represented as the dia
 
 ```java
 // Interface for classes that can calculate pay
-public interface Payable {
+interface Payable {
 
     // Method to calculate pay
     double calculatePay();
+}
+
+// DemoPayable exists only to demonstrate the contract — not the canonical implementation.
+class DemoPayable implements Payable {
+    private final double hours;
+    private final double rate;
+
+    DemoPayable(double hours, double rate) {
+        this.hours = hours;
+        this.rate = rate;
+    }
+
+    @Override
+    public double calculatePay() {
+        return hours * rate;
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Payable payable = new DemoPayable(40, 25.0);
+        System.out.println("Calculated pay: " + payable.calculatePay());
+    }
 }
 ```
 
@@ -230,10 +269,26 @@ An abstract class is a class that cannot be instantiated and may contain both im
 
 ```java
 // Abstract class representing an Animal
-public abstract class Animal {
+abstract class Animal {
 
     // Abstract method to make sound
     public abstract void makeSound();
+}
+
+// DemoAnimal exists only to demonstrate the contract — not the canonical implementation.
+class DemoAnimal extends Animal {
+    @Override
+    public void makeSound() {
+        System.out.println("Some generic animal sound");
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Animal animal = new DemoAnimal();
+        animal.makeSound();
+    }
 }
 ```
 

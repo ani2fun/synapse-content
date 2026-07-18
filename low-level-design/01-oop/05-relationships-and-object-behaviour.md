@@ -41,7 +41,88 @@ In most programming languages, association is implemented by referencing one cla
 Consider the given code snippet:
 
 ```java
-// TODO: Code for Association including comments
+import java.util.*;
+
+// One-to-One: a Person is associated with exactly one Passport.
+class Passport {
+    private String number;
+
+    public Passport(String number) {
+        this.number = number;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+}
+
+class Person {
+    private String name;
+    private Passport passport; // a reference — the Passport is not owned by Person
+
+    public Person(String name, Passport passport) {
+        this.name = name;
+        this.passport = passport;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Passport getPassport() {
+        return passport;
+    }
+}
+
+// One-to-Many: one Teacher is associated with many Students.
+class Student {
+    private String name;
+
+    public Student(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+class Teacher {
+    private String name;
+    private List<Student> students; // a collection of references
+
+    public Teacher(String name, List<Student> students) {
+        this.name = name;
+        this.students = students;
+    }
+
+    public void teach() {
+        for (Student s : students) {
+            System.out.println(name + " teaches " + s.getName());
+        }
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        // One-to-One
+        Passport passport = new Passport("P-4417");
+        Person person = new Person("Alex", passport);
+        System.out.println(person.getName() + " holds passport " + person.getPassport().getNumber());
+
+        // One-to-Many
+        List<Student> students = new ArrayList<>();
+        students.add(new Student("Sam"));
+        students.add(new Student("Riya"));
+        Teacher teacher = new Teacher("Mrs. Rao", students);
+        teacher.teach();
+
+        // Both objects are merely linked — neither owns the other, so each can
+        // outlive the relationship. That is what makes this association.
+        System.out.println("Students still exist independently: " + students.size());
+    }
+}
 ```
 
 ## Aggregation
@@ -68,6 +149,30 @@ class Employee {
 
     public Employee(String name) {
         this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        // The employees are created OUTSIDE the department and passed in.
+        List<Employee> staff = new ArrayList<>();
+        staff.add(new Employee("Alex"));
+        staff.add(new Employee("Sam"));
+
+        Department department = new Department(staff);
+        System.out.println("Department created with " + staff.size() + " employees.");
+
+        // Drop the department; the employees are untouched.
+        department = null;
+        System.out.println("Department deleted. Employees still alive:");
+        for (Employee e : staff) {
+            System.out.println("  " + e.getName());
+        }
     }
 }
 ```
@@ -110,6 +215,10 @@ class House {
         rooms.add(new Room("Living Room"));
         rooms.add(new Room("Bedroom"));
     }
+
+    public List<Room> getRooms() {
+        return rooms;
+    }
 }
 
 class Room {
@@ -117,6 +226,28 @@ class Room {
 
     public Room(String name) {
         this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        // The rooms are created INSIDE the House constructor — nothing outside
+        // ever holds a reference to them.
+        House house = new House();
+        System.out.println("House built with these rooms:");
+        for (Room r : house.getRooms()) {
+            System.out.println("  " + r.getName());
+        }
+
+        // Drop the house and its rooms become unreachable with it — that is the
+        // difference from aggregation.
+        house = null;
+        System.out.println("House destroyed — its rooms are unreachable and go with it.");
     }
 }
 ```
@@ -550,7 +681,7 @@ This is what you should be able to achieve through your code.
 
 **Solution**
 
-```java run
+```java
 import java.util.*;
 
 // Book class supports cloning

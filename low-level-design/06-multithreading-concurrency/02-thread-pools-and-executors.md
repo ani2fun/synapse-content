@@ -15,6 +15,7 @@ Imagine building a ride-matching system like Uber, where the system needs to han
 In a simple approach, you might decide to create a new thread every time a ride request comes in, so each request gets processed independently. The code implementing this approach is given below:
 
 ```java
+// expects-nondeterministic: thread scheduling decides the interleaving, so the output order varies between runs
 import java.util.*;
 
 // Ride Matching Service Class
@@ -124,10 +125,11 @@ Executors is a utility class that provides factory methods to create predefined 
 Here's a code snippet using the Executor Framework to handle email sending tasks efficiently.
 
 ```java
+// expects-nondeterministic: thread-pool tasks interleave, so the output order varies between runs
 import java.util.concurrent.*;
 
-// Using the newFixedThreadPool to manage threads
-class EmailService {
+// Using the newFixedThreadPool to manage threads (originally "EmailService")
+class Main {
     private static final ExecutorService executor = Executors.newFixedThreadPool(10); // Thread pool with 10 threads
 
     // Method to send email
@@ -206,8 +208,8 @@ In this section, we'll break down how the submit() method works and how it inter
 ```java
 import java.util.concurrent.*;
 
-// Future and Submit example
-class FutureExample {
+// Future and Submit example (originally "FutureExample")
+class Main {
     public static void main(String[] args) throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
@@ -268,7 +270,18 @@ The ExecutorService in Java provides two important methods for shutting down an 
 ### 1. shutdown() method
 
 ```java
-executor.shutdown();
+// expects-nondeterministic: thread scheduling decides the interleaving, so the output order varies between runs
+import java.util.concurrent.*;
+
+class Main {
+    public static void main(String[] args) {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        executor.execute(() -> System.out.println("Task running before shutdown."));
+
+        executor.shutdown();  // Stop accepting new tasks; let submitted ones finish
+        System.out.println("Executor shutdown initiated.");
+    }
+}
 ```
 
 - **Purpose:** Initiates an orderly shutdown of the executor service. Once this method is called, the executor will stop accepting new tasks but will continue to process the tasks that have already been submitted.
@@ -280,7 +293,28 @@ executor.shutdown();
 ### 2. shutdownNow() method
 
 ```java
-List<Runnable> pendingTasks = executor.shutdownNow();
+import java.util.concurrent.*;
+import java.util.List;
+
+class Main {
+    public static void main(String[] args) {
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+
+        // First task grabs the only thread; the rest queue up behind it.
+        executor.execute(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        executor.execute(() -> System.out.println("Queued task 1"));
+        executor.execute(() -> System.out.println("Queued task 2"));
+
+        List<Runnable> pendingTasks = executor.shutdownNow();
+        System.out.println("Pending tasks not started: " + pendingTasks.size());
+    }
+}
 ```
 
 - **Purpose:** Attempts to stop all actively executing tasks, halts the processing of waiting tasks, and returns a list of the tasks that were waiting to be executed.
@@ -357,13 +391,22 @@ A Cached Thread Pool creates new threads as needed but reuses previously constru
 A Scheduled Thread Pool allows you to schedule tasks with fixed-rate or fixed-delay execution policies. It supports delayed or periodic execution of tasks, making it useful for scheduling tasks at regular intervals or after a specific delay. Let's understand with the code given:
 
 ```java
-class SessionCleaner {
-    public static void main(String[] args) {
+import java.util.concurrent.*;
+
+// ── Driver (was "SessionCleaner") ───────────────────────────────────────────
+class Main {
+    public static void main(String[] args) throws InterruptedException {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         Runnable task = () -> System.out.println("Cleaning up expired sessions...");
 
         scheduler.scheduleAtFixedRate(task, 0, 5, TimeUnit.SECONDS);
+
+        // A real cleaner runs forever; we let it fire three times (0s, 5s, 10s)
+        // then stop the scheduler so the demo terminates.
+        Thread.sleep(11_000);
+        scheduler.shutdownNow();
+        System.out.println("Stopped session cleaner after 3 cycles.");
     }
 }
 ```
@@ -424,7 +467,14 @@ Picture two cashiers writing today's sales total on a whiteboard. Each walks up,
 
 Let's understand this better with the help of a code example where two threads are incrementing the same counter at the same time, racing to update the shared value without coordination.
 
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Try it yourself.** Run this several times — the final count differs each run and is almost never 2000. That is the race.
+
+</div>
+
 ```java
+// expects-nondeterministic: the final count differs each run
 import java.util.concurrent.*;
 
 // Purchase counter with no protection
@@ -446,8 +496,8 @@ class PurchaseCounter {
     }
 }
 
-// Demonstrates the race condition
-class RaceConditionDemo {
+// ── Driver — demonstrates the race condition (was "RaceConditionDemo") ────
+class Main {
     public static void main(String[] args) throws InterruptedException {
         // Create a shared counter
         PurchaseCounter counter = new PurchaseCounter();
@@ -519,6 +569,29 @@ class SafeCounter {
         return count;
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) throws InterruptedException {
+        SafeCounter counter = new SafeCounter();
+
+        Runnable task = () -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.increment();
+            }
+        };
+
+        Thread t1 = new Thread(task);
+        Thread t2 = new Thread(task);
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+
+        // Always 2000 — the synchronized method removes the race.
+        System.out.println("Final Count: " + counter.getCount());
+    }
+}
 ```
 
 - The method implicitly locks on this (the current object).
@@ -547,6 +620,29 @@ class SafeCounter {
     public int getCount() {
         // No lock needed for simple read, or use block if strict consistency required
         return count;
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) throws InterruptedException {
+        SafeCounter counter = new SafeCounter();
+
+        Runnable task = () -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.increment();
+            }
+        };
+
+        Thread t1 = new Thread(task);
+        Thread t2 = new Thread(task);
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+
+        // Always 2000 — the synchronized block removes the race.
+        System.out.println("Final Count: " + counter.getCount());
     }
 }
 ```
@@ -608,6 +704,20 @@ class SharedData {
         }
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) throws InterruptedException {
+        SharedData data = new SharedData();
+
+        Thread writerThread = new Thread(data::writer);
+        writerThread.start();
+        writerThread.join();
+
+        // volatile guarantees this thread sees the write made on the other thread
+        System.out.println("Flag visible after join? " + data.flag);
+    }
+}
 ```
 
 **2. No Caching**
@@ -619,11 +729,35 @@ A volatile variable is always read from and written to main memory. This ensures
 Even though volatile ensures visibility, it does not make operations atomic. For example, the following is not thread-safe even if count is declared as volatile:
 
 ```java
+// expects-nondeterministic: the final count lands below 2000 each run
 class Counter {
     volatile int count = 0;
 
     public void increment() {
         count++; // Still unsafe!
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) throws InterruptedException {
+        Counter counter = new Counter();
+
+        Runnable task = () -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.increment();
+            }
+        };
+
+        Thread t1 = new Thread(task);
+        Thread t2 = new Thread(task);
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+
+        // Expect 2000, but volatile alone doesn't prevent the lost-update race.
+        System.out.println("Final Count: " + counter.count);
     }
 }
 ```
@@ -711,6 +845,29 @@ class PurchaseAtomicCounter {
     // Read-only accessor
     public int getCount() {
         return likes.get();
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) throws InterruptedException {
+        PurchaseAtomicCounter counter = new PurchaseAtomicCounter();
+
+        Runnable task = () -> {
+            for (int i = 0; i < 1000; i++) {
+                counter.incrementLikes();
+            }
+        };
+
+        Thread t1 = new Thread(task);
+        Thread t2 = new Thread(task);
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+
+        // Always 2000 — compareAndSet retries until it wins, no lost updates.
+        System.out.println("Final Count: " + counter.getCount());
     }
 }
 ```
@@ -826,6 +983,7 @@ This is where ReentrantLock steps in to give us finer, explicit control over loc
 Below is a simplified ticket-booking example that replaces synchronized with ReentrantLock.
 
 ```java
+// expects-nondeterministic: thread scheduling decides the interleaving, so the output order varies between runs
 import java.util.concurrent.locks.ReentrantLock;
 
 class TicketBooking {
@@ -956,7 +1114,7 @@ class ExpiringReentrantLock {
 
 // ───────────────────────────── Driver code ──────────────────────────────
 
-public class Main {
+class Main {
     public static void main(String[] args) {
         // shared expiring lock
         ExpiringReentrantLock expLock = new ExpiringReentrantLock();
@@ -1081,7 +1239,7 @@ class TicketBookingTryLock {
 }
 
 
-public class Main {
+class Main {
     public static void main(String[] args) {
 
         // one shared booking system
@@ -1162,6 +1320,27 @@ class StockData {
         }
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) throws InterruptedException {
+        StockData stock = new StockData();
+
+        // Sequenced (not concurrent) so the demo's output stays deterministic;
+        // the class itself is what actually provides the concurrency safety.
+        Thread reader1 = new Thread(stock::readPrice, "Reader-1");
+        reader1.start();
+        reader1.join();
+
+        Thread writer = new Thread(() -> stock.updatePrice(105.50), "Writer-1");
+        writer.start();
+        writer.join();
+
+        Thread reader2 = new Thread(stock::readPrice, "Reader-2");
+        reader2.start();
+        reader2.join();
+    }
+}
 ```
 
 #### Key Takeaways
@@ -1188,6 +1367,7 @@ To understand how we can control such access, think of a token bucket system at 
 The solution to the above discussed problem is a Semaphore in Java which is a concurrency tool that maintains a fixed number of permits, like tokens. A thread must acquire a permit to proceed and release it after completing its task. If no permits are available, it either waits or fails based on the method used. This helps limit the number of threads accessing a resource at once, making it ideal for enforcing device limits, rate limiting, or managing connection pools.
 
 ```java
+// expects-nondeterministic: thread scheduling decides the interleaving, so the output order varies between runs
 import java.util.concurrent.Semaphore;
 
 // Enforces a max-devices policy for a premium account
@@ -1336,7 +1516,14 @@ Imagine four trains arriving at a four-way crossing from different directions - 
 
 Let's now look at a practical coding example where such a deadlock scenario can happen, especially in operations like bank transfers where multiple locks are acquired in different orders.
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+⚠️ **Sandbox note.** The runnable version below bounds the joins with a 3-second timeout so the program can observe and report its own deadlock instead of hanging forever. A real deadlock has no such timer — the threads would block indefinitely.
+
+</div>
+
 ```java
+// expects-nondeterministic: thread scheduling decides the interleaving, so the output order varies between runs
 // ──────────────────────────────────────────────────────────────
 // A simple mutable account object guarded by its intrinsic lock
 // ──────────────────────────────────────────────────────────────
@@ -1401,7 +1588,8 @@ class TransferTask implements Runnable {
     }
 }
 
-class DeadlockDemoMain {
+// ── Driver (was "DeadlockDemoMain") ────────────────────────────────────────
+class Main {
     public static void main(String[] args) throws Exception {
         BankAccount accountA = new BankAccount("Account-A", 1000);
         BankAccount accountB = new BankAccount("Account-B", 1000);
@@ -1413,8 +1601,16 @@ class DeadlockDemoMain {
 
         t1.start();
         t2.start();
-        t1.join();
-        t2.join();
+
+        // A real deadlock has no timer and blocks forever; we bound the wait
+        // here only so this sandboxed demo can observe and report it.
+        t1.join(3000);
+        t2.join(3000);
+
+        if (t1.isAlive() || t2.isAlive()) {
+            System.out.println("⚠️ Both threads are still blocked after 3s — this is the deadlock.");
+            System.exit(0);
+        }
 
         // This line is never reached - deadlock occurred
         System.out.println("Both threads finished execution.");
@@ -1532,9 +1728,11 @@ By strictly maintaining this order, we prevent the Circular Wait condition - one
 If threads always acquire multiple locks in the same sequence (say A to B to C), the possibility of forming a cycle is eliminated, because no thread will ever wait on a lock held by another while holding a higher-order lock.
 
 ```java
+// expects-nondeterministic: thread scheduling decides the interleaving, so the output order varies between runs
 import java.util.*;
 
-class LockOrderingSimple {
+// ── Driver (was "LockOrderingSimple") ──────────────────────────────────────
+class Main {
 
     static class Resource {
         int id;
@@ -1598,10 +1796,12 @@ Instead of waiting forever to acquire a lock, a thread tries to acquire it for a
 A thread doesn't hold one resource indefinitely while waiting for another - it tries both, and if unsuccessful, it gives up and tries again or exits.
 
 ```java
+// expects-nondeterministic: lock acquisition races, so which thread wins varies between runs
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.TimeUnit;
 
-class TryLockWithTimeout {
+// ── Driver (was "TryLockWithTimeout") ──────────────────────────────────────
+class Main {
 
     static class Resource {
         final int id;
@@ -1673,7 +1873,9 @@ Deadlocks often occur when threads hold one lock and attempt to acquire another 
 By minimizing the number of situations where a thread holds one lock while trying to acquire another, we reduce the chances of forming the "waiting" chain needed for a deadlock.
 
 ```java
-class MinimizeNestedLocking {
+// expects-nondeterministic: thread scheduling decides the interleaving, so the output order varies between runs
+// ── Driver (was "MinimizeNestedLocking") ───────────────────────────────────
+class Main {
 
     static class SharedResource {
         private final Object lock = new Object();
@@ -1829,6 +2031,9 @@ class CoffeeMachine {
     // Flag to indicate buffer status: true → coffee ready, false → cup empty
     private boolean isCoffeeReady = false;
 
+    // Poison-pill flag: true once the producer has brewed its last cup
+    private boolean noMoreCoffee = false;
+
     // Method to be run by the producer thread
     public synchronized void makeCoffee() throws InterruptedException {
         // If coffee is already ready, producer must wait (buffer is full)
@@ -1849,12 +2054,24 @@ class CoffeeMachine {
         notify();
     }
 
-    // Method to be run by the consumer thread
-    public synchronized void drinkCoffee() throws InterruptedException {
-        // If no coffee is available, consumer must wait (buffer is empty)
-        while (!isCoffeeReady) {
+    // Producer calls this once, after its last cup — the poison pill that
+    // tells the consumer no more coffee is coming.
+    public synchronized void sendPoisonPill() {
+        noMoreCoffee = true;
+        notifyAll();
+    }
+
+    // Method to be run by the consumer thread.
+    // Returns false once the poison pill has arrived and the buffer is empty.
+    public synchronized boolean drinkCoffee() throws InterruptedException {
+        // If no coffee is available and the producer isn't done, consumer waits
+        while (!isCoffeeReady && !noMoreCoffee) {
             // Releases lock and waits until notified by producer
             wait();
+        }
+
+        if (!isCoffeeReady) {
+            return false; // poison pill received — nothing left to drink
         }
 
         // Simulate coffee consumption
@@ -1867,40 +2084,49 @@ class CoffeeMachine {
 
         // Notify the producer thread that it can brew again
         notify();
+        return true;
     }
 }
 
-// Driver class
-class ProducerConsumerProblem {
-    public static void main(String[] args) {
+// ── Driver (was "ProducerConsumerProblem") ─────────────────────────────────
+class Main {
+    public static void main(String[] args) throws InterruptedException {
         // Shared CoffeeMachine object acts as the synchronized monitor
         CoffeeMachine machine = new CoffeeMachine();
 
-        // Producer thread that continuously makes coffee
+        // Producer thread that brews a bounded number of cups. A real
+        // producer runs forever; we send a poison pill after 5 items so
+        // the demo terminates.
         Thread producer = new Thread(() -> {
-            while (true) {
-                try {
+            try {
+                for (int i = 0; i < 5; i++) {
                     machine.makeCoffee(); // Try to produce coffee
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
+                machine.sendPoisonPill();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         });
 
-        // Consumer thread that continuously drinks coffee
+        // Consumer thread that drinks coffee until it sees the poison pill
         Thread consumer = new Thread(() -> {
-            while (true) {
-                try {
-                    machine.drinkCoffee(); // Try to consume coffee
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            try {
+                while (machine.drinkCoffee()) {
+                    // keep drinking until the poison pill arrives
                 }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         });
 
         // Start both threads
         producer.start();
         consumer.start();
+
+        producer.join();
+        consumer.join();
+
+        System.out.println("Producer finished; consumer received the poison pill.");
     }
 }
 ```
@@ -1975,6 +2201,7 @@ This change models how real-world systems handle bursty traffic and slower backe
 #### Code
 
 ```java
+// expects-nondeterministic: producer and consumer interleave, so the output order varies between runs
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -2033,6 +2260,45 @@ class SubmissionQueue {
 
         notifyAll(); // Notifies waiting producers if queue was full
         return sub;
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) throws InterruptedException {
+        SubmissionQueue queue = new SubmissionQueue();
+        int totalSubmissions = 8;
+
+        // Producer: a bounded number of users submitting solutions
+        Thread producer = new Thread(() -> {
+            String[] users = {"Alice", "Bob", "Carol"};
+            for (int i = 0; i < totalSubmissions; i++) {
+                try {
+                    queue.submit(new Submission(users[i % users.length]));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }, "Producer");
+
+        // Consumer: a judge that processes exactly as many submissions as
+        // were produced, then stops.
+        Thread judge = new Thread(() -> {
+            for (int i = 0; i < totalSubmissions; i++) {
+                try {
+                    queue.consume("Judge-1");
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }, "Judge-1");
+
+        producer.start();
+        judge.start();
+        producer.join();
+        judge.join();
+
+        System.out.println("All " + totalSubmissions + " submissions processed.");
     }
 }
 ```

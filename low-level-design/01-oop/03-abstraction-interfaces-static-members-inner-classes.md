@@ -193,9 +193,9 @@ interface Example {
     }
 }
 
-class Demo implements Example {
+class Main implements Example {
     public static void main(String[] args) {
-        Example obj = new Demo();
+        Example obj = new Main();
         obj.defaultMethod();  // Accessing default method
     }
 }
@@ -412,6 +412,15 @@ class Dog implements Animal {
         System.out.println("Dog sleeps in a kennel.");
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Animal dog = new Dog();
+        dog.eat();
+        dog.sleep();
+    }
+}
 ```
 
 Here, `Animal` is the interface, and `Dog` is a class implementing it by providing specific behaviors for `eat` and `sleep` methods.
@@ -452,6 +461,14 @@ class Car implements Vehicle {
         System.out.println(brand + " car is starting.");
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Vehicle car = new Car("Toyota");
+        car.start();
+    }
+}
 ```
 
 In the above example, the `Car` class provides a constructor for initialization, but the `Vehicle` interface does not.
@@ -481,6 +498,15 @@ class Duck implements Flyable, Swimmable {
     @Override
     public void swim() {
         System.out.println("Duck is swimming.");
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Duck duck = new Duck();
+        duck.fly();
+        duck.swim();
     }
 }
 ```
@@ -514,6 +540,17 @@ class Stripe implements PaymentGateway {
     @Override
     public void processPayment(double amount) {
         System.out.println("Processing payment via Stripe: $" + amount);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        PaymentGateway paypal = new PayPal();
+        paypal.processPayment(100.0);
+
+        PaymentGateway stripe = new Stripe();
+        stripe.processPayment(250.0);
     }
 }
 ```
@@ -579,9 +616,9 @@ interface Example {
     }
 }
 
-class Demo implements Example {
+class Main implements Example {
     public static void main(String[] args) {
-        Example obj = new Demo();
+        Example obj = new Main();
         obj.defaultMethod();  // Accessing default method
     }
 }
@@ -626,6 +663,15 @@ class Human implements Mammal {
     @Override
     public void walk() {
         System.out.println("Human walks on two legs.");
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Mammal human = new Human();
+        human.eat();
+        human.walk();
     }
 }
 ```

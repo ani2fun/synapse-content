@@ -416,7 +416,7 @@ class Main {
         // Creating an object
         BankAccount acnt = new BankAccount();
 
-        System.out.println(acnt.balance); // Throws an error
+        // System.out.println(acnt.balance); // ❌ won't compile: balance has private access in BankAccount
         System.out.println(acnt.getBalance());
     }
 }
@@ -448,6 +448,14 @@ class Vehicle {
 class Car extends Vehicle {
     public Car() {
         this.type = "Car"; // Accessible in the subclass
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Car car = new Car();
+        car.displayType();
     }
 }
 ```

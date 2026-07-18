@@ -88,6 +88,15 @@ class EagerSingleton {
         return instance; // Always returns the same instance
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        EagerSingleton a = EagerSingleton.getInstance();
+        EagerSingleton b = EagerSingleton.getInstance();
+        System.out.println("Same instance? " + (a == b));
+    }
+}
 ```
 
 ##### Understanding
@@ -138,6 +147,15 @@ class LazySingleton {
         return instance;
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        LazySingleton a = LazySingleton.getInstance();
+        LazySingleton b = LazySingleton.getInstance();
+        System.out.println("Same instance? " + (a == b));
+    }
+}
 ```
 
 ##### Understanding
@@ -186,7 +204,7 @@ This is the simplest way to ensure thread safety. By synchronizing the method th
 Consider the following code snippet for better understanding:
 
 ```java
-public class Singleton {
+class Singleton {
     // Object declaration
     private static Singleton instance;
 
@@ -199,6 +217,15 @@ public class Singleton {
             instance = new Singleton();
         }
         return instance;
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Singleton a = Singleton.getInstance();
+        Singleton b = Singleton.getInstance();
+        System.out.println("Same instance? " + (a == b));
     }
 }
 ```
@@ -222,7 +249,7 @@ This is a more efficient way to achieve thread safety. The idea is to check if t
 Consider the following code snippet for better understanding:
 
 ```java
-public class Singleton {
+class Singleton {
     // Volatile object declaration
     private static volatile Singleton instance;
 
@@ -239,6 +266,15 @@ public class Singleton {
             }
         }
         return instance;
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Singleton a = Singleton.getInstance();
+        Singleton b = Singleton.getInstance();
+        System.out.println("Same instance? " + (a == b));
     }
 }
 ```
@@ -266,7 +302,7 @@ This is a highly efficient way to implement the Singleton pattern. It uses a sta
 Consider the following code snippet for better understanding:
 
 ```java
-public class Singleton {
+class Singleton {
     // Private constructor
     private Singleton() {}
 
@@ -278,6 +314,15 @@ public class Singleton {
     // Public method to return the Singleton instance
     public static Singleton getInstance() {
         return Holder.INSTANCE;
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Singleton a = Singleton.getInstance();
+        Singleton b = Singleton.getInstance();
+        System.out.println("Same instance? " + (a == b));
     }
 }
 ```
@@ -423,6 +468,7 @@ Let's say you are building a logistics application that needs to handle differen
 Consider the following code snippet where object creation logic is tightly coupled with business logic:
 
 ```java
+// ⚠️ ANTI-PATTERN — this is the version we are about to fix. Do not copy it.
 // Logistics Interface
 interface Logistics {
     void send();
@@ -463,6 +509,7 @@ class Main {
         LogisticsService service = new LogisticsService();
         service.send("Air");
         service.send("Road");
+        System.out.println("ANTI-PATTERN: adding a new mode means editing LogisticsService.send() - violates the Open/Closed Principle.");
     }
 }
 ```
@@ -537,6 +584,7 @@ class Main {
         LogisticsService service = new LogisticsService();
         service.send("Air");
         service.send("Road");
+        System.out.println("GOOD DESIGN: adding a new mode only means a new Logistics implementation and a factory branch - LogisticsService is unchanged.");
     }
 }
 ```
@@ -655,6 +703,7 @@ class Main {
     public static void main(String[] args) {
         // Constructing the object with only required details
         BurgerMeal burgerMeal = new BurgerMeal("wheat", "veg", null, null, false);
+        System.out.println("Burger created with bun=wheat, patty=veg, sides=null, toppings=null, cheese=false");
     }
 }
 ```
@@ -674,11 +723,57 @@ This constructor approach works, but it creates multiple problems:
 To manage optional parameters, many developers try to solve this by writing multiple overloaded constructors - each with one more optional parameter than the last. For example:
 
 ```java
+// ⚠️ ANTI-PATTERN — this is the version we are about to fix. Do not copy it.
+// Each overload adds one more optional parameter - "telescoping" outward.
 class BurgerMeal {
-    public BurgerMeal(String bun, String patty) { ... }
-    public BurgerMeal(String bun, String patty, boolean cheese) { ... }
-    public BurgerMeal(String bun, String patty, boolean cheese, String side) { ... }
-    public BurgerMeal(String bun, String patty, boolean cheese, String side, String drink) { ... }
+    private final String bun;
+    private final String patty;
+    private final boolean cheese;
+    private final String side;
+    private final String drink;
+
+    public BurgerMeal(String bun, String patty) {
+        this(bun, patty, false, null, null);
+    }
+
+    public BurgerMeal(String bun, String patty, boolean cheese) {
+        this(bun, patty, cheese, null, null);
+    }
+
+    public BurgerMeal(String bun, String patty, boolean cheese, String side) {
+        this(bun, patty, cheese, side, null);
+    }
+
+    public BurgerMeal(String bun, String patty, boolean cheese, String side, String drink) {
+        this.bun = bun;
+        this.patty = patty;
+        this.cheese = cheese;
+        this.side = side;
+        this.drink = drink;
+    }
+
+    @Override
+    public String toString() {
+        return "BurgerMeal{bun=" + bun + ", patty=" + patty + ", cheese=" + cheese
+                + ", side=" + side + ", drink=" + drink + "}";
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        // The caller must remember parameter count and order for each overload.
+        BurgerMeal plain = new BurgerMeal("wheat", "veg");
+        BurgerMeal withCheese = new BurgerMeal("wheat", "veg", true);
+        BurgerMeal withSide = new BurgerMeal("wheat", "veg", true, "fries");
+        BurgerMeal fullyLoaded = new BurgerMeal("multigrain", "chicken", true, "fries", "coke");
+
+        System.out.println(plain);
+        System.out.println(withCheese);
+        System.out.println(withSide);
+        System.out.println(fullyLoaded);
+        System.out.println("ANTI-PATTERN: four overloaded constructors just to cover a handful of optional-field combinations - doesn't scale.");
+    }
 }
 ```
 
@@ -724,8 +819,14 @@ class BurgerMeal {
         this.drink = builder.drink;
     }
 
+    @Override
+    public String toString() {
+        return "BurgerMeal{bunType=" + bunType + ", patty=" + patty + ", hasCheese=" + hasCheese
+                + ", toppings=" + toppings + ", side=" + side + ", drink=" + drink + "}";
+    }
+
     // Static nested Builder class
-    public static class BurgerBuilder {
+    static class BurgerBuilder {
         // Required
         private final String bunType;
         private final String patty;
@@ -792,6 +893,10 @@ class Main {
                                         .withSide("fries")
                                         .withDrink("coke")
                                         .build();
+
+        System.out.println(plainBurger);
+        System.out.println(burgerWithCheese);
+        System.out.println(loadedBurger);
     }
 }
 ```
@@ -857,9 +962,18 @@ Lombok is a Java library that reduces boilerplate code using annotations. One of
 
 Instead of writing the builder logic manually, you just annotate your class:
 
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+⚠️ **Watch out.** This snippet needs Lombok on the classpath to compile - it won't run standalone. It's here to show what Lombok generates for you; the hand-written equivalent below is the runnable version.
+
+</div>
+
 ```java
+// requires: lombok — not runnable in the sandbox
+import lombok.Builder;
+
 @Builder
-public class User {
+class User {
     private String name;
     private int age;
     private String address;
@@ -869,11 +983,76 @@ public class User {
 Now, you can build objects using a fluent API:
 
 ```java
+// requires: lombok — not runnable in the sandbox (uses the @Builder-generated User above)
 User user = User.builder()
             .name("John")
             .age(30)
             .address("NYC")
             .build();
+```
+
+Here's the same builder, hand-written, so you can see exactly what Lombok generates and run it without the annotation processor:
+
+```java
+// Hand-written equivalent of the Lombok @Builder class above
+class User {
+    private final String name;
+    private final int age;
+    private final String address;
+
+    private User(UserBuilder builder) {
+        this.name = builder.name;
+        this.age = builder.age;
+        this.address = builder.address;
+    }
+
+    public static UserBuilder builder() {
+        return new UserBuilder();
+    }
+
+    @Override
+    public String toString() {
+        return "User{name=" + name + ", age=" + age + ", address=" + address + "}";
+    }
+
+    static class UserBuilder {
+        private String name;
+        private int age;
+        private String address;
+
+        public UserBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public UserBuilder age(int age) {
+            this.age = age;
+            return this;
+        }
+
+        public UserBuilder address(String address) {
+            this.address = address;
+            return this;
+        }
+
+        public User build() {
+            return new User(this);
+        }
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        User user = User.builder()
+                    .name("John")
+                    .age(30)
+                    .address("NYC")
+                    .build();
+
+        System.out.println(user);
+    }
+}
 ```
 
 #### 2. Amazon Cart Configuration
@@ -919,6 +1098,7 @@ Imagine we're building a Checkout Service for our platform:
 This version of the CheckoutService tightly couples business logic with object creation. It works for a simple scenario but quickly becomes problematic as the application scales or needs to support multiple payment gateways and invoice formats.
 
 ```java
+// ⚠️ ANTI-PATTERN — this is the version we are about to fix. Do not copy it.
 // Interface representing any payment gateway
 interface PaymentGateway {
     void processPayment(double amount);
@@ -985,6 +1165,7 @@ class Main {
         // Example: Using Razorpay
         CheckoutService razorpayService = new CheckoutService("razorpay");
         razorpayService.checkOut(1500.00);
+        System.out.println("ANTI-PATTERN: gateway and invoice creation are hardcoded inside CheckoutService - adding a new region means editing this class.");
     }
 }
 ```
@@ -1107,15 +1288,16 @@ class CheckoutService {
 // ========== Main Method ==========
 class Main {
     public static void main(String[] args) {
-        // Using Razorpay in India
+        // Using Razorpay in India - same scenario as the hardcoded version above
         CheckoutService indiaCheckout = new CheckoutService(new IndiaFactory(), "razorpay");
-        indiaCheckout.completeOrder(1999.0);
+        indiaCheckout.completeOrder(1500.00);
 
         System.out.println("---");
 
         // Using PayPal in US
         CheckoutService usCheckout = new CheckoutService(new USFactory(), "paypal");
         usCheckout.completeOrder(49.99);
+        System.out.println("GOOD DESIGN: adding a new region only means adding a new RegionFactory - CheckoutService is unchanged.");
     }
 }
 ```
@@ -1270,6 +1452,7 @@ Imagine we're building a Email Template System for our platform:
 #### Bad Code: Incomplete Use of Design Principles
 
 ```java
+// ⚠️ ANTI-PATTERN — this is the version we are about to fix. Do not copy it.
 import java.util.*;
 
 interface EmailTemplate {
@@ -1313,6 +1496,7 @@ class Main {
         WelcomeEmail email3 = new WelcomeEmail();
         email3.setContent("Thanks for signing up. Let's get started!");
         email3.send("user3@example.com");
+        System.out.println("ANTI-PATTERN: every variation re-runs the WelcomeEmail constructor - no cloning, just repeated instantiation.");
     }
 }
 ```
@@ -1397,6 +1581,7 @@ class Main {
         welcomeEmail2.send("bob@example.com");
 
         // Reuse the base WelcomeEmail structure, just changing dynamic content
+        System.out.println("GOOD DESIGN: both emails are clones of one registered prototype - no repeated constructor logic.");
     }
 }
 ```

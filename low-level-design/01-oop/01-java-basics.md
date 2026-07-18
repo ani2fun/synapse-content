@@ -49,12 +49,18 @@ public class Main {
 Comments are ignored by the computer. They are for humans to read.
 
 ```java
-// This is a single line comment
+class Main {
+    public static void main(String[] args) {
+        // This is a single line comment
 
-/*
-   This is a
-   multi-line comment
-*/
+        /*
+           This is a
+           multi-line comment
+        */
+
+        System.out.println("Comments don't affect execution -- this line still runs.");
+    }
+}
 ```
 
 ## Data Types
@@ -140,15 +146,19 @@ Strings are objects in Java, not primitives. They store text.
 </div>
 
 ```java
-String s1 = "Hello";
-char[] arr = {'W', 'o', 'r', 'l', 'd'};
-String s2 = new String(arr); // char array to string
+class Main {
+    public static void main(String[] args) {
+        String s1 = "Hello";
+        char[] arr = {'W', 'o', 'r', 'l', 'd'};
+        String s2 = new String(arr); // char array to string
 
-System.out.println(s1 + " " + s2); // Concatenate: Hello World
-System.out.println(s1.charAt(1)); // Char at index 1: 'e'
-System.out.println(s1.length()); // Length: 5
-System.out.println(s1.substring(0, 2)); // Substring: "He"
-System.out.println(s1.equals("Hello")); // Check content equality: true
+        System.out.println(s1 + " " + s2); // Concatenate: Hello World
+        System.out.println(s1.charAt(1)); // Char at index 1: 'e'
+        System.out.println(s1.length()); // Length: 5
+        System.out.println(s1.substring(0, 2)); // Substring: "He"
+        System.out.println(s1.equals("Hello")); // Check content equality: true
+    }
+}
 ```
 
 ## Input Output
@@ -158,9 +168,12 @@ For input, we use the `Scanner` class.
 ```java
 import java.util.Scanner;
 
-public class InputExample {
+class Main {
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+        // The sandbox runs every plain fence with empty stdin, so this Scanner
+        // reads from a hardcoded string instead of System.in -- the API usage
+        // is identical either way.
+        Scanner sc = new Scanner("21\nAda");
         int age = sc.nextInt();
         String name = sc.next();
         System.out.println(name + " is " + age);
@@ -181,9 +194,16 @@ Converting one data type to another.
 - **Explicit (Narrowing):** Large type to small type (e.g., `double` to `int`). This must be done manually by the programmer.
 
 ```java
-int myInt = 9;
-double myDouble = myInt; // Automatic casting: 9.0
-int heavyInt = (int) 9.78; // Manual casting: 9 (fraction lost)
+class Main {
+    public static void main(String[] args) {
+        int myInt = 9;
+        double myDouble = myInt; // Automatic casting: 9.0
+        int heavyInt = (int) 9.78; // Manual casting: 9 (fraction lost)
+
+        System.out.println("myDouble = " + myDouble);
+        System.out.println("heavyInt = " + heavyInt);
+    }
+}
 ```
 
 ## Constants
@@ -191,8 +211,14 @@ int heavyInt = (int) 9.78; // Manual casting: 9 (fraction lost)
 Use the `final` keyword to create constants. These values cannot be changed.
 
 ```java
-final float PI = 3.14f;
-// PI = 3.15f; // This will cause an error
+class Main {
+    public static void main(String[] args) {
+        final float PI = 3.14f;
+        // PI = 3.15f; // ❌ won't compile: cannot assign a value to final variable PI
+
+        System.out.println("PI = " + PI);
+    }
+}
 ```
 
 ## Arrays
@@ -200,17 +226,22 @@ final float PI = 3.14f;
 Storing multiple values of the same type.
 
 ```java
-int[] scores = {90, 80, 70};
-System.out.println(scores.length); // 3
-System.out.println(scores[0]); // 90
+class Main {
+    public static void main(String[] args) {
+        int[] scores = {90, 80, 70};
+        System.out.println(scores.length); // 3
+        System.out.println(scores[0]); // 90
 
-// For-Each Loop
-for (int i : scores) {
-    System.out.println(i);
+        // For-Each Loop
+        for (int i : scores) {
+            System.out.println(i);
+        }
+
+        // 2D Array
+        int[][] matrix = { {1, 2}, {3, 4} };
+        System.out.println(matrix[1][1]); // 4
+    }
 }
-
-// 2D Array
-int[][] matrix = { {1, 2}, {3, 4} };
 ```
 
 ## Conditional Statements
@@ -218,13 +249,17 @@ int[][] matrix = { {1, 2}, {3, 4} };
 ### If, Else If, Else
 
 ```java
-int marks = 85;
-if (marks > 90) {
-    System.out.println("A");
-} else if (marks > 80) {
-    System.out.println("B");
-} else {
-    System.out.println("C");
+class Main {
+    public static void main(String[] args) {
+        int marks = 85;
+        if (marks > 90) {
+            System.out.println("A");
+        } else if (marks > 80) {
+            System.out.println("B");
+        } else {
+            System.out.println("C");
+        }
+    }
 }
 ```
 
@@ -241,16 +276,20 @@ flowchart TD
 ### Switch
 
 ```java
-int day = 2;
-switch (day) {
-    case 1:
-        System.out.println("Monday");
-        break;
-    case 2:
-        System.out.println("Tuesday");
-        break;
-    default:
-        System.out.println("Invalid");
+class Main {
+    public static void main(String[] args) {
+        int day = 2;
+        switch (day) {
+            case 1:
+                System.out.println("Monday");
+                break;
+            case 2:
+                System.out.println("Tuesday");
+                break;
+            default:
+                System.out.println("Invalid");
+        }
+    }
 }
 ```
 
@@ -264,29 +303,41 @@ switch (day) {
 ### For Loop
 
 ```java
-for (int i = 0; i < 5; i++) {
-    System.out.println(i);
+class Main {
+    public static void main(String[] args) {
+        for (int i = 0; i < 5; i++) {
+            System.out.println(i);
+        }
+    }
 }
 ```
 
 ### While Loop
 
 ```java
-int i = 0;
-while (i < 5) {
-    System.out.println(i);
-    i++;
+class Main {
+    public static void main(String[] args) {
+        int i = 0;
+        while (i < 5) {
+            System.out.println(i);
+            i++;
+        }
+    }
 }
 ```
 
 ### Do While Loop
 
 ```java
-int i = 0;
-do {
-    System.out.println(i); // Runs at least once
-    i++;
-} while (i < 5);
+class Main {
+    public static void main(String[] args) {
+        int i = 0;
+        do {
+            System.out.println(i); // Runs at least once
+            i++;
+        } while (i < 5);
+    }
+}
 ```
 
 ## Exception Handling
@@ -294,13 +345,17 @@ do {
 Handling errors so the program doesn't crash.
 
 ```java
-try {
-    int[] myNumbers = {1, 2, 3};
-    System.out.println(myNumbers[10]); // Error
-} catch (Exception e) {
-    System.out.println("Something went wrong.");
-} finally {
-    System.out.println("The 'try catch' is finished.");
+class Main {
+    public static void main(String[] args) {
+        try {
+            int[] myNumbers = {1, 2, 3};
+            System.out.println(myNumbers[10]); // Error
+        } catch (Exception e) {
+            System.out.println("Something went wrong.");
+        } finally {
+            System.out.println("The 'try catch' is finished.");
+        }
+    }
 }
 ```
 
@@ -391,6 +446,16 @@ class Employee {
         return salary;
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Employee emp = new Employee();
+        emp.setName("Alex");
+        emp.setSalary(10000);
+        System.out.println(emp.employeeName + "'s salary is " + emp.getSalary());
+    }
+}
 ```
 
 **Key points.**
@@ -412,6 +477,29 @@ For example, consider the following code snippet demonstrating the creation of o
 
 ```java
 import java.util.*;
+
+// Employee class from the previous example, repeated here since each fence
+// is a standalone payload with no concatenation between blocks.
+class Employee {
+    private int salary; // to store the salary of employee
+
+    public String employeeName; // to store the name of employee
+
+    // Method to set the employee name as given input
+    public void setName(String s) {
+        employeeName = s;
+    }
+
+    // Method to set the salary as given input
+    public void setSalary(int val) {
+        salary = val;
+    }
+
+    // Method to get the salary of the employee
+    public int getSalary() {
+        return salary;
+    }
+}
 
 class Main {
     public static void main(String[] args) {
@@ -457,7 +545,14 @@ Objects are created from a class to access its attributes and behaviours.
 In Java, objects are always created on the heap using the `new` keyword, and variables store references to them.
 
 ```java
-Employee obj1 = new Employee(); // reference → heap object
+class Employee { } // Minimal stub -- the full Employee class was shown earlier in this lesson.
+
+class Main {
+    public static void main(String[] args) {
+        Employee obj1 = new Employee(); // reference → heap object
+        System.out.println("obj1 now references an Employee on the heap: " + (obj1 != null));
+    }
+}
 ```
 
 ### Deletion of an object
@@ -467,10 +562,17 @@ Object destruction and memory cleanup depend on the language's memory management
 In Java, objects are automatically cleaned up by the Garbage Collector when no references remain.
 
 ```java
-Employee obj1 = new Employee();
+class Employee { } // Minimal stub -- the full Employee class was shown earlier in this lesson.
 
-obj1 = null; // object becomes eligible for GC
-// Garbage Collector deletes it automatically
+class Main {
+    public static void main(String[] args) {
+        Employee obj1 = new Employee();
+
+        obj1 = null; // object becomes eligible for GC
+        // Garbage Collector deletes it automatically
+        System.out.println("obj1 is null and eligible for GC: " + (obj1 == null));
+    }
+}
 ```
 
 ### Stack and heap memory allocation
@@ -674,6 +776,19 @@ class BankAccount {
         }
         balance -= amount; // Update the balance
         return true;
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        BankAccount account = new BankAccount("Alex", 1000.0);
+        account.deposit(500.0);
+        System.out.println(account.getName() + "'s balance after deposit: " + account.getBalance());
+
+        boolean ok = account.withdrawal(2000.0); // exceeds balance
+        System.out.println("Withdrawal of 2000 succeeded? " + ok);
+        System.out.println("Balance after failed withdrawal: " + account.getBalance());
     }
 }
 ```
@@ -988,7 +1103,14 @@ class Employee {
     Employee() {
         System.out.println("Employee created!");
     }
- }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Employee emp = new Employee();
+    }
+}
 ```
 
 **Parameterized constructor.** It is a type of constructor that accepts arguments to initialize attributes with specific values. For example, the following code snippet shows a parameterized constructor initializing the attributes of the object with the arguments provided by the user.
@@ -1181,6 +1303,19 @@ class Employee {
         salary = s;
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Employee e1 = new Employee();
+        Employee e2 = new Employee("Alex");
+        Employee e3 = new Employee("Alex", 5000);
+
+        System.out.println(e1.name + " / " + e1.salary);
+        System.out.println(e2.name + " / " + e2.salary);
+        System.out.println(e3.name + " / " + e3.salary);
+    }
+}
 ```
 
 With constructor chaining:
@@ -1204,6 +1339,19 @@ class Employee {
     // Constructor chaining
     Employee() {
         this("Unknown", 0);
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        Employee e1 = new Employee();
+        Employee e2 = new Employee("Alex");
+        Employee e3 = new Employee("Alex", 5000);
+
+        System.out.println(e1.name + " / " + e1.salary);
+        System.out.println(e2.name + " / " + e2.salary);
+        System.out.println(e3.name + " / " + e3.salary);
     }
 }
 ```

@@ -211,7 +211,9 @@ Bad — too complex:
 
 ```java
 import java.util.*;
-public class NumberUtils {
+
+// ⚠️ ANTI-PATTERN — this is the version we are about to fix. Do not copy it.
+class NumberUtils {
 
     public static boolean isEven(int number) {
         // Using unnecessary logic to determine evenness
@@ -226,6 +228,15 @@ public class NumberUtils {
         return isEven;
     }
 }
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        System.out.println("isEven(4) = " + NumberUtils.isEven(4));
+        System.out.println("isEven(7) = " + NumberUtils.isEven(7));
+        System.out.println("Violation: extra variable + redundant if-else instead of one boolean expression (KISS)");
+    }
+}
 ```
 
 This is bad because it uses an extra variable, adds unnecessary if-else logic, and makes the code longer and harder to follow.
@@ -234,10 +245,19 @@ Good — simple and clear:
 
 ```java
 import java.util.*;
-public class NumberUtils {
+
+class NumberUtils {
 
     public static boolean isEven(int number) {
         return number % 2 == 0;
+    }
+}
+
+// ── Driver ──────────────────────────────────────────────
+class Main {
+    public static void main(String[] args) {
+        System.out.println("isEven(4) = " + NumberUtils.isEven(4));
+        System.out.println("isEven(7) = " + NumberUtils.isEven(7));
     }
 }
 ```
