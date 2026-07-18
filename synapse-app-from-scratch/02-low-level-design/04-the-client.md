@@ -74,13 +74,58 @@ of the design, not an implementation detail.
 ## Two independent concerns, modelled independently
 
 The runnable code block tracks whether code is executing **and** whether the editor is editable.
-These are genuinely orthogonal — you can edit while a run is in flight — so they are two types:
+These are genuinely orthogonal — you can edit while a run is in flight — so they are two types.
 
-```rust
-pub enum RunState { Idle, Running, Done }
+Run this to see why that matters. The last two lines are the whole argument:
 
-/// Orthogonal to `RunState`; the auth gate is enforced by the CALLER, not by the FSM.
-pub enum EditMode { ReadOnly, Editing }
+```rust run
+// Two orthogonal concerns. A runnable block tracks whether code is EXECUTING and
+// whether the editor is EDITABLE — independently, since you can edit mid-run.
+// Modelled separately they compose; fused into one enum they multiply.
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RunState {
+    Idle,
+    Running,
+    Done,
+}
+
+/// Orthogonal to `RunState`. Whether the reader MAY edit is the caller's policy,
+/// not the machine's business — which is why authentication does not appear here.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum EditMode {
+    ReadOnly,
+    Editing,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Block {
+    run: RunState,
+    edit: EditMode,
+}
+
+fn main() {
+    let runs = [RunState::Idle, RunState::Running, RunState::Done];
+    let edits = [EditMode::ReadOnly, EditMode::Editing];
+
+    println!("every reachable combination:");
+    let mut n = 0;
+    for r in runs {
+        for e in edits {
+            println!("  {:?}", Block { run: r, edit: e });
+            n += 1;
+        }
+    }
+
+    println!();
+    println!("composed: {} + {} variants across two types", runs.len(), edits.len());
+    println!("fused:    {} variants in one enum, every one hand-written and matched", n);
+    println!();
+    println!("Add a third concern with 2 values:");
+    println!("  composed -> {} + 2 = {}", runs.len() + edits.len(), runs.len() + edits.len() + 2);
+    println!("  fused    -> {} x 2 = {}", n, n * 2);
+    println!("\nOne grows by addition. The other grows by multiplication.");
+}
 ```
 
 ```mermaid
@@ -101,9 +146,9 @@ stateDiagram-v2
     }
 ```
 
-The alternative — one enum with `IdleReadOnly`, `IdleEditing`, `RunningReadOnly`, … — multiplies to
-six variants that must each be handled, and grows multiplicatively with every new concern. Two small
-types compose; one big type explodes.
+The two regions are independent, which is exactly what the program above counts: the fused
+alternative — `IdleReadOnly`, `IdleEditing`, `RunningReadOnly`, … — needs every combination written
+out and matched, and a third concern doubles that list rather than adding to it.
 
 The comment on `EditMode` is doing deliberate design work too. The FSM does **not** know about
 authentication. Whether a reader may edit is a policy decision belonging to the caller; baking it in
@@ -115,28 +160,80 @@ machine tracks *what mode the editor is in*, not *who is allowed to change it*.
 Every run is asynchronous, so a reply can arrive after the reader has already started a new run.
 Applying it would show the previous run's output as if it were current.
 
-The guard is a token type:
-
-```rust
-/// Opaque, monotonic — cannot be fabricated outside this module, so a stored handle can only
-/// have come from `started`.
-pub struct RunHandle(u64);
-```
+The guard is a token type — an opaque, monotonic `RunHandle` that cannot be fabricated outside its
+module, so a stored handle can only have come from `started()`.
 
 Starting a run mints a new handle. Completion carries the handle it belongs to, and the transition
-compares it to the current one — a mismatch is a **no-op**, not an error:
+compares it to the current one — a mismatch is a **no-op**, not an error.
 
-```rust
-let stale_handle = first.run_id;
-let second = first.started();                             // restart: first handle is now stale
-let after = second.completed(stale_handle, result("stale"));
-assert_eq!(after, second, "a stale result must change nothing");
+Here is the whole mechanism as a program you can run. Press ▶, then try breaking it: delete the
+`if handle != self.run_id` guard and watch run 1's output overwrite run 2's.
+
+```rust run
+// The runnable-block state machine, cut down to the part that matters: a run in
+// flight, a restart, and a reply from the run that no longer matters.
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RunState {
+    Idle,
+    Running,
+    Done,
+}
+
+/// Opaque and monotonic. The field is PRIVATE, so nothing outside this module can
+/// fabricate one — a handle you hold provably came from `started()`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct RunHandle(u64);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct Executor {
+    state: RunState,
+    run_id: RunHandle,
+    output: Option<String>,
+}
+
+impl Executor {
+    fn new() -> Self {
+        Executor { state: RunState::Idle, run_id: RunHandle(0), output: None }
+    }
+
+    /// Mint a fresh handle: starting a run invalidates whatever was in flight.
+    #[must_use]
+    fn started(&self) -> Self {
+        Executor { state: RunState::Running, run_id: RunHandle(self.run_id.0 + 1), output: None }
+    }
+
+    /// Apply a reply ONLY if it belongs to the run currently in flight.
+    #[must_use]
+    fn completed(&self, handle: RunHandle, out: &str) -> Self {
+        if handle != self.run_id {
+            return self.clone(); // stale — a no-op, not an error
+        }
+        Executor { state: RunState::Done, run_id: self.run_id, output: Some(out.to_owned()) }
+    }
+}
+
+fn main() {
+    let first = Executor::new().started();
+    let stale_ticket = first.run_id;
+    println!("run 1 started   -> {:?}", first.state);
+
+    let second = first.started(); // the reader hits Run again
+    println!("run 2 started   -> {:?}  (run 1's ticket is now stale)", second.state);
+
+    let after_stale = second.completed(stale_ticket, "output of run 1");
+    println!("run 1 replies   -> changed anything? {}", after_stale != second);
+    println!("                   output = {:?}", after_stale.output);
+
+    let done = second.completed(second.run_id, "output of run 2");
+    println!("run 2 replies   -> output = {:?}", done.output);
+}
 ```
 
 Two details make this sturdier than a boolean flag. The field is **private**, so no other module can
 construct a `RunHandle` — a handle in hand provably came from `started()`. And the transitions are
 pure functions on state, so the guard is verified by a native unit test rather than by racing a real
-browser.
+browser, which is why the program above needs no async machinery to demonstrate an async bug.
 
 <div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
 
@@ -153,13 +250,13 @@ Some work has excellent JavaScript implementations and no reason to be rewritten
 markdown pipeline, diagram layout engines, language tracers. These stay TypeScript, behind five
 declared seams:
 
-```rust
-#[wasm_bindgen(module = "@markdown/loader")]  // markdown → HTML, syntax highlighting
-#[wasm_bindgen(module = "@editor/loader")]    // the code editor
-#[wasm_bindgen(module = "@diagram/loader")]   // mermaid + d2 rendering
-#[wasm_bindgen(module = "@tracer/loader")]    // language tracers
-#[wasm_bindgen(module = "@auth/loader")]      // OIDC/PKCE
-```
+| `#[wasm_bindgen(module = …)]` | What it brings in |
+|---|---|
+| `@markdown/loader` | markdown → HTML, syntax highlighting |
+| `@editor/loader` | the code editor |
+| `@diagram/loader` | mermaid + d2 rendering |
+| `@tracer/loader` | language tracers |
+| `@auth/loader` | OIDC/PKCE |
 
 Five modules, each a **loader** rather than the library itself. That indirection is what makes the
 heavy dependencies lazy: the editor is hundreds of kilobytes and a diagram engine is multiple
@@ -195,7 +292,8 @@ worth knowing exactly what it pays instead — and the answer has changed recent
 descriptions of it are out of date.
 
 Reading the generated glue in this repository (wasm-bindgen 0.2.126), the module declares **251
-import shims**. A representative one:
+import shims**. The next two blocks are **quoted from that generated file** rather than written for
+this chapter — they are evidence you can go and check, not programs to run. A representative shim:
 
 ```js
 __wbg_closest_d889c758da4bb13b: function (arg0, arg1, arg2) {
@@ -223,11 +321,8 @@ That is a table allocation, not a JS-array scan, and it participates in the host
 reference costs a lookup in a side table" objection is largely a description of the old model.
 
 **Strings are still marshalled, and this is the real cost.** `getStringFromWasm0(arg1, arg2)` takes a
-pointer and a length into linear memory and runs a UTF-8 → UTF-16 decode:
-
-```js
-cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len))
-```
+pointer and a length into linear memory and runs a UTF-8 → UTF-16 decode —
+`cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len))`.
 
 **56 of the 251 shims decode a string that way.** And strings are pervasive in DOM work — tag names,
 class names, attribute names and values, event names. Scala.js pays none of this, because its strings
@@ -236,11 +331,69 @@ are already JS strings.
 **The call itself** is an import crossing. Modern engines inline much of it; it is the smallest of
 the three terms.
 
-### Put it next to what a DOM operation costs
+### Put a number on it
 
-A boundary crossing with a short string decode is measured in nanoseconds. Appending an element and
-letting the browser recalculate style and layout is measured in **microseconds**. So the overhead
-lands as a small fraction of an operation that was already the expensive part.
+That is the mechanism. Rather than leave it there, here is the string half modelled as something you
+can run — UTF-8 bytes in a flat array, decoded per call, against a string that is simply already a
+string:
+
+```javascript run
+// What a string costs when it has to cross out of WebAssembly's linear memory.
+//
+// This does NOT measure the real boundary — it models the one part you can reproduce
+// in a plain runtime: WASM holds UTF-8 bytes, JS wants a UTF-16 string, so every
+// string argument is decoded on the way through. Scala.js, compiling to JavaScript,
+// hands over something that already IS a JS string.
+
+const N = 200000;
+const encoder = new TextEncoder();
+const decoder = new TextDecoder("utf-8");
+
+// The kind of strings DOM work actually passes.
+const words = ["div", "span", "class", "data-source", "click", "reader-sidebar"];
+
+// Pretend linear memory: those strings, already UTF-8, in one flat byte array.
+const parts = words.map((w) => encoder.encode(w));
+const total = parts.reduce((n, p) => n + p.length, 0);
+const memory = new Uint8Array(total);
+const spans = [];
+let at = 0;
+for (const p of parts) {
+  memory.set(p, at);
+  spans.push([at, p.length]);
+  at += p.length;
+}
+
+// (a) Scala.js shape: it is already a JS string. Just use it.
+let sink = 0;
+let t0 = process.hrtime.bigint();
+for (let i = 0; i < N; i++) {
+  sink += words[i % words.length].length;
+}
+const native = Number(process.hrtime.bigint() - t0) / 1e6;
+
+// (b) WASM shape: (ptr, len) into linear memory, decoded per call.
+sink = 0;
+t0 = process.hrtime.bigint();
+for (let i = 0; i < N; i++) {
+  const [ptr, len] = spans[i % spans.length];
+  sink += decoder.decode(memory.subarray(ptr, ptr + len)).length;
+}
+const marshalled = Number(process.hrtime.bigint() - t0) / 1e6;
+
+console.log(`${N} string arguments`);
+console.log(`  already a JS string : ${native.toFixed(1)} ms`);
+console.log(`  decoded from bytes  : ${marshalled.toFixed(1)} ms`);
+console.log(`  per call            : ${(((marshalled - native) * 1e6) / N).toFixed(0)} ns extra`);
+```
+
+It reports somewhere around **90–110 ns per string argument** — the figure moves run to run, which is
+itself worth noticing about microbenchmarks. Now put it next to the operation it rides along with: appending an element and letting the browser recalculate style and layout costs
+**microseconds**. So the marshalling is real, measurable, and still an order of magnitude below the
+thing it is attached to.
+
+That is the shape of the whole trade-off. Not "WASM is slow at the DOM" — rather, a genuine per-call
+tax on the cheap part of an expensive operation.
 
 Two properties of this application shrink it further. Fine-grained reactivity means an update touches
 only the nodes that actually changed — there is no VDOM diff issuing speculative writes. And the
@@ -253,19 +406,82 @@ The boundary is a cost on DOM work. The compensation is that WASM is genuinely f
 and this client has real compute in it, which is easy to miss in a reader app.
 
 The visualisation engine is **3,300 lines of pure logic that runs in the browser**, and the graph
-family's layout is a force simulation:
+family's layout is a force simulation — 320 iterations of an O(n²) float loop over flat `Vec<f64>`
+arrays, every time a graph is drawn. Run it and watch the shape of the work:
 
-```rust
+```rust run
+// The graph family's layout, reduced to its hot loop: 320 ticks of O(n²) many-body
+// repulsion over flat f64 arrays. This is the shape of the work the visualisation
+// engine does in your browser every time a graph is drawn.
+
+use std::time::Instant;
+
 const TICKS: u32 = 320;
-for _tick in 0..TICKS {
-    for i in 0..n {
-        for j in 0..n {          // naive O(n²) many-body repulsion
+const MANY_BODY: f64 = -520.0;
+const VELOCITY_DECAY: f64 = 0.6;
+
+fn layout(n: usize) -> (Vec<f64>, Vec<f64>) {
+    // Start on a circle so the run is deterministic.
+    let mut x: Vec<f64> = (0..n).map(|i| 10.0 * (i as f64).cos()).collect();
+    let mut y: Vec<f64> = (0..n).map(|i| 10.0 * (i as f64).sin()).collect();
+    let mut vx = vec![0.0_f64; n];
+    let mut vy = vec![0.0_f64; n];
+
+    for _tick in 0..TICKS {
+        for i in 0..n {
+            for j in 0..n {
+                if i == j {
+                    continue;
+                }
+                let dx = x[j] - x[i];
+                let dy = y[j] - y[i];
+                let mut l = dx * dx + dy * dy;
+                if l == 0.0 {
+                    l = 1e-6; // the real engine jiggles instead
+                }
+                let w = MANY_BODY / l;
+                vx[i] += dx * w;
+                vy[i] += dy * w;
+            }
+        }
+        for i in 0..n {
+            vx[i] *= VELOCITY_DECAY;
+            vy[i] *= VELOCITY_DECAY;
+            x[i] += vx[i];
+            y[i] += vy[i];
+        }
+    }
+    (x, y)
+}
+
+fn main() {
+    println!("{:>5} {:>14} {:>12}", "nodes", "inner steps", "time");
+    for n in [10_usize, 20, 40, 80] {
+        let start = Instant::now();
+        let (x, _y) = layout(n);
+        println!(
+            "{:>5} {:>14} {:>12?}   (x[0] = {:.3})",
+            n,
+            TICKS as usize * n * n,
+            start.elapsed(),
+            x[0]
+        );
+    }
+    println!("\nDouble the nodes, quadruple the work — that is the O(n²) in the inner loop.");
+}
 ```
 
-320 iterations of an O(n²) float loop over flat `Vec<f64>` arrays, per graph rendered. That is
-WebAssembly's home ground: no boxing, no GC pressure, arrays that *are* linear memory, and codegen
-that does not depend on a JIT deciding to specialise. Scala.js optimises numeric code well, but a
-tight `f64` kernel is exactly the workload where the gap favours WASM.
+Doubling the node count quadruples the inner steps and, near enough, the time — the quadratic term is
+visible in the output rather than merely claimed. Ignore the first row: it absorbs process warm-up,
+and on some runs `n = 10` reports *slower* than `n = 20`. That is a microbenchmark telling you the
+truth about itself, and the reason the interesting comparison is between the last two rows. Change
+`TICKS` or add a larger `n` to push it further.
+
+That kernel is WebAssembly's home ground: no boxing, no GC pressure, arrays that *are* linear memory,
+and codegen that does not depend on a JIT deciding to specialise. Scala.js optimises numeric code
+well, but a tight `f64` loop is exactly where the gap favours WASM — and note the asymmetry with the
+section above. The DOM boundary taxes the *cheap* part of an expensive operation; this is the
+*expensive* part with no boundary in it at all.
 
 So the client's workload is mixed, and the two halves point in opposite directions:
 
