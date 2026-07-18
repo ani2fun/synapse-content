@@ -38,8 +38,8 @@ documents were treated as leads to verify rather than facts to copy.
 
 ## Part 1 — The system
 
-- [Why a rebuild](/synapse/synapse-app-from-scratch/the-system/why-a-rebuild) — the lineage from
-  Cortex through Scala to Rust, the four motives, and what a third implementation actually bought.
+- [Why a rebuild](/synapse/synapse-app-from-scratch/the-system/why-a-rebuild) — Scala to Rust: what
+  the swap measurably bought, what Scala was better at, and the case against doing it at all.
 - [Architecture](/synapse/synapse-app-from-scratch/the-system/architecture) — C4 from context to
   component, with a live clickable model. Seven bounded contexts and why the seams fall there.
 

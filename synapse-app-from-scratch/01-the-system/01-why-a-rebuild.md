@@ -1,41 +1,41 @@
 ---
 title: "Why a rebuild"
-summary: "Three implementations of the same platform in 4 months — Cortex, then Scala, then Rust. What each rebuild was for, what the last one measurably bought, and the honest case against doing any of it."
+summary: "The same platform, rebuilt from Scala to Rust. What the swap measurably bought, what it cost, and the honest case against doing it at all."
 essential: true
 ---
 
 # Why a rebuild
 
-> **You'll be able to:** explain what a "reference oracle" rebuild is and when it beats an
-> incremental refactor; judge a rewrite by what it measurably bought rather than by how it felt;
-> and recognise the specific conditions that made this one survivable.
+> **You'll be able to:** judge a rewrite by what it measurably bought rather than by how it felt;
+> explain what a "reference oracle" rebuild is and why it beats working from a specification; and
+> recognise the specific conditions that made this one survivable.
 
-## Three implementations, one platform
+## Same product, different implementation
 
-The platform you are reading has been built three times.
+This platform ran on Scala 3 — ZIO on the server, Laminar in the browser. It now runs on Rust —
+axum on the server, Leptos compiled to WebAssembly in the browser. Same product, same content, same
+URLs; a different implementation underneath.
 
-```mermaid
-flowchart LR
-  cortex["<b>Cortex</b><br/>the original<br/><i>archived</i>"] --> scala["<b>Synapse</b><br/>Scala 3 · ZIO · Laminar<br/><i>archived 2026-07-18</i>"]
-  scala --> rust["<b>Synapse</b><br/>Rust · axum · Leptos<br/><b>live now</b>"]
-  scala -. "reference oracle<br/>(specs, tests, parity target)" .-> rust
-  classDef old fill:#f3f4f6,stroke:#6b7280,color:#111827;
-  classDef live fill:#dcfce7,stroke:#16a34a,color:#14532d;
-  class cortex,scala old;
-  class rust live;
-```
+| | Scala | Rust |
+|---|---|---|
+| Server | ZIO + tapir + zio-http | tokio + axum + utoipa |
+| Client | Scala.js + Laminar | WebAssembly + Leptos |
+| Effects | `IO[DomainError, A]` | `async fn → Result<A, DomainError>` |
+| Ports | traits + `ZLayer` wiring | traits + constructor injection in `main` |
+| Database | JDBC + Liquibase | sqlx + embedded migrations |
+| Shared code | `crossProject(JS, JVM)` | one crate, native + `wasm32` |
+| Build | `sbt` + `npm` | `cargo` + `npm` |
 
-Each rebuild kept the product and replaced the implementation. That is an expensive habit, and it
-deserves more scepticism than it usually gets — so this chapter makes the case for it and then
-makes the case against it.
+The architecture barely moved. Ports and adapters, bounded contexts, the three-layer client split,
+even most module names survived — because those were *design* decisions, and the rebuild was not a
+redesign. What changed is the machinery underneath them.
 
 ## The method: a reference oracle
 
 The word **oracle** appears throughout this codebase and it does not mean the database company. It
 is borrowed from testing, where an *oracle* is the authority that tells you whether an output is
-correct. During the rebuild, the previous implementation played that role: its behaviour was the
-specification, its test suites were the acceptance criteria, and the live deployment was the parity
-target.
+correct. The Scala implementation played that role: its behaviour was the specification, its test
+suites were the acceptance criteria, and its live deployment was the parity target.
 
 <div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
 
@@ -53,24 +53,14 @@ problem into a *re-derivation* problem — and re-derivation is where the learni
 must understand why each decision was made before you can restate it in a different language.
 
 The rule adopted here was: **cherry-pick from the oracle, never copy a decision you do not
-understand.** Where the oracle's choice was sound it was ported deliberately. Where it was a
-shortcut, the rebuild fixed it — and the chapters say which was which.
-
-## The four motives
-
-The decision record ([ADR-RS001](https://github.com/ani2fun/synapse/blob/main/docs/adr/rs001-the-rust-rebuild.md))
-lists four:
-
-1. **Ownership and understanding.** A system you have built twice you understand differently from
-   one you have maintained.
-2. **Footprint.** The homelab is four small machines. A JVM's floor is a real cost when the node
-   also runs a database and a code sandbox.
-3. **Depth in Rust.** An explicit career motive, stated rather than rationalised as engineering.
-4. **Toolchain consolidation.** `sbt` plus `npm` became `cargo` plus `npm`.
-
-Only the second is measurable, so it is the one the book can hold to account.
+understand.** Where the Scala choice was sound it was ported deliberately. Where it was a shortcut,
+the rebuild fixed it — and the chapters say which was which.
 
 ## What it bought, measured
+
+Only one motive was measurable, so it is the one the book can hold to account: **footprint.** The
+homelab is four small machines, and a JVM's memory floor is a real cost on a node that also runs a
+database and a code sandbox.
 
 The Scala deployment requested **256 MiB** of memory and was capped at **1 GiB** — sized for a JVM
 heap. The Rust process that replaced it, doing the same work on the same node, idles at:
@@ -98,14 +88,27 @@ users the comparison would need re-running, and might come out differently.
 
 </div>
 
+## What Scala was better at
+
+A comparison that only runs one way is advocacy, not analysis. Scala won on several axes that
+matter day to day:
+
+- **Compile times.** `sbt` with a warm incremental compiler beat `cargo` on a full rebuild, and the
+  gap is felt on every change.
+- **Ecosystem depth.** For web and data work the JVM's libraries are broader and more mature. A few
+  things that would have been a dependency are hand-written here.
+- **The effect system.** ZIO's typed errors and structured concurrency are a genuinely elegant model.
+  `async` Rust reaches similar places with more ceremony and sharper edges.
+- **One language, both ends — already.** Scala.js gave shared types across client and server before
+  the rebuild. That was not a Rust *gain*; it was a property preserved.
+
+What Rust won was the memory floor, no GC pauses, and a compiler that makes several bug classes
+unrepresentable — exhaustive matching, `#[must_use]` transitions, ownership that makes teardown
+deterministic. Those are examined where they appear in later chapters rather than asserted here.
+
 ## What it cost
 
-The rebuild took **forty steps** across four days of concentrated work, each step a chapter and a
-tagged commit. That figure is only impressive-sounding until you notice what made it possible: a
-working oracle to copy behaviour from, test suites that already encoded the edge cases, and content
-that did not need migrating because it lives in a separate repository.
-
-It also cost the things a rewrite always costs, and this one is not exempt:
+A rewrite costs the things every rewrite costs, and this one is not exempt:
 
 - **Bugs the original had already found.** The clearest example: sign-in worked in every test and
   failed in production because the HTTP client had no TLS backend compiled in. In development every
@@ -128,13 +131,13 @@ usually absent:
   matters most — the writing.
 
 Remove any one of those and the calculus changes. With paying users and a live roadmap, the honest
-advice is the boring one: profile the JVM, tune the heap, and spend the four days on something a
-user would notice.
+advice is the boring one: profile the JVM, tune the heap, and spend the time on something a user
+would notice.
 
 ## Check yourself
 
 ```quiz
-{"prompt": "What does \"reference oracle\" mean in this project?", "options": ["Oracle Cloud, where the platform's virtual machines run", "The Oracle database used to store submissions", "The previous implementation, whose behaviour and tests served as the specification for the rebuild", "An automated test generator that produces expected outputs"], "answer": "The previous implementation, whose behaviour and tests served as the specification for the rebuild"}
+{"prompt": "What does \"reference oracle\" mean in this project?", "options": ["Oracle Cloud, where the platform's virtual machines run", "The Oracle database used to store submissions", "The Scala implementation, whose behaviour and tests served as the specification for the Rust rebuild", "An automated test generator that produces expected outputs"], "answer": "The Scala implementation, whose behaviour and tests served as the specification for the Rust rebuild"}
 ```
 
 ```quiz

@@ -178,7 +178,7 @@ It would **not** be defensible with a team that has to keep shipping features du
 where the old system's behaviour is undocumented and only partly understood — then you are
 reimplementing a specification nobody has, and the rewrite discovers requirements by breaking them in
 production. Nor where the motivation is aesthetic: "the old stack is ugly" predicts nothing about
-whether the new one will be better in 4 months.
+whether the new one will still look good once it has carried real load for a couple of years.
 
 The test I would apply: *can you state the win as a number, and do you have an executable
 specification?* Here it was 256 Mi → 6 Mi, and 400-odd ported tests. Without both, a rewrite is
