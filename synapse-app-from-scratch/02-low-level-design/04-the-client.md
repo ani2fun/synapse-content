@@ -222,12 +222,23 @@ wire types are defined **once** in a shared crate and both ends are checked agai
 definition at compile time. A field rename that breaks the client is a build failure rather than a
 runtime surprise. That, plus exhaustive matching on shared enums, is the actual prize.
 
-The cost is real and should be stated: a WebAssembly client is a bigger download than the equivalent
-JavaScript, and the critical path here runs to roughly 628 KiB gzipped against a 700 KiB budget — a
-budget enforced in CI precisely because that number only moves in one direction if nobody watches it.
-The bet is that shared types and compile-time exhaustiveness are worth more than the bytes, for an
-application whose correctness depends on client and server agreeing about the same domain.
+The expected cost is download size, and this is where the honest answer diverges from the usual one.
+Measured against the Scala.js implementation it replaced — same script, gzipped, critical path — the
+WebAssembly client is **636 KiB against 624 KiB**: a 2% difference. The dominant term is the
+application, not the language it compiles to. The 700 KiB budget is enforced in CI regardless,
+because that number only moves in one direction if nobody watches it.
 
-If the client were mostly presentational, that bet would be wrong.
+The cost that *is* structural is DOM access. WebAssembly cannot touch the DOM directly, so every DOM
+operation crosses into JavaScript glue, where Scala.js emitted JavaScript that manipulated the DOM
+natively. Whether that matters here is unmeasured — for a shell that mounts pages and delegates the
+heavy work to islands, it is unlikely to be what you notice.
+
+And the honest framing of the benefit: shared wire types were **not** a gain over the previous
+implementation, because Scala.js compiled from the same source tree as the JVM server and already had
+them. What compiling this shell to WebAssembly buys is keeping that property *once the server became
+Rust* — a Rust server and a Scala.js client could not share a type between them.
+
+So this is less "WebAssembly beat JavaScript" than "the client followed the server". If the server
+had stayed on the JVM, there would have been no good reason to move the client at all.
 
 </details>

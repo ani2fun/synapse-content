@@ -101,10 +101,22 @@ matter day to day:
   `async` Rust reaches similar places with more ceremony and sharper edges.
 - **One language, both ends — already.** Scala.js gave shared types across client and server before
   the rebuild. That was not a Rust *gain*; it was a property preserved.
+- **The client, on its own merits.** Laminar's `Var`/`Signal` model is the same fine-grained
+  reactivity Leptos offers, and the bundles are the same size — measured, 624 KiB against 636 KiB
+  gzipped. Scala.js also emits JavaScript that touches the DOM directly, where WebAssembly must cross
+  into JS glue for every DOM operation.
+
+That last point deserves to be stated plainly, because it is the one most likely to be assumed the
+other way: **the client rewrite was not independently justified.** It followed the server. Once the
+server became Rust, a Scala.js client could no longer share a type with it — so the choice was
+between keeping shared wire types and keeping Laminar, and the former won. Had the server stayed on
+the JVM, there would have been no good reason to touch the client at all.
 
 What Rust won was the memory floor, no GC pauses, and a compiler that makes several bug classes
 unrepresentable — exhaustive matching, `#[must_use]` transitions, ownership that makes teardown
 deterministic. Those are examined where they appear in later chapters rather than asserted here.
+Note that all four are *server-side* arguments, which is consistent with where the measurable win
+was.
 
 ## What it cost
 

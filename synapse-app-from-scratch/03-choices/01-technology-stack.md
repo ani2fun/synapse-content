@@ -16,7 +16,7 @@ essential: true
 |---|---|---|---|
 | Server | Rust + axum + tokio | tiny footprint, no GC pauses, exhaustive matching | slow compiles; a real learning curve |
 | Database access | sqlx | compile-time-checked SQL, no ORM indirection | queries are hand-written; no lazy loading |
-| Client | Rust + Leptos → WASM | shared types with the server, fine-grained reactivity | bigger download than JS; a small ecosystem |
+| Client | Rust + Leptos → WASM | one language across the whole stack, keeping shared wire types once the server moved | no direct DOM access; rougher debugging; a small ecosystem |
 | Islands | TypeScript, kept | mature libraries not worth rewriting | two languages, one serialisation seam |
 | Config | figment | env-first, layered, typed | precedence needs care (see below) |
 | Errors | thiserror per context | typed, exhaustive, no stringly errors | more code than `anyhow` everywhere |
@@ -76,19 +76,33 @@ Each is a bug I would otherwise have written, found in production, and fixed wit
 Client and server are the same language, so the wire types are defined **once** in a shared crate
 that compiles both natively and to WebAssembly. Rename a field and both ends fail to build.
 
-This is the main reason the client is Rust at all. It is worth being clear about what it costs: the
-WebAssembly bundle is larger than equivalent JavaScript. Measured from production right now:
+This is the main reason the client is Rust at all — and it needs an important caveat, because the
+Scala implementation **already had it**. Scala.js compiles from the same source tree as the JVM
+server, so shared wire types across client and server were not something the rewrite introduced.
 
-| Asset | Transfer size |
-|---|---|
-| entry JS | 10,329 B |
-| CSS | 16,100 B |
-| WASM | 619,122 B |
-| **Critical path** | **~630 KiB of a 700 KiB budget** |
+The usual objection to a WebAssembly client is download size. It is worth checking rather than
+repeating, so here are both implementations measured by the same script, gzipped, critical path only:
 
-The budget is a CI gate, because a number like that only moves in one direction unless something
-stops it. The editor and the diagram engines are *not* in that figure — they load on demand, which is
-what keeps the entry path affordable.
+| | Scala.js + Laminar | Rust + Leptos → WASM |
+|---|---|---|
+| Application code | 600 KiB (JS) | 609 KiB (WASM) + 10 KiB (JS) |
+| CSS | 24 KiB | 16 KiB |
+| **Critical path** | **624 KiB** | **636 KiB** |
+
+**A 2% difference.** For this application the "WASM is a heavier download" concern does not survive
+contact with the measurement — the dominant term in both cases is *the application*, not the
+language it compiles to.
+
+The budget is a CI gate regardless, because a number like that only moves in one direction unless
+something stops it. The editor and the diagram engines are *not* in that figure — they load on
+demand, which is what keeps the entry path affordable.
+
+What WASM does cost, structurally, is **DOM access**: WebAssembly cannot touch the DOM directly, so
+every DOM operation crosses a boundary into JavaScript glue, whereas Scala.js emits JavaScript that
+manipulates the DOM natively. That is a real mechanism and a real difference in kind. Its practical
+impact on this application is *unmeasured*, and it would be dishonest to imply otherwise — for a UI
+that mounts pages and hands the heavy work to islands, the boundary is unlikely to be the thing you
+notice.
 
 <div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
 
