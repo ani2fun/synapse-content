@@ -24,7 +24,11 @@ permissions:
 
 jobs:
   call:
-    uses: ani2fun/synapse/.github/workflows/_build-push-promote.yml@main
+    # Vendored, deliberately. This used to be `ani2fun/synapse/.github/...@main` — a cross-repo
+    # reference that the 2026-07-18 renames turned into a SILENT hazard: `ani2fun/synapse` now
+    # names the Rust app, whose engine happens to take the same inputs, so the job would have
+    # kept working while running a different repo's file. Owning the copy removes the coupling.
+    uses: ./.github/workflows/_build-push-promote.yml
     with:
       image_repo: ghcr.io/ani2fun/synapse-likec4
       dockerfile: likec4.Dockerfile
