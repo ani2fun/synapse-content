@@ -135,20 +135,6 @@ change.
 is marketing, and its main effect is that the next person cannot tell which constraints are load
 bearing.
 
-## Check yourself
-
-```quiz
-{"prompt": "Why does the application exit when Postgres is unavailable but keep serving when Keycloak is?", "options": ["Because Postgres failures are permanent and Keycloak failures are transient", "Because without Postgres it cannot honestly serve any write path, while without Keycloak ~99% of the product (reading, running) still works correctly", "Because Keycloak has a built-in retry mechanism", "Because Postgres is on a different node"], "answer": "Because without Postgres it cannot honestly serve any write path, while without Keycloak ~99% of the product (reading, running) still works correctly"}
-```
-
-```quiz
-{"prompt": "What security property comes from admin being config-only while allowlist grants are database rows?", "options": ["Admins can be changed faster in an emergency", "A compromised admin session can widen submit access but cannot create another admin — escalation requires repository access, a separate credential with its own audit trail", "The allowlist can be edited without authentication", "It reduces database load"], "answer": "A compromised admin session can widen submit access but cannot create another admin — escalation requires repository access, a separate credential with its own audit trail"}
-```
-
-```quiz
-{"prompt": "Why is `replicas: 1` described as a correctness requirement rather than a resource decision?", "options": ["Because the container is too large to run twice", "Because the rate limiter keeps per-process state, so N replicas would silently multiply the effective limit by N", "Because Postgres allows only one connection", "Because the content sidecar cannot be shared"], "answer": "Because the rate limiter keeps per-process state, so N replicas would silently multiply the effective limit by N"}
-```
-
 <details>
 <summary>The single-replica database caused ninety minutes of downtime today. Why not just add a replica?</summary>
 

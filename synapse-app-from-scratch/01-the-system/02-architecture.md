@@ -121,16 +121,6 @@ a build that fails on an invalid model — though not, it turns out, by an exit 
 chapter the model built "successfully" while emitting four errors, and only a log grep revealed that
 four relationships had been silently dropped.
 
-## Check yourself
-
-```quiz
-{"prompt": "Why can lesson responses be cached aggressively at the edge without risking stale-but-wrong content?", "options": ["Because the cache is purged on every author push", "Because lessons rarely change in practice", "Because a response is derived from a known content commit, so a cached copy is a correct answer for that version rather than a guess about freshness", "Because readers always force-refresh"], "answer": "Because a response is derived from a known content commit, so a cached copy is a correct answer for that version rather than a guess about freshness"}
-```
-
-```quiz
-{"prompt": "The seven bounded contexts ship as a single binary. Which context is explicitly designed to be extracted first, and why?", "options": ["identity, because authentication is security-sensitive", "catalog, because it serves the most traffic", "execution, because it is CPU-bound, runs hostile input, and has resource needs an order of magnitude different from the rest", "blog, because it is nearly a duplicate of catalog"], "answer": "execution, because it is CPU-bound, runs hostile input, and has resource needs an order of magnitude different from the rest"}
-```
-
 <details>
 <summary>The architecture would look the same on a diagram whether these were seven services or one binary. So what is the diagram actually telling you?</summary>
 

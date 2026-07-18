@@ -89,8 +89,15 @@ and the honest reason for a hard limit is that no individual dependency ever loo
 |---|---|
 | Memory limit | 256 Mi |
 | Actual usage at idle | **~6 Mi RSS** |
+| Actual usage under sustained load | ~36 Mi |
 | Replicas | 1 |
 | In-cluster response time | ~14 ms |
+| Sustained throughput, one replica | **15,440 req/s** on 0.74 of 8 cores |
+
+That last row is measured, not estimated — the load test and the capacity arithmetic it supports are
+in [Scaling and maintainability](/synapse/synapse-app-from-scratch/running-it/scaling-and-maintainability).
+The short version: the application is about ten times faster than the network it speaks through, so
+the origin's throughput has never been the thing worth optimising.
 
 The application is not the bottleneck and is not close to being one. At ~99% cache-hit-eligible
 traffic, the origin only sees cache misses, revalidations and the small volume of runs and writes.
@@ -128,20 +135,6 @@ have made a blank page appear slightly sooner.
 
 Each of those is a place where effort would produce a number that improves and an experience that
 does not.
-
-## Check yourself
-
-```quiz
-{"prompt": "Why does this chapter insist on naming the vantage point and date for every latency figure?", "options": ["To comply with benchmarking standards", "Because a latency number without a measurement location is not reproducible or meaningful — one client in one region is not a global profile", "Because latency changes every day", "Because the CDN rotates edge nodes"], "answer": "Because a latency number without a measurement location is not reproducible or meaningful — one client in one region is not a global profile"}
-```
-
-```quiz
-{"prompt": "Timing a GET and then reading `cf-cache-status` from a follow-up request to the same URL reports HIT. Why is that wrong?", "options": ["Because HEAD requests are not cached", "Because the first request populated the cache, so the second observes a state the first one created — timing and headers must come from the same request", "Because cf-cache-status is only set on HTTPS", "Because the CDN rate-limits repeated requests"], "answer": "Because the first request populated the cache, so the second observes a state the first one created — timing and headers must come from the same request"}
-```
-
-```quiz
-{"prompt": "Diagrams rendered during markdown parsing made whole pages blank for seconds. Why would optimising the diagram layout engine have been the wrong fix?", "options": ["Because the layout engine is third-party code", "Because the problem was dependency ordering, not speed — prose was waiting on diagrams it did not depend on, so making layout faster would only make a blank page appear slightly sooner", "Because diagrams are cached anyway", "Because most pages have no diagrams"], "answer": "Because the problem was dependency ordering, not speed — prose was waiting on diagrams it did not depend on, so making layout faster would only make a blank page appear slightly sooner"}
-```
 
 <details>
 <summary>The origin idles at 6 Mi and answers in ~14 ms. So why does the site ever feel slow?</summary>

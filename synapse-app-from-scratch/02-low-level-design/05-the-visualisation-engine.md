@@ -176,20 +176,6 @@ they resist intentional change by making every deliberate improvement look like 
 are the right tool for a *port*, where fidelity is the goal, and the wrong tool for greenfield work,
 where the behaviour is not yet known to be correct.
 
-## Check yourself
-
-```quiz
-{"prompt": "Why do the tracers emit a language-neutral `HeapTrace` instead of producing render-ready output directly?", "options": ["Because tracers run in a sandbox with no rendering libraries", "To turn an N×M problem into N+M: each new language needs one tracer and each new structure one renderer, instead of an adapter per pair", "Because HeapTrace compresses better over the wire", "Because Python and Java cannot produce SVG"], "answer": "To turn an N×M problem into N+M: each new language needs one tracer and each new structure one renderer, instead of an adapter per pair"}
-```
-
-```quiz
-{"prompt": "A binary heap is stored as an array, yet it maps to `HeapDual` rather than `Cells`. What does that reveal about the structure→family mapping?", "options": ["That the mapping is based on the underlying memory layout", "That it maps meaning to presentation, not representation to representation — a heap is worth showing as both an array and the tree it implies", "That HeapDual is an optimisation for large heaps", "That arrays and heaps use different tracers"], "answer": "That it maps meaning to presentation, not representation to representation — a heap is worth showing as both an array and the tree it implies"}
-```
-
-```quiz
-{"prompt": "The `cursors` stage promotes integer locals like `left` and `right` into pointer carets. Why is that stage disproportionately important?", "options": ["Because it reduces the number of nodes to render", "Because it turns a plain value into a spatial relationship — which is what makes the algorithm's idea visible rather than just its data", "Because cursors are required by the render families", "Because it lets the tracer skip integer variables"], "answer": "Because it turns a plain value into a spatial relationship — which is what makes the algorithm's idea visible rather than just its data"}
-```
-
 <details>
 <summary>The pipeline has one component that does not fit the pattern — the callstack route. When is a special case better than a uniform abstraction?</summary>
 

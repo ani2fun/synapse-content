@@ -205,20 +205,6 @@ shifting the layout. Paying a small visible delay on one element to remove a tot
 everything is a good trade — and it is the same principle as the 202 in the submission path:
 **do not make the common case wait for the expensive case.**
 
-## Check yourself
-
-```quiz
-{"prompt": "Only 3 of 12 client features have a `logic/` layer. What decides whether a feature gets one?", "options": ["Whether the feature is user-facing", "Whether there is behaviour worth testing without a browser — a state machine, resolution rules, ranking — rather than applying the structure uniformly", "Whether the feature exceeds 800 lines", "Whether it calls the server"], "answer": "Whether there is behaviour worth testing without a browser — a state machine, resolution rules, ranking — rather than applying the structure uniformly"}
-```
-
-```quiz
-{"prompt": "Why are `RunState` and `EditMode` separate types instead of one combined enum?", "options": ["Because they change at different rates", "Because they are orthogonal — combining them multiplies into six variants and grows multiplicatively with each new concern, while two small types compose", "Because EditMode is persisted and RunState is not", "Because the editor is a TypeScript island"], "answer": "Because they are orthogonal — combining them multiplies into six variants and grows multiplicatively with each new concern, while two small types compose"}
-```
-
-```quiz
-{"prompt": "`RunHandle(u64)` has a private field. What does that privacy buy beyond ordinary encapsulation?", "options": ["It makes the struct smaller in memory", "No other module can fabricate a handle, so possessing one is proof it came from `started()` — the staleness comparison cannot be fooled by a made-up value", "It allows the handle to be sent across threads", "It prevents the handle from being logged"], "answer": "No other module can fabricate a handle, so possessing one is proof it came from `started()` — the staleness comparison cannot be fooled by a made-up value"}
-```
-
 <details>
 <summary>If TypeScript islands work well enough to keep, why compile the client to WebAssembly at all?</summary>
 

@@ -126,11 +126,8 @@ A quiz fence carries a single JSON object:
 The `answer` must be **exactly** one of the `options` strings — compared by string equality, not by
 index. A mismatch produces a question that cannot be answered correctly, and nothing warns you.
 
-Written as a ` ```quiz ` fence rather than ` ```json `, that same payload renders live:
-
-```quiz
-{"prompt": "In a quiz payload, how is the correct option identified?", "options": ["By its index in the options array", "By exact string equality with one of the options", "By a separate answerIndex field", "By listing it first"], "answer": "By exact string equality with one of the options"}
-```
+Written as a ` ```quiz ` fence rather than the ` ```json ` shown above, that payload renders as an
+interactive question instead of a code block. (This book does not use them; other books do.)
 
 ## Declarative visualisation payload
 

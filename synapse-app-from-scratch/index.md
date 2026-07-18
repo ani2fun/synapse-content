@@ -79,7 +79,8 @@ Drawn from the code, with the traps that make an idealised diagram wrong.
   four nodes, one of them in a datacentre and three behind a domestic router. Capacity, failure
   modes, and the outage — reconstructed from timestamps — that exposed the real dependency graph.
 - [Scaling and maintainability](/synapse/synapse-app-from-scratch/running-it/scaling-and-maintainability)
-  — what to change and when, gated by triggers rather than ambition.
+  — what it serves today under load, the arithmetic from requests to readers, what breaks first,
+  and the trigger-gated path to millions.
 
 ## Appendices
 

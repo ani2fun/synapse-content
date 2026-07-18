@@ -193,20 +193,6 @@ written to the production database **before** the commit was pushed, not after.
 The whole procedure was rehearsed on a scratch copy of the production data first. That rehearsal is
 what proved the codec compatibility above, and it is the only reason the real cutover was boring.
 
-## Check yourself
-
-```quiz
-{"prompt": "What does `check ((status = 'completed') = (outcome is not null and completed_at is not null))` forbid that a simple null check would allow?", "options": ["Two submissions with the same id", "A row that is not completed but still carries a verdict — the biconditional rejects both directions, not just the missing-verdict one", "Null values in the status column", "Outcomes that fail to parse as JSON"], "answer": "A row that is not completed but still carries a verdict — the biconditional rejects both directions, not just the missing-verdict one"}
-```
-
-```quiz
-{"prompt": "Why is there no foreign key from `submissions.user_id` to `submission_allowlist.username`?", "options": ["Because foreign keys are too slow at this volume", "Because the columns hold different identifiers by design — an opaque OIDC sub versus a human-typeable username — so the association is logical rather than referential", "Because the allowlist table is created by a later migration", "Because Postgres cannot reference a text primary key"], "answer": "Because the columns hold different identifiers by design — an opaque OIDC sub versus a human-typeable username — so the association is logical rather than referential"}
-```
-
-```quiz
-{"prompt": "The storage codec `OutcomeJson` is kept separate from the wire DTO. What is the strongest reason?", "options": ["Serialisation performance", "They have different reasons to change: the wire shape follows UI needs, while the storage shape is frozen by rows that already exist — merging them lets a UI tweak silently break persistence", "The database cannot store camelCase field names", "It is required by sqlx"], "answer": "They have different reasons to change: the wire shape follows UI needs, while the storage shape is frozen by rows that already exist — merging them lets a UI tweak silently break persistence"}
-```
-
 <details>
 <summary>The outcome is JSONB inside an otherwise strict relational schema. Isn't that the schemaless mistake the check constraint was avoiding?</summary>
 

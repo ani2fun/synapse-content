@@ -236,20 +236,6 @@ interface, and cannot see the filesystem itself.
 The discipline that keeps this from becoming a mess: the dependency points at an interface, it is one
 direction only, and it is written down.
 
-## Check yourself
-
-```quiz
-{"prompt": "Why are the ports generic (`SubmitSolution<Repo, Tests, R, List>`) rather than `Arc<dyn Port>`?", "options": ["Because trait objects cannot be used with async code at all", "Because nothing varies at runtime — there is one real adapter per port, so a vtable would cost indirection to buy flexibility nobody uses", "Because generics compile faster", "Because sqlx requires it"], "answer": "Because nothing varies at runtime — there is one real adapter per port, so a vtable would cost indirection to buy flexibility nobody uses"}
-```
-
-```quiz
-{"prompt": "`ReadinessProbe` returns `Pin<Box<dyn Future<...>>>` by hand instead of using an async fn. What forced that?", "options": ["Postgres drivers require boxed futures", "It is stored as a trait object, and a trait with an async fn is not object-safe — so the future must be boxed manually", "It was written before async fns in traits were stable and has not been updated", "Boxing makes the probe faster"], "answer": "It is stored as a trait object, and a trait with an async fn is not object-safe — so the future must be boxed manually"}
-```
-
-```quiz
-{"prompt": "An authored test suite is malformed and the submission fails. Why does that map to 500 rather than 400?", "options": ["Because 400 is reserved for parse errors", "Because the request was valid — the fault is the author's, and blaming the caller would also hide the bug from error-rate metrics", "Because the client cannot handle 400 responses", "Because the suite is loaded server-side"], "answer": "Because the request was valid — the fault is the author's, and blaming the caller would also hide the bug from error-rate metrics"}
-```
-
 <details>
 <summary>If ports exist to allow swapping implementations, and nothing here is ever swapped, what are the ports actually buying?</summary>
 

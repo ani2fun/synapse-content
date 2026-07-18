@@ -147,16 +147,6 @@ The one I would revisit first is the managed database — not because self-hosti
 the case study measures exactly what it costs in availability, and that number is the largest
 single risk in the system.
 
-## Check yourself
-
-```quiz
-{"prompt": "The Rust implementation idles at ~6 Mi RSS versus the JVM's ~256 Mi floor. When does that 40× difference actually matter?", "options": ["Always — lower memory usage is universally better", "When memory is the binding constraint, as on a small self-hosted cluster; on a cloud instance where 1 GiB is cheap, it is close to a rounding error", "Only for applications with more than 1000 users", "It matters most for reducing cloud bills"], "answer": "When memory is the binding constraint, as on a small self-hosted cluster; on a cloud instance where 1 GiB is cheap, it is close to a rounding error"}
-```
-
-```quiz
-{"prompt": "Why does a bare `DATABASE_URL` override `SYNAPSE_DATABASE_URL`, and why is that dangerous?", "options": ["Because unprefixed variables are more specific", "Because prefixed variables are merged first and later layers win — so setting only the prefixed name while an unprefixed one exists silently connects to the wrong database, with no error", "Because the prefix is stripped at startup", "Because Kubernetes strips prefixes from environment variables"], "answer": "Because prefixed variables are merged first and later layers win — so setting only the prefixed name while an unprefixed one exists silently connects to the wrong database, with no error"}
-```
-
 <details>
 <summary>Rewriting a working platform in a new language is usually a bad idea. What made it defensible here — and when would it not be?</summary>
 

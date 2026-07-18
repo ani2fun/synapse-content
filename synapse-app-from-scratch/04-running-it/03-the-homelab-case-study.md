@@ -34,9 +34,11 @@ Utilisation, measured at the same moment:
 | `wk-1` | 0% | 7% |
 | `wk-2` | 2% | 31% |
 
-**Capacity is not the constraint and is nowhere near becoming one.** The platform could serve orders
-of magnitude more readers on this hardware. Every real limit in this chapter is about *availability*,
-not throughput — which is the opposite of what capacity planning usually assumes.
+**Capacity is not the constraint and is nowhere near becoming one.** Measured under load, one replica
+sustains 15,440 req/s on less than one of eight cores — enough for millions of monthly readers even
+with the CDN switched off ([the arithmetic](/synapse/synapse-app-from-scratch/running-it/scaling-and-maintainability)).
+Every real limit in this chapter is about *availability*, not throughput — which is the opposite of
+what capacity planning usually assumes.
 
 ## Where the pieces run
 
@@ -152,7 +154,7 @@ constraint.
 
 | Property | Reality |
 |---|---|
-| Capacity | far beyond current need; not the constraint |
+| Capacity | 15,440 req/s measured on one replica; millions of monthly readers — not the constraint |
 | Availability | no formal target; today's outage was ~92 minutes |
 | Redundancy | none for the database; one replica for the application by requirement |
 | Recovery | automatic once the failed node returns; no automatic failover |
@@ -162,20 +164,6 @@ constraint.
 The last row is the real availability limit. There is no on-call rotation and no paging. Mean time to
 repair is bounded below by how long it takes me to look — which is why the mitigations that matter
 most are the ones that recover *without* a human.
-
-## Check yourself
-
-```quiz
-{"prompt": "The application ran on `wk-2`, which never failed. Why did a `wk-1` reboot still take the platform down?", "options": ["Because Kubernetes reschedules all pods when any node fails", "Because the application's database was on `wk-1`, and the application fail-fasts rather than serving without it", "Because `wk-2` shares storage with `wk-1`", "Because the edge cache was also on `wk-1`"], "answer": "Because the application's database was on `wk-1`, and the application fail-fasts rather than serving without it"}
-```
-
-```quiz
-{"prompt": "How did the most critical stateful components end up on the least reliable node?", "options": ["They were deliberately pinned there for performance", "Nobody decided it — `wk-1` has by far the most CPU and memory, so the default scheduler placed the resource-hungry workloads there", "It was a misconfiguration in the deployment manifest", "The other nodes lack persistent storage support"], "answer": "Nobody decided it — `wk-1` has by far the most CPU and memory, so the default scheduler placed the resource-hungry workloads there"}
-```
-
-```quiz
-{"prompt": "Why does the mitigation table state that the watchdog is firmware-locked on `wk-2` rather than omitting it?", "options": ["To justify buying new hardware", "Because a mitigation table that hides its own gaps produces false confidence — knowing which node is unprotected is part of knowing the system's real failure profile", "Because Kubernetes requires uniform node configuration", "Because it will be fixed in the next release"], "answer": "Because a mitigation table that hides its own gaps produces false confidence — knowing which node is unprotected is part of knowing the system's real failure profile"}
-```
 
 <details>
 <summary>Thirty-two restarts over ninety minutes. Should the application have kept retrying instead of exiting?</summary>

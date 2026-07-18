@@ -159,20 +159,6 @@ cache-control: public, max-age=31536000, immutable
 A year, immutable — safe because the filename contains a content hash, so a changed asset is a
 *different URL*. Content-addressed assets never need invalidation; that is the whole trick.
 
-## Check yourself
-
-```quiz
-{"prompt": "Why does the sidecar repoint a symlink instead of updating files in place?", "options": ["Because symlinks use less disk space", "Because content is read per request, so an in-place update would let a request see a half-updated tree — a symlink swap is atomic, so every request sees exactly one commit", "Because git requires it", "Because it makes the container image smaller"], "answer": "Because content is read per request, so an in-place update would let a request see a half-updated tree — a symlink swap is atomic, so every request sees exactly one commit"}
-```
-
-```quiz
-{"prompt": "A Markdown fix appears in under a minute, but a `.c4` model change takes several minutes and a pod rollout. Why?", "options": ["Because .c4 files are much larger", "Because prose is only fetched and symlinked, while the architecture model is compiled into a container image that must be built, promoted and rolled out", "Because diagram changes need manual approval", "Because the CDN caches diagrams for longer"], "answer": "Because prose is only fetched and symlinked, while the architecture model is compiled into a container image that must be built, promoted and rolled out"}
-```
-
-```quiz
-{"prompt": "Why can hashed assets safely use `max-age=31536000, immutable` while content uses `max-age=60`?", "options": ["Because assets are smaller than content responses", "Because a hashed filename is content-addressed — changing the asset changes the URL, so a cached copy can never be wrong", "Because browsers ignore long max-age for JavaScript", "Because assets are served from a different origin"], "answer": "Because a hashed filename is content-addressed — changing the asset changes the URL, so a cached copy can never be wrong"}
-```
-
 <details>
 <summary>Using git as the content database means no drafts UI, no preview, no per-lesson permissions. When does that stop being enough?</summary>
 

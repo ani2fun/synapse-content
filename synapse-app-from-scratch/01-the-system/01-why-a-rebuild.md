@@ -134,16 +134,6 @@ Remove any one of those and the calculus changes. With paying users and a live r
 advice is the boring one: profile the JVM, tune the heap, and spend the time on something a user
 would notice.
 
-## Check yourself
-
-```quiz
-{"prompt": "What does \"reference oracle\" mean in this project?", "options": ["Oracle Cloud, where the platform's virtual machines run", "The Oracle database used to store submissions", "The Scala implementation, whose behaviour and tests served as the specification for the Rust rebuild", "An automated test generator that produces expected outputs"], "answer": "The Scala implementation, whose behaviour and tests served as the specification for the Rust rebuild"}
-```
-
-```quiz
-{"prompt": "The rebuild cut resident memory from a 256 MiB request to about 6 MiB. Why does the book call this comparison narrow?", "options": ["Because memory is not a real constraint on any modern server", "Because it measures idle memory at personal scale, and a JVM's floor buys things — mature GC, a JIT that improves under load — that this workload never exercises", "Because the two versions were measured on different hardware", "Because 6 MiB is within the margin of error of the measurement"], "answer": "Because it measures idle memory at personal scale, and a JVM's floor buys things — mature GC, a JIT that improves under load — that this workload never exercises"}
-```
-
 <details>
 <summary>The TLS bug passed every test and still broke production. What does that failure have in common with the argument for rebuilding against an oracle?</summary>
 

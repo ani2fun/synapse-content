@@ -203,20 +203,6 @@ if let Err(error) = self.repo.update(&submission.completed(outcome, Utc::now()))
 Tier 3 is the interesting one: it is a deliberate hand-off from the request-time mechanism to the
 startup-time one, which is only safe because the sweeper exists.
 
-## Check yourself
-
-```quiz
-{"prompt": "Why does `reconcile_unfinished` use a 15-minute grace window instead of sweeping every unfinished row at startup?", "options": ["To reduce database load at boot", "Because Postgres needs time to become consistent", "Because a restarting instance would otherwise overwrite the verdicts of submissions another process is legitimately judging right now", "Because submissions expire after 15 minutes"], "answer": "Because a restarting instance would otherwise overwrite the verdicts of submissions another process is legitimately judging right now"}
-```
-
-```quiz
-{"prompt": "What do `#[must_use]` plus value-returning transitions (`judging()`, `completed()`) prevent?", "options": ["Two threads mutating the same submission", "Advancing a submission's state in memory and forgetting to persist it — discarding the result is a compiler warning", "Storing an invalid status string in the database", "Submissions being judged twice"], "answer": "Advancing a submission's state in memory and forgetting to persist it — discarding the result is a compiler warning"}
-```
-
-```quiz
-{"prompt": "Why are `Rejected` and `JudgeFailed` separate outcomes rather than one 'failed' status?", "options": ["To make the database schema simpler", "Because they have different causes and audiences: one says the reader's code is wrong, the other says my infrastructure broke — merging them would lie to the reader and hide incidents", "Because Rejected is temporary and JudgeFailed is permanent", "Because go-judge returns two different error codes"], "answer": "Because they have different causes and audiences: one says the reader's code is wrong, the other says my infrastructure broke — merging them would lie to the reader and hide incidents"}
-```
-
 <details>
 <summary>The reconciler is a startup sweep. What does that choice cost, and when would it stop being enough?</summary>
 
