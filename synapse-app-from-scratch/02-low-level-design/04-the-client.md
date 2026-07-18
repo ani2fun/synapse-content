@@ -182,6 +182,110 @@ are released, and the editor is torn down — in that order, without a manual cl
 forget. This is one place where Rust's ownership model is a genuine advantage at an FFI boundary
 rather than a tax.
 
+## The WebAssembly boundary, precisely
+
+There is a second boundary, and unlike the island seam it was not designed — it is imposed by the
+platform. **WebAssembly cannot touch the DOM.** It has linear memory, a flat byte array, and no
+access to JS objects. Every DOM operation therefore crosses into JavaScript glue.
+
+This is where the comparison with the previous implementation gets interesting, because Scala.js
+compiles *to JavaScript*. `document.createElement("div")` in Laminar emitted literally that: native
+JS strings, DOM nodes held directly, zero marginal cost per operation. Rust cannot do this, so it is
+worth knowing exactly what it pays instead — and the answer has changed recently enough that most
+descriptions of it are out of date.
+
+Reading the generated glue in this repository (wasm-bindgen 0.2.126), the module declares **251
+import shims**. A representative one:
+
+```js
+__wbg_closest_d889c758da4bb13b: function (arg0, arg1, arg2) {
+    const ret = arg0.closest(getStringFromWasm0(arg1, arg2));
+    return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+}
+```
+
+Three things are visible there, and they are not equally expensive.
+
+**Object references are cheap now.** `arg0` is the DOM element itself — a real reference, passed
+straight through. Older wasm-bindgen kept a JavaScript array as a handle table and passed integer
+indices into it; this build uses **reference types**, so the element is an `externref` the WASM module
+holds directly. Returned objects go into a WASM-side table:
+
+```js
+function addToExternrefTable0(obj) {
+    const idx = wasm.__externref_table_alloc();
+    wasm.__wbindgen_externrefs.set(idx, obj);
+    return idx;
+}
+```
+
+That is a table allocation, not a JS-array scan, and it participates in the host GC. The "every DOM
+reference costs a lookup in a side table" objection is largely a description of the old model.
+
+**Strings are still marshalled, and this is the real cost.** `getStringFromWasm0(arg1, arg2)` takes a
+pointer and a length into linear memory and runs a UTF-8 → UTF-16 decode:
+
+```js
+cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len))
+```
+
+**56 of the 251 shims decode a string that way.** And strings are pervasive in DOM work — tag names,
+class names, attribute names and values, event names. Scala.js pays none of this, because its strings
+are already JS strings.
+
+**The call itself** is an import crossing. Modern engines inline much of it; it is the smallest of
+the three terms.
+
+### Put it next to what a DOM operation costs
+
+A boundary crossing with a short string decode is measured in nanoseconds. Appending an element and
+letting the browser recalculate style and layout is measured in **microseconds**. So the overhead
+lands as a small fraction of an operation that was already the expensive part.
+
+Two properties of this application shrink it further. Fine-grained reactivity means an update touches
+only the nodes that actually changed — there is no VDOM diff issuing speculative writes. And the
+genuinely DOM-heavy work (the editor, the diagram engines) lives in **TypeScript islands**, which
+manipulate the DOM natively and never cross the boundary at all.
+
+## Where WebAssembly wins instead
+
+The boundary is a cost on DOM work. The compensation is that WASM is genuinely faster at *compute* —
+and this client has real compute in it, which is easy to miss in a reader app.
+
+The visualisation engine is **3,300 lines of pure logic that runs in the browser**, and the graph
+family's layout is a force simulation:
+
+```rust
+const TICKS: u32 = 320;
+for _tick in 0..TICKS {
+    for i in 0..n {
+        for j in 0..n {          // naive O(n²) many-body repulsion
+```
+
+320 iterations of an O(n²) float loop over flat `Vec<f64>` arrays, per graph rendered. That is
+WebAssembly's home ground: no boxing, no GC pressure, arrays that *are* linear memory, and codegen
+that does not depend on a JIT deciding to specialise. Scala.js optimises numeric code well, but a
+tight `f64` kernel is exactly the workload where the gap favours WASM.
+
+So the client's workload is mixed, and the two halves point in opposite directions:
+
+| Work | Favours | Why |
+|---|---|---|
+| DOM manipulation | Scala.js | no boundary; strings are already JS strings |
+| Layout, adapt pipeline, diffing | WASM | flat float arrays, no GC, predictable codegen |
+| Heavy DOM (editor, diagrams) | neither | it is TypeScript in both implementations |
+| Playback while stepping | WASM | no GC pauses mid-animation |
+
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+⚠️ **All of the above is mechanism, not measurement.** The shape of the glue is checkable in this
+repository, and the force loop is in the source — but I have not benchmarked Laminar against Leptos
+on the same workload, and the Scala client is archived. Every claim here about which is *faster*
+should be read as "the mechanism points this way", not "I measured it". Treating a plausible
+mechanism as a result is the mistake this book is trying not to make.
+
+</div>
+
 ## Rendering that puts prose first
 
 One pipeline decision is worth surfacing because it changed how the page feels. Diagrams were
@@ -228,17 +332,22 @@ WebAssembly client is **636 KiB against 624 KiB**: a 2% difference. The dominant
 application, not the language it compiles to. The 700 KiB budget is enforced in CI regardless,
 because that number only moves in one direction if nobody watches it.
 
-The cost that *is* structural is DOM access. WebAssembly cannot touch the DOM directly, so every DOM
-operation crosses into JavaScript glue, where Scala.js emitted JavaScript that manipulated the DOM
-natively. Whether that matters here is unmeasured — for a shell that mounts pages and delegates the
-heavy work to islands, it is unlikely to be what you notice.
+The costs that *are* structural are the DOM boundary and the string marshalling described above —
+paid on UI work, where Scala.js paid nothing. Against them sits a real gain on compute: the
+visualisation engine's force layout and adapt pipeline are the workload WebAssembly is good at.
+Mixed bag, honestly, and unmeasured either way.
 
-And the honest framing of the benefit: shared wire types were **not** a gain over the previous
-implementation, because Scala.js compiled from the same source tree as the JVM server and already had
-them. What compiling this shell to WebAssembly buys is keeping that property *once the server became
-Rust* — a Rust server and a Scala.js client could not share a type between them.
+And the framing of the benefit deserves care: shared wire types were **not** a gain over the previous
+implementation. Scala.js compiled from the same source tree as the JVM server and already had them.
+What compiling this shell to WebAssembly buys is *keeping* that property once the server became Rust
+— a Rust server and a Scala.js client cannot share a type between them.
 
-So this is less "WebAssembly beat JavaScript" than "the client followed the server". If the server
-had stayed on the JVM, there would have been no good reason to move the client at all.
+So this is less "WebAssembly beat JavaScript" than "the client followed the server". Had the server
+stayed on the JVM, the case for moving the client would have rested on the viz engine's compute
+alone — a real argument, but not one that justifies rewriting a working client.
+
+The reason to state it that way rather than claiming a clean win: **an argument you would not have
+found persuasive beforehand should not become persuasive afterwards.** The compute advantage is
+genuine and was not why the client moved. Both halves of that sentence matter.
 
 </details>

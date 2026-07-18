@@ -97,12 +97,25 @@ The budget is a CI gate regardless, because a number like that only moves in one
 something stops it. The editor and the diagram engines are *not* in that figure — they load on
 demand, which is what keeps the entry path affordable.
 
-What WASM does cost, structurally, is **DOM access**: WebAssembly cannot touch the DOM directly, so
-every DOM operation crosses a boundary into JavaScript glue, whereas Scala.js emits JavaScript that
-manipulates the DOM natively. That is a real mechanism and a real difference in kind. Its practical
-impact on this application is *unmeasured*, and it would be dishonest to imply otherwise — for a UI
-that mounts pages and hands the heavy work to islands, the boundary is unlikely to be the thing you
-notice.
+What WASM does cost, structurally, is **DOM access**: WebAssembly cannot touch the DOM, so every DOM
+operation crosses into JavaScript glue and every string it passes is marshalled out of linear memory,
+whereas Scala.js emitted JavaScript that manipulated the DOM natively.
+
+What it buys back is **compute**. The visualisation engine is 3,300 lines of pure logic running in
+the browser, including a 320-tick O(n²) force simulation over flat float arrays — no boxing, no GC
+pressure, no reliance on a JIT choosing to specialise.
+
+So the client's workload splits, and the halves disagree:
+
+| Work | Favours |
+|---|---|
+| DOM manipulation and UI | Scala.js — no boundary, native strings |
+| Layout, adapt pipeline, diffing | WASM — flat float arrays, no GC |
+| The editor and diagram engines | neither — TypeScript in both |
+
+Both are mechanisms, not measurements: I have not benchmarked the two clients against each other, and
+saying so is the point. The full mechanics are in
+[The client](/synapse/synapse-app-from-scratch/low-level-design/the-client).
 
 <div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
 

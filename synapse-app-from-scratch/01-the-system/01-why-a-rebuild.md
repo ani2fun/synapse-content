@@ -101,16 +101,23 @@ matter day to day:
   `async` Rust reaches similar places with more ceremony and sharper edges.
 - **One language, both ends — already.** Scala.js gave shared types across client and server before
   the rebuild. That was not a Rust *gain*; it was a property preserved.
-- **The client, on its own merits.** Laminar's `Var`/`Signal` model is the same fine-grained
-  reactivity Leptos offers, and the bundles are the same size — measured, 624 KiB against 636 KiB
-  gzipped. Scala.js also emits JavaScript that touches the DOM directly, where WebAssembly must cross
-  into JS glue for every DOM operation.
+- **The client's UI half.** Laminar's `Var`/`Signal` model is the same fine-grained reactivity Leptos
+  offers, and the bundles are the same size — measured, 624 KiB against 636 KiB gzipped. Scala.js
+  also emits JavaScript that touches the DOM directly, where WebAssembly must cross into JS glue and
+  marshal every string it passes.
 
-That last point deserves to be stated plainly, because it is the one most likely to be assumed the
-other way: **the client rewrite was not independently justified.** It followed the server. Once the
-server became Rust, a Scala.js client could no longer share a type with it — so the choice was
-between keeping shared wire types and keeping Laminar, and the former won. Had the server stayed on
-the JVM, there would have been no good reason to touch the client at all.
+The client is worth stating carefully, because it is the part most likely to be assumed the wrong way
+in either direction. Rust does win one half of it: the visualisation engine is 3,300 lines of pure
+logic running in the browser, including a 320-tick O(n²) force simulation over flat float arrays —
+the workload WebAssembly is genuinely better at, and one a reader app is not expected to have. Scala
+wins the other half, the DOM-facing UI work. The mechanics of both are in
+[The client](/synapse/synapse-app-from-scratch/low-level-design/the-client).
+
+What is *not* true is that Rust brought shared types to the client: Scala.js already had them. So
+**the client rewrite was not independently justified — it followed the server.** Once the server
+became Rust, a Scala.js client could no longer share a type with it, and that decided it. Had the
+server stayed on the JVM, the case would have rested on the viz engine's compute alone: a real
+argument, but not one that justifies rewriting a client that worked.
 
 What Rust won was the memory floor, no GC pauses, and a compiler that makes several bug classes
 unrepresentable — exhaustive matching, `#[must_use]` transitions, ownership that makes teardown
