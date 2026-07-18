@@ -447,6 +447,48 @@ class Main {
 }
 ```
 
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Python's threading model is different.** CPython's Global Interpreter Lock means threads do not run Python bytecode in parallel — threading gives you concurrency for I/O-bound work, not parallelism for CPU-bound work. For CPU parallelism Python uses `multiprocessing`. The examples below mirror the Java structure so you can compare the coordination primitives; they are not a claim that the performance characteristics match.
+
+</div>
+
+**The same idea in Python**
+
+```python
+import time
+
+
+def send_sms() -> None:
+    time.sleep(2)  # 2-second delay for SMS
+    print("SMS Sent!")
+
+
+def send_email() -> None:
+    time.sleep(3)  # 3-second delay for Email
+    print("Email Sent!")
+
+
+def calculate_eta() -> str:
+    time.sleep(5)  # 5-second delay for ETA calculation
+    return "25 minutes"  # Returning the calculated ETA
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    print("Placing order...\n")
+
+    send_sms()
+    print("Task 1 done.\n")
+
+    send_email()
+    print("Task 2 done.\n")
+
+    eta = calculate_eta()
+    print(f"Order placed. Estimated Time of Arrival: {eta}")
+    print("Task 3 done.\n")
+```
+
 ### Understanding the Issue
 
 In real-world applications, executing tasks sequentially like this can lead to significant inefficiencies, especially when tasks involve waiting periods, such as sending SMS, emails, or calculating ETAs. In our current approach, each operation must complete before the next one begins, causing unnecessary delays and making the system slower than it needs to be.
@@ -667,6 +709,55 @@ A limitation of the Runnable interface in Java is that the run() method cannot r
 
 This is a key drawback of using the Runnable interface for tasks that require returning values.
 
+#### The same idea in Python
+
+Python doesn't distinguish "subclass `Thread`" from "implement `Runnable`" the way Java does — there's no separate class-hierarchy split. A plain function (or lambda) handed to `target=` covers both approaches shown above.
+
+**Python**
+
+```python
+import threading
+import time
+
+
+def send_sms() -> None:
+    time.sleep(2)  # 2-second delay for SMS
+    print("SMS Sent using Thread.")
+
+
+def send_email() -> None:
+    time.sleep(3)  # 3-second delay for Email
+    print("Email Sent using Thread.")
+
+
+def calculate_eta() -> None:
+    time.sleep(5)  # 5-second delay for ETA calculation
+    print("ETA Calculated using Thread. Estimated Time: 25 minutes.")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    sms_thread = threading.Thread(target=send_sms)
+    email_thread = threading.Thread(target=send_email)
+    eta_thread = threading.Thread(target=calculate_eta)
+
+    print("Task Started.\n")
+
+    sms_thread.start()
+    print("Task 1 ongoing...")
+
+    email_thread.start()
+    print("Task 2 ongoing...")
+
+    eta_thread.start()
+    print("Task 3 ongoing...")
+
+    sms_thread.join()
+    email_thread.join()
+    eta_thread.join()
+    print("All tasks completed.")
+```
+
 ### Fire and Forget: A Pattern in Multithreading
 
 Both the Runnable interface and the Thread class, as discussed, naturally follow the Fire and Forget pattern.
@@ -870,6 +961,47 @@ class Main {
 }
 ```
 
+#### The same idea in Python
+
+**Python**
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+import time
+
+
+def calculate_eta() -> str:
+    time.sleep(5)  # Simulate 5-second delay for ETA calculation
+    print("Calculation ETA using Callable.")
+    return "ETA: 25 minutes"
+
+
+def send_sms() -> None:
+    time.sleep(2)  # Simulate 2-second delay for SMS
+    print("SMS Sent using Runnable.")
+
+
+def send_email() -> None:
+    time.sleep(3)  # Simulate 3-second delay for Email
+    print("Email Sent using Runnable.")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    # concurrent.futures.Future plays the role of BOTH java.util.concurrent.Future
+    # AND FutureTask here: submit() already returns a Future whether the callable
+    # returns a value or not, so there's no separate "wrap it so it can also act
+    # like a Runnable" class to translate.
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        eta_future = executor.submit(calculate_eta)
+        executor.submit(send_sms)
+        executor.submit(send_email)
+
+        print(eta_future.result())  # blocks until the ETA task finishes
+
+    print("All tasks completed.")
+```
+
 ### Other Ways to Implement Multithreading in Java
 
 In addition to the methods we've discussed so far, there are other ways to implement multithreading in Java. These methods offer different levels of simplicity and flexibility, depending on the task at hand.
@@ -947,6 +1079,8 @@ In this example:
 - **Readability:** The code is more readable and expresses the task logic directly.
 
 Lambda expressions are especially helpful when you need to pass short tasks to a thread and when you want to minimize the verbosity of the code.
+
+**Python note:** the anonymous-class and lambda variants above collapse to the same Python idiom already shown — pass a `lambda` (or a plain function) to `target=`; there's no separate anonymous-class syntax to translate.
 
 ### Thread Lifecycle Flow
 

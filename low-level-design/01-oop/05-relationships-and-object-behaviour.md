@@ -125,6 +125,73 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from typing import List
+
+
+# One-to-One: a Person is associated with exactly one Passport.
+class Passport:
+    def __init__(self, number: str) -> None:
+        self._number = number  # single underscore: "internal by convention" (no `private`)
+
+    @property
+    def number(self) -> str:
+        return self._number
+
+
+class Person:
+    def __init__(self, name: str, passport: Passport) -> None:
+        self._name = name
+        self._passport = passport  # a reference — the Passport is not owned by Person
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def passport(self) -> Passport:
+        return self._passport
+
+
+# One-to-Many: one Teacher is associated with many Students.
+class Student:
+    def __init__(self, name: str) -> None:
+        self._name = name
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+
+class Teacher:
+    def __init__(self, name: str, students: List[Student]) -> None:
+        self._name = name
+        self._students = students  # a collection of references
+
+    def teach(self) -> None:
+        for s in self._students:
+            print(f"{self._name} teaches {s.name}")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    # One-to-One
+    passport = Passport("P-4417")
+    person = Person("Alex", passport)
+    print(f"{person.name} holds passport {person.passport.number}")
+
+    # One-to-Many
+    students = [Student("Sam"), Student("Riya")]
+    teacher = Teacher("Mrs. Rao", students)
+    teacher.teach()
+
+    # Both objects are merely linked — neither owns the other, so each can
+    # outlive the relationship. That is what makes this association.
+    print(f"Students still exist independently: {len(students)}")
+```
+
 ## Aggregation
 
 Aggregation is a specialized form of association. It represents a "whole-part" relationship where the "whole" and "part" can exist independently. For example, a Department class may contain multiple Employee objects, but the employees can exist independently of the department.
@@ -175,6 +242,44 @@ class Main {
         }
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+from typing import List
+
+
+class Employee:
+    def __init__(self, name: str) -> None:
+        self._name = name
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+
+class Department:
+    def __init__(self, employees: List[Employee]) -> None:
+        self._employees = employees
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    # The employees are created OUTSIDE the department and passed in.
+    staff = [Employee("Alex"), Employee("Sam")]
+
+    department = Department(staff)
+    print(f"Department created with {len(staff)} employees.")
+
+    # Drop the department; the employees are untouched. Python has no
+    # explicit "delete the object" statement like Java's `= null` — this
+    # just drops the only reference to `department`, making it eligible
+    # for garbage collection. `staff` still holds its own references.
+    department = None
+    print("Department deleted. Employees still alive:")
+    for e in staff:
+        print(f"  {e.name}")
 ```
 
 In this example, Employee objects are aggregated into a Department object.
@@ -250,6 +355,46 @@ class Main {
         System.out.println("House destroyed — its rooms are unreachable and go with it.");
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+from typing import List
+
+
+class Room:
+    def __init__(self, name: str) -> None:
+        self._name = name
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+
+class House:
+    def __init__(self) -> None:
+        # The rooms are created INSIDE the House constructor — nothing
+        # outside ever holds a reference to them.
+        self._rooms: List[Room] = [Room("Living Room"), Room("Bedroom")]
+
+    @property
+    def rooms(self) -> List[Room]:
+        return self._rooms
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    house = House()
+    print("House built with these rooms:")
+    for r in house.rooms:
+        print(f"  {r.name}")
+
+    # Drop the house and its rooms become unreachable with it — that is the
+    # difference from aggregation. (No `= null` in Python; reassigning to
+    # None just drops the last reference, so the Rooms become collectible.)
+    house = None
+    print("House destroyed — its rooms are unreachable and go with it.")
 ```
 
 Here, Room objects are part of the House object. If the House is destroyed, the Room objects are also destroyed.
@@ -586,6 +731,53 @@ This also ensures each Person object has its own independent Address object.
 | Requires Overriding in Nested Objects? | No | Yes |
 | Independent Nested Objects? | No | Yes |
 | Use Case | When objects have only primitive fields | When objects have references to other mutable objects |
+
+#### The same idea in Python
+
+Python has no `Cloneable` interface and no `clone()` method to override — the standard library's
+`copy` module does the job generically for any object: `copy.copy()` performs a shallow copy,
+`copy.deepcopy()` performs a deep copy (recursively, including cyclic references). The driver below
+reproduces both Person/Address examples above in one program, so the original/shallow/deep
+divergence is visible side by side exactly as it is across the two Java examples.
+
+```python
+import copy
+
+
+class Address:
+    def __init__(self, city: str) -> None:
+        self.city = city
+
+
+class Person:
+    def __init__(self, name: str, address: Address) -> None:
+        self.name = name
+        self.address = address
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    address = Address("Mumbai")
+    person = Person("Rahul", address)
+
+    # Shallow clone: copy.copy() duplicates the Person but reuses the SAME
+    # Address object underneath, just like Java's default super.clone().
+    shallow_clone = copy.copy(person)
+    shallow_clone.address.city = "New Delhi"
+    print(f"{person.name} lives in {person.address.city}")            # Mumbai -> New Delhi (shared)
+    print(f"{shallow_clone.name} lives in {shallow_clone.address.city}")
+
+    # Reset the shared Address before demonstrating the deep-clone half.
+    person.address.city = "Mumbai"
+
+    # Deep clone: copy.deepcopy() recursively duplicates every nested
+    # object too, so the two Address instances end up fully independent —
+    # no manual per-field clone() overrides required, unlike Java.
+    deep_clone = copy.deepcopy(person)
+    deep_clone.address.city = "New Delhi"
+    print(f"{person.name} lives in {person.address.city}")            # stays Mumbai
+    print(f"{deep_clone.name} lives in {deep_clone.address.city}")
+```
 
 ## Practice (Object Cloning)
 

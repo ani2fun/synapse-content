@@ -53,6 +53,43 @@ class Main {
 }
 ```
 
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **Python's threading model is different.** CPython's Global Interpreter Lock means threads do not run Python bytecode in parallel — threading gives you concurrency for I/O-bound work, not parallelism for CPU-bound work. For CPU parallelism Python uses `multiprocessing`. The examples below mirror the Java structure so you can compare the coordination primitives; they are not a claim that the performance characteristics match.
+
+</div>
+
+**The same idea in Python**
+
+```python
+import threading
+import time
+
+
+class RideMatchingService:
+    def request_ride(self, rider_id: str) -> None:
+        def match() -> None:
+            print(f"Matching rider {rider_id} to a driver...")
+            time.sleep(1)  # Simulate a 1-second matching process
+            print(f"Ride matched for rider {rider_id}")
+
+        # Non-daemon by default, same as Java — the process waits for it.
+        match_thread = threading.Thread(target=match)
+        match_thread.start()
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    ride_service_1 = RideMatchingService()
+    ride_service_2 = RideMatchingService()
+
+    ride_service_1.request_ride("Alex")
+    print("task1 running...")
+
+    ride_service_2.request_ride("John Doe")
+    print("task2 running...")
+```
+
 While this seems like a good idea at first, creating and managing a large number of threads can quickly become a nightmare as the system scales. Let's formally understand why we should not create thread manually in real-world systems.
 
 ## Issues while Creating Thread Manually in Real-World Systems
@@ -170,6 +207,34 @@ This simulates some dummy work (like sending an email). The thread sleeps for 1 
 `executor.shutdown();`
 This initiates an orderly shutdown of the executor. It ensures that all submitted tasks are completed before the program terminates.
 
+**The same idea in Python**
+
+```python
+# expects-nondeterministic: thread-pool tasks interleave, so the output order varies between runs
+from concurrent.futures import ThreadPoolExecutor
+import threading
+import time
+
+# Thread pool with 10 workers, same shape as newFixedThreadPool(10)
+executor = ThreadPoolExecutor(max_workers=10)
+
+
+def send_email(recipient: str) -> None:
+    # ThreadPoolExecutor has no separate execute(); submit() covers both
+    # fire-and-forget and result-returning calls — we just ignore the Future.
+    print(f"Sending email to {recipient} on {threading.current_thread().name}")
+    time.sleep(1)  # Simulate delay
+    print(f"Email sent to {recipient}")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    for i in range(1, 26):
+        executor.submit(send_email, f"user{i}@gmail.com")
+
+    executor.shutdown(wait=True)  # Gracefully wait for every submitted task
+```
+
 ### Why Use Executor Frameworks?
 
 - **Simplified Thread Management:** The framework handles thread creation, task execution, and management for you, reducing boilerplate code.
@@ -263,6 +328,29 @@ The shutdown() method is used to stop the executor service after all submitted t
 - **Result Handling:** The Future object provides a way to handle the result of the task, including retrieving the outcome once it's ready.
 - **Control and Flexibility:** You can monitor the progress of the task, cancel it if necessary, and manage its lifecycle effectively.
 
+**The same idea in Python**
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+import time
+
+
+def compute() -> int:
+    time.sleep(1)
+    return 77
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        future = executor.submit(compute)
+
+        print("Doing other work...")
+
+        result = future.result()  # blocks until result is ready
+        print(f"Result: {result}")
+```
+
 ## Shutdown Methods in Executor Class
 
 The ExecutorService in Java provides two important methods for shutting down an executor: shutdown() and shutdownNow(). These methods are essential for gracefully terminating the execution of tasks and releasing resources when they are no longer needed.
@@ -323,6 +411,44 @@ class Main {
   - shutdownNow() tries to immediately stop all tasks, including those that are currently running.
   - It does not guarantee that all tasks will be stopped; it may just attempt to interrupt them.
   - It returns a list of tasks that have not yet started executing, so you can handle those tasks or retry them later if needed.
+
+**The same idea in Python**
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+import time
+
+
+def graceful_shutdown_demo() -> None:
+    executor = ThreadPoolExecutor(max_workers=2)
+    executor.submit(lambda: print("Task running before shutdown."))
+
+    # shutdown(wait=True) lets already-submitted tasks finish, then returns.
+    executor.shutdown(wait=True)
+    print("Executor shutdown complete (graceful).")
+
+
+def immediate_shutdown_demo() -> None:
+    executor = ThreadPoolExecutor(max_workers=1)
+
+    # First task grabs the only worker; Python threads cannot be forcibly
+    # killed (there is no equivalent of interrupting a running thread the
+    # way shutdownNow() attempts to) — cancel_futures only drops tasks that
+    # haven't started yet.
+    long_task = executor.submit(time.sleep, 3)
+    queued_1 = executor.submit(print, "Queued task 1")
+    queued_2 = executor.submit(print, "Queued task 2")
+
+    executor.shutdown(wait=False, cancel_futures=True)
+    pending = sum(1 for f in (queued_1, queued_2) if f.cancelled())
+    print(f"Pending tasks not started: {pending}")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    graceful_shutdown_demo()
+    immediate_shutdown_demo()
+```
 
 ## Thread Starvation and Fairness
 
@@ -424,6 +550,43 @@ class Main {
 
 - **Less efficient for short-lived tasks:** Not ideal for tasks that are short-lived or don't need to be scheduled periodically.
 - **Thread management overhead:** Managing scheduled tasks requires additional overhead for tracking execution times and intervals.
+
+**The same idea in Python**
+
+```python
+import threading
+import time
+
+
+def clean_expired_sessions() -> None:
+    print("Cleaning up expired sessions...")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    # Python's stdlib has no ScheduledExecutorService-style fixed-rate
+    # scheduler. The idiomatic replacement is a loop that waits on a
+    # threading.Event: wait() returns early if the event is set (cancel
+    # requested), otherwise it returns after the timeout (next tick).
+    stop_event = threading.Event()
+
+    def scheduler_loop() -> None:
+        while not stop_event.wait(timeout=2):  # fires every 2s, like scheduleAtFixedRate
+            clean_expired_sessions()
+
+    scheduler_thread = threading.Thread(target=scheduler_loop, daemon=True)
+
+    clean_expired_sessions()  # initialDelay = 0, so the first run fires immediately
+    scheduler_thread.start()
+
+    # A real cleaner runs forever; we let it fire a couple more times (scaled
+    # down from the Java demo's 5s interval for a snappier example) then stop
+    # the scheduler so the demo terminates.
+    time.sleep(4.5)
+    stop_event.set()
+    scheduler_thread.join()
+    print("Stopped session cleaner after 3 cycles.")
+```
 
 ## Thread Safety and Synchronisation
 
@@ -536,6 +699,52 @@ However, you'll often get a smaller number, because both threads are interfering
 #### Wrap-up
 
 Race conditions hide in plain sight and only appear under load - exactly when reliability matters most. In the next sections, we'll see how synchronization tools (locks, atomic classes, etc.) eliminate these timing hazards while keeping our code fast and correct.
+
+**The same idea in Python**
+
+A tight Python loop rarely gets interrupted mid-increment on modern CPython — the GIL tends to hand off between iterations, not inside one — so the race needs a small nudge to show up reliably. The `time.sleep(0)` below forces exactly that handoff, right between the read and the write.
+
+```python
+# expects-nondeterministic: the final count differs each run
+import threading
+import time
+
+
+class PurchaseCounter:
+    def __init__(self) -> None:
+        self._count = 0
+
+    def increment(self) -> None:
+        # READ current value
+        current = self._count
+        # Force a handoff to the other thread right here, between the read
+        # and the write, so the lost update actually happens.
+        time.sleep(0)
+        # WRITE it back (already INCREMENTed above)
+        self._count = current + 1
+
+    def get_count(self) -> int:
+        return self._count
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    counter = PurchaseCounter()
+
+    def task() -> None:
+        for _ in range(1000):
+            counter.increment()
+
+    t1 = threading.Thread(target=task)
+    t2 = threading.Thread(target=task)
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+
+    # Expect 2000, but rarely get it — same lost-update race as Java.
+    print(f"Final Count: {counter.get_count()}")
+```
 
 ### Synchronized Keyword
 
@@ -655,6 +864,47 @@ Using a synchronized block allows you to define exactly which part of the code s
 
 This gives you the ability to place synchronization only around the shared resource, reducing unnecessary blocking and making your code more efficient and maintainable in the long run.
 
+**The same idea in Python**
+
+Python has no `synchronized` keyword at all — only the explicit `with lock:` form below. There's no separate "lock the whole method" vs "lock just this block" distinction the way Java has synchronized-method vs synchronized-block; you always pick the scope explicitly, which is closer in spirit to Java's synchronized-block style. One block covers both Java examples above.
+
+```python
+import threading
+
+
+class SafeCounter:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._count = 0
+
+    def increment(self) -> None:
+        with self._lock:
+            self._count += 1  # atomic under the lock
+
+    def get_count(self) -> int:
+        with self._lock:
+            return self._count
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    counter = SafeCounter()
+
+    def task() -> None:
+        for _ in range(1000):
+            counter.increment()
+
+    t1 = threading.Thread(target=task)
+    t2 = threading.Thread(target=task)
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+
+    # Always 2000 — the lock removes the race.
+    print(f"Final Count: {counter.get_count()}")
+```
+
 ### Monitor Locks
 
 At the core of synchronization in Java lies the concept of Monitor Locks, which manage access by allowing only one thread to execute a synchronized section at any given time. Let's take a closer look at how Monitor Locks work through the given key points.
@@ -680,6 +930,12 @@ In such cases, where synchronization might be too heavy, Java provides a lighter
 ### volatile Keyword
 
 The volatile keyword in Java is used to ensure visibility, not atomicity. It tells the JVM that a variable's value may be updated by multiple threads and that every read or write should go directly to and from main memory, rather than being cached in a thread's local memory (CPU cache).
+
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **No Python translation here.** Python has no `volatile` keyword and no honest equivalent to offer. CPython's GIL serializes bytecode execution across threads, so the specific stale-CPU-register visibility problem `volatile` solves largely doesn't arise the same way in CPython — there's nothing faithful to translate to, so this section has no Python code block.
+
+</div>
 
 #### What it Guarantees
 
@@ -912,6 +1168,47 @@ They refer to the same underlying concept, but in different contexts:
 
 - May fail under high contention (many threads retrying at once)
 - Only works well for single variables (not ideal for compound or group updates)
+
+**The same idea in Python**
+
+Python's standard library has no lock-free CAS atomics — there is no `java.util.concurrent.atomic` equivalent. The honest translation of `AtomicInteger`'s *safety* guarantee (not its lock-free performance) is a plain counter guarded by a `Lock`. Do not reach for `itertools.count()` as a shortcut here: its thread-safety is a CPython/GIL implementation detail, not a documented guarantee, and it doesn't support compare-and-swap at all.
+
+```python
+import threading
+
+
+class PurchaseAtomicCounter:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._likes = 0
+
+    def increment_likes(self) -> None:
+        with self._lock:
+            self._likes += 1
+
+    def get_count(self) -> int:
+        with self._lock:
+            return self._likes
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    counter = PurchaseAtomicCounter()
+
+    def task() -> None:
+        for _ in range(1000):
+            counter.increment_likes()
+
+    t1 = threading.Thread(target=task)
+    t2 = threading.Thread(target=task)
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+
+    # Always 2000 — Lock-guarded, not lock-free, but race-free.
+    print(f"Final Count: {counter.get_count()}")
+```
 
 ### Synchronized vs Volatile vs Atomic Variables
 
@@ -1174,6 +1471,75 @@ class Main {
 - **Safe Unlocking:** The unlockSafely() method uses isHeldByCurrentThread() to ensure only the owning thread releases the lock.
 - **Thread Retry Logic:** The ActiveUser retries acquiring the lock periodically until the idle thread's session ends.
 
+**The same idea in Python — but simpler**
+
+Unlike Java's `ReentrantLock`, Python's plain `threading.Lock` has **no ownership enforcement** — any thread may call `release()`, including a timer thread. That removes the need for the Java version's "clear a flag and let the owner notice" workaround entirely: the timer can just release the lock directly.
+
+```python
+import threading
+import time
+
+
+class ExpiringLock:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+
+    def try_lock_with_expiry(self, timeout_seconds: float) -> bool:
+        acquired = self._lock.acquire(blocking=False)
+        if acquired:
+            timer = threading.Timer(timeout_seconds, self._expire)
+            timer.daemon = True
+            timer.start()
+        return acquired
+
+    def _expire(self) -> None:
+        # Best-effort: only release if still locked (the owner may already
+        # have released it). A production version would guard this window
+        # with its own bookkeeping lock.
+        if self._lock.locked():
+            print("Timeout reached - force-releasing the lock.")
+            try:
+                self._lock.release()
+            except RuntimeError:
+                pass  # already released between the check and here
+
+    def unlock_safely(self) -> None:
+        if self._lock.locked():
+            try:
+                self._lock.release()
+                print("Lock released.")
+            except RuntimeError:
+                pass
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    exp_lock = ExpiringLock()
+
+    def idle_user() -> None:
+        if exp_lock.try_lock_with_expiry(1.0):
+            print("IdleUser acquired lock, going idle...")
+            time.sleep(2.0)  # goes idle past the 1s expiry
+            exp_lock.unlock_safely()
+
+    def active_user() -> None:
+        time.sleep(0.5)
+        while True:
+            if exp_lock.try_lock_with_expiry(1.0):
+                print("ActiveUser booked!")
+                exp_lock.unlock_safely()
+                break
+            print("ActiveUser still waiting...")
+            time.sleep(0.5)
+
+    t1 = threading.Thread(target=idle_user)
+    t2 = threading.Thread(target=active_user)
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+```
+
 ### Using tryLock(timeout, unit): Non-Blocking Wait with an Escape Hatch
 
 In the last example we called lock.tryLock() which is a one-shot attempt that either succeeds or fails immediately.
@@ -1271,6 +1637,88 @@ class Main {
 - **Graceful Fallback:** If the lock isn't obtained within the window, the thread can log, retry, or take another path instead of hanging.
 - **Safe Release:** Always check lockAcquired before unlocking to avoid IllegalMonitorStateException.
 
+**The same idea in Python**
+
+One block covers both the plain `lock()`/`unlock()` ticket-booking example earlier and this `tryLock(timeout)` version. `threading.RLock` is Python's `ReentrantLock` analogue, but a plain `threading.Lock` is enough for a single-level critical section like this one — and unlike `RLock`, it has no ownership enforcement. `lock.acquire()`/`lock.release()` mirror Java's explicit `lock()`/`unlock()` more directly than the `with lock:` shortcut would, and `lock.acquire(timeout=...)` is the direct equivalent of `tryLock(timeout, unit)`.
+
+```python
+import threading
+import time
+
+
+class TicketBooking:
+    def __init__(self) -> None:
+        self.available_seats = 1
+        self._lock = threading.Lock()
+
+    def book_ticket(self, user: str) -> None:
+        print(f"{user} is trying to book...")
+
+        self._lock.acquire()  # blocks until available
+        try:
+            print(f"{user} acquired lock.")
+            if self.available_seats > 0:
+                print(f"{user} successfully booked the ticket.")
+                self.available_seats -= 1
+            else:
+                print(f"{user} could not book the ticket. No seats left.")
+        finally:
+            print(f"{user} is releasing the lock.")
+            self._lock.release()
+
+
+class TicketBookingTryLock:
+    def __init__(self) -> None:
+        self.available_seats = 1
+        self._lock = threading.Lock()
+
+    def book_ticket(self, user: str) -> None:
+        print(f"{user} is trying to book...")
+
+        lock_acquired = self._lock.acquire(timeout=2)  # wait up to 2s
+        try:
+            if lock_acquired:
+                print(f"{user} acquired lock.")
+                if self.available_seats > 0:
+                    print(f"{user} successfully booked the ticket.")
+                    self.available_seats -= 1
+                else:
+                    print(f"{user} could not book the ticket. No seats left.")
+                time.sleep(3)  # hold the lock, to show the next user timing out
+            else:
+                print(f"{user} could not acquire lock. Try again later.")
+        finally:
+            if lock_acquired:
+                print(f"{user} is releasing the lock.")
+                self._lock.release()
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    print("--- Plain lock()/unlock() ---")
+    booking = TicketBooking()
+    user1 = threading.Thread(target=booking.book_ticket, args=("User 1",))
+    user2 = threading.Thread(target=booking.book_ticket, args=("User 2",))
+    user1.start()
+    user2.start()
+    user1.join()
+    user2.join()
+
+    print("\n--- tryLock(timeout) ---")
+    timed_booking = TicketBookingTryLock()
+    tuser1 = threading.Thread(target=timed_booking.book_ticket, args=("User 1",))
+
+    def delayed_user2() -> None:
+        time.sleep(0.5)
+        timed_booking.book_ticket("User 2")
+
+    tuser2 = threading.Thread(target=delayed_user2)
+    tuser1.start()
+    tuser2.start()
+    tuser1.join()
+    tuser2.join()
+```
+
 ### Read-Write Locks
 
 When a data structure is read-heavy (e.g., stock quotes, configuration caches, product catalogs), blocking every reader while one writer updates a single value wastes parallelism.
@@ -1351,6 +1799,12 @@ class Main {
 - **Thread Safety Guaranteed:** Locks ensure that reads and writes to the shared price variable happen without race conditions, preserving data consistency.
 - **Use Case Fit:** This pattern is ideal for read-heavy systems like stock market apps, product catalogs, or analytics dashboards, where frequent reads and infrequent updates are expected.
 - **Clean and Safe Resource Handling:** Both methods use try-finally blocks to guarantee that the lock is always released, even if an exception occurs during the operation.
+
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **No Python translation here.** Python's standard library has no `ReadWriteLock` equivalent — `threading` only ships mutual-exclusion locks (`Lock`/`RLock`). A read-write lock can be hand-rolled from a `Lock` + `Condition` + reader-count bookkeeping, but that's third-party territory in practice (e.g. the `readerwriterlock` package on PyPI); there's no honest stdlib-only translation to show here.
+
+</div>
 
 ### Semaphores
 
@@ -1452,6 +1906,55 @@ class Main {
 - Concurrent Task Execution
 
 These scenarios require precise concurrency limits, which semaphores handle better than basic locks.
+
+**The same idea in Python**
+
+```python
+# expects-nondeterministic: thread scheduling decides which user's logout prints first
+import threading
+import time
+
+
+class PremiumAccount:
+    def __init__(self, max_devices: int) -> None:
+        self._device_slots = threading.Semaphore(max_devices)
+
+    def login(self, user: str) -> bool:
+        print(f"{user} trying to log in...")
+        if self._device_slots.acquire(blocking=False):
+            print(f"{user} successfully logged in.")
+            return True
+        print(f"{user} denied login - too many devices.")
+        return False
+
+    def logout(self, user: str) -> None:
+        print(f"{user} logging out.")
+        self._device_slots.release()
+
+
+def try_session(account: PremiumAccount, name: str) -> None:
+    if account.login(name):
+        time.sleep(0.5)  # simulate watching a video
+        account.logout(name)
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    account = PremiumAccount(2)
+
+    u1 = threading.Thread(target=try_session, args=(account, "User-A"))
+    u2 = threading.Thread(target=try_session, args=(account, "User-B"))
+    u3 = threading.Thread(target=try_session, args=(account, "User-C"))  # should fail first
+
+    u1.start()
+    u2.start()
+    time.sleep(0.1)  # ensure the first two log in
+    u3.start()
+
+    u1.join()
+    u2.join()
+    u3.join()
+```
 
 ### Comparing Monitors, Reentrant Locks, and Semaphores
 
@@ -1632,6 +2135,70 @@ If the program pauses indefinitely right before this line, it confirms that both
 - T2 then tries to lock Account-A, which is still held by T1 - T2 is also blocked.
 - Now both threads are waiting for each other to release a lock they'll never get - this is a classic deadlock.
 
+**The same idea in Python**
+
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+⚠️ **Sandbox note.** Same bound as the Java version: the joins below time out after 3 seconds so this sandboxed demo can observe and report its own deadlock instead of hanging forever. The threads are also marked `daemon=True` — Python has no way to forcibly kill a stuck thread, so daemon threads are what let the process exit cleanly once the timeout fires, even though the two threads never actually finish.
+
+</div>
+
+```python
+import threading
+import time
+
+
+class BankAccount:
+    def __init__(self, name: str, balance: int) -> None:
+        self.name = name
+        self._balance = balance
+        # Java's synchronized(obj) locks the object's own monitor, so any
+        # code can lock on it directly. Python has no implicit per-object
+        # monitor, so the Lock is exposed explicitly and locked on directly.
+        self.lock = threading.Lock()
+
+    def deposit(self, amount: int) -> None:
+        self._balance += amount
+
+    def withdraw(self, amount: int) -> None:
+        self._balance -= amount
+
+
+def transfer(src: BankAccount, dst: BankAccount, amount: int) -> None:
+    name = threading.current_thread().name
+    with src.lock:
+        print(f"{name} locked {src.name}")
+        time.sleep(0.1)  # widen the timing window
+
+        with dst.lock:
+            print(f"{name} locked {dst.name}")
+            src.withdraw(amount)
+            dst.deposit(amount)
+            print(f"Transferred {amount} from {src.name} to {dst.name}")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    account_a = BankAccount("Account-A", 1000)
+    account_b = BankAccount("Account-B", 1000)
+
+    t1 = threading.Thread(target=transfer, args=(account_a, account_b, 100), name="T1", daemon=True)
+    t2 = threading.Thread(target=transfer, args=(account_b, account_a, 200), name="T2", daemon=True)
+
+    t1.start()
+    t2.start()
+
+    # A real deadlock has no timer and blocks forever; we bound the wait
+    # here only so this sandboxed demo can observe and report it.
+    t1.join(timeout=3)
+    t2.join(timeout=3)
+
+    if t1.is_alive() or t2.is_alive():
+        print("Both threads are still blocked after 3s - this is the deadlock.")
+    else:
+        print("Both threads finished execution.")  # never reached — deadlock occurred
+```
+
 ### Four Necessary Conditions for Deadlocks
 
 For a deadlock to occur, four specific conditions must hold simultaneously. If even one of them is broken, the system can avoid deadlock. These four conditions are known as Coffman Conditions, and here's how they apply to our train analogy:
@@ -1785,6 +2352,48 @@ class Main {
 - This removes the possibility of a circular wait, which is necessary for a deadlock to occur.
 - Regardless of thread execution order, both threads will acquire resources in the same sequence (e.g., 101 to 102), ensuring safety.
 
+**The same idea in Python**
+
+```python
+import threading
+import time
+
+
+class Resource:
+    def __init__(self, resource_id: int, value: int) -> None:
+        self.id = resource_id
+        self.value = value
+        self.lock = threading.Lock()
+
+
+def transfer(a: Resource, b: Resource, amount: int) -> None:
+    name = threading.current_thread().name
+    # Sort by unique ID - guarantees a consistent global lock order
+    first, second = sorted((a, b), key=lambda r: r.id)
+
+    with first.lock:
+        print(f"{name} locked {first.id}")
+        time.sleep(0.05)
+
+        with second.lock:
+            print(f"{name} locked {second.id}")
+            print(f"Transferred {amount} from {a.id} to {b.id}")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    r1 = Resource(101, 500)
+    r2 = Resource(102, 300)
+
+    t1 = threading.Thread(target=transfer, args=(r1, r2, 50), name="T1")
+    t2 = threading.Thread(target=transfer, args=(r2, r1, 30), name="T2")
+
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+```
+
 #### 2. Using tryLock() with Timeout
 
 Another effective technique to prevent deadlock is by using tryLock() with a timeout, provided by the java.util.concurrent.locks.Lock interface.
@@ -1864,6 +2473,60 @@ class Main {
 - If they fail to get both, they back off and avoid blocking indefinitely.
 - This avoids the situation where threads hold one lock and wait forever for another.
 
+**The same idea in Python**
+
+```python
+# expects-nondeterministic: lock acquisition races, so which thread wins varies between runs
+import threading
+import time
+
+
+class Resource:
+    def __init__(self, resource_id: int) -> None:
+        self.id = resource_id
+        self.lock = threading.Lock()
+
+
+def try_transfer(a: Resource, b: Resource) -> None:
+    acquired_a = False
+    acquired_b = False
+    name = threading.current_thread().name
+
+    try:
+        acquired_a = a.lock.acquire(timeout=0.1)
+        if acquired_a:
+            print(f"{name} locked Resource {a.id}")
+            time.sleep(0.05)  # widen the window so both threads actually contend
+
+            acquired_b = b.lock.acquire(timeout=0.1)
+            if acquired_b:
+                print(f"{name} locked Resource {b.id}")
+                print(f"Transfer successful between {a.id} and {b.id}")
+            else:
+                print(f"{name} could not lock Resource {b.id} - backing off")
+        else:
+            print(f"{name} could not lock Resource {a.id} - backing off")
+    finally:
+        if acquired_b:
+            b.lock.release()
+        if acquired_a:
+            a.lock.release()
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    r1 = Resource(1)
+    r2 = Resource(2)
+
+    t1 = threading.Thread(target=try_transfer, args=(r1, r2), name="T1")
+    t2 = threading.Thread(target=try_transfer, args=(r2, r1), name="T2")
+
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+```
+
 #### 3. Minimize Nested Locking
 
 Deadlocks often occur when threads hold one lock and attempt to acquire another - this is known as nested locking. One way to reduce the risk of deadlocks is by minimizing such nested or recursive locking scenarios altogether.
@@ -1923,6 +2586,52 @@ class Main {
 - Each thread locks and updates one resource at a time.
 - Locking is not nested - resources are used sequentially, not simultaneously.
 - This removes the dependency between locks and avoids potential circular waiting.
+
+**The same idea in Python**
+
+```python
+# expects-nondeterministic: thread scheduling decides the interleaving, so the output order varies between runs
+import threading
+import time
+
+
+class SharedResource:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self.data = 0
+
+    def update(self, value: int) -> None:
+        with self._lock:
+            self.data = value
+            print(f"{threading.current_thread().name} updated data to {value}")
+
+    def read(self) -> int:
+        with self._lock:
+            return self.data
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    resource1 = SharedResource()
+    resource2 = SharedResource()
+
+    def task1() -> None:
+        resource1.update(100)  # Lock 1 used and released quickly
+        time.sleep(0.05)
+        resource2.update(200)  # Lock 2 used separately
+
+    def task2() -> None:
+        resource2.update(300)
+        time.sleep(0.05)
+        resource1.update(400)
+
+    t1 = threading.Thread(target=task1, name="T1")
+    t2 = threading.Thread(target=task2, name="T2")
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+```
 
 ### Deadlock Handling Strategies (Used Commonly in Databases)
 
@@ -2175,6 +2884,77 @@ Note that the while loop in the makeCoffee() and drinkCoffee() methods protects 
 - Always loop around wait() to guard against spurious wake-ups and to re-validate the buffer's state.
 - **Scalable pattern:** Replace the boolean with a Queue<T> and size checks to move from "tiny" to "bounded-buffer" implementations.
 
+**The same idea in Python**
+
+```python
+import threading
+import time
+
+
+class CoffeeMachine:
+    def __init__(self) -> None:
+        self._condition = threading.Condition()
+        self._coffee_ready = False
+        self._no_more_coffee = False
+
+    def make_coffee(self) -> None:
+        with self._condition:
+            while self._coffee_ready:
+                self._condition.wait()
+
+            print("Brewing coffee...")
+            time.sleep(0.2)  # Simulate time to make coffee
+
+            self._coffee_ready = True
+            print("Coffee ready!")
+            self._condition.notify()
+
+    def send_poison_pill(self) -> None:
+        with self._condition:
+            self._no_more_coffee = True
+            self._condition.notify_all()
+
+    def drink_coffee(self) -> bool:
+        with self._condition:
+            while not self._coffee_ready and not self._no_more_coffee:
+                self._condition.wait()
+
+            if not self._coffee_ready:
+                return False  # poison pill received - nothing left to drink
+
+            print("Drinking coffee...")
+            time.sleep(0.2)  # Simulate time to drink coffee
+
+            self._coffee_ready = False
+            print("Cup emptied - brew next!")
+            self._condition.notify()
+            return True
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    machine = CoffeeMachine()
+
+    def producer() -> None:
+        for _ in range(5):
+            machine.make_coffee()
+        machine.send_poison_pill()
+
+    def consumer() -> None:
+        while machine.drink_coffee():
+            pass  # keep drinking until the poison pill arrives
+
+    producer_thread = threading.Thread(target=producer)
+    consumer_thread = threading.Thread(target=consumer)
+
+    producer_thread.start()
+    consumer_thread.start()
+    producer_thread.join()
+    consumer_thread.join()
+
+    print("Producer finished; consumer received the poison pill.")
+```
+
 ### Handling Fast Producer and Slow Consumer (Online Judge Example)
 
 Previously, we studied a solution with a one-slot buffer, where the producer (coffee machine) and the consumer (customer) worked in perfect alternation — one producing, the other consuming. But real-world systems often face imbalance in processing speeds.
@@ -2319,6 +3099,52 @@ class Main {
 - **notifyAll() vs notify():** notifyAll() is used because multiple threads (many users or multiple judges) might be waiting — all should get a chance.
 - **Thread Coordination:** Both producer and consumer use wait()-notifyAll() mechanism to signal when the buffer is full or empty.
 - **Thread Safety:** All shared state is accessed inside synchronized methods to maintain consistency.
+
+**The same idea in Python**
+
+`queue.Queue` is already a thread-safe bounded blocking buffer — `put()` blocks when full, `get()` blocks when empty. There's no need to hand-roll the `wait()`/`notifyAll()` bookkeeping shown above; that's exactly the abstraction `BlockingQueue`/`queue.Queue` provides.
+
+```python
+import queue
+import threading
+
+
+class Submission:
+    _id_counter = 1  # class-level counter, mirrors Java's static idCounter
+
+    def __init__(self, user_name: str) -> None:
+        self.user_name = user_name
+        self.submission_id = Submission._id_counter
+        Submission._id_counter += 1
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    submissions: "queue.Queue[Submission]" = queue.Queue(maxsize=5)
+    total_submissions = 8
+    users = ["Alice", "Bob", "Carol"]
+
+    def producer() -> None:
+        for i in range(total_submissions):
+            sub = Submission(users[i % len(users)])
+            submissions.put(sub)  # blocks if the queue is full
+            print(f"{sub.user_name} submitted code: #{sub.submission_id}")
+
+    def judge() -> None:
+        for _ in range(total_submissions):
+            sub = submissions.get()  # blocks if the queue is empty
+            print(f"Judge-1 started evaluating submission #{sub.submission_id} from {sub.user_name}")
+
+    producer_thread = threading.Thread(target=producer, name="Producer")
+    judge_thread = threading.Thread(target=judge, name="Judge-1")
+
+    producer_thread.start()
+    judge_thread.start()
+    producer_thread.join()
+    judge_thread.join()
+
+    print(f"All {total_submissions} submissions processed.")
+```
 
 #### Conclusion
 

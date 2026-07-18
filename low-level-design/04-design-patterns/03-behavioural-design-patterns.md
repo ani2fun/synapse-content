@@ -288,6 +288,67 @@ public class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from __future__ import annotations
+from typing import List
+
+
+class Video:
+    def __init__(self, title: str) -> None:
+        self._title = title
+
+    @property
+    def title(self) -> str:
+        return self._title
+
+
+class YouTubePlaylistIterator:
+    """Concrete Iterator -- implements Python's iterator protocol directly."""
+
+    def __init__(self, videos: List[Video]) -> None:
+        self._videos = videos
+        self._position = 0
+
+    def __iter__(self) -> "YouTubePlaylistIterator":
+        return self
+
+    def __next__(self) -> Video:
+        # __next__ raising StopIteration IS hasNext()/next() rolled into one --
+        # Python bakes the Iterator Pattern into the language itself.
+        if self._position >= len(self._videos):
+            raise StopIteration
+        video = self._videos[self._position]
+        self._position += 1
+        return video
+
+
+class YouTubePlaylist:
+    """Aggregate -- implements __iter__ instead of a createIterator() method."""
+
+    def __init__(self) -> None:
+        self._videos: List[Video] = []
+
+    def add_video(self, video: Video) -> None:
+        self._videos.append(video)
+
+    def __iter__(self) -> YouTubePlaylistIterator:
+        return YouTubePlaylistIterator(self._videos)
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    playlist = YouTubePlaylist()
+    playlist.add_video(Video("LLD Tutorial"))
+    playlist.add_video(Video("System Design Basics"))
+
+    # `for video in playlist:` calls __iter__ then __next__ automatically --
+    # this IS the Iterator Pattern, already built into the language.
+    for video in playlist:
+        print(video.title)
+```
+
 ### Key Improvements
 
 - The YouTubePlaylist class no longer exposes its internal implementation of Videos.
@@ -584,6 +645,68 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import List
+
+
+class Subscriber(ABC):
+    # Java's `interface` has no direct Python counterpart with a compiler-
+    # enforced contract; abc.ABC + @abstractmethod makes the contract
+    # explicit and fails fast if a concrete subscriber forgets update().
+    @abstractmethod
+    def update(self, video_title: str) -> None: ...
+
+
+class EmailSubscriber(Subscriber):
+    def __init__(self, email: str) -> None:
+        self._email = email
+
+    def update(self, video_title: str) -> None:
+        print(f"Email sent to {self._email}: New video uploaded - {video_title}")
+
+
+class MobileAppSubscriber(Subscriber):
+    def __init__(self, username: str) -> None:
+        self._username = username
+
+    def update(self, video_title: str) -> None:
+        print(f"In-app notification for {self._username}: New video - {video_title}")
+
+
+class YouTubeChannel:
+    def __init__(self, channel_name: str) -> None:
+        self._channel_name = channel_name
+        self._subscribers: List[Subscriber] = []
+
+    def subscribe(self, subscriber: Subscriber) -> None:
+        self._subscribers.append(subscriber)
+
+    def unsubscribe(self, subscriber: Subscriber) -> None:
+        self._subscribers.remove(subscriber)
+
+    def notify_subscribers(self, video_title: str) -> None:
+        for subscriber in self._subscribers:
+            subscriber.update(video_title)
+
+    def upload_video(self, video_title: str) -> None:
+        print(f"{self._channel_name} uploaded: {video_title}\n")
+        self.notify_subscribers(video_title)
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    channel = YouTubeChannel("techchannel")
+
+    channel.subscribe(MobileAppSubscriber("alex"))
+    channel.subscribe(EmailSubscriber("rahul@example.com"))
+
+    channel.upload_video("observer-pattern")
+```
+
 ### How This Solves the Problem:
 
 | Problem in Old Approach | How Observer Pattern Solves It |
@@ -838,6 +961,58 @@ public class Main {
         rideMatchingService2.matchRider("Downtown");
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class MatchingStrategy(ABC):
+    @abstractmethod
+    def match(self, rider_location: str) -> None: ...
+
+
+class NearestDriverStrategy(MatchingStrategy):
+    def match(self, rider_location: str) -> None:
+        print(f"Matching with the nearest available driver to {rider_location}")
+
+
+class AirportQueueStrategy(MatchingStrategy):
+    def match(self, rider_location: str) -> None:
+        print(f"Matching using FIFO airport queue for {rider_location}")
+
+
+class SurgePriorityStrategy(MatchingStrategy):
+    def match(self, rider_location: str) -> None:
+        print(f"Matching rider using surge pricing priority near {rider_location}")
+
+
+class RideMatchingService:
+    # Python's first-class functions mean a plain function or lambda would
+    # often be enough here (e.g. self._strategy = lambda loc: print(...));
+    # the class-based form below mirrors the Java structure one-to-one.
+    def __init__(self, strategy: MatchingStrategy) -> None:
+        self._strategy = strategy
+
+    def set_strategy(self, strategy: MatchingStrategy) -> None:
+        self._strategy = strategy
+
+    def match_rider(self, location: str) -> None:
+        self._strategy.match(location)
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    service = RideMatchingService(AirportQueueStrategy())
+    service.match_rider("Terminal 1")
+
+    service2 = RideMatchingService(NearestDriverStrategy())
+    service2.match_rider("Downtown")
+    service2.set_strategy(SurgePriorityStrategy())
+    service2.match_rider("Downtown")
 ```
 
 ### How This Solves the Earlier Problems
@@ -1191,6 +1366,127 @@ public class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import List, Optional
+
+
+class Light:
+    def on(self) -> None:
+        print("Light turned ON")
+
+    def off(self) -> None:
+        print("Light turned OFF")
+
+
+class AC:
+    def on(self) -> None:
+        print("AC turned ON")
+
+    def off(self) -> None:
+        print("AC turned OFF")
+
+
+class Command(ABC):
+    @abstractmethod
+    def execute(self) -> None: ...
+
+    @abstractmethod
+    def undo(self) -> None: ...
+
+
+class LightOnCommand(Command):
+    def __init__(self, light: Light) -> None:
+        self._light = light
+
+    def execute(self) -> None:
+        self._light.on()
+
+    def undo(self) -> None:
+        self._light.off()
+
+
+class LightOffCommand(Command):
+    def __init__(self, light: Light) -> None:
+        self._light = light
+
+    def execute(self) -> None:
+        self._light.off()
+
+    def undo(self) -> None:
+        self._light.on()
+
+
+class ACOnCommand(Command):
+    def __init__(self, ac: AC) -> None:
+        self._ac = ac
+
+    def execute(self) -> None:
+        self._ac.on()
+
+    def undo(self) -> None:
+        self._ac.off()
+
+
+class ACOffCommand(Command):
+    def __init__(self, ac: AC) -> None:
+        self._ac = ac
+
+    def execute(self) -> None:
+        self._ac.off()
+
+    def undo(self) -> None:
+        self._ac.on()
+
+
+class RemoteControl:
+    # A plain function/lambda could stand in for each Command here too
+    # (Python has first-class functions); the class-based form is kept for
+    # structural parity with the Java, and because undo() needs state
+    # (which device, which prior action) that a bare lambda would lose.
+    def __init__(self) -> None:
+        self._buttons: List[Optional[Command]] = [None] * 4
+        self._history: List[Command] = []
+
+    def set_command(self, slot: int, command: Command) -> None:
+        self._buttons[slot] = command
+
+    def press_button(self, slot: int) -> None:
+        command = self._buttons[slot]
+        if command is not None:
+            command.execute()
+            self._history.append(command)
+        else:
+            print(f"No command assigned to slot {slot}")
+
+    def press_undo(self) -> None:
+        if self._history:
+            self._history.pop().undo()
+        else:
+            print("No commands to undo.")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    light = Light()
+    ac = AC()
+
+    remote = RemoteControl()
+    remote.set_command(0, LightOnCommand(light))
+    remote.set_command(1, LightOffCommand(light))
+    remote.set_command(2, ACOnCommand(ac))
+    remote.set_command(3, ACOffCommand(ac))
+
+    remote.press_button(0)   # Light ON
+    remote.press_button(2)   # AC ON
+    remote.press_button(1)   # Light OFF
+    remote.press_undo()      # Undo Light OFF -> Light ON
+    remote.press_undo()      # Undo AC ON -> AC OFF
+```
+
 Let's now understand how the Command Pattern resolves the above discussed issues:
 
 | Issue | How Command Pattern Resolves the Issue |
@@ -1498,6 +1794,82 @@ class Main {
         smsSender.send("9876543210", "Your OTP is 4567.");
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class NotificationSender(ABC):
+    # `send` is Java's `final` template method -- Python has no `final`
+    # keyword, so nothing stops a subclass from overriding send() itself;
+    # sealing the algorithm's shape is a convention here, not a
+    # compiler-enforced guarantee the way Java's `final` seals it.
+    def send(self, to: str, raw_message: str) -> None:
+        self._rate_limit_check(to)
+        self._validate_recipient(to)
+        formatted = self._format_message(raw_message)
+        self._pre_send_audit_log(to, formatted)
+
+        composed_message = self.compose_message(formatted)
+        self.send_message(to, composed_message)
+
+        self.post_send_analytics(to)
+
+    def _rate_limit_check(self, to: str) -> None:
+        print(f"Checking rate limits for: {to}")
+
+    def _validate_recipient(self, to: str) -> None:
+        print(f"Validating recipient: {to}")
+
+    def _format_message(self, message: str) -> str:
+        return message.strip()
+
+    def _pre_send_audit_log(self, to: str, formatted: str) -> None:
+        print(f"Logging before send: {formatted} to {to}")
+
+    @abstractmethod
+    def compose_message(self, formatted_message: str) -> str: ...
+
+    @abstractmethod
+    def send_message(self, to: str, message: str) -> None: ...
+
+    def post_send_analytics(self, to: str) -> None:
+        # Optional hook -- default behaviour, overridable by subclasses.
+        print(f"Analytics updated for: {to}")
+
+
+class EmailNotification(NotificationSender):
+    def compose_message(self, formatted_message: str) -> str:
+        return f"<html><body><p>{formatted_message}</p></body></html>"
+
+    def send_message(self, to: str, message: str) -> None:
+        print(f"Sending EMAIL to {to} with content:\n{message}")
+
+
+class SMSNotification(NotificationSender):
+    def compose_message(self, formatted_message: str) -> str:
+        return f"[SMS] {formatted_message}"
+
+    def send_message(self, to: str, message: str) -> None:
+        print(f"Sending SMS to {to} with message: {message}")
+
+    def post_send_analytics(self, to: str) -> None:
+        print(f"Custom SMS analytics for: {to}")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    email_sender = EmailNotification()
+    email_sender.send("john@example.com", "Welcome to the platform!")
+
+    print(" ")
+
+    sms_sender = SMSNotification()
+    sms_sender.send("9876543210", "Your OTP is 4567.")
 ```
 
 ### Key Steps of Template Pattern Used in Above Code
@@ -1853,6 +2225,117 @@ public class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class OrderState(ABC):
+    @abstractmethod
+    def next(self, context: "OrderContext") -> None: ...
+
+    @abstractmethod
+    def cancel(self, context: "OrderContext") -> None: ...
+
+    @abstractmethod
+    def state_name(self) -> str: ...
+
+
+class OrderPlacedState(OrderState):
+    def next(self, context: "OrderContext") -> None:
+        context.set_state(PreparingState())
+        print("Order is now being prepared.")
+
+    def cancel(self, context: "OrderContext") -> None:
+        context.set_state(CancelledState())
+        print("Order has been cancelled.")
+
+    def state_name(self) -> str:
+        return "ORDER_PLACED"
+
+
+class PreparingState(OrderState):
+    def next(self, context: "OrderContext") -> None:
+        context.set_state(OutForDeliveryState())
+        print("Order is out for delivery.")
+
+    def cancel(self, context: "OrderContext") -> None:
+        context.set_state(CancelledState())
+        print("Order has been cancelled.")
+
+    def state_name(self) -> str:
+        return "PREPARING"
+
+
+class OutForDeliveryState(OrderState):
+    def next(self, context: "OrderContext") -> None:
+        context.set_state(DeliveredState())
+        print("Order has been delivered.")
+
+    def cancel(self, context: "OrderContext") -> None:
+        print("Cannot cancel. Order is out for delivery.")
+
+    def state_name(self) -> str:
+        return "OUT_FOR_DELIVERY"
+
+
+class DeliveredState(OrderState):
+    def next(self, context: "OrderContext") -> None:
+        print("Order is already delivered.")
+
+    def cancel(self, context: "OrderContext") -> None:
+        print("Cannot cancel a delivered order.")
+
+    def state_name(self) -> str:
+        return "DELIVERED"
+
+
+class CancelledState(OrderState):
+    def next(self, context: "OrderContext") -> None:
+        print("Cancelled order cannot move to next state.")
+
+    def cancel(self, context: "OrderContext") -> None:
+        print("Order is already cancelled.")
+
+    def state_name(self) -> str:
+        return "CANCELLED"
+
+
+class OrderContext:
+    def __init__(self) -> None:
+        self._current_state: OrderState = OrderPlacedState()
+
+    def set_state(self, state: OrderState) -> None:
+        self._current_state = state
+
+    def next(self) -> None:
+        self._current_state.next(self)
+
+    def cancel(self) -> None:
+        self._current_state.cancel(self)
+
+    @property
+    def current_state(self) -> str:
+        return self._current_state.state_name()
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    order = OrderContext()
+
+    print(f"Current State: {order.current_state}")
+
+    order.next()     # ORDER_PLACED -> PREPARING
+    order.next()     # PREPARING -> OUT_FOR_DELIVERY
+    order.cancel()   # Should fail, order is out for delivery
+    order.next()     # OUT_FOR_DELIVERY -> DELIVERED
+    order.cancel()   # Should fail, order is delivered
+
+    print(f"Final State: {order.current_state}")
+```
+
 ### How This Solves The Issues
 
 | Issue | Solution with State Pattern |
@@ -2168,6 +2651,75 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Optional
+
+
+class SupportHandler(ABC):
+    def __init__(self) -> None:
+        self._next_handler: Optional["SupportHandler"] = None
+
+    def set_next_handler(self, next_handler: "SupportHandler") -> None:
+        self._next_handler = next_handler
+
+    @abstractmethod
+    def handle_request(self, request_type: str) -> None: ...
+
+
+class GeneralSupport(SupportHandler):
+    def handle_request(self, request_type: str) -> None:
+        if request_type.lower() == "general":
+            print("GeneralSupport: Handling general query")
+        elif self._next_handler is not None:
+            self._next_handler.handle_request(request_type)
+
+
+class BillingSupport(SupportHandler):
+    def handle_request(self, request_type: str) -> None:
+        if request_type.lower() == "refund":
+            print("BillingSupport: Handling refund request")
+        elif self._next_handler is not None:
+            self._next_handler.handle_request(request_type)
+
+
+class TechnicalSupport(SupportHandler):
+    def handle_request(self, request_type: str) -> None:
+        if request_type.lower() == "technical":
+            print("TechnicalSupport: Handling technical issue")
+        elif self._next_handler is not None:
+            self._next_handler.handle_request(request_type)
+
+
+class DeliverySupport(SupportHandler):
+    def handle_request(self, request_type: str) -> None:
+        if request_type.lower() == "delivery":
+            print("DeliverySupport: Handling delivery issue")
+        elif self._next_handler is not None:
+            self._next_handler.handle_request(request_type)
+        else:
+            print("DeliverySupport: No handler found for request")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    general = GeneralSupport()
+    billing = BillingSupport()
+    technical = TechnicalSupport()
+    delivery = DeliverySupport()
+
+    general.set_next_handler(billing)
+    billing.set_next_handler(technical)
+    technical.set_next_handler(delivery)
+
+    general.handle_request("refund")
+    general.handle_request("delivery")
+    general.handle_request("unknown")
+```
+
 ### How Chain of Responsibility Fixes the Previously Discussed Issues
 
 | Issue | Solution in Refactored Code |
@@ -2481,6 +3033,100 @@ public class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+
+
+class Item(ABC):
+    @abstractmethod
+    def accept(self, visitor: "ItemVisitor") -> None: ...
+
+
+class PhysicalProduct(Item):
+    def __init__(self, name: str, weight: float) -> None:
+        self.name = name
+        self.weight = weight
+
+    def accept(self, visitor: "ItemVisitor") -> None:
+        visitor.visit_physical_product(self)
+
+
+class DigitalProduct(Item):
+    def __init__(self, name: str, download_size_mb: int) -> None:
+        self.name = name
+        self.download_size_mb = download_size_mb
+
+    def accept(self, visitor: "ItemVisitor") -> None:
+        visitor.visit_digital_product(self)
+
+
+class GiftCard(Item):
+    def __init__(self, code: str, amount: float) -> None:
+        self.code = code
+        self.amount = amount
+
+    def accept(self, visitor: "ItemVisitor") -> None:
+        visitor.visit_gift_card(self)
+
+
+class ItemVisitor(ABC):
+    # Java overloads visit() per parameter type; Python has no method
+    # overloading -- a later `def visit(...)` would simply replace the
+    # earlier one. Each element type gets its own visit_<type> method
+    # instead, and accept() picks the right one -- that dispatch through
+    # accept() IS the double dispatch this pattern relies on.
+    @abstractmethod
+    def visit_physical_product(self, item: PhysicalProduct) -> None: ...
+
+    @abstractmethod
+    def visit_digital_product(self, item: DigitalProduct) -> None: ...
+
+    @abstractmethod
+    def visit_gift_card(self, item: GiftCard) -> None: ...
+
+
+class InvoiceVisitor(ItemVisitor):
+    def visit_physical_product(self, item: PhysicalProduct) -> None:
+        print(f"Invoice: {item.name} - Shipping to customer")
+
+    def visit_digital_product(self, item: DigitalProduct) -> None:
+        print(f"Invoice: {item.name} - Email with download link")
+
+    def visit_gift_card(self, item: GiftCard) -> None:
+        print(f"Invoice: Gift Card - Code: {item.code}")
+
+
+class ShippingCostVisitor(ItemVisitor):
+    def visit_physical_product(self, item: PhysicalProduct) -> None:
+        print(f"Shipping cost for {item.name}: Rs. {item.weight * 10}")
+
+    def visit_digital_product(self, item: DigitalProduct) -> None:
+        print(f"{item.name} is digital -- No shipping cost.")
+
+    def visit_gift_card(self, item: GiftCard) -> None:
+        print("GiftCard delivery via email -- No shipping cost.")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    items = [
+        PhysicalProduct("Shoes", 1.2),
+        DigitalProduct("Ebook", 100),
+        GiftCard("GIFT500", 500),
+    ]
+
+    invoice_generator = InvoiceVisitor()
+    shipping_calculator = ShippingCostVisitor()
+
+    for item in items:
+        item.accept(invoice_generator)
+        item.accept(shipping_calculator)
+        print("")
+```
+
 ### How the Visitor Pattern Solves the Issues
 
 | Issue | How it is Solved |
@@ -2769,6 +3415,68 @@ class Main {
         bob.makeChange("Corrected grammar in paragraph 2");
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import List
+
+
+class DocumentSessionMediator(ABC):
+    @abstractmethod
+    def broadcast_change(self, change: str, sender: "User") -> None: ...
+
+    @abstractmethod
+    def join(self, user: "User") -> None: ...
+
+
+class CollaborativeDocument(DocumentSessionMediator):
+    def __init__(self) -> None:
+        self._users: List["User"] = []
+
+    def join(self, user: "User") -> None:
+        self._users.append(user)
+
+    def broadcast_change(self, change: str, sender: "User") -> None:
+        for user in self._users:
+            if user is not sender:
+                user.receive_change(change, sender)
+
+
+class User:
+    def __init__(self, name: str, mediator: DocumentSessionMediator) -> None:
+        self._name = name
+        self._mediator = mediator
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def make_change(self, change: str) -> None:
+        print(f"{self._name} edited the document: {change}")
+        self._mediator.broadcast_change(change, self)
+
+    def receive_change(self, change: str, sender: "User") -> None:
+        print(f'{self._name} saw change from {sender.name}: "{change}"')
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    doc = CollaborativeDocument()
+
+    alice = User("Alice", doc)
+    bob = User("Bob", doc)
+    charlie = User("Charlie", doc)
+
+    doc.join(alice)
+    doc.join(bob)
+    doc.join(charlie)
+
+    alice.make_change("Added project title")
+    bob.make_change("Corrected grammar in paragraph 2")
 ```
 
 ### Explanation of Changes
@@ -3095,6 +3803,115 @@ class Main {
         editor.printResume(); // Shows resume after second undo (initial state)
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+from __future__ import annotations
+from typing import List
+
+
+class ResumeEditor:
+    class Memento:
+        # Name-mangled "__" fields simulate Java's private fields on the
+        # nested Memento -- Python's privacy is a convention, not an
+        # enforcement: __name only mangles to _Memento__name, it isn't
+        # truly inaccessible.
+        def __init__(self, name: str, education: str, experience: str, skills: List[str]) -> None:
+            self.__name = name
+            self.__education = education
+            self.__experience = experience
+            self.__skills = list(skills)
+
+        @property
+        def name(self) -> str:
+            return self.__name
+
+        @property
+        def education(self) -> str:
+            return self.__education
+
+        @property
+        def experience(self) -> str:
+            return self.__experience
+
+        @property
+        def skills(self) -> List[str]:
+            return self.__skills
+
+    def __init__(self) -> None:
+        self._name = ""
+        self._education = ""
+        self._experience = ""
+        self._skills: List[str] = []
+
+    def set_name(self, name: str) -> None:
+        self._name = name
+
+    def set_education(self, education: str) -> None:
+        self._education = education
+
+    def set_experience(self, experience: str) -> None:
+        self._experience = experience
+
+    def set_skills(self, skills: List[str]) -> None:
+        self._skills = skills
+
+    def print_resume(self) -> None:
+        print("x:----- Resume -----")
+        print(f"Name: {self._name}")
+        print(f"Education: {self._education}")
+        print(f"Experience: {self._experience}")
+        print(f"Skills: {self._skills}")
+        print("x:------------------")
+
+    def save(self) -> "ResumeEditor.Memento":
+        return ResumeEditor.Memento(self._name, self._education, self._experience, self._skills)
+
+    def restore(self, memento: "ResumeEditor.Memento") -> None:
+        self._name = memento.name
+        self._education = memento.education
+        self._experience = memento.experience
+        self._skills = memento.skills
+
+
+class ResumeHistory:
+    def __init__(self) -> None:
+        self._history: List["ResumeEditor.Memento"] = []
+
+    def save(self, editor: ResumeEditor) -> None:
+        self._history.append(editor.save())
+
+    def undo(self, editor: ResumeEditor) -> None:
+        if self._history:
+            editor.restore(self._history.pop())
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    editor = ResumeEditor()
+    history = ResumeHistory()
+
+    editor.set_name("Alice")
+    editor.set_education("B.Tech CSE")
+    editor.set_experience("Fresher")
+    editor.set_skills(["Java", "DSA"])
+    history.save(editor)
+
+    editor.set_experience("SDE Intern at a tech company")
+    editor.set_skills(["Java", "DSA", "LLD", "Spring Boot"])
+    history.save(editor)
+
+    editor.print_resume()
+    print("")
+
+    history.undo(editor)
+    editor.print_resume()
+    print("")
+
+    history.undo(editor)
+    editor.print_resume()
 ```
 
 Let's now understand how the Memento pattern solves the previously discussed issues.

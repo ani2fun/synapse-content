@@ -435,6 +435,47 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from abc import ABC, abstractmethod
+
+
+# Contract: defines what the client needs, not how it is done.
+# Java's `interface` has no direct Python analogue — abc.ABC + @abstractmethod
+# makes the contract explicit and fails fast (a subclass missing `send`
+# cannot even be instantiated), instead of relying on duck typing alone.
+class NotificationService(ABC):
+    @abstractmethod
+    def send(self, message: str) -> None:
+        ...
+
+
+# Concrete implementation of the contract
+class EmailNotificationService(NotificationService):
+    def send(self, message: str) -> None:
+        print(f"Email sent: {message}")
+
+
+# Client that depends on the abstraction, not the implementation
+class UserService:
+    def __init__(self, notification_service: NotificationService) -> None:
+        # Constructor Injection: forces the caller to supply the dependency up-front
+        self._notification_service = notification_service
+
+    def register(self, user: str) -> None:
+        print(f"User registered: {user}")
+        self._notification_service.send(f"Welcome {user}")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    # Composition Root: the only place a concrete class gets instantiated
+    service = EmailNotificationService()
+    user_service = UserService(service)
+    user_service.register("alex")
+```
+
 ### Why this approach is considered best-practice
 
 | Reason | How the code achieves it |
@@ -617,6 +658,45 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from typing import Optional
+
+
+class Product:
+    def __init__(self, id_: str, name: str) -> None:
+        self.id = id_
+        self.name = name
+
+
+class ProductRepo:
+    def find(self, product_id: str) -> Product:
+        return Product(product_id, "Wireless Mouse")
+
+
+class ProductServiceFailFirst:
+    def __init__(self) -> None:
+        self._product_repo = ProductRepo()
+
+    def get_product(self, product_id: Optional[str]) -> Product:
+        if product_id is None:
+            raise ValueError("Product ID cannot be null")  # fail-fast for invalid input
+        return self._product_repo.find(product_id)
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    service = ProductServiceFailFirst()
+    product = service.get_product("p-1")
+    print(f"Fetched: {product.name}")
+
+    try:
+        service.get_product(None)
+    except ValueError as e:
+        print(f"Fail-fast rejected the call: {e}")
+```
+
 In this example:
 
 - The method checks if the productId is null right away.
@@ -681,6 +761,39 @@ class Main {
         System.out.println("Fetched: " + product.name);
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+class Product:
+    def __init__(self, id_: str, name: str) -> None:
+        self.id = id_
+        self.name = name
+
+
+class ProductRepo:
+    def find(self, product_id: str) -> Product:
+        raise RuntimeError("catalog service unavailable")
+
+
+class ProductServiceFailSafe:
+    def __init__(self) -> None:
+        self._product_repo = ProductRepo()
+
+    def get_product(self, product_id: str) -> Product:
+        try:
+            return self._product_repo.find(product_id)
+        except Exception:
+            # fail-safe: return default
+            return Product("default", "Fallback Product")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    service = ProductServiceFailSafe()
+    product = service.get_product("p-1")
+    print(f"Fetched: {product.name}")
 ```
 
 In this example:
@@ -766,6 +879,17 @@ In this example:
 
 - The readFile method declares that it may throw an IOException using the throws keyword.
 - The calling code (in the main method) must either handle the exception using a try-catch block or propagate it further.
+
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+📘 **No Python translation here.** Python has no checked exceptions — there is no `throws` clause, so
+the compiler never forces a caller to handle anything. Every Python exception behaves like Java's
+unchecked ones: `try/except` and `finally` are how you *choose* to handle one, and a `with` block
+(context manager) is the idiomatic replacement for Java's try-with-resources, but nothing enforces
+that you do either. An approximate "checked exception" block would misrepresent that difference, so
+none is given.
+
+</div>
 
 #### Advantages of Checked Exceptions
 
@@ -856,6 +980,35 @@ class Main {
         }
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+class CustomerNotPlusException(Exception):
+    def __init__(self, user_id: str) -> None:
+        super().__init__(f"User {user_id} is not a plus customer")
+
+
+class CourseService:
+    def access_course(self, user_id: str) -> None:
+        if not self._has_access(user_id):
+            # Raising the custom exception if the user doesn't have access
+            raise CustomerNotPlusException(user_id)
+        # continue enrollment...
+
+    def _has_access(self, user_id: str) -> bool:
+        # Logic to check if the user is a Plus customer from the database
+        return False  # For the sake of this example, assume the user doesn't have access
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    course_service = CourseService()
+    try:
+        course_service.access_course("u-42")
+    except CustomerNotPlusException as e:
+        print(f"Blocked: {e}")
 ```
 
 In this example:
@@ -1003,6 +1156,54 @@ class Main {
         System.out.println("Fallback: " + degraded.getRecommendedItems("u-1"));
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+from typing import List
+
+
+class RecommendationCache:
+    def get_cached_recommendations(self, user_id: str) -> List[str]:
+        return ["cached-movie-1"]
+
+
+# The live recommendation service — a separate collaborator, injected in.
+class LiveRecommendationClient:
+    def __init__(self, reachable: bool) -> None:
+        self._reachable = reachable
+
+    def fetch_live_recommendations(self, user_id: str) -> List[str]:
+        if not self._reachable:
+            raise RuntimeError("live recommendation service unreachable")
+        return ["movie-1", "movie-2"]  # Simulated live recommendation data
+
+
+class RecommendationService:
+    def __init__(self, recommendation_service: LiveRecommendationClient) -> None:
+        self._recommendation_service = recommendation_service
+        self._cache_service = RecommendationCache()
+
+    def get_recommended_items(self, user_id: str) -> List[str]:
+        try:
+            # Attempt to fetch live recommendations
+            return self._recommendation_service.fetch_live_recommendations(user_id)
+        except Exception:
+            # If the live service fails, log the error and fall back to cache
+            print("[WARN] Live service failed, falling back to cache")
+            return self._cache_service.get_cached_recommendations(user_id)
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    # Happy path — the live service answers.
+    healthy = RecommendationService(LiveRecommendationClient(True))
+    print(f"Live:     {healthy.get_recommended_items('u-1')}")
+
+    # Degraded path — the live service is down, so stale cache is served instead.
+    degraded = RecommendationService(LiveRecommendationClient(False))
+    print(f"Fallback: {degraded.get_recommended_items('u-1')}")
 ```
 
 In this example:
@@ -1173,6 +1374,32 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+class EtaService:
+    def get_eta(self) -> str:
+        raise RuntimeError("ETA service unavailable")
+
+
+# Naive retry example
+def get_eta() -> str:
+    eta_service = EtaService()
+    retries = 3  # Maximum retry attempts
+    while retries > 0:
+        retries -= 1
+        try:
+            return eta_service.get_eta()  # Attempt to fetch ETA from service
+        except Exception:
+            print(f"[WARN] Retrying ETA, attempts left: {retries}")
+    return "ETA unavailable"  # Return message if all retries fail
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    print(get_eta())
+```
+
 In this example:
 
 - The system tries to fetch the ETA from the etaService up to three times.
@@ -1216,6 +1443,37 @@ class Main {
         System.out.println(getETAWithBackoff());
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+import time
+
+
+class EtaService:
+    def get_eta(self) -> str:
+        raise RuntimeError("ETA service unavailable")
+
+
+# Backoff strategy
+def get_eta_with_backoff() -> str:
+    eta_service = EtaService()
+    retries = 3
+    delay_ms = 10.0  # shortened for the sandbox; same exponential shape
+    while retries > 0:
+        retries -= 1
+        try:
+            return eta_service.get_eta()  # Attempt to fetch ETA from service
+        except Exception:
+            time.sleep(delay_ms / 1000)  # Wait before retrying
+            delay_ms *= 2  # Exponential backoff: double the delay each time
+    return "ETA unavailable"  # Return message if all retries fail
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    print(get_eta_with_backoff())
 ```
 
 In this example:

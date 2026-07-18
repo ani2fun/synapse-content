@@ -107,6 +107,65 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+class BankAccount:
+    # Python has no compiler-enforced "private" — encapsulation here is social, not
+    # enforced. Two conventions, both breakable:
+    #   _balance   single underscore -> "internal, please don't touch" (pure convention,
+    #              directly reachable, nothing stops you)
+    #   __balance  double underscore -> triggers *name mangling* to _BankAccount__balance;
+    #              it discourages accidental access but is still reachable if you know
+    #              the mangled name (see the driver below).
+    def __init__(self, account_holder_name: str, balance: float) -> None:
+        self._account_holder_name = account_holder_name
+        self.__balance = balance  # mangled to self._BankAccount__balance
+
+    @property
+    def account_holder_name(self) -> str:
+        return self._account_holder_name
+
+    @account_holder_name.setter
+    def account_holder_name(self, name: str) -> None:
+        self._account_holder_name = name
+
+    @property
+    def balance(self) -> float:
+        return self.__balance
+
+    def deposit(self, amount: float) -> None:
+        if amount > 0:
+            self.__balance += amount
+        else:
+            print("Deposit amount must be positive.")
+
+    def withdraw(self, amount: float) -> None:
+        if amount > self.__balance:
+            print("Insufficient funds.")
+        else:
+            self.__balance -= amount
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    account = BankAccount("John Doe", 5000)
+
+    print(f"Account Holder: {account.account_holder_name}")
+    print(f"Balance: {account.balance}")
+
+    account.deposit(1500)
+    print(f"Updated Balance: {account.balance}")
+
+    account.withdraw(2000)
+    print(f"Balance after Withdrawal: {account.balance}")
+
+    # Honest demo: "private" is only a naming convention. Name mangling renames the
+    # attribute, it does not block access — this reaches right past it from outside
+    # the class, which real Java `private` would never allow.
+    print(f"Reached anyway via name mangling: {account._BankAccount__balance}")
+```
+
 The class's shape — private state, public interface — looks like this:
 
 ```mermaid
@@ -509,6 +568,26 @@ Here's a table showing whether different scopes like Class, Package, Subclass, o
 | Protected | ✔️ | ✔️ | ✔️ | ❌ |
 | Default | ✔️ | ✔️ | ❌ | ❌ |
 | Private | ✔️ | ❌ | ❌ | ❌ |
+
+**The same idea in Python**
+
+Python has no compiler-enforced access modifiers at all — only the naming conventions below (public by default, `_name` for "internal", `__name` for name-mangled), so there's no direct four-way public/protected/default/private mapping to draw.
+
+```python
+class Employee:
+    def __init__(self, name: str, employee_id: int, salary: float) -> None:
+        self.name = name                   # public: no leading underscore
+        self._employee_id = employee_id    # "protected"-ish: internal by convention
+        self.__salary = salary             # name-mangled to _Employee__salary
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    emp = Employee("Alice", 101, 75000.0)
+    print(f"Name: {emp.name}")
+    print(f"Employee id (protected by convention): {emp._employee_id}")
+    print(f"Salary (mangled, still reachable): {emp._Employee__salary}")
+```
 
 ### Your Turn — Practice: Access Modifiers
 
@@ -925,6 +1004,43 @@ class Main {
 - In a hierarchical inheritance, a one-to-many relationship is established between classes.
 - The child classes share the common methods and properties of the parent class but can also define their unique features.
 
+#### The same idea in Python
+
+Single, multilevel, and hierarchical inheritance translate directly — the shape comes from how the classes derive from one another, not from special syntax per case:
+
+```python
+class Animal:
+    def eat(self) -> None:
+        print("This animal eats food.")
+
+
+class Mammal(Animal):  # single inheritance: Mammal derives from one parent, Animal
+    def walk(self) -> None:
+        print("This mammal walks.")
+
+
+class Dog(Mammal):  # multilevel: Animal -> Mammal -> Dog
+    def bark(self) -> None:
+        print("This dog barks.")
+
+
+class Cat(Animal):  # hierarchical: Cat and Mammal are both direct children of Animal
+    def meow(self) -> None:
+        print("This cat meows.")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    dog = Dog()
+    dog.eat()   # inherited from Animal, two levels up
+    dog.walk()  # inherited from Mammal, one level up
+    dog.bark()  # defined directly on Dog
+
+    cat = Cat()
+    cat.eat()   # inherited from Animal, sibling branch to Mammal/Dog
+    cat.meow()  # defined directly on Cat
+```
+
 ### Advantages of Using Inheritance
 
 Inheritance is a cornerstone of object-oriented programming, offering significant benefits such as:
@@ -1251,6 +1367,28 @@ In this case, the compiler determines whether to call `add(int, int)` or `add(do
 
 </div>
 
+**The same idea in Python**
+
+```python
+class Calculator:
+    # Python has no method overloading — a later `def add` simply replaces an earlier
+    # one, it doesn't add a second signature. Java needs two overloads here because it
+    # dispatches on static parameter *type* (int vs double); Python has no static types
+    # to dispatch on, so one implementation already covers both callers below. Where the
+    # branching genuinely has to depend on argument type, reach for
+    # `functools.singledispatch` instead of hand-rolling overload resolution.
+    def add(self, a: float, b: float) -> float:
+        return a + b
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    calc = Calculator()
+
+    print(calc.add(5, 3))       # ints in -> 8
+    print(calc.add(5.5, 3.3))   # floats in -> 8.8
+```
+
 ### Run-Time Polymorphism (Dynamic Polymorphism)
 
 In run-time polymorphism, the method is resolved during the runtime. It is achieved through method overriding. When we say the method is "resolved" at run-time, it refers to the decision about which method (in the case of method overriding) to call being made at the time the program is actually running. This occurs due to the dynamic method dispatch mechanism, where the JVM decides which method of a subclass to call based on the actual object type (not the reference type) at runtime.
@@ -1297,6 +1435,26 @@ Here, the method to be executed is decided at runtime based on the object type.
 💡 **Insight.** `myAnimal` is declared as `Animal` but actually points to a `Dog` — calling `myAnimal.sound()` still runs `Dog`'s version, because dynamic dispatch resolves the call against the object's actual runtime type, not the type of the reference used to call it.
 
 </div>
+
+**The same idea in Python**
+
+```python
+class Animal:
+    def sound(self) -> None:
+        print("Animal makes a sound")
+
+
+class Dog(Animal):
+    def sound(self) -> None:  # overrides Animal.sound
+        print("Dog barks")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    my_animal: Animal = Dog()  # Animal-typed reference, Dog object
+
+    my_animal.sound()  # resolved at runtime against the object's actual type
+```
 
 Both flavors of polymorphism can be seen side by side: overloading picks a signature at compile time, overriding picks an implementation at runtime.
 

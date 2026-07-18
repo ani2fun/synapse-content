@@ -199,6 +199,24 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+class Person:
+    def _is_adult(self, age: int) -> bool:  # leading underscore: convention for
+        return age >= 18                     # Java's `private` — not enforced by Python
+
+    def check_adult(self, age: int) -> bool:
+        return self._is_adult(age)
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    person = Person()
+    print(f"Is 20 an adult? {person.check_adult(20)}")
+    print(f"Is 15 an adult? {person.check_adult(15)}")
+```
+
 using class diagram, then the conversion will look like this: `- isAdult(age:int): boolean`
 
 ```mermaid
@@ -253,6 +271,34 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from abc import ABC, abstractmethod
+
+
+class Payable(ABC):  # Java's `interface` -> ABC + @abstractmethod; Python duck-types,
+    @abstractmethod    # so this isn't strictly required, but it makes the contract
+    def calculate_pay(self) -> float:  # explicit and fails fast if unimplemented.
+        ...
+
+
+# DemoPayable exists only to demonstrate the contract — not the canonical implementation.
+class DemoPayable(Payable):
+    def __init__(self, hours: float, rate: float) -> None:
+        self._hours = hours
+        self._rate = rate
+
+    def calculate_pay(self) -> float:
+        return self._hours * self._rate
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    payable: Payable = DemoPayable(40, 25.0)
+    print(f"Calculated pay: {payable.calculate_pay()}")
+```
+
 ```mermaid
 classDiagram
     class Payable {
@@ -290,6 +336,30 @@ class Main {
         animal.makeSound();
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+from abc import ABC, abstractmethod
+
+
+class Animal(ABC):  # ABC gives Python a real "cannot instantiate" abstract class,
+    @abstractmethod   # matching Java's `abstract class` — not just a plain base class.
+    def make_sound(self) -> None:
+        ...
+
+
+# DemoAnimal exists only to demonstrate the contract — not the canonical implementation.
+class DemoAnimal(Animal):
+    def make_sound(self) -> None:
+        print("Some generic animal sound")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    animal: Animal = DemoAnimal()
+    animal.make_sound()
 ```
 
 The diagram representation of the above code will look like this:

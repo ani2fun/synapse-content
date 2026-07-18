@@ -262,6 +262,21 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+class NumberUtils:
+    @staticmethod
+    def is_even(number: int) -> bool:
+        return number % 2 == 0
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    print(f"is_even(4) = {NumberUtils.is_even(4)}")
+    print(f"is_even(7) = {NumberUtils.is_even(7)}")
+```
+
 This is good because it's a simple one-liner, easy to read, and avoids overengineering.
 
 ### YAGNI — You Aren't Gonna Need It

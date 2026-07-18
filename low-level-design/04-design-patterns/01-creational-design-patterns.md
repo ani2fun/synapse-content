@@ -347,6 +347,53 @@ class Main {
 
 As discussed earlier, eager loading does not face thread safety issues. This approach avoids thread issues altogether by creating the instance upfront - at the cost of potential memory waste. Thus, it is not a preferred method in most cases but is still a valid option.
 
+#### The same idea in Python
+
+The five Java variants above are really about one problem: JVM class loading and thread visibility. Python doesn't share that problem, so it doesn't need five answers to it.
+
+```python
+import threading
+
+
+# The idiomatic Python singleton: a module-level object. This module is
+# imported once per process (CPython caches it in sys.modules), so every
+# caller that does `from this_module import config` gets the same object -
+# no metaclass or getInstance() ceremony needed.
+class _Config:
+    def __init__(self) -> None:
+        self.value = "default"
+
+
+config = _Config()  # module-level instance IS the singleton
+
+
+# __new__-based version: structural mirror of the Java pattern (private
+# constructor + static accessor), kept only for comparison - not how you'd
+# write this in idiomatic Python. threading.Lock stands in for every one of
+# Java's five thread-safety variants: the double-checked null test below is
+# the same idea as Java's `synchronized` block, just spelled with a lock.
+class Singleton:
+    _instance = None
+    _lock = threading.Lock()
+
+    def __new__(cls) -> "Singleton":
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:          # double-checked locking
+                    cls._instance = super().__new__(cls)
+        return cls._instance
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    a = Singleton()
+    b = Singleton()
+    print(f"__new__-based singleton - same instance? {a is b}")
+
+    also_config = config  # any other module that imports `config` gets this same object
+    print(f"module-level singleton - same instance? {config is also_config}")
+```
+
 ### Pros of Singleton Pattern
 
 - **Cleaner Implementation:** Singleton offers a straightforward and tidy way to manage a single instance of a class, especially when designed with thread safety and simplicity in mind.
@@ -458,6 +505,48 @@ class Main {
 ```
 
 Here, ShapeFactory is the factory that returns different objects (Circle, Square) based on input.
+
+**The same idea in Python**
+
+```python
+from abc import ABC, abstractmethod
+
+
+class Shape(ABC):                    # Java `interface` -> ABC + @abstractmethod
+    @abstractmethod
+    def draw(self) -> None: ...
+
+
+class Circle(Shape):
+    def draw(self) -> None:
+        print("Drawing Circle")
+
+
+class Square(Shape):
+    def draw(self) -> None:
+        print("Drawing Square")
+
+
+class ShapeFactory:
+    def get_shape(self, shape_type: str) -> Shape:
+        shape_type = shape_type.upper()
+        if shape_type == "CIRCLE":
+            return Circle()
+        elif shape_type == "SQUARE":
+            return Square()
+        raise ValueError(f"Unknown shape type: {shape_type}")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    shape_factory = ShapeFactory()
+
+    shape1 = shape_factory.get_shape("CIRCLE")
+    shape1.draw()
+
+    shape2 = shape_factory.get_shape("SQUARE")
+    shape2.draw()
+```
 
 ### Real-life Product Example - Logistics Services
 
@@ -909,6 +998,97 @@ class Main {
 - **Selective Configuration:** Only required fields (bunType, patty) are passed to the builder's constructor. Everything else is optional and set via withXYZ() methods.
 - **Final Step: build():** Once all desired fields are set, calling .build() finalizes the object construction and returns the BurgerMeal instance.
 
+#### The same idea in Python
+
+Python has keyword arguments and `@dataclass` defaults, so the specific problem the Builder Pattern solves in Java - no optional parameters, no overloading - mostly doesn't exist here. The builder is still shown below for structural parity; reach for it when construction needs validation or multi-step logic beyond what a dataclass can express.
+
+```python
+from dataclasses import dataclass, field
+from typing import List, Optional
+
+
+# Idiomatic Python: keyword arguments (or a @dataclass) cover most of what
+# the Builder Pattern exists for in Java - no telescoping constructors, no
+# boilerplate builder class, optional fields just get defaults.
+@dataclass
+class BurgerMealPythonic:
+    bun_type: str
+    patty: str
+    has_cheese: bool = False
+    toppings: List[str] = field(default_factory=list)
+    side: Optional[str] = None
+    drink: Optional[str] = None
+
+
+# The Builder shown here for structural parity with the Java version - worth
+# reaching for when construction needs validation or multi-step logic beyond
+# what a dataclass default can express.
+class BurgerMeal:
+    def __init__(self, builder: "BurgerMeal.Builder") -> None:
+        self.bun_type = builder._bun_type
+        self.patty = builder._patty
+        self.has_cheese = builder._has_cheese
+        self.toppings = builder._toppings
+        self.side = builder._side
+        self.drink = builder._drink
+
+    def __str__(self) -> str:
+        return (f"BurgerMeal(bun_type={self.bun_type}, patty={self.patty}, "
+                f"has_cheese={self.has_cheese}, toppings={self.toppings}, "
+                f"side={self.side}, drink={self.drink})")
+
+    class Builder:
+        def __init__(self, bun_type: str, patty: str) -> None:
+            self._bun_type = bun_type
+            self._patty = patty
+            self._has_cheese = False
+            self._toppings: List[str] = []
+            self._side: Optional[str] = None
+            self._drink: Optional[str] = None
+
+        def with_cheese(self, has_cheese: bool) -> "BurgerMeal.Builder":
+            self._has_cheese = has_cheese
+            return self
+
+        def with_toppings(self, toppings: List[str]) -> "BurgerMeal.Builder":
+            self._toppings = toppings
+            return self
+
+        def with_side(self, side: str) -> "BurgerMeal.Builder":
+            self._side = side
+            return self
+
+        def with_drink(self, drink: str) -> "BurgerMeal.Builder":
+            self._drink = drink
+            return self
+
+        def build(self) -> "BurgerMeal":
+            return BurgerMeal(self)
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    plain_burger = BurgerMeal.Builder("wheat", "veg").build()
+
+    burger_with_cheese = BurgerMeal.Builder("wheat", "veg").with_cheese(True).build()
+
+    loaded_burger = (
+        BurgerMeal.Builder("multigrain", "chicken")
+        .with_cheese(True)
+        .with_toppings(["lettuce", "onion", "jalapeno"])
+        .with_side("fries")
+        .with_drink("coke")
+        .build()
+    )
+
+    print(plain_burger)
+    print(burger_with_cheese)
+    print(loaded_burger)
+
+    pythonic = BurgerMealPythonic(bun_type="wheat", patty="veg", has_cheese=True)
+    print(pythonic)
+```
+
 ### Why This is Better
 
 | Aspect | Constructor Approach | Builder Pattern |
@@ -1316,6 +1496,107 @@ class Main {
 - **Easy to Test:** Each factory can be tested independently with its own unit tests.
 - **Follows SOLID Principles:** Especially the Open/Closed Principle and Dependency Inversion Principle.
 
+#### The same idea in Python
+
+```python
+from abc import ABC, abstractmethod
+
+
+class PaymentGateway(ABC):
+    @abstractmethod
+    def process_payment(self, amount: float) -> None: ...
+
+
+class Invoice(ABC):
+    @abstractmethod
+    def generate_invoice(self) -> None: ...
+
+
+class RazorpayGateway(PaymentGateway):
+    def process_payment(self, amount: float) -> None:
+        print(f"Processing INR payment via Razorpay: {amount}")
+
+
+class PayUGateway(PaymentGateway):
+    def process_payment(self, amount: float) -> None:
+        print(f"Processing INR payment via PayU: {amount}")
+
+
+class GSTInvoice(Invoice):
+    def generate_invoice(self) -> None:
+        print("Generating GST Invoice for India.")
+
+
+class PayPalGateway(PaymentGateway):
+    def process_payment(self, amount: float) -> None:
+        print(f"Processing USD payment via PayPal: {amount}")
+
+
+class StripeGateway(PaymentGateway):
+    def process_payment(self, amount: float) -> None:
+        print(f"Processing USD payment via Stripe: {amount}")
+
+
+class USInvoice(Invoice):
+    def generate_invoice(self) -> None:
+        print("Generating Invoice as per US norms.")
+
+
+class RegionFactory(ABC):               # the "family of related products" factory
+    @abstractmethod
+    def create_payment_gateway(self, gateway_type: str) -> PaymentGateway: ...
+
+    @abstractmethod
+    def create_invoice(self) -> Invoice: ...
+
+
+class IndiaFactory(RegionFactory):
+    def create_payment_gateway(self, gateway_type: str) -> PaymentGateway:
+        gateway_type = gateway_type.lower()
+        if gateway_type == "razorpay":
+            return RazorpayGateway()
+        elif gateway_type == "payu":
+            return PayUGateway()
+        raise ValueError(f"Unsupported gateway for India: {gateway_type}")
+
+    def create_invoice(self) -> Invoice:
+        return GSTInvoice()
+
+
+class USFactory(RegionFactory):
+    def create_payment_gateway(self, gateway_type: str) -> PaymentGateway:
+        gateway_type = gateway_type.lower()
+        if gateway_type == "paypal":
+            return PayPalGateway()
+        elif gateway_type == "stripe":
+            return StripeGateway()
+        raise ValueError(f"Unsupported gateway for US: {gateway_type}")
+
+    def create_invoice(self) -> Invoice:
+        return USInvoice()
+
+
+class CheckoutService:
+    def __init__(self, factory: RegionFactory, gateway_type: str) -> None:
+        self._payment_gateway = factory.create_payment_gateway(gateway_type)
+        self._invoice = factory.create_invoice()
+
+    def complete_order(self, amount: float) -> None:
+        self._payment_gateway.process_payment(amount)
+        self._invoice.generate_invoice()
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    india_checkout = CheckoutService(IndiaFactory(), "razorpay")
+    india_checkout.complete_order(1500.00)
+
+    print("---")
+
+    us_checkout = CheckoutService(USFactory(), "paypal")
+    us_checkout.complete_order(49.99)
+```
+
 ### Pros and Cons
 
 #### Pros of the Abstract Factory Pattern
@@ -1592,6 +1873,67 @@ class Main {
 - **Introduces Registry:** Central location (EmailTemplateRegistry) holds template prototypes.
 - **Decouples creation from usage:** Client code doesn't depend on how WelcomeEmail is constructed.
 - **Improves performance:** Avoids complex re-initialization logic by cloning pre-configured templates.
+
+#### The same idea in Python
+
+Python's standard library has cloning built in: `copy.copy` is the shallow-copy equivalent of Java's `Object.clone()`, and `copy.deepcopy` is what you'd reach for instead of hand-rolling a deep clone.
+
+```python
+import copy
+from abc import ABC, abstractmethod
+from typing import Dict
+
+
+class EmailTemplate(ABC):
+    @abstractmethod
+    def clone(self) -> "EmailTemplate": ...
+
+    @abstractmethod
+    def set_content(self, content: str) -> None: ...
+
+    @abstractmethod
+    def send(self, to: str) -> None: ...
+
+
+class WelcomeEmail(EmailTemplate):
+    def __init__(self) -> None:
+        self.subject = "Welcome to the platform"
+        self.content = "Hi there! Thanks for joining us."
+
+    def clone(self) -> "WelcomeEmail":
+        # copy.copy is the shallow-copy equivalent of Java's Object.clone();
+        # copy.deepcopy is what you'd reach for if the template held nested
+        # mutable objects that also needed independent copies.
+        return copy.copy(self)
+
+    def set_content(self, content: str) -> None:
+        self.content = content
+
+    def send(self, to: str) -> None:
+        print(f"Sending to {to}: [{self.subject}] {self.content}")
+
+
+class EmailTemplateRegistry:
+    _templates: Dict[str, EmailTemplate] = {"welcome": WelcomeEmail()}
+
+    @classmethod
+    def get_template(cls, template_type: str) -> EmailTemplate:
+        return cls._templates[template_type].clone()  # clone, never hand out the original
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    welcome_email_1 = EmailTemplateRegistry.get_template("welcome")
+    welcome_email_1.set_content("Hi Alice, welcome to the premium plan!")
+    welcome_email_1.send("alice@example.com")
+
+    welcome_email_2 = EmailTemplateRegistry.get_template("welcome")
+    welcome_email_2.set_content("Hi Bob, thanks for joining!")
+    welcome_email_2.send("bob@example.com")
+
+    original = EmailTemplateRegistry._templates["welcome"]
+    print(f"Original untouched? {original.content == 'Hi there! Thanks for joining us.'}")
+```
 
 ### Deep Cloning VS Shallow Cloning
 

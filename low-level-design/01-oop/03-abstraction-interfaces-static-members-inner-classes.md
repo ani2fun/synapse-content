@@ -109,6 +109,50 @@ classDiagram
     Animal <|-- Cat
 ```
 
+**The same idea in Python**
+
+```python
+from abc import ABC, abstractmethod
+
+
+class Animal(ABC):
+    # abc.ABC + @abstractmethod is Python's abstract-class mechanism: instantiating
+    # Animal directly raises TypeError, and every concrete subclass MUST override
+    # sound(). A concrete method like eat() can live right alongside the abstract one —
+    # ABC classes freely mix abstract and implemented ("default") methods, no separate
+    # keyword needed. (The duck-typed alternative, with no explicit base class at all,
+    # is `typing.Protocol` — useful when you want structural typing instead of a fail-fast
+    # contract.)
+    def eat(self) -> None:
+        print("This animal eats food.")
+
+    @abstractmethod
+    def sound(self) -> None:
+        ...
+
+
+class Dog(Animal):
+    def sound(self) -> None:
+        print("The dog barks.")
+
+
+class Cat(Animal):
+    def sound(self) -> None:
+        print("The cat meows.")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    my_dog: Animal = Dog()
+    my_cat: Animal = Cat()
+
+    my_dog.eat()
+    my_dog.sound()
+
+    my_cat.eat()
+    my_cat.sound()
+```
+
 ### Interfaces
 
 An interface is similar to an abstract class, but it can only contain abstract methods (until Java 8, after which default methods were introduced). All methods in an interface are implicitly abstract, and it is used to represent a contract that the implementing classes must fulfill.
@@ -512,6 +556,41 @@ class Main {
 ```
 
 Here, the `Duck` class implements both `Flyable` and `Swimmable` interfaces, providing specific behaviors for flying and swimming.
+
+**The same idea in Python**
+
+A Java class `implements` several interfaces; the direct Python equivalent is multiple inheritance of `ABC`s — `Duck` must supply every abstract method collected from both bases before it can be instantiated:
+
+```python
+from abc import ABC, abstractmethod
+
+
+class Flyable(ABC):
+    @abstractmethod
+    def fly(self) -> None:
+        ...
+
+
+class Swimmable(ABC):
+    @abstractmethod
+    def swim(self) -> None:
+        ...
+
+
+class Duck(Flyable, Swimmable):
+    def fly(self) -> None:
+        print("Duck is flying.")
+
+    def swim(self) -> None:
+        print("Duck is swimming.")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    duck = Duck()
+    duck.fly()
+    duck.swim()
+```
 
 ### Key features of interfaces
 
@@ -974,6 +1053,47 @@ As you can see, static members simplify scenarios where sharing resources or cre
 
 </div>
 
+**The same idea in Python**
+
+```python
+class Counter:
+    # A class attribute plays the role of Java's `static` variable — one copy, owned by
+    # the class itself, shared by every instance.
+    count = 0
+
+    def __init__(self) -> None:
+        Counter.count += 1  # write through the class, not through self
+
+    @classmethod
+    def display_count(cls) -> None:
+        # @classmethod is the closest match for a static method that still needs to name
+        # its own class (useful for factories); a plain @staticmethod is closer to
+        # Java's static method when no class reference is needed at all.
+        print(f"Count: {cls.count}")
+
+
+class MathUtils:
+    # @staticmethod: no implicit self/cls, callable straight on the class — same shape
+    # as Java's static utility method.
+    @staticmethod
+    def add(a: int, b: int) -> int:
+        return a + b
+
+
+# Python has no separate "static block" syntax. A class body runs top-to-bottom exactly
+# once, at class-definition time — that's where one-time class-level setup belongs.
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    Counter()
+    Counter()
+    Counter.display_count()
+
+    result = MathUtils.add(5, 3)
+    print(f"Result: {result}")
+```
+
 ## Your Turn — Practice: Static Keyword
 
 Track how many `Counter` objects exist using a single `static` field shared across every instance — the defining trait of static state.
@@ -1274,6 +1394,63 @@ In the example, an instance of the `Greeting` class is created with an overridde
 - Typically used when a class is needed only once.
 
 Anonymous inner classes are commonly used in GUI applications or when implementing event listeners.
+
+**The same idea in Python**
+
+Python has exactly one flavor of nested class — it never carries an implicit reference back to an enclosing instance, so it naturally matches Java's `static` nested class. Everything Java gets from the other three kinds, Python reaches by more general (not special-cased) means:
+
+```python
+class OuterClass:
+    class_var = 100  # like a Java static field
+
+    def __init__(self) -> None:
+        self.instance_var = 42
+
+    # "Static nested class": every Python nested class behaves this way by default —
+    # no automatic link to an outer instance, so it can only see class-level state.
+    class NestedClass:
+        def display(self) -> None:
+            print(f"Class variable: {OuterClass.class_var}")
+
+    # Java's "non-static inner class" has no direct Python equivalent — Python nested
+    # classes hold no implicit reference to the instance that built them. To reach
+    # outer state, pass the outer object in explicitly instead.
+    class InstanceLinked:
+        def __init__(self, outer: "OuterClass") -> None:
+            self._outer = outer
+
+        def display(self) -> None:
+            print(f"Instance variable: {self._outer.instance_var}")
+
+    def manage_sensors(self) -> None:
+        # "Local inner class": Python freely allows defining a class inside a function;
+        # it closes over enclosing variables just like a nested function would.
+        outer_name = "Robot"
+
+        class Sensor:
+            def sense(self) -> None:
+                print(f"{outer_name} sensor detecting obstacles.")
+
+        Sensor().sense()
+
+    def execute_task(self) -> None:
+        # "Anonymous inner class": Python has no anonymous class literal. A locally
+        # defined class (as in manage_sensors above) covers multi-method behavior; a
+        # `lambda` or plain function is the idiomatic substitute for a single method.
+        task = lambda: print("Executing a custom task.")
+        task()
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    outer = OuterClass()
+
+    OuterClass.NestedClass().display()
+    OuterClass.InstanceLinked(outer).display()
+
+    outer.manage_sensors()
+    outer.execute_task()
+```
 
 ## Your Turn — Practice: Inner Classes
 

@@ -50,6 +50,61 @@ Another class named `Coordinator` can be added to coordinate between all these c
 
 By following the Single Responsibility Principle, we can make the code more modular, easier to maintain, and less prone to bugs. Each class can be modified or replaced independently without affecting the others.
 
+#### The same idea in Python
+
+**Python**
+
+```python
+class DriverCodeGenerator:
+    def generate(self, code: str) -> str:
+        return f"// driver\n{code}\n// end driver"
+
+
+class SyntaxChecker:
+    def check(self, code: str) -> bool:
+        return code.strip() != ""
+
+
+class TestRunner:
+    def run(self, code: str, test_cases: list) -> list:
+        return [f"input={t!r} -> ok" for t in test_cases]
+
+
+class DatabaseManager:
+    def save(self, output: list) -> None:
+        self._stored = output  # pretend persistence
+
+
+class UserOutputHandler:
+    def present(self, output: list) -> str:
+        return "\n".join(output)
+
+
+class Coordinator:
+    # Each collaborator below has exactly one job; Coordinator only orchestrates them.
+    def __init__(self) -> None:
+        self._driver = DriverCodeGenerator()
+        self._checker = SyntaxChecker()
+        self._runner = TestRunner()
+        self._db = DatabaseManager()
+        self._output = UserOutputHandler()
+
+    def compile_and_run(self, code: str, test_cases: list) -> str:
+        wrapped = self._driver.generate(code)
+        if not self._checker.check(wrapped):
+            return "Syntax error"
+        results = self._runner.run(wrapped, test_cases)
+        self._db.save(results)
+        return self._output.present(results)
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    coordinator = Coordinator()
+    result = coordinator.compile_and_run("print('hello')", ["case1", "case2"])
+    print(result)
+```
+
 ### Advantages of SRP
 
 - **Improved maintainability:** Changes in one part of the system won't affect other parts, making it easier to maintain and update.
@@ -185,6 +240,57 @@ class Main {
         System.out.println("Total (UK): £" + ukInvoice.getTotalAmount());
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+from abc import ABC, abstractmethod
+
+
+class TaxCalculator(ABC):  # Python has no `interface`; ABC + @abstractmethod
+    @abstractmethod          # makes the contract explicit and fails fast if
+    def calculate_tax(self, amount: float) -> float:  # a region is left unimplemented.
+        ...
+
+
+class IndiaTaxCalculator(TaxCalculator):
+    def calculate_tax(self, amount: float) -> float:
+        return amount * 0.18  # GST
+
+
+class USTaxCalculator(TaxCalculator):
+    def calculate_tax(self, amount: float) -> float:
+        return amount * 0.08  # Sales Tax
+
+
+class UKTaxCalculator(TaxCalculator):
+    def calculate_tax(self, amount: float) -> float:
+        return amount * 0.12  # VAT
+
+
+class Invoice:
+    def __init__(self, amount: float, tax_calculator: TaxCalculator) -> None:
+        self._amount = amount
+        self._tax_calculator = tax_calculator
+
+    @property
+    def total_amount(self) -> float:
+        return self._amount + self._tax_calculator.calculate_tax(self._amount)
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    amount = 1000.0
+
+    india_invoice = Invoice(amount, IndiaTaxCalculator())
+    print(f"Total (India): {india_invoice.total_amount}")
+
+    us_invoice = Invoice(amount, USTaxCalculator())
+    print(f"Total (US): {us_invoice.total_amount}")
+
+    uk_invoice = Invoice(amount, UKTaxCalculator())
+    print(f"Total (UK): {uk_invoice.total_amount}")
 ```
 
 Explanation:
@@ -462,6 +568,30 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+class Notification:
+    def send_notification(self) -> None:
+        print("Notification sent")
+
+
+class EmailNotification(Notification):
+    def send_notification(self) -> None:
+        print("Email Notification sent")
+
+
+class TextNotification(Notification):
+    def send_notification(self) -> None:
+        print("Text Notification sent")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    notification: Notification = EmailNotification()
+    notification.send_notification()
+```
+
 Here, the only change needed for introducing two different types of the notification system is to create two subclasses of the `Notification` class with an overridden `sendNotification()` method. The main class can remain unchanged. The only change needed in the main method is the declaration of the `notification` object.
 
 This is the power of LSP. It allows us to extend our system without breaking existing code.
@@ -661,6 +791,72 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from abc import ABC, abstractmethod
+
+
+# Python duck-types, so an explicit interface isn't strictly required here —
+# ABC + @abstractmethod is used anyway to make the contract explicit and to
+# fail fast (TypeError) if a method is left unimplemented.
+class RiderInterface(ABC):
+    @abstractmethod
+    def book_ride(self) -> None:
+        ...
+
+    @abstractmethod
+    def rate_driver(self) -> None:
+        ...
+
+
+class DriverInterface(ABC):
+    @abstractmethod
+    def accept_ride(self) -> None:
+        ...
+
+    @abstractmethod
+    def track_earnings(self) -> None:
+        ...
+
+    @abstractmethod
+    def rate_passenger(self) -> None:
+        ...
+
+
+class Rider(RiderInterface):
+    def book_ride(self) -> None:
+        print("Booking a ride...")
+
+    def rate_driver(self) -> None:
+        print("Rating the driver...")
+
+
+class Driver(DriverInterface):
+    def accept_ride(self) -> None:
+        print("Accepting the ride...")
+
+    def track_earnings(self) -> None:
+        print("Tracking earnings...")
+
+    def rate_passenger(self) -> None:
+        print("Rating the passenger...")
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    rider = Rider()
+    rider.book_ride()
+    rider.rate_driver()
+
+    driver = Driver()
+    driver.accept_ride()
+    driver.track_earnings()
+    driver.rate_passenger()
+
+    print("Each class implements only the interface it needs — no unused methods.")
+```
+
 Now, each class has exactly what it needs — no more, no less. Thus, following the ISP keeps the code clean and easy to maintain.
 
 ### Benefits of using ISP
@@ -822,6 +1018,51 @@ class Main {
         engine.recommend();
     }
 }
+```
+
+**The same idea in Python**
+
+```python
+from abc import ABC, abstractmethod
+
+
+# Python duck-types, so an explicit interface isn't strictly required here —
+# ABC + @abstractmethod is used anyway to make the contract explicit and to
+# fail fast (TypeError) if a strategy is left unimplemented.
+class RecommendationStrategy(ABC):
+    @abstractmethod
+    def get_recommendations(self) -> None:
+        ...
+
+
+class RecentlyAdded(RecommendationStrategy):
+    def get_recommendations(self) -> None:
+        print("Showing recently added content...")
+
+
+class TrendingNow(RecommendationStrategy):
+    def get_recommendations(self) -> None:
+        print("Showing trending content...")
+
+
+class GenreBased(RecommendationStrategy):
+    def get_recommendations(self) -> None:
+        print("Showing content based on your favorite genres...")
+
+
+class RecommendationEngine:  # high-level module
+    def __init__(self, strategy: RecommendationStrategy) -> None:
+        self._strategy = strategy
+
+    def recommend(self) -> None:
+        self._strategy.get_recommendations()
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    strategy: RecommendationStrategy = TrendingNow()  # could also be RecentlyAdded or GenreBased
+    engine = RecommendationEngine(strategy)
+    engine.recommend()
 ```
 
 Here:

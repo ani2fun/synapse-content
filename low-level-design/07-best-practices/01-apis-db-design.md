@@ -286,6 +286,47 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from typing import List
+
+
+class Merchant:
+    def __init__(self, id_: int, name: str) -> None:
+        self.id = id_
+        self.name = name
+
+
+class Payment:
+    def __init__(self, id_: int, user: "User", merchant: Merchant, amount: float, method: str) -> None:
+        self.id = id_
+        self.user = user
+        self.merchant = merchant
+        self.amount = amount
+        self.method = method
+
+
+class User:
+    def __init__(self, id_: int, name: str, email: str) -> None:
+        self.id = id_
+        self.name = name
+        self.email = email
+        self.payments: List[Payment] = []
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    merchant = Merchant(1, "Acme Store")
+
+    user = User(100, "Alex", "alex@example.com")
+
+    payment = Payment(5001, user, merchant, 499.00, "UPI")
+    user.payments.append(payment)
+
+    print(f"{user.name} paid {payment.amount} to {merchant.name} via {payment.method}")
+```
+
 ### 4. What is DAO?
 
 <div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
@@ -348,6 +389,61 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+from abc import ABC, abstractmethod
+from typing import Dict, List, Optional
+
+
+# Payment is referenced by the interface below but not defined in this fence — minimal stub.
+class Payment:
+    def __init__(self, id_: int) -> None:
+        self.id = id_
+
+
+# Java's `interface` has no direct Python analogue — abc.ABC + @abstractmethod
+# makes the contract explicit: a subclass that forgets a method fails at
+# instantiation (TypeError) instead of silently duck-typing past it.
+class PaymentDAO(ABC):
+    @abstractmethod
+    def get_payment_by_id(self, id_: int) -> Optional[Payment]:
+        ...
+
+    @abstractmethod
+    def get_payments_by_user(self, user_id: int) -> List[Payment]:
+        ...
+
+    @abstractmethod
+    def save(self, payment: Payment) -> None:
+        ...
+
+
+# DemoPaymentDAO exists only to demonstrate the contract — not the canonical implementation.
+class DemoPaymentDAO(PaymentDAO):
+    def __init__(self) -> None:
+        self._store: Dict[int, Payment] = {}
+
+    def get_payment_by_id(self, id_: int) -> Optional[Payment]:
+        return self._store.get(id_)
+
+    def get_payments_by_user(self, user_id: int) -> List[Payment]:
+        return list(self._store.values())
+
+    def save(self, payment: Payment) -> None:
+        self._store[payment.id] = payment
+
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    dao: PaymentDAO = DemoPaymentDAO()
+    payment = Payment(1)
+    dao.save(payment)
+    fetched = dao.get_payment_by_id(1)
+    assert fetched is not None
+    print(f"Fetched payment id: {fetched.id}")
+```
+
 ### 5. What is Repository?
 
 The Repository pattern is an abstraction that provides a collection-like interface for accessing domain objects. It's often used with ORMs like Spring Data JPA.
@@ -374,6 +470,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findByUserId(Long userId);
 }
 ```
+
+Spring Data JPA auto-implements a repository like this from the interface declaration alone — a
+framework capability with no Python analogue, so no translation is given here. The DAO example
+above (`PaymentDAO` as `abc.ABC`) is the idiomatic Python shape for the underlying pattern; you
+would still write `DemoPaymentDAO`'s body by hand.
 
 ### 6. Real-World Enhancements and Practices
 
