@@ -105,6 +105,40 @@ if __name__ == "__main__":
     print(result)
 ```
 
+The refactored design as a class diagram - five single-purpose collaborators, each with one reason to change, orchestrated by `Coordinator`:
+
+```mermaid
+classDiagram
+    class DriverCodeGenerator {
+        +generate(code: String) String
+    }
+    class SyntaxChecker {
+        +check(code: String) boolean
+    }
+    class TestRunner {
+        +run(code: String, testCases: List) List
+    }
+    class DatabaseManager {
+        +save(output: List) void
+    }
+    class UserOutputHandler {
+        +present(output: List) String
+    }
+    class Coordinator {
+        -driver: DriverCodeGenerator
+        -checker: SyntaxChecker
+        -runner: TestRunner
+        -db: DatabaseManager
+        -output: UserOutputHandler
+        +compileAndRun(code: String, testCases: List) String
+    }
+    Coordinator *-- DriverCodeGenerator
+    Coordinator *-- SyntaxChecker
+    Coordinator *-- TestRunner
+    Coordinator *-- DatabaseManager
+    Coordinator *-- UserOutputHandler
+```
+
 ### Advantages of SRP
 
 - **Improved maintainability:** Changes in one part of the system won't affect other parts, making it easier to maintain and update.
@@ -858,6 +892,34 @@ if __name__ == "__main__":
 ```
 
 Now, each class has exactly what it needs — no more, no less. Thus, following the ISP keeps the code clean and easy to maintain.
+
+The segregated interfaces as a class diagram - `Rider` and `Driver` each implement only the interface built for their role:
+
+```mermaid
+classDiagram
+    class RiderInterface {
+        <<interface>>
+        +bookRide() void
+        +rateDriver() void
+    }
+    class DriverInterface {
+        <<interface>>
+        +acceptRide() void
+        +trackEarnings() void
+        +ratePassenger() void
+    }
+    class Rider {
+        +bookRide() void
+        +rateDriver() void
+    }
+    class Driver {
+        +acceptRide() void
+        +trackEarnings() void
+        +ratePassenger() void
+    }
+    RiderInterface <|.. Rider
+    DriverInterface <|.. Driver
+```
 
 ### Benefits of using ISP
 

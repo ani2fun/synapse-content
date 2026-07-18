@@ -99,6 +99,46 @@ class Main {
 }
 ```
 
+**The same idea in Python**
+
+```python
+class EagerSingleton:
+    # Holds the one instance once it has been built.
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        # Python doesn't have a strict 'private' constructor,
+        # but overriding __new__ ensures only one instance ever exists.
+        if cls._instance is None:
+            print("EagerSingleton constructed")
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    @classmethod
+    def get_instance(cls):
+        """Method to mimic Java's getInstance() method."""
+        return cls()
+
+
+# This line is what makes it *eager*: the instance is built as soon as the
+# module is imported, before any caller asks for it — the Python counterpart
+# of Java's `static final` field initialised at class-load time. Note the
+# "constructed" message prints before any driver output below.
+EagerSingleton()
+
+# ── Driver ──────────────────────────────────────────────
+if __name__ == "__main__":
+    # You can call get_instance() to match the Java style
+    a = EagerSingleton.get_instance()
+    b = EagerSingleton.get_instance()
+    print(f"Same instance? {a is b}")  # Output: True
+
+    # Even if someone accidentally tries to instantiate it normally,
+    # it still returns the exact same instance!
+    c = EagerSingleton()
+    print(f"Standard instantiation also same? {a is c}")  # Output: True
+```
+
 ##### Understanding
 
 - The object is created immediately when the class is loaded.
@@ -412,6 +452,24 @@ if __name__ == "__main__":
 ### Conclusion
 
 The Singleton pattern can be a powerful tool when used appropriately, particularly for managing global states and shared resources. However, developers should be mindful of its drawbacks, especially regarding testing and maintainability. Consider alternatives or enhanced implementations (like dependency injection) where appropriate to maintain clean and scalable codebases.
+
+### Class Diagram
+
+The class diagram below illustrates the Bill Pugh Singleton - the best-practice lazy, thread-safe variant - showing the private constructor and the static nested `Holder` class that lazily provides the single instance.
+
+```mermaid
+classDiagram
+    class Singleton {
+        -Singleton()
+        +getInstance()$ Singleton
+    }
+    class Holder {
+        <<static nested>>
+        -INSTANCE: Singleton$
+    }
+    Singleton *-- Holder : nested class
+    Holder --> Singleton : holds INSTANCE
+```
 
 ## Factory Pattern
 
@@ -1247,6 +1305,40 @@ Think about Amazon's shopping cart system. When you add an item to your cart, yo
 - Discounted price or offer tag
 
 Each user may customize these options differently. Internally, such cart items are likely created using a Builder Pattern to allow step-by-step configuration while ensuring data consistency and immutability.
+
+### Class Diagram
+
+The class diagram below illustrates the structure of the Builder Pattern, based on the `BurgerMeal` / `BurgerBuilder` example above.
+
+```mermaid
+classDiagram
+    class BurgerMeal {
+        -bunType: String
+        -patty: String
+        -hasCheese: boolean
+        -toppings: List~String~
+        -side: String
+        -drink: String
+        -BurgerMeal(builder: BurgerBuilder)
+        +toString() String
+    }
+    class BurgerBuilder {
+        -bunType: String
+        -patty: String
+        -hasCheese: boolean
+        -toppings: List~String~
+        -side: String
+        -drink: String
+        +BurgerBuilder(bunType: String, patty: String)
+        +withCheese(hasCheese: boolean) BurgerBuilder
+        +withToppings(toppings: List~String~) BurgerBuilder
+        +withSide(side: String) BurgerBuilder
+        +withDrink(drink: String) BurgerBuilder
+        +build() BurgerMeal
+    }
+    BurgerMeal *-- BurgerBuilder : nested class
+    BurgerBuilder ..> BurgerMeal : builds
+```
 
 ## Abstract Factory Pattern
 
