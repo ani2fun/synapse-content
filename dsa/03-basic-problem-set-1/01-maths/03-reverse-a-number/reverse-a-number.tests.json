@@ -1,0 +1,17 @@
+{
+  "args": [
+    { "id": "n", "label": "n", "type": "int", "placeholder": "25" }
+  ],
+  "cases": [
+    { "args": { "n": "25" }, "expected": "52" },
+    { "args": { "n": "123" }, "expected": "321" },
+    { "args": { "n": "54" }, "expected": "45" },
+    { "args": { "n": "0" }, "expected": "0" },
+    { "args": { "n": "1" }, "expected": "1" },
+    { "args": { "n": "7" }, "expected": "7" },
+    { "args": { "n": "10" }, "expected": "1" },
+    { "args": { "n": "100" }, "expected": "1" },
+    { "args": { "n": "1000" }, "expected": "1" },
+    { "args": { "n": "5000" }, "expected": "5" }
+  ]
+}
