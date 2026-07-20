@@ -1,3 +1,7 @@
+## Intuition
+
+Printing X exactly N times is just a counted loop; the only trick is placing the separating space before every value except the last, which a check against the final iteration index handles cleanly.
+
 ## Approach
 
 1. **Receive Inputs:** Capture the integers X and N from the user.

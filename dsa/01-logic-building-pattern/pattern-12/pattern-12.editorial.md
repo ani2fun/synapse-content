@@ -1,3 +1,7 @@
+## Intuition
+
+Each row is symmetric: the same ascending run `1..i` appears on both sides of a gap of spaces, and as the numbers grow by one each row, the gap in between shrinks by exactly two — so tracking one shrinking `spaces` counter alongside the row index is enough to keep every row aligned into a diamond.
+
 ## Approach
 
 1. This pattern can be divided into three parts: first print the numbers, then spaces and at last numbers again.

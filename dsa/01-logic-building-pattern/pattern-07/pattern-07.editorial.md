@@ -1,3 +1,9 @@
+## Intuition
+
+A centered pyramid needs two things per row: the leading spaces shrink by one as the stars grow,
+so the peak of stars always lands in the middle. Row i (0-indexed) needs N-i-1 leading spaces and
+2i+1 stars — an odd count, which keeps every row symmetric around the same center column.
+
 ## Approach
 
 1. Iterate from 0 to N-1, where N is the number of rows. This outer loop ensures that each row of the pyramid pattern is printed.

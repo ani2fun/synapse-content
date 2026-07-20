@@ -1,4 +1,4 @@
-## Brute Force
+## Brute
 
 ### Intuition
 
@@ -9,6 +9,8 @@ Given a number n, a brute force approach would be to iterate from 1 to n checkin
 1. Initialize an array/list to store the divisors.
 2. Iterate from 1 to n, and check if the current value is a divisor of n or not. Add the value to the array/list if it is a divisor.
 3. The array/list stores all the divisors of n.
+
+### Solution
 
 ```python solution time=O(N) space=O(K)
 class Solution:
@@ -116,6 +118,8 @@ The previous approach can be optimized by using the property that for any non-ne
 1. Initialize an array/list to store the divisors.
 2. Iterate from 1 to sqrt(n), and check if the current value is a divisor of n or not. Add the value to the array/list if it is a divisor. Also, add the counterpart divisor to the array/list if it is different from the current divisor.
 3. The array/list stores all the divisors of n. Sort the list and return the result.
+
+### Solution
 
 ```python solution time=O(sqrt(N)+K*log(K)) space=O(sqrt(N))
 import math
@@ -248,6 +252,8 @@ The smaller divisors will automatically come in increasing order because we are 
 4. Also add its paired divisor to the larger divisors list, but only if both divisors are different.
 5. Since the larger divisors are collected in reverse order, add them to the answer from the back.
 6. Return the final list, which is already sorted in increasing order.
+
+### Solution
 
 ```python solution time=O(sqrt(N)) space=O(K)
 class Solution:

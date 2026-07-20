@@ -1,3 +1,9 @@
+## Intuition
+
+Same shrinking-triangle shape as before, but instead of a fixed asterisk each column prints its
+own position — so the inner loop's counter (offset by one) doubles as the value to print, while
+the row width still shrinks by one column per row.
+
 ## Approach
 
 1. Use a for loop to iterate from 0 to N-1, where N is the number of rows. This loop will ensure to print each row of the pattern.

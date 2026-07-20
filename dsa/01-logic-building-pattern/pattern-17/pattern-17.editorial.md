@@ -1,3 +1,7 @@
+## Intuition
+
+Each row is its own little letter-pyramid: a counter climbs from A up to the row's middle letter and then climbs back down to A, so incrementing a character while below the midpoint and decrementing it afterward produces the peak, and leading spaces just shift that peak into a centered triangle.
+
 ## Approach
 
 1. Use a for loop to iterate from 0 to N-1, where N is the number of rows. This loop will ensure each row of the pattern is printed.

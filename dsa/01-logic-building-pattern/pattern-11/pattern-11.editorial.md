@@ -1,3 +1,7 @@
+## Intuition
+
+Each row's starting digit is fixed by the parity of the row index (1 on even rows, 0 on odd rows), and every value after that is just the previous one flipped — so a single toggling variable that starts at the right bit and inverts itself after each print reproduces the whole alternating row.
+
 ## Approach
 
 1. Iterate from 1 to N using a for loop, it will basically define the number of rows needed.

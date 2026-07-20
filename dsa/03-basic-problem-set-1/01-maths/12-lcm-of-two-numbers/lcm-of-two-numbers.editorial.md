@@ -1,4 +1,4 @@
-## Brute Force Solution
+## Brute
 
 ### Intuition
 
@@ -9,6 +9,8 @@ In a naive approach to finding the LCM of two given numbers, the multiples of th
 1. Initialize a variable lcm to store the LCM of given numbers.
 2. Run a loop finding all the multiples of greater number and in every pass, check if the multiple is common for both numbers. If found common, store the multiple as lcm and terminate the loop.
 3. The LCM for the two numbers will be stored in variable lcm.
+
+### Solution
 
 ```python solution time=O(min(N1,N2)) space=O(1)
 class Solution:
@@ -113,6 +115,8 @@ lcm(n1, n2) = (n1 * n2) / gcd(n1, n2).
 
 1. Find the GCD of two numbers and store it in some variable.
 2. The LCM for the two numbers can be found directly using the formula mentioned above.
+
+### Solution
 
 ```python solution time=O(log(min(N1,N2))) space=O(1)
 class Solution:

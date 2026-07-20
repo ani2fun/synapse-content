@@ -1,3 +1,9 @@
+## Intuition
+
+Row i has exactly i columns, and the value printed in each column is just that column's own
+position — so the inner loop's own counter (1, 2, 3, …) is already the number to print, with no
+extra bookkeeping.
+
 ## Approach
 
 1. Use a for loop to iterate from 1 to N, where N is the number of rows. This loop will ensure to print each row of the pattern.

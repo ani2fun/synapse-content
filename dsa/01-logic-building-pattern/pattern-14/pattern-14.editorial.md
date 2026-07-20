@@ -1,3 +1,7 @@
+## Intuition
+
+Row `i` always restarts from 'A' but needs one more letter than the row before it, so counting from 'A' up to `'A' + i` using character arithmetic is enough to produce the growing run of letters for every row.
+
 ## Approach
 
 1. Use a for loop to iterate from 0 to N-1, where N is the number of rows. This loop will ensure to print each row of the pattern.

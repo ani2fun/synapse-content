@@ -1,3 +1,7 @@
+## Intuition
+
+Row `i` always starts back at 'A', but the run length shrinks by one letter every row, so counting from 'A' up to `'A' + (n - i - 1)` reproduces the inverted triangle of letters getting shorter as the rows progress.
+
 ## Approach
 
 1. Use a for loop to iterate from 0 to N-1, where N is the number of rows. This loop will ensure to print each row of the pattern.

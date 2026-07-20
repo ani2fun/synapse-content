@@ -1,3 +1,7 @@
+## Intuition
+
+Each cell's printed value is just N minus its distance to the nearest of the four edges, so cells sitting right on the border get the largest number and every concentric ring one step further in gets a number one smaller, all the way down to 1 at the center.
+
 ## Approach
 
 1. Use a for loop to iterate from 0 to 2*N-2, where N is the number of rows. This loop will ensure to print each row of the pattern.

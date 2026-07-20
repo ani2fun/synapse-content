@@ -1,3 +1,7 @@
+## Intuition
+
+The first and last elements of an array sit at fixed positions — index 0 and index length − 1 — no matter how many elements lie between them, so the answer is just two index reads and an addition, guarded against the empty-array case.
+
 ## Approach
 
 1. **Check Array Length:** Ensure that the array is not empty to avoid accessing elements in an empty array.

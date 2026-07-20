@@ -1,3 +1,9 @@
+## Intuition
+
+This is a right triangle flipped upside down: the first row is the widest and each later row
+loses exactly one star, so row i (0-indexed) simply has N-i stars — the inner loop bound counts
+down as the outer loop counts up.
+
 ## Approach
 
 1. Use a for loop to iterate from 0 to N-1, where N is the number of rows. This loop will ensure to print each row of the pattern.

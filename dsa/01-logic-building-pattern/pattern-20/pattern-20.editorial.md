@@ -1,3 +1,7 @@
+## Intuition
+
+The gap between the two star columns closes by two every row until it vanishes at the middle row, then reopens by two every row after — so counting the star width up to N and back down, mirrored by counting the gap down to zero and back up, is enough to draw a diamond that is widest in the middle and pinched at both ends.
+
 ## Approach
 
 1. Start by initializing spaces to 2*N - 2. This variable tracks the number of spaces between the two sets of stars in each row, where N is the number of rows.

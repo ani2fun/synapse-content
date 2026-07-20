@@ -1,3 +1,7 @@
+## Intuition
+
+Every row ends at the same last letter of the alphabet; only where it starts moves earlier as the row number grows, so counting the inner loop backward from `n - 1 - i` letters before the end keeps the right edge fixed while the left edge grows the triangle.
+
 ## Approach
 
 1. Use a for loop to iterate from 0 to N-1, where N is the number of rows. This loop will ensure to print each row of the pattern.

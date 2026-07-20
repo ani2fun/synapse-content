@@ -1,3 +1,7 @@
+## Intuition
+
+Row `i` needs exactly `i` numbers, but the count is never reset between rows — so carrying a single counter across the whole outer loop naturally continues the sequence from wherever the previous row left off, instead of restarting each row from 1.
+
 ## Approach
 
 1. Iterate from 1 to N, where N is the number of rows.

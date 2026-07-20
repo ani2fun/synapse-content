@@ -1,3 +1,7 @@
+## Intuition
+
+Across the `2n - 1` rows, the star count simply climbs from 1 up to `n` and then mirrors itself back down to 1, so row `i`'s star count is `i` for the first half and `2n - i` for the second half — one loop with that split reproduces the whole grow-then-shrink shape.
+
 ## Approach
 
 1. Use nested for loops to print the pattern. First, figure out what is the total number of rows for which the pattern needs to be printed.

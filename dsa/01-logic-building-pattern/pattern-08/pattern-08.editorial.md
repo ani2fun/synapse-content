@@ -1,3 +1,10 @@
+## Intuition
+
+The star count shrinks by 2 each row (an odd sequence counting down from 2N-1 to 1), and the
+leading spaces grow by exactly 1 each row — the two together slant the triangle's left edge
+inward while its right edge stays put, producing a triangle that leans instead of standing
+upright.
+
 ## Approach
 
 1. Iterate from 0 to N-1 using a loop, where N is the number of rows. This loop will ensure to print each row of the pattern.

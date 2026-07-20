@@ -1,3 +1,7 @@
+## Intuition
+
+Whether a person is an Adult or a Teen collapses to a single comparison against the age-18 threshold, so one `if-else` branch on `age >= 18` is enough to pick between the two outcomes.
+
 ## Approach
 
 1. Receive Input: Capture the integer input age from the user.

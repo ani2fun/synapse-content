@@ -1,3 +1,8 @@
+## Intuition
+
+Unlike a pattern where the printed value changes across a row, here the value is constant for
+the whole row — it's just the row number itself, repeated as many times as the row is wide.
+
 ## Approach
 
 1. Use a for loop to iterate from 1 to N, where N is the number of rows. This loop will ensure to print each row of the pattern.

@@ -1,3 +1,8 @@
+## Intuition
+
+Every row of a solid square is identical — all N rows have exactly N stars. So a single outer
+loop over the rows, driving an inner loop that always runs N times, is enough to fill the square.
+
 ## Approach
 
 1. Use a for loop to iterate from 0 to (N-1), where N is the number of rows. This loop will ensure to print each row of the pattern.

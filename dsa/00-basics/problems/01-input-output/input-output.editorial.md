@@ -1,3 +1,7 @@
+## Intuition
+
+The task is a pure echo: read one integer through the language's input primitive and hand it straight back through the matching output primitive — no transformation is needed.
+
 ## Approach
 
 The idea is to take an integer input from the user and print it on the screen. This task can be broken down into the following steps:

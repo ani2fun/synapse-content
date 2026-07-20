@@ -1,3 +1,7 @@
+## Intuition
+
+The two star blocks in a row shrink by one star and their middle gap grows by two, row after row, which pulls the shape inward toward the center; running that same "stars, gap, stars" rule forward for the top half and in reverse for the bottom half pinches the two halves together into an hourglass.
+
 ## Approach
 
 1. This pattern can be broken down into lower half and upper half. Both the halves follow the same logic, first print the asterisks then the spaces and at last the asterisks again.

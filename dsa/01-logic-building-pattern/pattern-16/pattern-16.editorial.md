@@ -1,3 +1,7 @@
+## Intuition
+
+Each row prints just one letter — the row's own index into the alphabet — repeated once per position up to that row number, so the row number doubles as both which letter to pick and how many times to print it.
+
 ## Approach
 
 1. Use a for loop to iterate from 0 to N-1, where N is the number of rows. This loop will ensure to print each row of the pattern. Initialize a variable to store the alphabet that needs to be printed in each row, depending upon the row numbers.

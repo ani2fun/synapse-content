@@ -1,3 +1,8 @@
+## Intuition
+
+Row i (0-indexed) of a right triangle holds exactly i+1 stars, so the inner loop bound simply
+tracks the outer loop index — no separate counter is needed to know how many stars a row gets.
+
 ## Approach
 
 1. First, run a loop for N times(0 to N-1). This loop will ensure to print each row of the pattern.

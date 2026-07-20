@@ -1,3 +1,7 @@
+## Intuition
+
+Only the border cells need a star, so the condition is simply "first or last row, or first or last column" — every interior cell fails that check and gets a space instead, which hollows out the square.
+
 ## Approach
 
 1. Use a for loop to iterate from 0 to N-1, where N is the number of rows. This loop will ensure to print each row of the pattern.

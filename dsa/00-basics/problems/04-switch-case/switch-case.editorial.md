@@ -1,3 +1,7 @@
+## Intuition
+
+Each valid day number maps to exactly one weekday name, so once out-of-range values are filtered out with a simple bounds check, a direct one-to-one dispatch — a switch (or match) on the day value — reads more naturally than a chain of comparisons.
+
 ## Approach
 
 1. **Receive Input:** Capture the integer input day from the user.

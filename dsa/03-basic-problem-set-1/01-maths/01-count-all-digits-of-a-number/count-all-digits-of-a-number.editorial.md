@@ -1,4 +1,4 @@
-## Brute Force
+## Brute
 
 ### Intuition
 
@@ -14,6 +14,8 @@ Given a number, all the digits in the number can be counted by counting one by o
 ### Edge Case
 
 What if the given number is zero? Return 1, because the number of digits in zero is 1.
+
+### Solution
 
 ```python solution time=O(log10(N)) space=O(1)
 class Solution:
@@ -104,6 +106,8 @@ Given a number, the number of digits can be found directly from the logarithm (b
 ### Edge Case
 
 What if the given number is zero? Return 1, because the number of digits in zero is 1.
+
+### Solution
 
 ```python solution time=O(1) space=O(1)
 import math

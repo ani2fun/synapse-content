@@ -1,3 +1,7 @@
+## Intuition
+
+The grade bands never overlap and are naturally ordered by descending cutoff, so checking them from the highest threshold down and stopping at the first match assigns the correct grade with a single chain of comparisons.
+
 ## Approach
 
 1. **Receive Input:** Capture the integer input marks from the user.

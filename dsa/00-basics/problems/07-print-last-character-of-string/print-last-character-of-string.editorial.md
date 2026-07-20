@@ -1,3 +1,7 @@
+## Intuition
+
+A string's last character sits at a fixed offset from the end, so indexing with `-1` (or `length - 1`) reaches it directly without scanning the string.
+
 ## Approach
 
 1. Identify the last character of the string. Since strings are zero-indexed, the last character can be accessed using the index len(s) - 1, where len is the length of the string.

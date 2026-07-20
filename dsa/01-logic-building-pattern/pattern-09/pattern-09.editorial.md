@@ -1,3 +1,7 @@
+## Intuition
+
+This shape is just an upright pyramid stacked directly on top of an inverted one: the star count grows row by row up to `2n - 1` and then shrinks back down, with the leading spaces on each side mirroring the star count so the whole figure stays centered.
+
 ## Approach
 
 1. This pattern is a combination of the pyramid and an inverted pyramid. First, print the pyramid and then the inverted one.
