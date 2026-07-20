@@ -13,7 +13,7 @@ The two star blocks in a row shrink by one star and their middle gap grows by tw
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
     # Function to print pattern19
     def pattern19(self, n):
@@ -65,7 +65,7 @@ sol = Solution()
 sol.pattern19(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -146,6 +146,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2). The overall complexity will be O(N2), where N is the number of rows.
+**Time Complexity:** O(N²). The overall complexity will be O(N²), where N is the number of rows.
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.

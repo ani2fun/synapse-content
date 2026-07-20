@@ -10,7 +10,7 @@ Row `i` always starts back at 'A', but the run length shrinks by one letter ever
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
     # Function to print pattern15
     def pattern15(self, n):
@@ -37,7 +37,7 @@ sol = Solution()
 sol.pattern15(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -76,6 +76,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2). The overall complexity will be O(N2), where N is the number of rows.
+**Time Complexity:** O(N²). The overall complexity will be O(N²), where N is the number of rows.
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.

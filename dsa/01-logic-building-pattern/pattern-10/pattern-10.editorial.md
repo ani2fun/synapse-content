@@ -9,7 +9,7 @@ Across the `2n - 1` rows, the star count simply climbs from 1 up to `n` and then
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
     #Function to print pattern10
     def pattern10(self, n):
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     sol.pattern10(N)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -81,6 +81,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2). Where N is the input provided. This quadratic complexity arises due to the nested loops iterating over N rows and printing a number of stars that sums up to approximately N2 stars in total.
+**Time Complexity:** O(N²). Where N is the input provided. This quadratic complexity arises due to the nested loops iterating over N rows and printing a number of stars that sums up to approximately N2 stars in total.
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.

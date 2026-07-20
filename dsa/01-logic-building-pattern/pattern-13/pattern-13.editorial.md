@@ -10,7 +10,7 @@ Row `i` needs exactly `i` numbers, but the count is never reset between rows —
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
     # Function to print pattern13
     def pattern13(self, n):
@@ -41,7 +41,7 @@ sol = Solution()
 sol.pattern13(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -83,6 +83,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2). Where N is the number of rows provided as a input.
+**Time Complexity:** O(N²). Where N is the number of rows provided as a input.
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.

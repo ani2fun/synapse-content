@@ -12,7 +12,7 @@ tracks the outer loop index — no separate counter is needed to know how many s
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
 
     # Function to print pattern2
@@ -39,7 +39,7 @@ sol = Solution()
 sol.pattern2(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -75,6 +75,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2). As the outer loop runs for N time and the inner loop runs incrementally in each iteration(1+2+3+...+N), which is equal to (N*(N+1)/2). So, overall it is O(N2).
+**Time Complexity:** O(N²). As the outer loop runs for N time and the inner loop runs incrementally in each iteration(1+2+3+...+N), which is equal to (N*(N+1)/2). So, overall it is O(N²).
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.

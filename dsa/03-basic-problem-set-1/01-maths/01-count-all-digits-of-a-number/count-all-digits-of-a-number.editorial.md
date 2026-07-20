@@ -17,7 +17,7 @@ What if the given number is zero? Return 1, because the number of digits in zero
 
 ### Solution
 
-```python solution time=O(log10(N)) space=O(1)
+```python solution time=O(log₁₀(N)) space=O(1)
 class Solution:
     # Function to count all digits in n
     def countDigit(self, n: int) -> int:
@@ -48,7 +48,7 @@ ans = sol.countDigit(n)
 print(ans)
 ```
 
-```java solution time=O(log10(N)) space=O(1)
+```java solution time=O(log₁₀(N)) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -89,7 +89,7 @@ public class Main {
 
 ### Complexity Analysis
 
-**Time Complexity:** O(log10(N)) – In every iteration we are dividing N by 10.
+**Time Complexity:** O(log₁₀(N)) – In every iteration we are dividing N by 10.
 
 **Space Complexity:** O(1) – Using a couple of variables i.e., constant space.
 

@@ -101,6 +101,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(log10(N)) – In every iteration, N is divided by 10 (equivalent to the number of digits in N.)
+**Time Complexity:** O(log₁₀(N)) – In every iteration, N is divided by 10 (equivalent to the number of digits in N.)
 
 **Space Complexity:** O(1) – Using a couple of variables i.e., constant space.

@@ -14,7 +14,7 @@ upright.
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
 
     # Function to print pattern8
@@ -45,7 +45,7 @@ sol = Solution()
 sol.pattern8(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -86,6 +86,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2). As the outer loop runs for N times and the first inner loop runs for(0 + 1 + 2 + .. + N-1), the second inner loop runs in decreasing manner in each iteration((2*N -1) + (2*N - 3) + ... + 1). So, overall it is O(N2).
+**Time Complexity:** O(N²). As the outer loop runs for N times and the first inner loop runs for(0 + 1 + 2 + .. + N-1), the second inner loop runs in decreasing manner in each iteration((2*N -1) + (2*N - 3) + ... + 1). So, overall it is O(N²).
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.

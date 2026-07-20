@@ -11,7 +11,7 @@ Each row is symmetric: the same ascending run `1..i` appears on both sides of a 
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
     # Function to print pattern12
     def pattern12(self, n):
@@ -52,7 +52,7 @@ sol = Solution()
 sol.pattern12(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -106,6 +106,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2). Where, N is the number of rows provided as an input.
+**Time Complexity:** O(N²). Where, N is the number of rows provided as an input.
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.

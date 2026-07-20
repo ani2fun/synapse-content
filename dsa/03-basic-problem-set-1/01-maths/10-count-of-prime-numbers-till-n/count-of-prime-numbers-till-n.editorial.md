@@ -12,7 +12,7 @@ A naive approach to count prime numbers till N, is to check every number startin
 
 ### Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
     # Function to find whether the
     # number is prime or not
@@ -64,7 +64,7 @@ sol = Solution()
 print(sol.primeUptoN(n))
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -131,7 +131,7 @@ public class Main {
 
 ### Complexity Analysis
 
-**Time Complexity:** O(N^2) – Checking all numbers from 1 to n for prime and checking if a number is prime or not will take O(n) TC.
+**Time Complexity:** O(N²) – Checking all numbers from 1 to n for prime and checking if a number is prime or not will take O(n) TC.
 
 **Space Complexity:** O(1) – Using a couple of variables i.e., constant space.
 
@@ -149,7 +149,7 @@ The previous approach can be optimized by improving the complexity of the functi
 
 ### Solution
 
-```python solution time=O(N^1.5) space=O(1)
+```python solution time=O(N√N) space=O(1)
 import math
 
 class Solution:
@@ -201,7 +201,7 @@ sol = Solution()
 print(sol.primeUptoN(n))
 ```
 
-```java solution time=O(N^1.5) space=O(1)
+```java solution time=O(N√N) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -265,6 +265,6 @@ public class Main {
 
 ### Complexity Analysis
 
-**Time Complexity:** O(N^1.5) – Checking all numbers from 1 to N for prime and checking if a number is prime or not will take O(N^0.5) TC.
+**Time Complexity:** O(N√N) – Checking all numbers from 1 to N for prime and checking if a number is prime or not will take O(√N) TC.
 
 **Space Complexity:** O(1) – Using a couple of variables i.e., constant space.

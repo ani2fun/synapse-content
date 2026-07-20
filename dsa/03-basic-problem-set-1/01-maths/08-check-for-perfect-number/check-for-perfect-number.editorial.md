@@ -119,7 +119,7 @@ When the given number is 1, there are no proper divisors of 1, i.e., the sum of 
 
 ### Solution
 
-```python solution time=O(sqrt(N)) space=O(1)
+```python solution time=O(√N) space=O(1)
 import math
 
 class Solution:
@@ -163,7 +163,7 @@ ans = sol.isPerfect(n)
 print("true" if ans else "false")
 ```
 
-```java solution time=O(sqrt(N)) space=O(1)
+```java solution time=O(√N) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -217,6 +217,6 @@ public class Main {
 
 ### Complexity Analysis
 
-**Time Complexity:** O(sqrt(N)) – Running a loop from 1 to square root of N.
+**Time Complexity:** O(√N) – Running a loop from 1 to square root of N.
 
 **Space Complexity:** O(1) – Using a couple of variables i.e., constant space, regardless of the size of input.

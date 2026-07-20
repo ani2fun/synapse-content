@@ -12,7 +12,7 @@ loop over the rows, driving an inner loop that always runs N times, is enough to
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
 
     # Function to print pattern1
@@ -39,7 +39,7 @@ sol = Solution()
 sol.pattern1(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -75,6 +75,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2) As two for loops are being used to print the patterns and both of them runs for N time.
+**Time Complexity:** O(N²) As two for loops are being used to print the patterns and both of them runs for N time.
 
 **Space Complexity:** As no additional space is used, so the Space Complexity is O(1)

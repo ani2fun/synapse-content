@@ -105,7 +105,7 @@ public class Main {
 
 **Time Complexity:** O(N) – Iterating N times, and performing constant time operations in each pass.
 
-**Space Complexity:** O(K), where K is the number of divisors of N. In the worst case, K is at most O(sqrt(N)), since divisors come in pairs.
+**Space Complexity:** O(K), where K is the number of divisors of N. In the worst case, K is at most O(√N), since divisors come in pairs.
 
 ## Optimal 1
 
@@ -121,7 +121,7 @@ The previous approach can be optimized by using the property that for any non-ne
 
 ### Solution
 
-```python solution time=O(sqrt(N)+K*log(K)) space=O(sqrt(N))
+```python solution time=O(√N+K*log(K)) space=O(√N)
 import math
 
 class Solution:
@@ -167,7 +167,7 @@ ans = sol.divisors(n)
 print("[" + ", ".join(map(str, ans)) + "]")
 ```
 
-```java solution time=O(sqrt(N)+K*log(K)) space=O(sqrt(N))
+```java solution time=O(√N+K*log(K)) space=O(√N)
 import java.util.*;
 
 public class Main {
@@ -230,9 +230,9 @@ public class Main {
 
 ### Complexity Analysis
 
-**Time Complexity:** O(sqrt(N)) + O(K*Log(K)) – Iterating sqrt(N) times, and performing constant time operations in each pass to get all the divisors in the list. Sorting the list of divisors takes O(K*Log(K)) time where K is the number of divisors of the number.
+**Time Complexity:** O(√N) + O(K*log(K)) – Iterating sqrt(N) times, and performing constant time operations in each pass to get all the divisors in the list. Sorting the list of divisors takes O(K*log(K)) time where K is the number of divisors of the number.
 
-**Space Complexity:** O(sqrt(N)) – A number N can have at max 2*sqrt(N) divisors, which are stored in the array.
+**Space Complexity:** O(√N) – A number N can have at max 2*sqrt(N) divisors, which are stored in the array.
 
 ## Optimal 2
 
@@ -255,7 +255,7 @@ The smaller divisors will automatically come in increasing order because we are 
 
 ### Solution
 
-```python solution time=O(sqrt(N)) space=O(K)
+```python solution time=O(√N) space=O(K)
 class Solution:
     # Function to find all divisors of n
     def divisors(self, n):
@@ -298,7 +298,7 @@ ans = sol.divisors(n)
 print("[" + ", ".join(map(str, ans)) + "]")
 ```
 
-```java solution time=O(sqrt(N)) space=O(K)
+```java solution time=O(√N) space=O(K)
 import java.util.*;
 
 public class Main {
@@ -365,6 +365,6 @@ public class Main {
 
 ### Complexity Analysis
 
-**Time Complexity:** O(sqrt(N)), because we check possible divisors only up to the square root of the number and avoid the extra sorting step.
+**Time Complexity:** O(√N), because we check possible divisors only up to the square root of the number and avoid the extra sorting step.
 
 **Space Complexity:** O(K), where K is the number of divisors stored in the answer list. The extra list used for larger divisors is also part of the output-building process.

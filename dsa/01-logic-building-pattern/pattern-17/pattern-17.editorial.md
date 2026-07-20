@@ -10,7 +10,7 @@ Each row is its own little letter-pyramid: a counter climbs from A up to the row
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
     # Function to print pattern17
     def pattern17(self, n):
@@ -44,7 +44,7 @@ sol = Solution()
 sol.pattern17(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -90,6 +90,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2). The overall complexity will be O(N2), due to nested loops iterating over each row for spaces and characters to be printed. Where N is the number of rows.
+**Time Complexity:** O(N²). The overall complexity will be O(N²), due to nested loops iterating over each row for spaces and characters to be printed. Where N is the number of rows.
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.

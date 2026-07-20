@@ -121,7 +121,7 @@ The prime numbers start from 2. Thus, if a number is less than 2, it can be dire
 
 ### Solution
 
-```python solution time=O(sqrt(N)) space=O(1)
+```python solution time=O(√N) space=O(1)
 class Solution:
     # Function to find whether the
     # number is prime or not
@@ -156,7 +156,7 @@ ans = sol.isPrime(n)
 print("true" if ans else "false")
 ```
 
-```java solution time=O(sqrt(N)) space=O(1)
+```java solution time=O(√N) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -201,6 +201,6 @@ public class Main {
 
 ### Complexity Analysis
 
-**Time Complexity:** O(sqrt(N)) – Looping sqrt(N) times to find the count of all divisors of N.
+**Time Complexity:** O(√N) – Looping sqrt(N) times to find the count of all divisors of N.
 
 **Space Complexity:** O(1) – Using a couple of variables i.e., constant space.

@@ -12,7 +12,7 @@ Each cell's printed value is just N minus its distance to the nearest of the fou
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
     # Function to print pattern22
     def pattern22(self, n):
@@ -47,7 +47,7 @@ sol = Solution()
 sol.pattern22(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -94,6 +94,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2) The time complexity is dominated by the nested loops, which both iterate 2×N-1 times. Therefore, the overall time complexity is O((2×N-1)2), which simplifies to O(N2), where N is the number of rows.
+**Time Complexity:** O(N²) The time complexity is dominated by the nested loops, which both iterate 2×N-1 times. Therefore, the overall time complexity is O((2×N-1)²), which simplifies to O(N²), where N is the number of rows.
 
 **Space Complexity:** O(1), as no extra space is being used to print the patterns.

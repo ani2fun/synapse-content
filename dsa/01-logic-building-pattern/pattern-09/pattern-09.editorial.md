@@ -10,7 +10,7 @@ This shape is just an upright pyramid stacked directly on top of an inverted one
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
     def pattern9(self, n):
         self.erect_pyramid(n)
@@ -56,7 +56,7 @@ sol = Solution()
 sol.pattern9(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -120,6 +120,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(2*N2). As both functions take O(N2) each.
+**Time Complexity:** O(2*N²). As both functions take O(N²) each.
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.

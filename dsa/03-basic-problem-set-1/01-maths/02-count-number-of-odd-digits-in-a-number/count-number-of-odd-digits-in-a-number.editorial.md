@@ -10,7 +10,7 @@ Given a number, all the digits in the number can be extracted one by one from ri
 
 ## Solution
 
-```python solution time=O(log10(N)) space=O(1)
+```python solution time=O(log₁₀(N)) space=O(1)
 class Solution:
     # Function to count number
     # of odd digits in N
@@ -45,7 +45,7 @@ ans = sol.countOddDigit(n)
 print(ans)
 ```
 
-```java solution time=O(log10(N)) space=O(1)
+```java solution time=O(log₁₀(N)) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -92,6 +92,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(log10(N)) – In every iteration we are dividing N by 10 (equivalent to the number of digits in N).
+**Time Complexity:** O(log₁₀(N)) – In every iteration we are dividing N by 10 (equivalent to the number of digits in N).
 
 **Space Complexity:** O(1) – Using only couple of variables i.e., constant space.

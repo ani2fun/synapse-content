@@ -13,7 +13,7 @@ The gap between the two star columns closes by two every row until it vanishes a
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
     # Function to print pattern20
     def pattern20(self, n):
@@ -56,7 +56,7 @@ sol = Solution()
 sol.pattern20(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -112,6 +112,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2). The overall complexity will be O(N2), where N is the number of rows.
+**Time Complexity:** O(N²). The overall complexity will be O(N²), where N is the number of rows.
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.

@@ -13,7 +13,7 @@ so the peak of stars always lands in the middle. Row i (0-indexed) needs N-i-1 l
 
 ## Solution
 
-```python solution time=O(N^2) space=O(1)
+```python solution time=O(N²) space=O(1)
 class Solution:
 
     # Function to print pattern7
@@ -44,7 +44,7 @@ sol = Solution()
 sol.pattern7(n)
 ```
 
-```java solution time=O(N^2) space=O(1)
+```java solution time=O(N²) space=O(1)
 import java.util.*;
 
 public class Main {
@@ -85,6 +85,6 @@ public class Main {
 
 ## Complexity Analysis
 
-**Time Complexity:** O(N2). As the outer loop runs for N times and the first inner loop runs for(N-1 + N-2 + ... + 1), the second inner loop runs incrementally in each iteration(1 + 3 + 5 + ...+2* N-1). So, overall it is O(N2).
+**Time Complexity:** O(N²). As the outer loop runs for N times and the first inner loop runs for(N-1 + N-2 + ... + 1), the second inner loop runs incrementally in each iteration(1 + 3 + 5 + ...+2* N-1). So, overall it is O(N²).
 
 **Space Complexity:** O(1). As no extra space is being used to print the patterns.
