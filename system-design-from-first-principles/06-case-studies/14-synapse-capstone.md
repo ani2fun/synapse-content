@@ -69,7 +69,7 @@ Split the workload along those lines and the traffic classes fall out:
 
 | Class | Share | Character | Scaling lever |
 |---|---|---|---|
-| Reads (lessons, index, media, the SPA itself) | ~99% | public, cacheable, version-addressed | the CDN |
+| Reads (lessons, index, media, the pages themselves) | ~99% | public, cacheable, version-addressed | the CDN |
 | Runs (`POST /run`) | ~1% | CPU-bound, interactive, **untrusted** | a sandbox fleet |
 | Writes (submissions, account, grants) | «1% | small rows, judged asynchronously | one Postgres, barely |
 
@@ -113,9 +113,12 @@ value is the verdict itself. Same sandbox underneath, opposite contracts on top 
 
 Five components carry the whole system:
 
-1. **The SPA** — a single-page app (this reader) served as static, immutable-cached assets. The
-   editor, diagram rendering, and result display are all client-side; the origin serves data, not
-   pages.
+1. **The web tier** — this reader, server-rendered: the prose you are reading arrived as HTML in
+   the response, and the interactive parts — the code editor, diagrams, the algorithm visualiser —
+   hydrate as **islands**, lazy per-feature bundles that only load on pages that use them. A
+   lesson costs tens of KiB of eager JavaScript, not an application bootstrap; reading works
+   before (and without) any of it. This tier renders from the same public content API below —
+   it holds no state and no secrets of its own.
 2. **The origin API** — stateless: verifies JWTs against cached IdP keys (no sessions, no sticky
    anything), serves the content read model, fronts the sandbox for runs, owns submissions. Any
    replica can serve any request; scaling is a replica count.
@@ -206,7 +209,7 @@ Submit → `202 {id}` → the judge runs the hidden suite in the sandbox, case b
 advances `pending → completed` with a verdict → the client's poll picks it up. Design points worth
 naming in an interview:
 
-- **The hidden suite never leaves the server.** It isn't in the lesson payload, the SPA bundle, or
+- **The hidden suite never leaves the server.** It isn't in the lesson payload, any client bundle, or
   any response — a wrong-answer verdict reveals *one* failing case as a teaching aid, and that
   revelation is a deliberate, server-side choice. The moment hidden tests ride a client payload
   "for speed," they're public.
@@ -278,6 +281,13 @@ the homework:
 - **The cheapest wins were cache headers.** Static assets as immutable + content JSON at
   `max-age=60, stale-while-revalidate=600` moved the read path to the edge for the cost of two
   headers — the highest leverage-per-line change in the deployment.
+- **The read path got rebuilt once, and the measurement drove it.** The first reader shipped as a
+  client-rendered app: correct, complete — and content-readable at ~7 s on a mid-range phone,
+  because a multi-hundred-KiB bundle stood between the reader and 2 KiB of prose. The rebuild
+  inverted it to server-rendered pages with lazy islands; per-page eager JS now measures in the
+  tens of KiB, and CI enforces a **per-page** budget so a regression is a failed build, not a slow
+  reader. The moral is the one this book keeps repeating: the workload table said reads are 99%
+  of traffic — the architecture of the read path had to answer to that number, and eventually did.
 
 The full growth ladder — triggers, stages, and what deliberately never changes — is documented as
 the repo's [scaling plan](https://github.com/ani2fun/synapse/blob/main/docs/architecture/scaling-plan.md); this
@@ -347,7 +357,7 @@ not arguing it won't.
 ## Sources
 
 - [ani2fun/synapse](https://github.com/ani2fun/synapse) — the implementation this lesson describes:
-  the architecture decision records (`docs/adr-synapse/`), the C4 model (`docs/architecture/`), and
+  the architecture decision records (`docs/adr/`), the architecture docs (`docs/architecture/`), and
   the [scaling plan](https://github.com/ani2fun/synapse/blob/main/docs/architecture/scaling-plan.md) whose
   napkin math this lesson shares.
 - [go-judge](https://github.com/criyle/go-judge) — the sandbox: namespace/cgroup isolation, process

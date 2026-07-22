@@ -24,16 +24,16 @@ model {
     description 'Interactive learning platform: prose + runnable code + judged submissions. Reads ~99% / runs ~1% / writes «1%.'
 
     rsyEdge = cdn 'Edge cache' {
-      description 'Immutable-cached SPA assets; content JSON at max-age=60 + stale-while-revalidate. The read path\'s real capacity.'
+      description 'Immutable-cached page assets; content JSON at max-age=60 + stale-while-revalidate. The read path\'s real capacity.'
       technology 'Cloudflare'
     }
-    rsySpa = webApplication 'Reader SPA' {
-      description 'The reading UI, code editor, and result display — all client-side; the origin serves data, not pages.'
-      technology 'Scala.js · Laminar'
+    rsySpa = webApplication 'Web app' {
+      description 'Server-rendered pages with island hydration: prose arrives as HTML; the editor, diagrams and visualiser load as lazy per-feature bundles only where used.'
+      technology 'Astro SSR · TS islands'
     }
     rsyApi = service 'Origin API' {
       description 'Stateless: local JWT verification (cached JWKS), content read model, run gateway, submissions. Any replica serves any request.'
-      technology 'Scala · ZIO · tapir'
+      technology 'Rust · axum'
     }
     rsyContentSync = worker 'Content checkout' {
       description 'git-sync sidecar pulls the repo; the origin re-reads HEAD SHA per request as contentVersion — caches advance by key, never by purge.'

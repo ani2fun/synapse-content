@@ -11,7 +11,7 @@ of them terminate here, leaving the origin single-digit requests per second.
 
 **Cache policy by asset class**
 
-- **SPA assets** — content-hashed filenames, cached as immutable.
+- **Page assets** — content-hashed filenames, cached as immutable.
 - **Content JSON** — `max-age=60, stale-while-revalidate=600`, keyed against `contentVersion`
   (the content git SHA): one minute of author-visible staleness buys the read path's independence
   from origin capacity. Correct by construction — a cached lesson tagged with a SHA stays the right

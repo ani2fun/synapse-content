@@ -1,7 +1,7 @@
 ---
 title: Origin API
 kind: Service
-technology: Scala · ZIO · tapir
+technology: Rust · axum
 ---
 
 ## Origin API
