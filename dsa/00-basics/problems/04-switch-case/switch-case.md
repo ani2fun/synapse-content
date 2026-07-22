@@ -77,17 +77,3 @@ public class Main {
     }
 }
 ```
-
-```testcases
-{
-  "args": [
-    { "id": "day", "label": "day", "type": "int", "placeholder": "3" }
-  ],
-  "cases": [
-    { "args": { "day": "3" }, "expected": "Wednesday" },
-    { "args": { "day": "8" }, "expected": "Invalid" },
-    { "args": { "day": "2" }, "expected": "Tuesday" },
-    { "args": { "day": "1" }, "expected": "Monday" }
-  ]
-}
-```

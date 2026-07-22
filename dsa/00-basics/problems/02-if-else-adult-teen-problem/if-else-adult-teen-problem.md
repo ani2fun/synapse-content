@@ -79,17 +79,3 @@ public class Main {
     }
 }
 ```
-
-```testcases
-{
-  "args": [
-    { "id": "age", "label": "age", "type": "int", "placeholder": "19" }
-  ],
-  "cases": [
-    { "args": { "age": "19" }, "expected": "Adult" },
-    { "args": { "age": "7" }, "expected": "Teen" },
-    { "args": { "age": "18" }, "expected": "Adult" },
-    { "args": { "age": "0" }, "expected": "Teen" }
-  ]
-}
-```

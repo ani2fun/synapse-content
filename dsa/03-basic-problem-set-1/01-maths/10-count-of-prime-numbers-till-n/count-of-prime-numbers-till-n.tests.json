@@ -3,9 +3,9 @@
   "cases": [
     { "args": { "n": "2" }, "expected": "1" },
     { "args": { "n": "3" }, "expected": "2" },
-    { "args": { "n": "6" }, "expected": "3" },
-    { "args": { "n": "10" }, "expected": "4" },
-    { "args": { "n": "20" }, "expected": "8" },
+    { "args": { "n": "6" }, "expected": "3", "sample": true },
+    { "args": { "n": "10" }, "expected": "4", "sample": true },
+    { "args": { "n": "20" }, "expected": "8", "sample": true },
     { "args": { "n": "100" }, "expected": "25" },
     { "args": { "n": "500" }, "expected": "95" },
     { "args": { "n": "997" }, "expected": "168" },

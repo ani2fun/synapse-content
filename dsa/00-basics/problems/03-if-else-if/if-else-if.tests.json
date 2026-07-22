@@ -6,10 +6,12 @@
     { "args": { "marks": "100" }, "expected": "Grade A" },
     { "args": { "marks": "90" }, "expected": "Grade A" },
     { "args": { "marks": "89" }, "expected": "Grade B" },
-    { "args": { "marks": "70" }, "expected": "Grade B" },
-    { "args": { "marks": "50" }, "expected": "Grade C" },
+    { "args": { "marks": "70" }, "expected": "Grade B", "sample": true },
+    { "args": { "marks": "50" }, "expected": "Grade C", "sample": true },
     { "args": { "marks": "35" }, "expected": "Grade D" },
     { "args": { "marks": "34" }, "expected": "Fail" },
-    { "args": { "marks": "0" }, "expected": "Fail" }
+    { "args": { "marks": "0" }, "expected": "Fail" },
+    { "args": { "marks": "95" }, "expected": "Grade A", "sample": true },
+    { "args": { "marks": "14" }, "expected": "Fail", "sample": true }
   ]
 }

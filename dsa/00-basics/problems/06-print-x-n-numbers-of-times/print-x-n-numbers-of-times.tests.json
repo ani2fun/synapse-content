@@ -4,10 +4,10 @@
     { "id": "N", "label": "N", "type": "int", "placeholder": "5" }
   ],
   "cases": [
-    { "args": { "X": "7", "N": "5" }, "expected": "7 7 7 7 7" },
-    { "args": { "X": "15", "N": "1" }, "expected": "15" },
-    { "args": { "X": "-5", "N": "4" }, "expected": "-5 -5 -5 -5" },
-    { "args": { "X": "9", "N": "0" }, "expected": "" },
+    { "args": { "X": "7", "N": "5" }, "expected": "7 7 7 7 7", "sample": true },
+    { "args": { "X": "15", "N": "1" }, "expected": "15", "sample": true },
+    { "args": { "X": "-5", "N": "4" }, "expected": "-5 -5 -5 -5", "sample": true },
+    { "args": { "X": "9", "N": "0" }, "expected": "", "sample": true },
     { "args": { "X": "0", "N": "3" }, "expected": "0 0 0" },
     { "args": { "X": "100", "N": "2" }, "expected": "100 100" },
     { "args": { "X": "-100", "N": "3" }, "expected": "-100 -100 -100" },

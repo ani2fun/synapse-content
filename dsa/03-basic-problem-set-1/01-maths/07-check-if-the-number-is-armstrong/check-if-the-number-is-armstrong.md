@@ -81,17 +81,3 @@ public class Main {
     }
 }
 ```
-
-```testcases
-{
-  "args": [
-    { "id": "n", "label": "n", "type": "int", "placeholder": "153" }
-  ],
-  "cases": [
-    { "args": { "n": "153" }, "expected": "true" },
-    { "args": { "n": "12" }, "expected": "false" },
-    { "args": { "n": "0" }, "expected": "true" },
-    { "args": { "n": "9474" }, "expected": "true" }
-  ]
-}
-```

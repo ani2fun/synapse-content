@@ -83,18 +83,3 @@ public class Main {
     }
 }
 ```
-
-```testcases
-{
-  "args": [
-    { "id": "n1", "label": "n1", "type": "int", "placeholder": "4" },
-    { "id": "n2", "label": "n2", "type": "int", "placeholder": "6" }
-  ],
-  "cases": [
-    { "args": { "n1": "4", "n2": "6" }, "expected": "12" },
-    { "args": { "n1": "3", "n2": "5" }, "expected": "15" },
-    { "args": { "n1": "4", "n2": "12" }, "expected": "12" },
-    { "args": { "n1": "7", "n2": "7" }, "expected": "7" }
-  ]
-}
-```

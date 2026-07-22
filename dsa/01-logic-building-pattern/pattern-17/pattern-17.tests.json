@@ -3,11 +3,11 @@
     { "id": "n", "label": "n", "type": "int", "placeholder": "4" }
   ],
   "cases": [
-    { "args": { "n": "1" }, "expected": "A" },
-    { "args": { "n": "2" }, "expected": " A\nABA" },
-    { "args": { "n": "3" }, "expected": "  A\n ABA\nABCBA" },
+    { "args": { "n": "1" }, "expected": "A", "sample": true },
+    { "args": { "n": "2" }, "expected": " A\nABA", "sample": true },
+    { "args": { "n": "3" }, "expected": "  A\n ABA\nABCBA", "sample": true },
     { "args": { "n": "4" }, "expected": "   A\n  ABA\n ABCBA\nABCDCBA" },
-    { "args": { "n": "5" }, "expected": "    A\n   ABA\n  ABCBA\n ABCDCBA\nABCDEDCBA" },
+    { "args": { "n": "5" }, "expected": "    A\n   ABA\n  ABCBA\n ABCDCBA\nABCDEDCBA", "sample": true },
     { "args": { "n": "6" }, "expected": "     A\n    ABA\n   ABCBA\n  ABCDCBA\n ABCDEDCBA\nABCDEFEDCBA" },
     { "args": { "n": "7" }, "expected": "      A\n     ABA\n    ABCBA\n   ABCDCBA\n  ABCDEDCBA\n ABCDEFEDCBA\nABCDEFGFEDCBA" },
     { "args": { "n": "26" }, "expected": "                         A\n                        ABA\n                       ABCBA\n                      ABCDCBA\n                     ABCDEDCBA\n                    ABCDEFEDCBA\n                   ABCDEFGFEDCBA\n                  ABCDEFGHGFEDCBA\n                 ABCDEFGHIHGFEDCBA\n                ABCDEFGHIJIHGFEDCBA\n               ABCDEFGHIJKJIHGFEDCBA\n              ABCDEFGHIJKLKJIHGFEDCBA\n             ABCDEFGHIJKLMLKJIHGFEDCBA\n            ABCDEFGHIJKLMNMLKJIHGFEDCBA\n           ABCDEFGHIJKLMNONMLKJIHGFEDCBA\n          ABCDEFGHIJKLMNOPONMLKJIHGFEDCBA\n         ABCDEFGHIJKLMNOPQPONMLKJIHGFEDCBA\n        ABCDEFGHIJKLMNOPQRQPONMLKJIHGFEDCBA\n       ABCDEFGHIJKLMNOPQRSRQPONMLKJIHGFEDCBA\n      ABCDEFGHIJKLMNOPQRSTSRQPONMLKJIHGFEDCBA\n     ABCDEFGHIJKLMNOPQRSTUTSRQPONMLKJIHGFEDCBA\n    ABCDEFGHIJKLMNOPQRSTUVUTSRQPONMLKJIHGFEDCBA\n   ABCDEFGHIJKLMNOPQRSTUVWVUTSRQPONMLKJIHGFEDCBA\n  ABCDEFGHIJKLMNOPQRSTUVWXWVUTSRQPONMLKJIHGFEDCBA\n ABCDEFGHIJKLMNOPQRSTUVWXYXWVUTSRQPONMLKJIHGFEDCBA\nABCDEFGHIJKLMNOPQRSTUVWXYZYXWVUTSRQPONMLKJIHGFEDCBA" }

@@ -70,17 +70,3 @@ public class Main {
     }
 }
 ```
-
-```testcases
-{
-  "args": [
-    { "id": "s", "label": "s", "type": "string", "placeholder": "dog" }
-  ],
-  "cases": [
-    { "args": { "s": "dog" }, "expected": "g" },
-    { "args": { "s": "goodforyou" }, "expected": "u" },
-    { "args": { "s": "lovecoding" }, "expected": "g" },
-    { "args": { "s": "a" }, "expected": "a" }
-  ]
-}
-```

@@ -83,17 +83,3 @@ public class Main {
     }
 }
 ```
-
-```testcases
-{
-  "args": [
-    { "id": "marks", "label": "marks", "type": "int", "placeholder": "95" }
-  ],
-  "cases": [
-    { "args": { "marks": "95" }, "expected": "Grade A" },
-    { "args": { "marks": "14" }, "expected": "Fail" },
-    { "args": { "marks": "70" }, "expected": "Grade B" },
-    { "args": { "marks": "50" }, "expected": "Grade C" }
-  ]
-}
-```

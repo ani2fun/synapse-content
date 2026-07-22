@@ -1,15 +1,15 @@
 {
   "args": [ { "id": "n", "label": "n", "type": "int", "placeholder": "25" } ],
   "cases": [
-    { "args": { "n": "0" }, "expected": "0" },
+    { "args": { "n": "0" }, "expected": "0", "sample": true },
     { "args": { "n": "1" }, "expected": "1" },
     { "args": { "n": "9" }, "expected": "9" },
-    { "args": { "n": "25" }, "expected": "5" },
-    { "args": { "n": "99" }, "expected": "9" },
+    { "args": { "n": "25" }, "expected": "5", "sample": true },
+    { "args": { "n": "99" }, "expected": "9", "sample": true },
     { "args": { "n": "100" }, "expected": "1" },
     { "args": { "n": "907" }, "expected": "9" },
     { "args": { "n": "4321" }, "expected": "4" },
     { "args": { "n": "1111" }, "expected": "1" },
-    { "args": { "n": "5000" }, "expected": "5" }
+    { "args": { "n": "5000" }, "expected": "5", "sample": true }
   ]
 }

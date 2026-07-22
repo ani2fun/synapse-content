@@ -64,15 +64,3 @@ public class Main {
     }
 }
 ```
-
-```testcases
-{
-  "args": [ { "id": "n", "label": "n", "type": "int", "placeholder": "25" } ],
-  "cases": [
-    { "args": { "n": "25" }, "expected": "5" },
-    { "args": { "n": "99" }, "expected": "9" },
-    { "args": { "n": "0" }, "expected": "0" },
-    { "args": { "n": "5000" }, "expected": "5" }
-  ]
-}
-```

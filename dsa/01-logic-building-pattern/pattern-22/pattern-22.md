@@ -89,19 +89,7 @@ public class Main {
 }
 ```
 
-```testcases
-{
-  "args": [
-    { "id": "n", "label": "n", "type": "int", "placeholder": "4" }
-  ],
-  "cases": [
-    { "args": { "n": "1" }, "expected": "1" },
-    { "args": { "n": "2" }, "expected": "2 2 2\n2 1 2\n2 2 2" },
-    { "args": { "n": "4" }, "expected": "4 4 4 4 4 4 4\n4 3 3 3 3 3 4\n4 3 2 2 2 3 4\n4 3 2 1 2 3 4\n4 3 2 2 2 3 4\n4 3 3 3 3 3 4\n4 4 4 4 4 4 4" },
-    { "args": { "n": "5" }, "expected": "5 5 5 5 5 5 5 5 5\n5 4 4 4 4 4 4 4 5\n5 4 3 3 3 3 3 4 5\n5 4 3 2 2 2 3 4 5\n5 4 3 2 1 2 3 4 5\n5 4 3 2 2 2 3 4 5\n5 4 3 3 3 3 3 4 5\n5 4 4 4 4 4 4 4 5\n5 5 5 5 5 5 5 5 5" }
-  ]
-}
-```
+
 
 ## Fun facts
 

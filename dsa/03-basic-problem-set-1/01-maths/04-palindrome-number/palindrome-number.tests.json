@@ -3,15 +3,16 @@
     { "id": "n", "label": "n", "type": "int", "placeholder": "121" }
   ],
   "cases": [
-    { "args": { "n": "121" }, "expected": "true" },
-    { "args": { "n": "123" }, "expected": "false" },
-    { "args": { "n": "0" }, "expected": "true" },
+    { "args": { "n": "121" }, "expected": "true", "sample": true },
+    { "args": { "n": "123" }, "expected": "false", "sample": true },
+    { "args": { "n": "0" }, "expected": "true", "sample": true },
     { "args": { "n": "1" }, "expected": "true" },
     { "args": { "n": "9" }, "expected": "true" },
     { "args": { "n": "55" }, "expected": "true" },
     { "args": { "n": "100" }, "expected": "false" },
     { "args": { "n": "999" }, "expected": "true" },
     { "args": { "n": "4884" }, "expected": "true" },
-    { "args": { "n": "5000" }, "expected": "false" }
+    { "args": { "n": "5000" }, "expected": "false" },
+    { "args": { "n": "7" }, "expected": "true", "sample": true }
   ]
 }

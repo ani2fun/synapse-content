@@ -97,19 +97,3 @@ public class Main {
     }
 }
 ```
-
-```testcases
-{
-  "args": [
-    { "id": "arr", "label": "arr", "type": "char[]", "placeholder": "[a, e, i, o, u]" }
-  ],
-  "cases": [
-    { "args": { "arr": "[a, e, i, o, u]" }, "expected": "[u, o, i, e, a]" },
-    { "args": { "arr": "[a, b, c, d, e]" }, "expected": "[e, d, c, b, a]" },
-    { "args": { "arr": "[]" }, "expected": "[]" },
-    { "args": { "arr": "[x]" }, "expected": "[x]" },
-    { "args": { "arr": "[x, y]" }, "expected": "[y, x]" },
-    { "args": { "arr": "[a, b, a]" }, "expected": "[a, b, a]" }
-  ]
-}
-```

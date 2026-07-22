@@ -3,11 +3,11 @@
     { "id": "n", "label": "n", "type": "int", "placeholder": "4" }
   ],
   "cases": [
-    { "args": { "n": "1" }, "expected": "A" },
-    { "args": { "n": "2" }, "expected": "AB\nA" },
+    { "args": { "n": "1" }, "expected": "A", "sample": true },
+    { "args": { "n": "2" }, "expected": "AB\nA", "sample": true },
     { "args": { "n": "3" }, "expected": "ABC\nAB\nA" },
-    { "args": { "n": "4" }, "expected": "ABCD\nABC\nAB\nA" },
-    { "args": { "n": "5" }, "expected": "ABCDE\nABCD\nABC\nAB\nA" },
+    { "args": { "n": "4" }, "expected": "ABCD\nABC\nAB\nA", "sample": true },
+    { "args": { "n": "5" }, "expected": "ABCDE\nABCD\nABC\nAB\nA", "sample": true },
     { "args": { "n": "6" }, "expected": "ABCDEF\nABCDE\nABCD\nABC\nAB\nA" },
     { "args": { "n": "7" }, "expected": "ABCDEFG\nABCDEF\nABCDE\nABCD\nABC\nAB\nA" },
     { "args": { "n": "10" }, "expected": "ABCDEFGHIJ\nABCDEFGHI\nABCDEFGH\nABCDEFG\nABCDEF\nABCDE\nABCD\nABC\nAB\nA" }

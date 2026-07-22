@@ -8,12 +8,12 @@
     }
   ],
   "cases": [
-    { "args": { "arr": "[a, e, i, o, u]" }, "expected": "[u, o, i, e, a]" },
-    { "args": { "arr": "[a, b, c, d, e]" }, "expected": "[e, d, c, b, a]" },
-    { "args": { "arr": "[]" }, "expected": "[]" },
-    { "args": { "arr": "[x]" }, "expected": "[x]" },
-    { "args": { "arr": "[x, y]" }, "expected": "[y, x]" },
-    { "args": { "arr": "[a, b, a]" }, "expected": "[a, b, a]" },
+    { "args": { "arr": "[a, e, i, o, u]" }, "expected": "[u, o, i, e, a]", "sample": true },
+    { "args": { "arr": "[a, b, c, d, e]" }, "expected": "[e, d, c, b, a]", "sample": true },
+    { "args": { "arr": "[]" }, "expected": "[]", "sample": true },
+    { "args": { "arr": "[x]" }, "expected": "[x]", "sample": true },
+    { "args": { "arr": "[x, y]" }, "expected": "[y, x]", "sample": true },
+    { "args": { "arr": "[a, b, a]" }, "expected": "[a, b, a]", "sample": true },
     { "args": { "arr": "[m, n, o, p, q, r, s, t]" }, "expected": "[t, s, r, q, p, o, n, m]" },
     { "args": { "arr": "[z, z, z]" }, "expected": "[z, z, z]" },
     { "args": { "arr": "[q, w, e, r, t, y, u]" }, "expected": "[u, y, t, r, e, w, q]" },

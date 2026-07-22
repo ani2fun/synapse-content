@@ -84,17 +84,3 @@ public class Main {
     }
 }
 ```
-
-```testcases
-{
-  "args": [
-    { "id": "nums", "label": "nums", "type": "int[]", "placeholder": "[2, 3, 4, 5, 6]" }
-  ],
-  "cases": [
-    { "args": { "nums": "[2, 3, 4, 5, 6]" }, "expected": "8" },
-    { "args": { "nums": "[2]" }, "expected": "4" },
-    { "args": { "nums": "[-1, 2, 4, 1]" }, "expected": "0" },
-    { "args": { "nums": "[-100, -100]" }, "expected": "-200" }
-  ]
-}
-```
