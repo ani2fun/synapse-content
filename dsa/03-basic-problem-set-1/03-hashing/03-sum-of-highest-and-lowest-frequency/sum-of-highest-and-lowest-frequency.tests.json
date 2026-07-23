@@ -1,0 +1,17 @@
+{
+  "args": [
+    { "id": "arr", "label": "arr", "type": "int[]", "placeholder": "[1, 2, 2, 3, 3, 3]" }
+  ],
+  "cases": [
+    { "args": { "arr": "[1, 2, 2, 3, 3, 3]" }, "expected": "4", "sample": true },
+    { "args": { "arr": "[4, 4, 5, 5, 6]" }, "expected": "3", "sample": true },
+    { "args": { "arr": "[10, 9, 7, 7, 8, 8, 8]" }, "expected": "4", "sample": true },
+    { "args": { "arr": "[5]" }, "expected": "2" },
+    { "args": { "arr": "[7, 7, 7, 7]" }, "expected": "8" },
+    { "args": { "arr": "[1, 2, 3, 4, 5]" }, "expected": "2" },
+    { "args": { "arr": "[1, 1, 1, 1, 1, 2]" }, "expected": "6" },
+    { "args": { "arr": "[3, 3, 1, 2, 2, 2, 2]" }, "expected": "5" },
+    { "args": { "arr": "[9, 9, 8, 8, 8, 7, 7, 7, 7, 7]" }, "expected": "7" },
+    { "args": { "arr": "[10000, 1, 10000, 1, 1]" }, "expected": "5" }
+  ]
+}

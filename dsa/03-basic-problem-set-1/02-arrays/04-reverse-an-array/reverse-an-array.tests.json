@@ -1,0 +1,17 @@
+{
+  "args": [
+    { "id": "arr", "label": "arr", "type": "int[]", "placeholder": "[1, 2, 3, 4, 5]" }
+  ],
+  "cases": [
+    { "args": { "arr": "[1, 2, 3, 4, 5]" }, "expected": "[5, 4, 3, 2, 1]", "sample": true },
+    { "args": { "arr": "[1, 2, 1, 1, 5, 1]" }, "expected": "[1, 5, 1, 1, 2, 1]", "sample": true },
+    { "args": { "arr": "[1, 2, 1]" }, "expected": "[1, 2, 1]", "sample": true },
+    { "args": { "arr": "[7]" }, "expected": "[7]" },
+    { "args": { "arr": "[3, 9]" }, "expected": "[9, 3]" },
+    { "args": { "arr": "[4, 5, 4]" }, "expected": "[4, 5, 4]" },
+    { "args": { "arr": "[1, 2, 3, 4, 5, 6]" }, "expected": "[6, 5, 4, 3, 2, 1]" },
+    { "args": { "arr": "[2, 4, 6, 8, 10]" }, "expected": "[10, 8, 6, 4, 2]" },
+    { "args": { "arr": "[9, 9, 9, 9]" }, "expected": "[9, 9, 9, 9]" },
+    { "args": { "arr": "[10, 20, 30, 40, 50, 60, 70]" }, "expected": "[70, 60, 50, 40, 30, 20, 10]" }
+  ]
+}
