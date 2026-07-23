@@ -1,21 +1,21 @@
 ---
 title: How to Work With Synapse and synapse-content
-summary: The practical guide to the platform serving this page — clone the two repositories, get the whole stack running locally, and learn the content vocabulary that turns a Markdown file into runnable code, judged problems, step-through visualisations and clickable architecture diagrams. Including the traps that fail quietly.
-publishedAt: 2026-07-23
-tags: [synapse, authoring, guide, developer-experience]
-readMinutes: 22
+summary: The practical guide to the platform serving this page — a step-by-step local setup for Mac, Windows and Linux that assumes no prior terminal experience, then the content vocabulary that turns a Markdown file into runnable code, judged problems, step-through visualisations and clickable architecture diagrams. Including the traps that fail quietly.
+publishedAt: 2026-07-24
+tags: [synapse, authoring, guide, getting-started, developer-experience]
+readMinutes: 26
 eyebrow: Working Guide · Two Repositories · One Platform
-meta: Read Time=22 min; Repos=2; Reserved fences=7; Dev ports=2
+meta: Read Time=26 min; Setup steps=6; Reserved fences=7; Terminal experience=None needed
 ---
 
 <header class="blog-post__hero">
   <div class="blog-post__hero-copy">
     <div class="blog-post__hero-eyebrow">Working Guide · Two Repositories · One Platform</div>
     <h1 class="blog-post__hero-title">How to work with <em>Synapse</em></h1>
-    <p class="blog-post__hero-sub">Everything from <code>git clone</code> to a published lesson with runnable code, a judged problem and a clickable architecture model. The code lives in one repository, the writing in another, and knowing why is most of understanding how to use either.</p>
+    <p class="blog-post__hero-sub">Everything from an empty terminal to a published lesson with runnable code, a judged problem and a clickable architecture model. Setup is written for Mac, Windows and Linux, and assumes you have never used a terminal before.</p>
     <div class="blog-post__hero-meta">
       <div class="blog-post__hero-meta-item"><span>Repositories</span><span>2</span></div>
-      <div class="blog-post__hero-meta-item"><span>Dev Ports</span><span>8280 · 5373</span></div>
+      <div class="blog-post__hero-meta-item"><span>Setup Steps</span><span>6</span></div>
       <div class="blog-post__hero-meta-item"><span>Reserved Fences</span><span>7</span></div>
       <div class="blog-post__hero-meta-item"><span>Publish By</span><span>git push</span></div>
     </div>
@@ -46,7 +46,7 @@ meta: Read Time=22 min; Repos=2; Reserved fences=7; Dev ports=2
 <nav class="blog-post__toc" aria-label="On this page">
   <ul>
     <li><a href="#two-repos">Two Repositories</a></li>
-    <li><a href="#running">Running It Locally</a></li>
+    <li><a href="#running">Running It Locally — Mac, Windows, Linux</a></li>
     <li><a href="#model">The Content Model</a></li>
     <li><a href="#fences">The Fence Vocabulary</a></li>
     <li><a href="#problems">Judged Problems</a></li>
@@ -112,99 +112,214 @@ The practical consequences are worth internalising before you start:
 
 <h2 id="running" class="blog-post__section">Running It Locally</h2>
 
-### 1 · Clone both, side by side
+<p class="blog-post__lede">You do not need to be a developer to do this. You need to copy six commands into a black window and wait. Everything below is written for someone who has never opened a terminal.</p>
 
-The application looks for content at `../synapse-content` by default, so the two clones want to be siblings. Any other layout works — you just have to say where.
+If you only want to **write** — fix a typo, add a lesson — you can skip this entire section twice over. Contributors edit lessons [inside the app itself](#in-app), with no installation at all, and writers who prefer files need only the content folder and a text editor. Running the whole platform is for people who want to change the *software*.
 
-```bash
-mkdir -p ~/dev && cd ~/dev
-git clone git@github.com:ani2fun/synapse.git
-git clone git@github.com:ani2fun/synapse-content.git
-```
+<div class="blog-post__callout blog-post__callout--info">
+  <p><strong>What you are about to install, in plain terms.</strong> Synapse is made of a few separate programs that talk to each other. Four of them (a database, a code sandbox, a login server, a diagram viewer) come pre-packaged, so you never install them yourself — a tool called <strong>Docker</strong> downloads and runs them for you. Two you do install: <strong>Rust</strong>, which the main server is written in, and <strong>Node</strong>, which builds the web pages. Plus <strong>Git</strong>, which downloads the source code. That is the whole list: Git, Rust, Node, Docker.</p>
+</div>
 
-If you only want to *write*, you need the second one and a text editor. Everything below is for running the platform itself.
+<h3 id="step0">Step 0 · Open a terminal</h3>
 
-### 2 · Prerequisites
+The terminal is a window where you type commands instead of clicking. Everything below gets pasted into it, one block at a time, pressing Enter after each.
 
 <div class="blog-post__table-wrap">
   <table class="blog-post__table">
-    <thead><tr><th>Tool</th><th>Version</th><th>Needed for</th></tr></thead>
+    <thead><tr><th>Your computer</th><th>How to open it</th></tr></thead>
     <tbody>
-      <tr><td>Rust toolchain</td><td>as pinned by <code>rust-toolchain.toml</code></td><td>the API server; <code>rustup</code> reads the pin automatically</td></tr>
-      <tr><td>Node</td><td>22</td><td>the Astro web tier and its islands</td></tr>
-      <tr><td>Docker + Compose</td><td>current</td><td>Postgres, the code sandbox, the identity provider, the diagram viewer</td></tr>
-      <tr><td><code>wasm-bindgen-cli</code> + <code>binaryen</code></td><td>matching <code>Cargo.lock</code></td><td>only if you rebuild the visualisation bundle</td></tr>
+      <tr><td><strong>Mac</strong></td><td>Press <code>⌘ + Space</code>, type <em>Terminal</em>, press Enter.</td></tr>
+      <tr><td><strong>Windows</strong></td><td>Click Start, type <em>PowerShell</em>, click <em>Windows PowerShell</em>. (You will switch to a second terminal in Step 1 — read on.)</td></tr>
+      <tr><td><strong>Linux</strong></td><td>Press <code>Ctrl + Alt + T</code>, or search your applications for <em>Terminal</em>.</td></tr>
     </tbody>
   </table>
 </div>
 
-### 3 · Start the backing services
+A line starting with `#` in the blocks below is a comment for you, not a command — you can paste it along with everything else and the computer will ignore it.
 
-Four services run in Docker. The app itself does **not** — it runs from `cargo` and `astro` so you get a fast edit loop.
+<div class="blog-post__callout blog-post__callout--warn">
+  <p><strong>Windows users, read this before Step 1.</strong> Synapse's start-up script is written for Mac and Linux, and it uses tools Windows does not have. Rather than fight that, install <strong>WSL</strong> — Microsoft's official way to run Ubuntu Linux inside Windows. It takes one command, it is fully supported, and after it you follow the <strong>Linux</strong> instructions everywhere below.</p>
+  <p>In PowerShell, right-click and choose <em>Run as administrator</em>, then:</p>
+  <p><code>wsl --install</code></p>
+  <p>Restart when it asks. You will be prompted to pick a username and password for Ubuntu — write them down. From then on, open <em>Ubuntu</em> from the Start menu instead of PowerShell, and use the Linux column in every table below.</p>
+</div>
+
+<h3 id="step1">Step 1 · Install the four tools</h3>
+
+Pick your operating system and paste the block. Each installer prints a lot of text — that is normal. Wait for your prompt to come back before pasting the next thing.
+
+**On a Mac**
 
 ```bash
-cd ~/dev/synapse
+# 1. Homebrew — the standard Mac installer for developer tools.
+#    Skip this line if `brew --version` already prints something.
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# 2. Git and Node (22 or newer).
+brew install git node
+
+# 3. Rust, from the official installer. Choose option 1 (default) when it asks.
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+
+# 4. Docker Desktop — this one has a normal installer window.
+brew install --cask docker-desktop
+```
+
+Then **open Docker Desktop from your Applications folder once** and leave it running. Docker only works while that app is open; its whale icon sits in the menu bar at the top of the screen.
+
+<div class="blog-post__callout blog-post__callout--info">
+  <p><strong>Why Rust comes from its own installer rather than Homebrew.</strong> Homebrew's <code>rustup</code> is "keg-only" — it installs without putting anything on your PATH, so the commands appear not to exist until you edit a shell config file. The official installer above handles that itself, and it is what <a href="https://rust-lang.org">rust-lang.org</a> recommends. One less thing to get wrong.</p>
+</div>
+
+**On Windows (inside Ubuntu/WSL) or on Linux**
+
+```bash
+# 1. Git, curl and build tools.
+sudo apt update && sudo apt install -y git curl build-essential
+
+# 2. Node 22.
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# 3. Rust. Choose option 1 (default) when it asks.
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+
+# 4. Docker.
+sudo apt install -y docker.io docker-compose-v2
+sudo usermod -aG docker $USER      # lets you use docker without typing sudo
+```
+
+On plain Linux, **close the terminal and open a new one** after that last line, or the permission change will not have taken effect. On Windows, install [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/) instead of the `apt` step above and enable *Settings → Resources → WSL integration* for your Ubuntu — then Docker works from inside Ubuntu automatically.
+
+**Check it worked.** Paste this; you want four version numbers and no "command not found":
+
+```bash
+git --version && node --version && cargo --version && docker --version
+```
+
+<h3 id="step2">Step 2 · Download the two folders</h3>
+
+```bash
+# Make a working folder and move into it.
+mkdir -p ~/synapse-workspace && cd ~/synapse-workspace
+
+# The application, then the writing.
+git clone https://github.com/ani2fun/synapse.git
+git clone https://github.com/ani2fun/synapse-content.git
+```
+
+Keep them **side by side** like that. The application looks for the writing in a folder next to it, so this layout works with no configuration. (`~` means your home folder; on a Mac that is `/Users/yourname`.)
+
+<h3 id="step3">Step 3 · Start the four helper services</h3>
+
+Docker downloads and runs these for you. The first time takes a few minutes because it is fetching them; afterwards it is seconds.
+
+```bash
+cd ~/synapse-workspace/synapse
 docker compose up -d db go-judge keycloak
-docker compose --profile c4 up -d likec4   # optional: architecture diagrams
+
+# Optional — only if you want the interactive architecture diagrams.
+docker compose --profile c4 up -d likec4
+```
+
+`-d` means "in the background". To check they are alive:
+
+```bash
+docker compose ps
 ```
 
 <div class="blog-post__callout blog-post__callout--warn">
-  <p><strong>One manual step.</strong> The compose file creates a database called <code>synapse</code>, but the server connects to a dedicated <code>synapse_rs</code> on the same instance. Create it once:</p>
+  <p><strong>Now one small manual step.</strong> Docker creates a database named <code>synapse</code>, but the server wants one named <code>synapse_rs</code>. Create it once:</p>
   <p><code>docker compose exec db createdb -U synapse synapse_rs</code></p>
-  <p>Schema migrations run automatically at boot; the database itself is the one thing nothing creates for you. Postgres is also the one dependency the server <em>fails fast</em> on — if it is missing, the process exits rather than serving a half-working site.</p>
+  <p>If it says <em>already exists</em>, you are fine — it is done. Everything else about the database sets itself up on first launch.</p>
 </div>
 
-### 4 · Run the app
+<h3 id="step4">Step 4 · Start Synapse</h3>
 
 ```bash
-cd ~/dev/synapse
+cd ~/synapse-workspace/synapse
 dev-tools/dev
 ```
 
-That starts the API server in the background and the Astro dev server in the foreground with hot reload. Ctrl-C stops both.
+**The first run compiles the server and takes several minutes** — anywhere from two to ten depending on your machine. It looks like it has frozen. It has not; Rust is simply slow to build the first time and fast forever after. Later runs start in seconds.
+
+Leave this window open — the site runs for as long as it does. Press `Ctrl + C` in it to stop everything.
+
+<h3 id="step5">Step 5 · Open it</h3>
+
+Go to **<code>http://localhost:5373</code>** in your browser. You should see the library, with every book in your content folder.
+
+To sign in — needed only for running code and saving solutions — use username `tester`, password `tester`.
 
 <div class="blog-post__table-wrap">
   <table class="blog-post__table">
-    <thead><tr><th>Port</th><th>What</th><th>Note</th></tr></thead>
+    <thead><tr><th>Address</th><th>What it is</th><th>Do you need it?</th></tr></thead>
     <tbody>
-      <tr><td><strong>5373</strong></td><td>the site — open this one</td><td>pinned; the identity realm allow-lists this exact origin</td></tr>
-      <tr><td><strong>8280</strong></td><td>the API</td><td><code>/api/health</code>, <code>/api/synapse</code>, <code>/media</code>, <code>/c4</code></td></tr>
-      <tr><td>5532</td><td>Postgres</td><td>database <code>synapse_rs</code></td></tr>
-      <tr><td>8181</td><td>Keycloak</td><td>admin <code>admin/admin</code>; test users <code>tester</code> / <code>test1</code></td></tr>
-      <tr><td>5150</td><td>the code sandbox</td><td>runs untrusted code; bound to localhost only</td></tr>
-      <tr><td>8190</td><td>diagram viewer</td><td>only with the <code>c4</code> profile up</td></tr>
+      <tr><td><strong><code>localhost:5373</code></strong></td><td>the site</td><td><span class="blog-post__pill blog-post__pill--good">This is the one</span></td></tr>
+      <tr><td><code>localhost:8280</code></td><td>the API the site talks to</td><td>only when debugging</td></tr>
+      <tr><td><code>localhost:8181</code></td><td>the login server (admin / admin)</td><td>rarely</td></tr>
+      <tr><td><code>localhost:5532</code></td><td>the database</td><td>rarely</td></tr>
+      <tr><td><code>localhost:5150</code></td><td>the sandbox that runs reader code</td><td>no</td></tr>
+      <tr><td><code>localhost:8190</code></td><td>the diagram viewer</td><td>only with the <code>c4</code> option on</td></tr>
     </tbody>
   </table>
 </div>
 
 <div class="blog-post__callout blog-post__callout--bad">
-  <p><strong>Do not change 5373.</strong> The development identity realm allow-lists that origin for silent single sign-on. A "harmless" port bump produces a 403 from an invisible iframe and an authentication failure with no obvious cause. This one has cost real hours.</p>
+  <p><strong>Do not change 5373 to something else.</strong> The login server is configured to trust that exact address. Move the site to another port and sign-in fails silently — no error message, just a login that never completes. This one has cost real hours.</p>
 </div>
 
-### 5 · Confirm it works
+<h3 id="step6">Step 6 · Change something and watch it appear</h3>
 
-```bash
-curl -s localhost:8280/api/health
-curl -s localhost:8280/api/synapse | head -c 400
-```
+This is the moment the two-repository split pays off. With the site still running, open any lesson file in the *other* folder — say `~/synapse-workspace/synapse-content/blog/working-with-synapse.md` — in any text editor, change a word, and save.
 
-The second command returns the catalog index. If it lists books, the walker found your content clone. If it is empty, the server is looking somewhere else — point it explicitly:
+Now refresh the page in your browser. Your change is there. **No rebuild, no restart, no publish button.** The server re-reads the content folder on every request, so writing feels like editing a document rather than deploying software.
 
-```bash
-SYNAPSE_ROOT=/absolute/path/to/synapse-content dev-tools/dev
-```
-
-Every setting is an environment variable with a sane default. The ones you will actually touch:
+<h3 id="troubleshooting">When something goes wrong</h3>
 
 <div class="blog-post__table-wrap">
   <table class="blog-post__table">
-    <thead><tr><th>Variable</th><th>Default</th><th>What it does</th></tr></thead>
+    <thead><tr><th>What you see</th><th>What it means</th><th>What to do</th></tr></thead>
     <tbody>
-      <tr><td><code>SYNAPSE_ROOT</code></td><td><code>../synapse-content</code></td><td>where the content lives</td></tr>
-      <tr><td><code>SYNAPSE_AUTO_RELOAD</code></td><td><code>true</code></td><td>re-check content per request; production pins it to the commit</td></tr>
+      <tr><td><code>command not found</code></td><td>the tool did not install, or the terminal predates it</td><td>close the terminal, open a new one, try again</td></tr>
+      <tr><td><code>Cannot connect to the Docker daemon</code></td><td>Docker is not running</td><td>Mac: open Docker Desktop. Linux: <code>sudo systemctl start docker</code></td></tr>
+      <tr><td><code>permission denied</code> on a docker command</td><td>your user is not in the docker group yet</td><td>Linux: log out and back in after the <code>usermod</code> line</td></tr>
+      <tr><td>the server exits immediately at startup</td><td>the database is missing or not up</td><td>re-run Step 3, including the <code>createdb</code> line</td></tr>
+      <tr><td><code>address already in use</code></td><td>an older copy is still running</td><td>find its terminal and press <code>Ctrl + C</code>, then start again</td></tr>
+      <tr><td>the site loads but lists no books</td><td>the two folders are not side by side</td><td>see the note below</td></tr>
+      <tr><td>signing in does nothing</td><td>you are not on port 5373</td><td>use <code>http://localhost:5373</code> exactly</td></tr>
+      <tr><td>it just sits there on first run</td><td>Rust is compiling</td><td>wait — two to ten minutes, once</td></tr>
+    </tbody>
+  </table>
+</div>
+
+If your two folders are not siblings, tell the server where the writing is:
+
+```bash
+SYNAPSE_ROOT=/full/path/to/synapse-content dev-tools/dev
+```
+
+And to check the server is answering at all, this should print `{"status":"ok"}`:
+
+```bash
+curl -s localhost:8280/api/health
+```
+
+<h3 id="settings">The settings worth knowing</h3>
+
+Everything is configured by environment variables with working defaults, so you can ignore all of them until you want one. Set them in front of the start command, as in the `SYNAPSE_ROOT` example above.
+
+<div class="blog-post__table-wrap">
+  <table class="blog-post__table">
+    <thead><tr><th>Setting</th><th>Default</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>SYNAPSE_ROOT</code></td><td><code>../synapse-content</code></td><td>where the writing lives</td></tr>
+      <tr><td><code>SYNAPSE_AUTO_RELOAD</code></td><td><code>true</code></td><td>re-read content on every request — what makes Step 6 work. Production pins it to the published commit instead</td></tr>
       <tr><td><code>SYNAPSE_PORT</code></td><td><code>8280</code></td><td>the API port</td></tr>
-      <tr><td><code>TUTOR_ENABLED</code></td><td><code>false</code></td><td>the local Socratic coach, against an OpenAI-compatible endpoint</td></tr>
-      <tr><td><code>CONTENT_FORGE</code></td><td><code>dry-run</code></td><td>in-app editing: <code>off</code> · <code>dry-run</code> · <code>github</code></td></tr>
+      <tr><td><code>TUTOR_ENABLED</code></td><td><code>false</code></td><td>the built-in Socratic coach, if you have a local language model running</td></tr>
+      <tr><td><code>CONTENT_FORGE</code></td><td><code>dry-run</code></td><td>in-app editing: <code>off</code>, <code>dry-run</code> (everything except the final publish), or <code>github</code></td></tr>
     </tbody>
   </table>
 </div>
@@ -480,7 +595,7 @@ flowchart TD
     B -->|"prose, media, sidecars"| C[git push]
     C --> D["git-sync sidecar<br/>fetches the commit"]
     D --> E["symlink flips atomically"]
-    E --> F["app re-reads the commit hash<br/>per request"]
+    E --> F["app re-reads the<br/>commit hash per request"]
     F --> G["live — under a minute"]
     B -->|"a .c4 model"| H["CI rebuilds the<br/>diagram image"]
     H --> I["promote the tag<br/>to the infra repo"]
@@ -686,15 +801,18 @@ Every item here has actually happened. None of them produces an error message.
 
 <h2 class="blog-post__section">The Whole Thing in Ten Lines</h2>
 
+Once the four tools from Step 1 are installed, this is the entire thing:
+
 ```bash
-git clone git@github.com:ani2fun/synapse.git
-git clone git@github.com:ani2fun/synapse-content.git
+mkdir -p ~/synapse-workspace && cd ~/synapse-workspace
+git clone https://github.com/ani2fun/synapse.git
+git clone https://github.com/ani2fun/synapse-content.git
 cd synapse
 docker compose up -d db go-judge keycloak
 docker compose exec db createdb -U synapse synapse_rs
 dev-tools/dev                                  # → http://localhost:5373
 
-# then, in the other repo:
+# then, in the other folder:
 #   mkdir my-book && write book.json
 #   mkdir my-book/01-foundations
 #   write my-book/01-foundations/01-first.md with title + summary frontmatter
