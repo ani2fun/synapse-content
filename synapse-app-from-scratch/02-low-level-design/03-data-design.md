@@ -1,18 +1,19 @@
 ---
 title: "Data design and the schema"
-summary: "Two tables, one check constraint that makes an illegal row unrepresentable, three representations of a single verdict — and the story of adopting a schema a different tool created."
+summary: "Six small tables, one check constraint that makes an illegal row unrepresentable, three representations of a single verdict — and the story of adopting a schema a different tool created."
 essential: true
 ---
 
 # Data design and the schema
 
 > **You'll be able to:** flatten a sum type into relational columns without losing its guarantees;
-> write a constraint that enforces a biconditional rather than a null check; and decide when *not* to
-> add a foreign key.
+> write a constraint that enforces a biconditional rather than a null check; decide when *not* to
+> add a foreign key; and read a schema as a record of what a system refused to store.
 
 ## The whole schema
 
-Two tables. Click either one in the diagram to read its DDL, constraints and access patterns.
+Six tables, in three pairs. Click any of them in the diagram to read its DDL, constraints and access
+patterns.
 
 <iframe
   src="/c4/view/saf_data"
@@ -41,17 +42,77 @@ erDiagram
         text note
         timestamptz granted_at
     }
+    PROBLEM_PROGRESS {
+        text user_id PK "opaque OIDC sub"
+        text lesson_path PK
+        timestamptz completed_at
+    }
+    LESSON_VIEW {
+        bigserial id PK
+        text lesson_path
+        timestamptz viewed_at
+        boolean authed "the whole of the attribution"
+    }
+    CONTENT_EDITOR_ALLOWLIST {
+        text username PK "a SEPARATE grant"
+        text note
+        timestamptz granted_at
+    }
+    CONTENT_EDIT_REQUEST {
+        uuid id PK
+        text username
+        text lesson_path
+        text branch UK
+        int attempt
+        bigint pr_number "null in dry-run"
+        text state
+        int commits
+    }
     SUBMISSIONS }o..o| SUBMISSION_ALLOWLIST : "logical only — deliberately no FK"
+    CONTENT_EDIT_REQUEST }o..o| CONTENT_EDITOR_ALLOWLIST : "logical only — same reason"
 ```
 
-A platform this size having two tables is the point, and it is worth being explicit about why:
+| Pair | Tables | What it is |
+|---|---|---|
+| System of record | `submissions`, `submission_allowlist` | what a reader attempted and what the judge decided |
+| Account conveniences | `problem_progress`, `lesson_view` | what has been finished, and what gets read |
+| Contribution | `content_editor_allowlist`, `content_edit_request` | who may propose a change, and what they proposed |
+
+A platform this size having six small tables is the point, and it is worth being explicit about why:
 **content is not in the database.** Books are Markdown in a git repository, pulled onto disk by a
 sidecar and re-indexed when the commit changes. That single decision deletes an entire schema —
 no `books`, `chapters`, `lessons`, `revisions`, `authors` — and replaces the authoring write path
 with `git push`.
 
-What is left is exactly the state that *cannot* be rebuilt from a repository: what a reader
-attempted, and what the judge decided.
+The third pair is the interesting test of that claim, because in-app editing is exactly the feature
+that usually drags content into a database. It did not. Those two tables are about *proposals* — an
+allowlist and a branch name — and the lesson text still only ever exists in git. A row records where
+a change went, never what it said.
+
+What is left is exactly the state that *cannot* be rebuilt from a repository.
+
+## Read the schema for what is missing
+
+The most informative thing about these tables is what they decline to hold.
+
+`lesson_view` has no user id, no session, no IP and no referrer — one boolean says whether the reader
+was signed in, and that is the entire attribution. It can answer *"which lessons get opened"* and is
+structurally incapable of answering *"what did this person read"*.
+
+`problem_progress` has no surrogate key and no `completed` flag: the row's existence is the fact, so
+re-syncing is an upsert rather than a chance to disagree with yourself.
+
+`content_edit_request` holds a branch name and a pull-request number, not a diff — the forge owns the
+content, and asking it for the live state before reusing a branch is cheaper than trying to stay in
+sync with it.
+
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **A column you never add cannot leak, drift, or need a migration.** Privacy and simplicity are the
+same property viewed from two directions, and both are enforced far more reliably by an absent column
+than by a policy about a present one.
+
+</div>
 
 ## Flattening a sum type into columns
 
@@ -165,15 +226,27 @@ Two identifiers for two jobs, with the join made by policy rather than by constr
 trade *at this scale*: the allowlist is small and hand-curated. It would not be defensible if grants
 were self-service and high-volume.
 
-## One index, and why only one
+## One index per query, and no others
 
 ```sql
-create index submissions_lesson_recency on submissions (lesson_path, created_at desc);
+create index submissions_lesson_recency    on submissions           (lesson_path, created_at desc);
+create index lesson_view_path_recency      on lesson_view           (lesson_path, viewed_at desc);
+create index problem_progress_user         on problem_progress      (user_id);
+create index content_edit_request_owner_page on content_edit_request (username, lesson_path);
 ```
 
-There is one query that matters: *show this reader the recent attempts on this lesson, newest first*.
-The index matches it exactly — equality on the leading column, ordered on the second, so the sort is
-read straight from the index.
+Four indexes for four queries, and the shape of each is dictated by its query rather than chosen:
+
+| Query | Index shape |
+|---|---|
+| recent attempts on this lesson, newest first | equality then `desc` — the sort is read from the index |
+| top lesson paths, recent first | the same shape, same reason |
+| every lesson this account has finished | equality on the leading column of the composite key |
+| is there an open request from this person on this page | equality on both |
+
+Two of them are literally the same pattern, which is worth noticing rather than deduplicating: when a
+second feature's access pattern matches the first's, that is evidence the first index was shaped by
+the *question* and not by the table.
 
 Every other access is by primary key. Adding speculative indexes would slow every write to serve
 queries nobody makes; the honest default is to index the access patterns that exist and add more when
@@ -181,10 +254,12 @@ a slow query proves the need.
 
 ## Adopting a schema you did not create
 
-The production schema was not created by these migrations. It was created by the previous
+The first two migrations did not create the production schema. It was created by the previous
 implementation's migration tool, and then **adopted**: the new tool's bookkeeping table was
-hand-baselined so both migrations counted as already applied, and boot no-ops instead of trying to
-create live tables.
+hand-baselined so both counted as already applied, and boot no-ops instead of trying to create live
+tables. Everything from the third migration onwards is an ordinary forward migration that ran for
+real — which is the point of doing the adoption properly once: after it, the schema has no special
+cases left in it.
 
 The order was the risky part. Deployment is GitOps with auto-sync, so pushing the manifest *is* the
 deploy — there is no window between "committed" and "running". The baseline therefore had to be

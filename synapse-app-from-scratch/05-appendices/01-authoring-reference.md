@@ -18,16 +18,21 @@ instead of the widget you meant.
   NN-<part-slug>/
     NN-<lesson-slug>.md            a lesson
     NN-<lesson-slug>.editorial.md  worked solutions, revealed on demand
-    NN-<lesson-slug>.tests.json    hidden test suite — never served as content
+    NN-<lesson-slug>.tests.json    the suite — only its sample cases reach the browser
     _c4-docs/<elementId>.md        click-docs for architecture diagram elements
-    _media/                        images
     <name>.c4                      architecture model
+_media/<book-slug>/<lesson-slug>/  images and video — at the REPOSITORY ROOT, served at /media/…
 local-only/                        never published
 ```
 
 **`NN-` prefixes order; slugs identify.** `02-low-level-design/` sorts second and appears in the URL
 as `low-level-design`. Renumbering changes order without changing any URL — only renaming the *slug*
 breaks links.
+
+**Everything that is not excluded is a lesson.** The walker skips names beginning with `_` or `.`,
+files ending `.editorial.md`, and the reserved companion directories — and renders every other `.md`
+under a book as a visible page. A `README.md` dropped into a book directory becomes a lesson in the
+sidebar, which is why author-facing notes live outside the book tree entirely.
 
 ### `book.json`
 
@@ -51,6 +56,32 @@ summary: "One or two sentences shown in listings."
 essential: true
 ---
 ```
+
+One more field changes a lesson's *kind*:
+
+```yaml
+kind: problem
+```
+
+That single line does three things, and nothing else switches them on individually. It renders the
+two-pane problem workbench instead of the prose page; it makes the lesson's `.editorial.md` sidecar
+reachable (a lesson without `kind: problem` has its editorial silently ignored); and it makes the
+`.tests.json` sidecar load.
+
+### What the browser is allowed to see
+
+The `.tests.json` sidecar is read twice, by two different consumers, and they are given different
+things:
+
+| Consumer | Gets |
+|---|---|
+| The reader's page | only the cases marked as **samples** |
+| The judge, server-side | the whole suite |
+
+So a suite can hold thirty cases while the workbench shows three, and the hidden ones are not
+"hidden by the UI" — they are never serialised into the response. A malformed sidecar is a **loud
+error** rather than a silently empty suite, on both paths, because a problem that quietly grades
+against nothing is worse than one that fails to load.
 
 ## Fence vocabulary
 
@@ -88,8 +119,18 @@ fence's **meta** — the text after the language name.
   first.
 - **`widget=<structure>`** on a `viz` fence switches it from traced to declarative.
 
-The 17 structure names: `array` `grid` `stack` `queue` `deque` `tree` `heap` `list` `hashmap`
-`graph` `trie` `unionFind` `fenwick` `bitset` `skiplist` `segmentTree` `callstack`.
+The 17 structure names, spelled **exactly** as the parser accepts them:
+
+```
+array · grid · stack · queue · deque · tree · heap · list · hashmap
+graph · trie · union-find · fenwick · bitset · skiplist · segment-tree · callstack
+```
+
+Two of those are **kebab-case**, and they are the two people get wrong. `union-find` and
+`segment-tree` are the only accepted spellings; `unionFind` and `segmentTree` parse to nothing, and
+the fence then falls through to a plain code block with no error — the failure mode described above,
+in its most easily-missed form. Names are matched case-insensitively after trimming, so `Array` is
+fine and `union_find` is not.
 
 ### Adjacent fences group
 
@@ -186,6 +227,25 @@ npx -y likec4@latest build --base /c4/ --output <dir> . 2>&1 | grep -iE "error|i
 
 An exit code you cannot trust is worse than no check, because it looks like verification.
 
+## Editing from inside the app
+
+There is a second way to change a lesson, for people who do not want a checkout. An allow-listed,
+signed-in reader gets a **Suggest an edit** link on a lesson; it opens a dedicated editor page with
+the file's full source, frontmatter fence included, and a mandatory rendered preview before submit.
+The server commits to `edit/<username>/<lesson-path>` and opens a pull request.
+
+Four things are worth knowing before relying on it:
+
+- **It edits existing `.md` lessons only.** No sidecars, no `book.json`, no new files, no media.
+- **The frontmatter fence is part of what you are editing** — deleting it is refused, because it
+  silently changes the page's title, summary and social tags.
+- **A second edit while your pull request is open adds a commit to the same branch**, rather than
+  opening a second one.
+- **The editor is on its own page.** That is deliberate: a lesson page carries zero eager JavaScript
+  for this feature, just a small link that a tiny island un-hides for an allow-listed caller.
+
+The design is in [Content contribution, without git](/synapse/synapse-app-from-scratch/running-it/content-contribution).
+
 ## Verifying before publishing
 
 1. Grep the diagram build log for errors (above).
@@ -193,8 +253,12 @@ An exit code you cannot trust is worse than no check, because it looks like veri
 3. Render each lesson locally: diagrams draw, widgets mount, quizzes hydrate, no console errors.
 4. Confirm the book appears in the library index with the right title and order.
 
-For step 3, note that diagrams are **viewport-lazy**: a diagram far down the page has not rendered
-because nothing scrolled near it, which is not the same as having failed. Check by driving the
-renderer directly rather than by asserting an `svg` exists — an Enlarge button contains an `svg` too,
-and mistaking one for a rendered diagram is exactly the false positive this book hit while being
-written.
+For step 3, note what is and is not in the server's response. **Prose and code blocks are rendered
+server-side**, so "the text is there" is answered by `curl` — but every widget is a *placeholder* in
+that HTML, claimed by an island on mount. A `div` carrying a diagram's source is what success looks
+like in the raw response; the picture only exists after hydration.
+
+Diagrams are additionally **viewport-lazy**: one far down the page has not rendered because nothing
+scrolled near it, which is not the same as having failed. Check by driving the renderer directly
+rather than by asserting an `svg` exists — an Enlarge button contains an `svg` too, and mistaking one
+for a rendered diagram is exactly the false positive this book hit while being written.

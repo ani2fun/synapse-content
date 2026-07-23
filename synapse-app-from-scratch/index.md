@@ -20,9 +20,15 @@ edge, that is a number I measured, from a stated location, on a stated day.
 ## Who this is for
 
 You are comfortable reading code and want to see how a non-trivial system actually fits together —
-not the pattern-book version, the version with the awkward parts still attached. Some Rust helps
-but is not assumed; the design arguments are language-independent, and where Rust forces a choice
-the book says so explicitly.
+not the pattern-book version, the version with the awkward parts still attached. Some Rust and some
+TypeScript help but neither is assumed; the design arguments are language-independent, and where a
+language forces a choice the book says so explicitly.
+
+The awkward parts include the book's own corrections. Since it was first written the platform has
+deleted a client it had just built, gained three bounded contexts, and grown a write path it had
+argued against having. Where a chapter's earlier reasoning turned out to be wrong, the reasoning is
+still there with the correction next to it — that being more useful than a document which has only
+ever been right.
 
 ## The one rule
 
@@ -38,33 +44,36 @@ documents were treated as leads to verify rather than facts to copy.
 
 ## Part 1 — The system
 
-- [Why a rebuild](/synapse/synapse-app-from-scratch/the-system/why-a-rebuild) — Scala to Rust: what
-  the swap measurably bought, what Scala was better at, and the case against doing it at all.
+- [Why a rebuild](/synapse/synapse-app-from-scratch/the-system/why-a-rebuild) — two rewrites six days
+  apart: Scala to Rust on the server, and a Rust client deleted almost as soon as it shipped. What
+  each measurably bought, and which one the evidence never supported.
 - [Architecture](/synapse/synapse-app-from-scratch/the-system/architecture) — C4 from context to
-  component, with a live clickable model. Seven bounded contexts and why the seams fall there.
+  component, with a live clickable model. Ten bounded contexts, two processes behind one front door,
+  and why the seams fall there.
 
 ## Part 2 — Low-level design
 
 Drawn from the code, with the traps that make an idealised diagram wrong.
 
 - [The server hexagon](/synapse/synapse-app-from-scratch/low-level-design/the-server-hexagon) —
-  ten port traits, their adapters, and a purity rule enforced by CI rather than by discipline.
+  seventeen port traits, their adapters, and a purity rule enforced by CI rather than by discipline.
 - [The submission lifecycle](/synapse/synapse-app-from-scratch/low-level-design/the-submission-lifecycle)
   — accept in 202, judge in a detached task, poll for the verdict, and what happens when the
   process dies mid-judge.
 - [Data design and the schema](/synapse/synapse-app-from-scratch/low-level-design/data-design) —
-  two tables, one check constraint that makes an illegal state unrepresentable, and three
-  representations of a single verdict.
-- [The client](/synapse/synapse-app-from-scratch/low-level-design/the-client) — three layers,
-  fine-grained signals, a state machine with a staleness guard, and the boundary where Rust hands
-  off to TypeScript.
+  six small tables, one check constraint that makes an illegal state unrepresentable, and what a
+  schema tells you by the columns it refuses to have.
+- [The web tier](/synapse/synapse-app-from-scratch/low-level-design/the-client) — server-rendered
+  prose, islands that cannot share state, a budget measured per page, and a staleness guard that
+  lost a guarantee in translation.
 - [The visualisation engine](/synapse/synapse-app-from-scratch/low-level-design/the-visualisation-engine)
   — how a running program becomes a picture, stage by stage.
 
 ## Part 3 — Choices and their cost
 
 - [The technology stack](/synapse/synapse-app-from-scratch/choices/technology-stack) — what was
-  chosen, what was rejected, and what each decision cost. With honest disadvantages.
+  chosen, what was rejected, what each decision cost, and the one rejected option that turned out to
+  be rejected for a bad reason.
 - [Trade-offs](/synapse/synapse-app-from-scratch/choices/trade-offs) — the deliberate asymmetries.
   Why the database fails fast but the identity provider degrades; why granting access is instant
   but granting admin needs a commit.
@@ -73,6 +82,9 @@ Drawn from the code, with the traps that make an idealised diagram wrong.
 
 - [The content pipeline](/synapse/synapse-app-from-scratch/running-it/the-content-pipeline) — how
   a `git push` becomes this page, by two different routes with very different latencies.
+- [Content contribution, without git](/synapse/synapse-app-from-scratch/running-it/content-contribution)
+  — a reader fixes a typo from inside the app and it lands as a reviewed pull request. Optimistic
+  concurrency without a lock, and a credential-free mode that runs the whole flow.
 - [Performance, measured](/synapse/synapse-app-from-scratch/running-it/performance) — the numbers,
   the method, and the limits of both.
 - [The homelab case study](/synapse/synapse-app-from-scratch/running-it/the-homelab-case-study) —

@@ -12,7 +12,7 @@ essential: true
 
 ## There is no content backend
 
-The platform has no CMS, no editor API, no upload endpoint and no content database. Publishing is:
+The platform has no CMS and no content database. Publishing is:
 
 ```bash
 git commit -m "new lesson" && git push
@@ -22,8 +22,18 @@ That is the whole authoring interface. Everything that would normally sit betwee
 published page — draft state, permissions, revisions, preview, rollback — is delegated to git, which
 already does all of it better.
 
-The security consequence is worth stating: **there is no authoring attack surface**, because there is
-no authoring endpoint. Nothing the application serves can write to the content it serves from.
+The consequence worth stating: **nothing the application serves can write to the content it serves
+from.** A lesson becomes live by being a commit on `main`, and by no other route.
+
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+**One qualification, added later.** There is now an endpoint that lets a reader propose an edit from
+inside the app — but it opens a *pull request*, and the change still becomes live only by the path
+described in this chapter. The sentence that had to be retired is "there is no authoring endpoint";
+the one that matters, above, still holds. See
+[Content contribution, without git](/synapse/synapse-app-from-scratch/running-it/content-contribution).
+
+</div>
 
 ## How the repository is organised
 
@@ -34,23 +44,27 @@ synapse-content/
     01-<part-slug>/
       01-<lesson-slug>.md         the lesson
       01-<lesson-slug>.editorial.md   worked solutions (revealed separately)
-      01-<lesson-slug>.tests.json     the hidden suite — never served as content
+      01-<lesson-slug>.tests.json     the suite — only its samples reach the browser
       _c4-docs/<elementId>.md     click-docs for diagram elements
-      _media/                     images
       <name>.c4                   architecture models
+  _media/<book-slug>/<lesson-slug>/…    images and video, served at /media/…
   local-only/                     never published
 ```
 
-Three conventions carry most of the weight:
+Four conventions carry most of the weight:
 
 - **Numeric prefixes order things; slugs identify them.** `01-the-system/` sorts first and appears in
   the URL as `the-system`. Reordering is a rename, not a database update — and the URL only changes
   if the *slug* changes.
-- **Underscore-prefixed directories are structural, not content.** `_media/`, `_c4-docs/` are
-  resolved relative to the lesson that references them, so a book's assets travel with it.
-- **Sidecars sit beside their lesson.** Editorial content and hidden test suites share the lesson's
-  name and are served — or withheld — deliberately. The test suite is never reachable as content;
-  it is read server-side.
+- **Underscore-prefixed directories are structural, not content.** The content walker skips anything
+  beginning with `_` or `.`, which is what lets `_c4-docs/` sit inside a chapter without becoming a
+  phantom lesson. Every other `.md` under a book *is* a lesson, including one you forgot about.
+- **Media lives at the repository root**, not beside the lesson — one `_media/` tree, addressed by
+  book and lesson slug. It is served path-addressed with a shared cache hour rather than
+  content-hashed, because authors replace files in place.
+- **Sidecars sit beside their lesson.** Editorial content and test suites share the lesson's stem and
+  are unlocked by `kind: problem` in the frontmatter. Only the suite's *sample* cases are ever
+  serialised into a response; the rest stays server-side with the judge.
 
 `local-only/` is excluded from what ships. Drafts stay local until they are a commit on `main`.
 
@@ -172,6 +186,11 @@ reimplement all of it, worse.
 The first thing to break is **non-technical authors**. Asking a subject-matter expert to resolve a
 merge conflict is asking them to stop contributing. That is where a CMS earns its cost — not because
 git is inadequate, but because the interface is wrong for the person.
+
+That is the one that broke, and the answer turned out not to be a CMS. It was an editor page that
+opens a pull request — a new interface onto the same pipeline, rather than a second pipeline. The
+[next chapter](/synapse/synapse-app-from-scratch/running-it/content-contribution) is that design,
+including the two shortcuts that would have destroyed the property this chapter is about.
 
 Second is **partial permissions**. Git access is all-or-nothing per repository. "This person may edit
 one book" needs either repository splitting or a permissions layer git does not have.

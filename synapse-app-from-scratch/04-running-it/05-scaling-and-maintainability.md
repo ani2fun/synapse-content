@@ -227,19 +227,28 @@ comfortable because of it.
 
 ## Maintainability is automated or it does not exist
 
-A one-person codebase decays quietly, because there is no reviewer to notice. Four gates run in CI,
+A one-person codebase decays quietly, because there is no reviewer to notice. Six gates run in CI,
 each catching a specific kind of drift:
 
 | Gate | Catches |
 |---|---|
-| Domain/logic purity greps | a framework import creeping into pure code |
-| File-size caps (500 server / 800 client) | a file quietly becoming two responsibilities |
-| Bundle budget (700 KiB critical path) | dependency weight arriving one library at a time |
+| Domain + viz-engine purity greps | a framework import creeping into pure code |
+| File-size caps (500 server / 800 web + viz) | a file quietly becoming two responsibilities |
+| Per-page eager-JS budget (250 KiB gz) | an island going eager; dependency weight one library at a time |
+| Generated API types are current | the wire contract drifting from the server that defines it |
+| Contract lock against the reference spec | an endpoint changing shape without anyone deciding to |
 | Formatting + linting, warnings as errors | style drift and known-bad patterns |
 
 They share the property worth copying: **each fails the build on a measurable threshold**, not on
 judgement. "Keep files focused" is advice nobody can enforce. "This file is 512 lines and the limit
 is 500" is a build failure with an obvious next action.
+
+Two of them changed shape when the web tier did, which is the maintenance cost of gates that nobody
+warns you about. The purity grep was pointed at a Rust client that no longer exists and had to be
+re-aimed at the visualisation engine — a gate whose subject disappears reports green forever. And the
+bundle budget was replaced rather than adjusted: with per-page assets there is no bundle to cap, so
+the threshold moved from 700 KiB of critical path to 250 KiB **per page kind**. A gate is a
+measurement, and a measurement outlives its instrument only if someone checks.
 
 The file-size cap has earned its keep — a client file reached 889 lines and the cap forced the split
 into `logic`, `state` and `view` it should have had from the start. The gate did not just detect a

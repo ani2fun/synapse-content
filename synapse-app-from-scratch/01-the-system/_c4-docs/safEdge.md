@@ -6,8 +6,10 @@ technology: Cloudflare
 
 ## Edge
 
-The read path's actual capacity. Lesson JSON is served with `max-age=60, stale-while-revalidate=600`
-and asset bundles with `immutable` for a year.
+The read path's actual capacity. Pages and lesson JSON are served with
+`max-age=60, stale-while-revalidate=600`, hashed assets with `immutable` for a year, and media with
+one shared hour — media is path-addressed rather than content-hashed, because authors replace files
+in place.
 
 ### Measured, from Paris
 

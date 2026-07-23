@@ -1,18 +1,19 @@
 ---
 title: "Why a rebuild"
-summary: "The same platform, rebuilt from Scala to Rust. What the swap measurably bought, what it cost, and the honest case against doing it at all."
+summary: "Two rewrites, six days apart: Scala to Rust on the server, and a Rust client that was deleted almost as soon as it shipped. What each measurably bought, and what one of them proved wrong."
 essential: true
 ---
 
 # Why a rebuild
 
 > **You'll be able to:** judge a rewrite by what it measurably bought rather than by how it felt;
-> explain what a "reference oracle" rebuild is and why it beats working from a specification; and
-> recognise the specific conditions that made this one survivable.
+> explain what a "reference oracle" rebuild is and why it beats working from a specification;
+> recognise the specific conditions that made this one survivable; and tell the difference between a
+> decision that was justified and one that merely followed another.
 
 ## Same product, different implementation
 
-This platform ran on Scala 3 — ZIO on the server, Laminar in the browser. It now runs on Rust —
+This platform ran on Scala 3 — ZIO on the server, Laminar in the browser. It was rebuilt in Rust:
 axum on the server, Leptos compiled to WebAssembly in the browser. Same product, same content, same
 URLs; a different implementation underneath.
 
@@ -29,6 +30,11 @@ URLs; a different implementation underneath.
 The architecture barely moved. Ports and adapters, bounded contexts, the three-layer client split,
 even most module names survived — because those were *design* decisions, and the rebuild was not a
 redesign. What changed is the machinery underneath them.
+
+Then, six days after the Rust client first rendered a page, it was deleted and replaced with
+server-rendered Astro. That second rewrite is the more useful story, and it is told at the end of
+this chapter rather than the start, because it only makes sense once you have the first one's
+reasoning in view.
 
 ## The method: a reference oracle
 
@@ -107,17 +113,18 @@ matter day to day:
   marshal every string it passes.
 
 The client is worth stating carefully, because it is the part most likely to be assumed the wrong way
-in either direction. Rust does win one half of it: the visualisation engine is 3,300 lines of pure
-logic running in the browser, including a 320-tick O(n²) force simulation over flat float arrays —
-the workload WebAssembly is genuinely better at, and one a reader app is not expected to have. Scala
-wins the other half, the DOM-facing UI work. The mechanics of both are in
-[The client](/synapse/synapse-app-from-scratch/low-level-design/the-client).
+in either direction. Rust does win one half of it: the visualisation engine is thousands of lines of
+pure logic running in the browser, including a 320-tick O(n²) force simulation over flat float arrays
+— the workload WebAssembly is genuinely better at, and one a reader app is not expected to have.
+Scala wins the other half, the DOM-facing UI work.
 
 What is *not* true is that Rust brought shared types to the client: Scala.js already had them. So
 **the client rewrite was not independently justified — it followed the server.** Once the server
 became Rust, a Scala.js client could no longer share a type with it, and that decided it. Had the
 server stayed on the JVM, the case would have rested on the viz engine's compute alone: a real
 argument, but not one that justifies rewriting a client that worked.
+
+Hold on to that sentence. It gets tested below.
 
 What Rust won was the memory floor, no GC pauses, and a compiler that makes several bug classes
 unrepresentable — exhaustive matching, `#[must_use]` transitions, ownership that makes teardown
@@ -152,6 +159,65 @@ usually absent:
 Remove any one of those and the calculus changes. With paying users and a live roadmap, the honest
 advice is the boring one: profile the JVM, tune the heap, and spend the time on something a user
 would notice.
+
+## The second rewrite, and the prediction it settled
+
+The section above says the client rewrite was not independently justified. Six days after the Rust
+client first rendered a page, it was deleted.
+
+What settled it was one measurement. The Leptos client was **641 KiB gzipped** that had to arrive,
+instantiate and mount before any prose appeared. Measured against production, content became
+readable at **1.25 s** on broadband and **7.2 s on a mid-range phone over Fast-3G** — for lessons
+whose content is around two kilobytes gzipped.
+
+Nothing about that number is a language problem. A Scala.js client of the same design would have
+been in the same place — the bullet above measures the two implementations' critical paths within 2%
+of each other, which is exactly the point. **The dominant term was the application, not the language
+it compiled to** — and this platform's traffic is 99% reads of public prose, which does not need an
+application at all.
+
+(The two figures are measurements of different things on different days: 624 against 636 KiB is the
+critical path — script, stylesheet and wasm — measured for the stack comparison; 641 KiB is the wasm
+module alone, measured later, when the client had grown. Neither is wrong, and quoting one where the
+other belongs would be.)
+
+So the web tier became server-rendered Astro with per-feature TypeScript islands: prose is HTML in
+the response, and interactivity hydrates only where a page has any. The full design is in
+[the web tier chapter](/synapse/synapse-app-from-scratch/low-level-design/the-client); what belongs
+here is what it says about the *first* rewrite.
+
+Measured on production afterwards — median of three runs, mobile throttled to Fast-3G with a 4× CPU
+penalty — first content fell from 1.25 s to **0.52 s** on broadband and from 7.2 s to **1.86 s** on
+the phone. Both land under the 3×/5× the change was modelled to give, which is the usual fate of a
+model, and both are large enough that the direction was never in doubt.
+
+| | Server: Scala → Rust | Client: Scala.js → Leptos → Astro |
+|---|---|---|
+| Motive | a measured memory floor on a constrained cluster | followed the server; then a measured first paint |
+| Result | 256 Mi → ~6 Mi, still true | rewritten, then rewritten again in six days |
+| Verdict | the target was real and it was hit | the intermediate step bought nothing a reader could see |
+
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+⚠️ **A decision that "follows" another decision has no evidence of its own.** The client moved to
+Rust because the server had, and that reasoning is coherent — a Rust server and a Scala.js client
+cannot share a wire type. But coherent is not the same as justified. Nobody had measured what the
+client's users were waiting for, so the rewrite optimised a property (shared types) that no reader
+experiences, and left untouched the one (time to first word) that every reader does.
+
+</div>
+
+The salvage is worth stating too, because "it was all wasted" would be as sloppy as the original
+claim. The visualisation engine stayed Rust and is now a lazy 288 KiB module loaded only by pages
+that draw something — the one part of that client whose workload genuinely favoured WebAssembly, and
+the part the earlier section correctly identified. The pure logic ported to vitest test-for-test.
+The TypeScript islands were reused verbatim for the third time. What was thrown away was the
+application shell, which is precisely the part the evidence never supported.
+
+The general lesson is not "don't rewrite clients". It is that **a rewrite needs its own number**, and
+inheriting a justification from an adjacent decision is how you end up with a defensible-sounding
+project that no measurement was ever run against. The server rewrite had a number before it started.
+The client rewrite got its number afterwards, and the number ended it.
 
 <details>
 <summary>The TLS bug passed every test and still broke production. What does that failure have in common with the argument for rebuilding against an oracle?</summary>

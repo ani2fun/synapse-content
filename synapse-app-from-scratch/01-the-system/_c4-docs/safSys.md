@@ -1,7 +1,7 @@
 ---
 title: Synapse
 kind: Software system
-technology: Rust · WebAssembly · PostgreSQL
+technology: Rust · Astro · PostgreSQL
 ---
 
 ## Synapse
@@ -19,9 +19,9 @@ content, and content is **outside** this box: it lives in a git repository and a
 through a sidecar. There is no CMS, no content database, no upload path. That is why the
 boundary looks thin for a system with this much surface area.
 
-What is genuinely inside: a single Rust binary serving seven bounded contexts, a WebAssembly
-client, a sandbox that runs untrusted code, and one Postgres holding the only state that cannot
-be rebuilt from a repository.
+What is genuinely inside: a single Rust binary serving ten bounded contexts, a server-rendering
+web tier beside it in the same pod, a sandbox that runs untrusted code, and one Postgres holding
+the only state that cannot be rebuilt from a repository.
 
 ### The three traffic classes
 
@@ -36,7 +36,7 @@ in common. Designing for their average would produce something mediocre at all t
 
 ### One process, on purpose
 
-The seven contexts ship as one binary with `replicas: 1`. The single replica is not a resource
+The ten contexts ship as one binary with `replicas: 1`. The single replica is not a resource
 compromise — it is a correctness requirement, because the rate limiter holds per-process state
 and N replicas would mean N× the intended limit. Scaling out therefore requires moving that
 state, which is a deliberate, documented trigger rather than an accident waiting to happen.

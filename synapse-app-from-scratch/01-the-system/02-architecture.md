@@ -44,18 +44,53 @@ Click any element for its design notes — the model is live, not a screenshot.
   title="Synapse — container view"
 ></iframe>
 
-The shape worth noticing is that **the author does not talk to the platform at all.** They push to a
-git repository; a sidecar polls it and flips a symlink; the application re-reads the commit hash on
-the next request. There is no content API, no editor backend, no upload path — and therefore no
-authoring attack surface, no content database, and no migration to run when a lesson changes.
+The shape worth noticing is that **nothing writes to the content the platform serves.** An author
+pushes to a git repository; a sidecar polls it and flips a symlink; the application re-reads the
+commit hash on the next request. There is no content database and no migration to run when a lesson
+changes.
 
 That single decision is what makes the read path cacheable. Because a lesson response is derived from
 a known commit, a cached copy is *a correct answer for that version* rather than a guess about
 freshness. Caching stops being a risk to manage and becomes a property of the data.
 
-## Seven contexts in one process
+The platform did later grow an editing surface — a reader can propose a change to a lesson from
+inside the app — and it is worth being precise about why that does not break the property above. The
+editor does not write to the served tree. It opens a **pull request against the repository**, and the
+change reaches readers by the same sidecar-and-symlink path as everything else, after a human merges
+it. The write path gained a front end; it did not gain a second source of truth. That story is
+[its own chapter](/synapse/synapse-app-from-scratch/running-it/content-contribution).
 
-Inside the origin, the code is organised as seven bounded contexts, each with its own domain types,
+## Two processes behind one front door
+
+One box on that diagram deserves a note, because it is the part most likely to be read as a
+microservice and is not. Pages are server-rendered by an Astro sidecar; the API forwards to it as the
+router's **fallback**, after every route it owns itself.
+
+```mermaid
+flowchart LR
+    E[edge] --> A["axum front door<br/>/api · /media · /c4 · robots · sitemap<br/>security headers · compression"]
+    A -->|"fallback: everything else"| N["Astro SSR sidecar<br/>(Node, same pod)"]
+    N -->|"renders against the public API"| A
+    class E edge
+    class A svc
+    class N svc
+
+    classDef edge fill:#dbeafe,stroke:#2563eb,color:#1e3a8a;
+    classDef svc  fill:#dcfce7,stroke:#16a34a,color:#14532d;
+```
+
+Two things fall out of that ordering. A registered route can never be shadowed by a page path, so
+adding a lesson called `api` cannot break the API. And the sidecar renders by calling the same public
+content API a browser would — a real loopback hop, which is a genuine cost, paid for the property
+that there is exactly one content contract rather than one for pages and one for clients.
+
+They ship as one container running two processes, and either process dying takes the container down.
+Half-alive is the worst state: one half gone means every page is a 502 forever, while an orchestrator
+only restarts a container that actually *exits*.
+
+## Ten contexts in one process
+
+Inside the origin, the code is organised as ten bounded contexts, each with its own domain types,
 its own error type, and ports it declares but does not implement.
 
 <iframe
@@ -66,6 +101,18 @@ its own error type, and ports it declares but does not implement.
   loading="lazy"
   title="Origin API — component view"
 ></iframe>
+
+Three of those ten arrived after the first version of this chapter was written, and how they arrived
+is more interesting than that they exist. `insights` came from noticing the platform could serve
+hundreds of lessons and answer nothing about which were opened. `progress` came from ✓ ticks living
+in `localStorage`, which made them a property of a browser rather than of an account. `authoring`
+came from the closing question of [the content pipeline](/synapse/synapse-app-from-scratch/running-it/the-content-pipeline)
+chapter — what breaks first is non-technical contributors — turning out to be the thing that broke.
+
+They are also visibly different sizes. `authoring` and `catalog` have four layers and thousands of
+lines; `progress` and `insights` are three files each with no `domain/` at all. That is the
+proportionality rule doing its job: a context earns structure by having something to protect, not by
+being a context.
 
 They ship as **one binary**. That is a real choice and it deserves defending, because the diagram
 would look identical if each box were a service.
@@ -98,14 +145,20 @@ it finds any:
 ```
 → server domain purity (no axum/tower/hyper/tokio/sqlx/reqwest/utoipa under domain/)
   ok
-→ client logic purity (no leptos/web-sys/wasm-bindgen/js-sys/gloo under logic/)
+→ viz engine purity (no leptos/web-sys/wasm-bindgen/js-sys/gloo under viz-wasm/src/engine/)
   ok
-→ file-size caps (server/shared ≤ 500 · client ≤ 800)
+→ file-size caps (server/shared ≤ 500 · viz-wasm/web ≤ 800 · *.gen.ts exempt)
   ok
 ```
 
-Three greps and a line count. It catches the drift that architecture documents never do, because a
-document describing a rule is not the same thing as a rule.
+Two greps and a line count, running before the compiler does. It catches the drift that architecture
+documents never do, because a document describing a rule is not the same thing as a rule.
+
+The second line is a survivor worth pointing at. It used to read *client* logic purity, over a Rust
+client that no longer exists — and when that client was deleted, the gate did not silently pass over
+nothing: it was re-pointed at the one Rust surface that remained, the visualisation engine. A gate
+whose subject disappears and whose text stays green is worse than no gate, so a rule's scope is part
+of what has to be maintained.
 
 That gate is also why the interesting logic is testable without a database, a browser, or a network:
 if the domain cannot import the web framework, it cannot depend on one.

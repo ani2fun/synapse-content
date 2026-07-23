@@ -35,8 +35,9 @@ The file should probably be renamed `openapi.reference.yaml`.
 ## Architecture and code
 
 **bounded context** — a self-contained area of the domain with its own vocabulary, types and rules:
-`catalog`, `execution`, `submission`, `identity`, `blog`, `tutoring`, `platform`. Each is a directory
-and an error type, not a service.
+`catalog`, `execution`, `submission`, `identity`, `blog`, `authoring`, `progress`, `insights`,
+`tutoring`, `platform`. Each is a directory and an error type, not a service. They are deliberately
+different sizes — two of them are three files each.
 
 **port** — a trait an application layer *declares* describing what it needs from the outside world
 (`ContentRepository`, `CodeRunner`). Named for the thing needed, never for the technology providing
@@ -59,17 +60,29 @@ production it is the content repository's commit hash.
 
 ---
 
-## The client
+## The web tier
 
-**island** — a piece of TypeScript the Rust client calls across a declared boundary: the markdown
-pipeline, the editor, the diagram engines, the tracers, the auth flow. Five of them, each loaded on
-demand.
+**island** — a unit of interactivity that hydrates independently on a server-rendered page: the
+workbench, the quiz, the diagram renderers, the auth store, the visualiser. Islands share no state
+with each other, only the DOM and named events.
 
-**three-layer rule** — a feature split into `logic` (pure, natively testable) → `state` (signals) →
-`view` (components). Applied where there is logic worth testing; 3 of 12 features have all three.
+**loader** — the thin module standing in front of a heavy dependency (the editor, mermaid, d2, the
+tracers, the viz bundle) so it is reached by dynamic import. What makes a dependency lazy is the
+loader, not the library.
 
-**signal** — a reactive value. Updating one touches exactly the DOM nodes that depend on it; there is
-no diffing pass.
+**seam contract** — the single module declaring every cross-island event name and window provider.
+The alternative — an event string spelled in two files — fails silently.
+
+**eager** — of an asset: referenced by a page's HTML, so the browser fetches it before content is
+readable. The per-page budget measures exactly this, and "an island went eager" is the regression it
+exists to catch.
+
+**placeholder** — what the markdown pipeline emits instead of a finished widget: a `div` carrying a
+diagram's source or a quiz's JSON, which an island claims on mount.
+
+**signal** — a reactive value; the previous client's core primitive. Retained in the vocabulary
+because the visualisation bundle still uses them internally, and because the *absence* of a shared
+signal graph is what forces the seam contract above.
 
 **chrome** — the UI framing around content: toolbars, close buttons, zoom controls, the sidebar.
 Distinguished from the content it frames.
@@ -134,3 +147,23 @@ triggers a deployment.
 
 **trigger** — in the scaling plan, the observable condition that justifies a deferred piece of work.
 A deferral without one is an excuse.
+
+---
+
+## Contribution
+
+**forge** — the hosting service a repository lives on, named as a role rather than as a product so
+the port can have more than one implementation. `ContentForge` is the port; GitHub and a dry run are
+its adapters.
+
+**dry run** — a deployment mode, not a test double: the whole contribution flow executes and only the
+forge call is skipped. Development, CI and the browser suite run in it.
+
+**drift** — a lesson file changing on disk while someone has it open in the editor. Caught by a
+fingerprint rather than a lock, and answered with 409.
+
+**fingerprint** — a non-cryptographic digest of a lesson's *normalised* text, handed to an editor and
+presented back on submit. A drift detector; nothing is authorised by it.
+
+**attempt** — the counter that distinguishes a contributor's second proposal for a page from their
+first, once the first has merged or closed. It is what puts the `-2` on a branch name.

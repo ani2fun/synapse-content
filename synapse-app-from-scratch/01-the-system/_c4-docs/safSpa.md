@@ -1,26 +1,43 @@
 ---
-title: Reader client
+title: Web tier
 kind: Web application
-technology: Rust · Leptos · WASM
+technology: Astro 5 SSR · TypeScript islands · Preact
 ---
 
-## Reader client
+## Web tier
 
-A fine-grained reactive client compiled to WebAssembly. There is no virtual DOM: a signal update
-touches exactly the DOM nodes that depend on it.
+Every page is **server-rendered**: the prose a reader came for is HTML in the first response, not
+something a client framework produces after it boots. The tier runs as a Node sidecar inside the
+same pod as the API, which forwards page requests to it as the router's fallback.
 
-### The island boundary
+This replaced a Leptos client compiled to WebAssembly — 641 KiB gzipped that had to download,
+instantiate and mount before any text appeared. The architecture of the read path had to answer to
+that number, and a bundle is the wrong place to keep a document.
 
-The heavy machinery is not Rust. The code editor, the Markdown pipeline, the diagram renderers and
-the language tracers are all TypeScript, loaded on demand as separate chunks. Rust reaches them
-through a narrow set of typed externs confined to one module tree — the only place in the client
-that touches JavaScript.
+### Islands, and what makes them lazy
 
-This was a deliberate refusal to rewrite working code. Those libraries have no Rust equivalent worth
-the effort, and porting them would have added risk for no user-visible gain.
+Interactivity hydrates per feature, not per page. Vanilla TypeScript is the default; Preact is used
+only where there is real component state — the workbench, the problem page, the editorial pane, the
+account and admin panels.
 
-### Three layers
+Everything expensive is a **dynamic import behind a loader**: the code editor, the OIDC client, the
+two diagram engines, the language tracers, and the visualisation bundle. A reader who never opens an
+editor never downloads one. Because those are dynamic imports they cannot appear in the page's HTML,
+so they stay out of the eager budget by construction rather than by a glob someone maintains.
 
-Features are split into pure `logic`, reactive `state`, and `view`. The purity of the first is
-enforced by a CI grep rather than by convention: nothing under a `logic/` directory may import the
-UI framework, which keeps the interesting parts testable without a browser.
+### Islands cannot share signals
+
+Separate islands are separate mounts with no common reactive graph, so every seam between them is an
+explicit, named `CustomEvent` or a window-scoped provider — and all of them are declared once, in a
+single contracts module. An event name spelled in two files is a typo waiting to disagree.
+
+That is a real cost compared with one application owning one signal graph. What it buys is that no
+island can accidentally depend on another's internals, and any island can be deleted without hunting
+for reads of its state.
+
+### The budget is per page
+
+There is no single bundle to measure, because Astro ships each page only its own assets. So the gate
+measures **per page kind**: fetch the page, sum the gzipped weight of everything its HTML makes the
+browser download before content is readable, and fail the build over a limit. Four page kinds are
+gated — landing, prose lesson, problem page, blog index.

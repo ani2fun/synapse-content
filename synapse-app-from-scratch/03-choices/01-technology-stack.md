@@ -16,12 +16,14 @@ essential: true
 |---|---|---|---|
 | Server | Rust + axum + tokio | tiny footprint, no GC pauses, exhaustive matching | slow compiles; a real learning curve |
 | Database access | sqlx | compile-time-checked SQL, no ORM indirection | queries are hand-written; no lazy loading |
-| Client | Rust + Leptos → WASM | one language across the whole stack, keeping shared wire types once the server moved | no direct DOM access; rougher debugging; a small ecosystem |
-| Islands | TypeScript, kept | mature libraries not worth rewriting | two languages, one serialisation seam |
+| Web tier | Astro SSR + TypeScript islands | the workload is documents, not an application: prose is HTML in the response | a second runtime in the image; no compile-time type sharing with the server |
+| UI components | Preact, only where state is real | small, familiar, and confined to the four surfaces that need it | a second idiom next to vanilla TS islands |
+| Visualisation | Rust → WASM, lazy | genuine compute; thousands of pure lines with goldens already passing | a third toolchain in the build |
 | Config | figment | env-first, layered, typed | precedence needs care (see below) |
 | Errors | thiserror per context | typed, exhaustive, no stringly errors | more code than `anyhow` everywhere |
 | Sandbox | go-judge | purpose-built, resource-capped, isolated | an extra service to run |
 | Identity | Keycloak | standards-compliant OIDC; not my problem to invent | heavyweight for one user |
+| Content forge | GitHub REST, no `git` binary | stateless calls; a failure leaves nothing to clean up | one more credential to scope and rotate |
 | Diagrams | LikeC4, mermaid, d2 | diagrams-as-code, versioned with the prose | three engines to load |
 
 Two of those deserve real defence, because they are the ones a reviewer would push on.
@@ -36,7 +38,7 @@ This platform previously ran on the JVM. The rewrite is therefore not a claim �
 | Memory limit needed | 1 GiB | 256 Mi |
 | Actual idle usage | ~256 Mi floor | **~6 Mi RSS** |
 | Startup | seconds (JIT + migrations) | sub-second |
-| Container image | JRE + app | static binary, distroless |
+| Container image | JRE + app | one binary on debian-slim |
 
 Roughly **40× less memory at idle**, on a homelab where memory is the binding constraint. That is not
 a micro-benchmark; it is the number that decides how many things fit on a four-node cluster.
@@ -63,84 +65,87 @@ bug are **unrepresentable**, and each is visible in earlier chapters:
 - Exhaustive matching means adding a state or an error variant fails the build until every site
   handles it. There are no wildcard arms in the mappings that matter.
 - `#[must_use]` on state transitions makes "advanced the state, forgot to save" a compiler warning.
-- Private fields on `RunHandle` make a fabricated token impossible, so the staleness guard cannot be
-  fooled.
-- Ownership across the FFI boundary makes editor teardown deterministic instead of a cleanup call
-  someone forgets.
+- A biconditional check constraint restates the domain ADT in SQL, so the flattened row cannot hold a
+  shape the type never could.
+- `forbid(unsafe_code)` is workspace law, and `unwrap`/`expect`/`panic` are denied by the linter —
+  so "it cannot fail here" has to be written as a `Result`, not asserted.
 
 Each is a bug I would otherwise have written, found in production, and fixed with a comment saying
 "remember to…". The value is that the compiler remembers instead.
 
-## Sharing types across the wire
+Worth noting which of these survived the web tier's move to TypeScript, because it is a fair test of
+how much was language and how much was design. The state machines ported intact; their *guarantees*
+did not, uniformly. The run-handle token that Rust made unforgeable with a private field is a branded
+type in TypeScript — it cannot be confused, but `42 as RunHandle` compiles. That degradation is
+documented at the definition rather than discovered later, which is the most a weaker type system
+lets you do.
 
-Client and server are the same language, so the wire types are defined **once** in a shared crate
-that compiles both natively and to WebAssembly. Rename a field and both ends fail to build.
+## The type-sharing argument, and how it ended
 
-This is the main reason the client is Rust at all — and it needs an important caveat, because the
-Scala implementation **already had it**. Scala.js compiles from the same source tree as the JVM
-server, so shared wire types across client and server were not something the rewrite introduced.
+The strongest case for a Rust client was that wire types could be defined **once** in a shared crate
+compiling both natively and to WebAssembly. Rename a field, both ends fail to build.
 
-The usual objection to a WebAssembly client is download size. It is worth checking rather than
-repeating, so here are both implementations measured by the same script, gzipped, critical path only:
+It is worth knowing what happened to that argument, because it is a good example of a real benefit
+that lost to a different real benefit.
 
-| | Scala.js + Laminar | Rust + Leptos → WASM |
+First, the caveat that was always true: the Scala implementation **already had it**. Scala.js
+compiles from the same source tree as the JVM server, so shared wire types were a property the Rust
+rebuild *preserved*, not one it introduced.
+
+Second, the measurement that ended it. The download-size objection to WebAssembly turned out to be
+a non-issue — both implementations measured within 2% of each other on the critical path, because the
+dominant term is the application rather than the language. But that cuts the other way too: an
+application is the wrong thing to ship when the workload is documents. The Leptos client made content
+readable at 1.25 s on broadband and **7.2 s on a mid-range phone over Fast-3G**, and that number is
+what the web tier now answers to.
+
+So the shared crate is gone, and its replacement is code generation: the server's OpenAPI document is
+rendered from the handlers themselves, the web tier's TypeScript types are generated from it, and CI
+fails if the checked-in generated file is not what the current server produces.
+
+| | Shared crate | Generated types |
 |---|---|---|
-| Application code | 600 KiB (JS) | 609 KiB (WASM) + 10 KiB (JS) |
-| CSS | 24 KiB | 16 KiB |
-| **Critical path** | **624 KiB** | **636 KiB** |
+| A renamed field | fails to compile | fails CI |
+| Enforced by | one compiler, one build | a generator plus a check |
+| Guarantee | no intermediate artifact to be stale | an artifact whose freshness is checked |
+| Reach | clients written in Rust | anything that can read OpenAPI |
 
-**A 2% difference.** For this application the "WASM is a heavier download" concern does not survive
-contact with the measurement — the dominant term in both cases is *the application*, not the
-language it compiles to.
+That is a compile-time guarantee traded for a build-time one. Weaker, and worth saying so plainly —
+but the thing that forced the trade was never type safety.
 
-The budget is a CI gate regardless, because a number like that only moves in one direction unless
-something stops it. The editor and the diagram engines are *not* in that figure — they load on
-demand, which is what keeps the entry path affordable.
-
-What WASM does cost, structurally, is **DOM access**: WebAssembly cannot touch the DOM, so every DOM
-operation crosses into JavaScript glue and every string it passes is marshalled out of linear memory,
-whereas Scala.js emitted JavaScript that manipulated the DOM natively.
-
-What it buys back is **compute**. The visualisation engine is 3,300 lines of pure logic running in
-the browser, including a 320-tick O(n²) force simulation over flat float arrays — no boxing, no GC
-pressure, no reliance on a JIT choosing to specialise.
-
-So the client's workload splits, and the halves disagree:
-
-| Work | Favours |
-|---|---|
-| DOM manipulation and UI | Scala.js — no boundary, native strings |
-| Layout, adapt pipeline, diffing | WASM — flat float arrays, no GC |
-| The editor and diagram engines | neither — TypeScript in both |
-
-Both are mechanisms, not measurements: I have not benchmarked the two clients against each other, and
-saying so is the point. The full mechanics are in
-[The client](/synapse/synapse-app-from-scratch/low-level-design/the-client).
+The visualisation engine kept the Rust argument that *did* survive: it is genuine compute — a
+320-tick O(n²) force simulation over flat float arrays, thousands of pure lines with recorded goldens
+— so it stayed, as a lazy 288 KiB gzipped module that only pages with widgets ever fetch.
 
 <div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
 
-💡 **A budget is a decision that keeps being made.** Measuring the bundle once tells you today's
-number. Failing the build at 700 KiB is what makes every future dependency argue for its own weight.
+💡 **A budget is a decision that keeps being made.** Measuring once tells you today's number. Failing
+the build over it is what makes every future dependency argue for its own weight. When the
+architecture changed, the budget changed shape with it: a single 700 KiB bundle cap became a 250 KiB
+cap **per page kind**, because "the bundle" stopped being a thing that exists.
 
 </div>
 
 ## Keeping the TypeScript
 
-A full-Rust rewrite would have meant reimplementing a markdown pipeline, a code editor, two diagram
-layout engines and two language tracers. Those are mature libraries with stable interfaces; rewriting
-them would take months and produce something worse for years.
+Long before the web tier was TypeScript, the *islands* were. A full-Rust rewrite would have meant
+reimplementing a markdown pipeline, a code editor, two diagram layout engines and two language
+tracers. Those are mature libraries with stable interfaces; rewriting them would take months and
+produce something worse for years.
 
-So the rule became: **rewrite what is mine, keep what is solved.** The application logic — routing,
-state, the executor machine, the visualisation contract — is bespoke and benefits from shared types.
-A markdown renderer is not bespoke and benefits from nothing.
-
-The price is a two-language codebase with a serialisation seam. That is a real cost, and it is
-bounded deliberately: five modules, strings and handles across the boundary, never object graphs.
+So the rule was: **rewrite what is mine, keep what is solved.** A markdown renderer is not bespoke
+and benefits from nothing.
 
 **Provenance matters here.** Several islands — the markdown renderer, the diagram bridges, the editor
-integration and both tracer harnesses — were carried over from the previous implementation of this
-same platform, which I also wrote. They are not third-party code, but they are also not new: they are
-the parts that were already right.
+integration and both tracer harnesses — have now been carried across three implementations of this
+same platform, which I wrote each time. They are not third-party code, but they are also not new:
+they are the parts that were already right, and the fact that they survived two rewrites unchanged is
+the strongest evidence that the seam around them was drawn in the right place.
+
+The one that reads oddest is worth keeping: the visualisation crate's generated bindings still import
+the editor and tracer islands by the module specifiers the deleted Rust client defined. The seam
+outlived the code on the other side of it, which is what a well-chosen boundary looks like from the
+outside.
 
 ## Configuration, and a precedence trap
 
@@ -164,15 +169,31 @@ Both were caught by rehearsing the deployment in the real namespace rather than 
 | Rejected | Why |
 |---|---|
 | An ORM | the queries are simple and few; compile-checked SQL is more honest than a query DSL |
-| Microservices | seven contexts, one team, no independent scaling need — see the architecture chapter |
-| Server-side rendering | the client is an application, not a document; the read path is cached anyway |
+| Microservices | ten contexts, one team, no independent scaling need — see the architecture chapter |
 | A managed cloud database | the whole point was to run it myself and know what that costs |
 | Kubernetes operators for everything | the cluster is four nodes; the operational surface should match |
 | Rewriting the TS islands | months of work to reproduce working behaviour |
+| A working-copy clone for content edits | a pod that restarts mid-push leaves one in an unknown state; stateless REST has no such failure mode |
+| A WYSIWYG content editor | it would fight the authored fence vocabulary the whole pipeline depends on |
 
 The one I would revisit first is the managed database — not because self-hosting failed, but because
 the case study measures exactly what it costs in availability, and that number is the largest
 single risk in the system.
+
+### One entry moved to the other table
+
+An earlier version of this chapter listed **server-side rendering** as rejected, with the reason:
+*"the client is an application, not a document; the read path is cached anyway."*
+
+Both halves were wrong in an instructive way. The read path *is* cached — but the cache was serving a
+641 KiB application shell quickly, which does not help a reader waiting for a page to boot before it
+shows them a paragraph. And "the client is an application" was a description of the code, not of the
+workload: 99% of traffic reads prose. I had classified the system by what I had built rather than by
+what it did.
+
+Leaving the mistake visible is more useful than quietly editing the table, because the reasoning
+error is the transferable part. **A rejected option deserves re-examination when the sentence
+justifying it contains an assumption about your users rather than a measurement of them.**
 
 <details>
 <summary>Rewriting a working platform in a new language is usually a bad idea. What made it defensible here — and when would it not be?</summary>

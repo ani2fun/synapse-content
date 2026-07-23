@@ -1,239 +1,315 @@
 ---
-title: "The client: three layers, signals, and the island boundary"
-summary: "A reactive SPA compiled to WebAssembly, layered so the interesting logic is testable without a browser — and a deliberate seam where Rust hands off to TypeScript."
+title: "The web tier: server-rendered pages and lazy islands"
+summary: "A reader app that stopped being an app: prose is HTML in the response, interactivity hydrates per feature, and the budget that keeps it that way is measured per page rather than per bundle."
 essential: true
 ---
 
-# The client: three layers, signals, and the island boundary
+# The web tier: server-rendered pages and lazy islands
 
-> **You'll be able to:** split UI code so its logic is testable without a browser; model two
-> independent concerns as orthogonal state rather than a combinatorial enum; and use an opaque
-> token type to make stale async results impossible to apply.
+> **You'll be able to:** decide between shipping an application and shipping a document; design
+> seams between independently-mounted units that cannot share state; model two independent concerns
+> as orthogonal state rather than a combinatorial enum; and use a token type to make stale async
+> results impossible to apply.
 
-## Three layers, where they are earned
+## The measurement that ended the previous design
 
-Each client feature can have three layers:
+The reader first shipped as a single-page application compiled to WebAssembly: around twenty
+thousand lines of Rust, **641 KiB gzipped**, which had to download, instantiate and mount before any
+text appeared on screen. Measured against production, content became readable at **1.25 s** on
+broadband and **7.2 s on a mid-range phone over Fast-3G** — for lessons whose actual content is about
+two kilobytes gzipped.
 
+Put those two numbers next to each other and the architecture argues with itself. This platform's
+traffic is [~99% reads of public, cacheable prose](/synapse/synapse-app-from-scratch/the-system/architecture).
+Spending most of a second — or seven of them — booting an application in order to display a document
+is not a tuning problem. It is the wrong shape.
+
+<div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+💡 **A performance number is only actionable once you know which term it belongs to.** 641 KiB was
+not slow code; it was code arriving *before* the content it was there to display. No amount of
+optimising the client would have fixed the ordering, which is why the fix was structural: render the
+prose on the server and let the interactivity arrive afterwards, per feature, or not at all.
+
+</div>
+
+## Server-render the prose, hydrate the rest
+
+Pages are Astro, `output: "server"`, rendered per request against the same public content API a
+browser would call. The Markdown pipeline — remark, rehype, shiki — runs on the server, so the
+lesson's HTML is in the first response.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant A as axum (front door)
+    participant N as Astro sidecar
+    participant C as catalog
+
+    B->>A: GET /synapse/<book>/<chapter>/<lesson>
+    Note over A: no registered route matches → fallback
+    A->>N: proxy the page request
+    N->>A: GET /api/synapse/lesson/... (loopback)
+    A->>C: resolve + read the lesson
+    C-->>A: LessonPayload
+    A-->>N: JSON
+    Note over N: remark · rehype · shiki → HTML
+    N-->>A: full page HTML
+    A-->>B: HTML + security headers + gzip
+    Note over B: prose is readable HERE
+    B->>B: islands hydrate: quiz, diagrams, editor…
 ```
-client/src/<feature>/
-  logic/     pure functions and state machines — no leptos, no web-sys, no DOM
-  state/     signals; the reactive graph
-  view/      components that render state
-```
 
-The honest picture of who actually has them:
+Everything after step 10 is optional. A reader who only reads has already got what they came for, and
+the page's remaining JavaScript is whatever that particular page actually needs.
 
-| Split | Features |
+The pipeline emits **placeholders** rather than finished widgets: a diagram fence becomes a `div`
+carrying its source, a quiz becomes a `div` carrying its JSON, a runnable fence becomes a static
+highlighted block with a bar of buttons. An island claims each on mount. That is what makes the same
+markdown renderer usable in three places — the lesson page, the editorial pane and the C4 click-docs —
+without any of them needing to know which widgets a document contains.
+
+## Islands cannot share state, so the seams are named
+
+This is the part that genuinely changes how you write the code. A single-page application has one
+reactive graph: any component can read any signal. Islands do not. Each is an independent mount, and
+two of them share nothing but the DOM and the `window`.
+
+So every seam is an explicit, named event or a window-scoped provider — and all of them are declared
+in **one contracts module**, because an event name spelled in two files is a typo waiting to
+disagree:
+
+| Seam | Direction | What it carries |
+|---|---|---|
+| `synapse:load-code` | editorial → workbench | a language and a buffer ("copy to editor") |
+| `synapse:use-case` | submissions → workbench | a failing input, to reproduce it |
+| `synapse:submitted` | workbench → submissions | a submit landed; refetch |
+| `synapse:code-changed` | workbench → coach | the current buffer, snapshotted at send time |
+| `synapse:auth-changed` | auth store → every gate | the signed-in state flipped |
+| `synapse:open-contents` | problem nav → reader | open the book's contents drawer |
+| `synapse:relayout` | any pane → editor | you were unhidden; re-measure |
+| `synapse:viz-ready` | viz loader → workbenches | the visualiser exists now; show its button |
+
+Plus three window providers — `__synapseAuth`, `__synapseViz`, `__synapseVizToken` — for the cases
+where a *value* is needed rather than an event, and the two sides can load in either order.
+
+The cost is real: this is more ceremony than `useContext`, and a missed listener fails silently
+rather than at compile time. What it buys is that no island can reach into another's internals, and
+any island can be deleted by removing its mount — the seams it used are documented in one file, not
+discovered by grepping for reads of a shared store.
+
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+⚠️ **The failure mode to design against is the invisible one.** Two islands agreeing on
+`"synapse:submitted"` in two files works until someone renames one. Nothing throws; the Submissions
+tab simply stops refreshing, and it looks like a caching bug for an afternoon. Declaring the constant
+once turns a silent divergence into an import error.
+
+</div>
+
+## The budget is per page, not per bundle
+
+There is no single bundle to measure any more, which quietly invalidates the usual gate. Each page
+ships only its own assets, so "the bundle size" is not a number the architecture has.
+
+The gate therefore measures **per page kind**: fetch the page from a production-shaped serve, collect
+everything its HTML makes the browser download before content is readable — module scripts and
+stylesheets — and gzip-sum them.
+
+| Page kind | Measured (gz) |
 |---|---|
-| Full `logic` + `state` + `view` | `catalog`, `execution`, `search` |
-| `state` + `view` only | `blog`, `identity` |
-| Flat | `api`, `islands`, `quiz`, `router`, `shell`, `tutoring`, `viz` |
+| Landing | 42 KiB |
+| Prose lesson | 47 KiB |
+| Problem page | 48 KiB |
+| Blog index | 11 KiB |
+| **Budget** | **250 KiB** |
 
-Three of twelve. That is not backlog — it is the same proportionality rule the server uses. A
-`logic/` layer earns its place when there is something to test without a browser: catalog has path
-resolution and tree walking, execution has a state machine, search has ranking. `quiz` renders a
-question and compares an answer to a string; giving it three directories would be filing, not design.
+Against 641 KiB of wasm that every page paid before rendering anything.
 
-What makes the boundary real rather than aspirational is that it is CI-enforced, the same way the
-server's domain purity is:
+The budget's headroom is deliberate — roughly five times the heaviest page. It is not sized to be
+tight; it is sized so that **approaching it means something structural regressed**, and the answer is
+to find the island that went eager rather than to raise the number.
 
-```
-→ client logic purity (no leptos/web-sys/wasm-bindgen/js-sys/gloo under logic/)
-  ok
-```
+The lazy work is the interesting half of that table, because it is absent by construction rather than
+by a maintained exclusion list. Monaco, the OIDC client, mermaid, d2, the language tracers and the
+visualisation bundle are all dynamic imports behind loaders — so they cannot appear in a page's HTML,
+and no glob has to remember to skip them. A reader who never opens an editor never downloads one.
 
-The payoff is concrete: everything under `logic/` compiles and tests **natively**. No browser, no
-WASM toolchain, no headless driver — `cargo test` runs the state machine in milliseconds. Testing UI
-logic is usually painful because it is entangled with the DOM; here that entanglement is a build
-failure.
+## Pure logic still lives apart
 
-## Signals, not a virtual DOM
+The previous implementation split each feature into `logic` / `state` / `view`, with a CI grep
+forbidding framework imports under `logic/`. The web tier keeps the *principle* and changes the
+mechanism: pure logic lives in `lib/`, islands live in `islands/`, and `lib/` is where every unit
+test points.
 
-The framework is fine-grained reactive. There is no VDOM and no re-render pass: a signal knows
-exactly which DOM nodes depend on it, and updating it touches only those.
-
-| Primitive | Role |
+| `lib/` module | What is pure in it |
 |---|---|
-| `RwSignal<T>` | mutable reactive state |
-| `Memo<T>` | derived value, recomputed only when inputs change |
-| `Effect` | runs on change — the escape hatch to imperative APIs |
-| `StoredValue<T>` | non-reactive storage that survives across reactive scopes |
-| `NodeRef` | a handle to a real DOM element, for handing to an island |
+| `catalog/tree`, `catalog/path` | tree walking, path resolution, breadcrumbs |
+| `catalog/progress`, `catalog/prefs` | completion ticks, reading preferences |
+| `execution/executor` | the runnable-block state machine |
+| `execution/judge`, `execution/practice` | verdict shaping, practice-card grouping |
+| `markdown/render`, `markdown/frontmatter` | the whole pipeline |
+| `search`, `routes`, `seo` | ranking, URL shapes, page metadata |
 
-The practical consequence is that "what updates when" is a property of the data flow rather than of a
-diffing heuristic. The cost is that reactivity is **ownership-scoped**: every signal belongs to a
-reactive owner, and when that owner is disposed the signal goes inert — it still exists, updates
-silently do nothing, and nothing warns you.
-
-That failure mode is not hypothetical. An application-wide store created under a *page's* owner keeps
-working until the reader navigates away, at which point the page is disposed and the store silently
-stops updating. The fix is structural: application-level stores are created under the application's
-owner and passed down through context, never conjured wherever they are first used. Lifetime is part
-of the design, not an implementation detail.
+Those modules were ported to vitest **test for test** from the Rust originals — which is the cheapest
+possible safety net for a rewrite, and the same "specification that already runs" argument the server
+rebuild used. The browser-driven Playwright suite is a separate thing with a separate job: it is the
+view-parity harness, and it runs against the production-shaped serve rather than a dev server.
 
 ## Two independent concerns, modelled independently
 
-The runnable code block tracks whether code is executing **and** whether the editor is editable.
-These are genuinely orthogonal — you can edit while a run is in flight — so they are two types.
+A runnable block tracks whether code is **executing** and whether the editor is **editable**. These
+are genuinely orthogonal — you can edit while a run is in flight — so they are two types, not one
+enum.
 
-Run this to see why that matters. The last two lines are the whole argument:
+Run this. The last two lines are the whole argument:
 
-```rust run
+```typescript run
 // Two orthogonal concerns. A runnable block tracks whether code is EXECUTING and
 // whether the editor is EDITABLE — independently, since you can edit mid-run.
 // Modelled separately they compose; fused into one enum they multiply.
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum RunState {
-    Idle,
-    Running,
-    Done,
+type RunState = "idle" | "running" | "done";
+
+// Orthogonal to RunState. Whether the reader MAY edit is the caller's policy, not
+// the machine's business — which is why authentication does not appear here.
+type EditMode = "readOnly" | "editing";
+
+interface Block {
+  run: RunState;
+  edit: EditMode;
 }
 
-/// Orthogonal to `RunState`. Whether the reader MAY edit is the caller's policy,
-/// not the machine's business — which is why authentication does not appear here.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum EditMode {
-    ReadOnly,
-    Editing,
+const runs: RunState[] = ["idle", "running", "done"];
+const edits: EditMode[] = ["readOnly", "editing"];
+
+console.log("every reachable combination:");
+let n = 0;
+for (const r of runs) {
+  for (const e of edits) {
+    const block: Block = { run: r, edit: e };
+    console.log(`  { run: "${block.run}", edit: "${block.edit}" }`);
+    n += 1;
+  }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Block {
-    run: RunState,
-    edit: EditMode,
-}
-
-fn main() {
-    let runs = [RunState::Idle, RunState::Running, RunState::Done];
-    let edits = [EditMode::ReadOnly, EditMode::Editing];
-
-    println!("every reachable combination:");
-    let mut n = 0;
-    for r in runs {
-        for e in edits {
-            println!("  {:?}", Block { run: r, edit: e });
-            n += 1;
-        }
-    }
-
-    println!();
-    println!("composed: {} + {} variants across two types", runs.len(), edits.len());
-    println!("fused:    {} variants in one enum, every one hand-written and matched", n);
-    println!();
-    println!("Add a third concern with 2 values:");
-    println!("  composed -> {} + 2 = {}", runs.len() + edits.len(), runs.len() + edits.len() + 2);
-    println!("  fused    -> {} x 2 = {}", n, n * 2);
-    println!("\nOne grows by addition. The other grows by multiplication.");
-}
+console.log();
+console.log(`composed: ${runs.length} + ${edits.length} variants across two types`);
+console.log(`fused:    ${n} variants in one union, every one hand-written and matched`);
+console.log();
+console.log("Add a third concern with 2 values:");
+console.log(`  composed -> ${runs.length + edits.length} + 2 = ${runs.length + edits.length + 2}`);
+console.log(`  fused    -> ${n} x 2 = ${n * 2}`);
+console.log("\nOne grows by addition. The other grows by multiplication.");
 ```
 
 ```mermaid
 stateDiagram-v2
     direction LR
     state "RunState" as RS {
-        [*] --> Idle
-        Idle --> Running: run()
-        Running --> Done: completed(handle)
-        Running --> Done: failed(handle)
-        Done --> Running: run() again
-        Done --> Idle: clear_outcome()
+        [*] --> idle
+        idle --> running: started()
+        running --> done: completed(handle)
+        running --> done: failed(handle)
+        done --> running: started() again
+        done --> idle: clearOutcome()
     }
     state "EditMode" as EM {
-        [*] --> ReadOnly
-        ReadOnly --> Editing: toggle (auth-gated by caller)
-        Editing --> ReadOnly: toggle
+        [*] --> readOnly
+        readOnly --> editing: toggle (auth-gated by caller)
+        editing --> readOnly: toggle
     }
 ```
 
-The two regions are independent, which is exactly what the program above counts: the fused
-alternative — `IdleReadOnly`, `IdleEditing`, `RunningReadOnly`, … — needs every combination written
-out and matched, and a third concern doubles that list rather than adding to it.
+The two regions are independent, which is exactly what the program counts: the fused alternative —
+`idleReadOnly`, `idleEditing`, `runningReadOnly`, … — needs every combination written out and
+matched, and a third concern doubles that list rather than adding to it.
 
-The comment on `EditMode` is doing deliberate design work too. The FSM does **not** know about
+The comment on `EditMode` is doing deliberate design work too. The machine does **not** know about
 authentication. Whether a reader may edit is a policy decision belonging to the caller; baking it in
 would give the state machine a dependency on identity and make it untestable in isolation. The
 machine tracks *what mode the editor is in*, not *who is allowed to change it*.
 
 ## Making stale results unrepresentable
 
-Every run is asynchronous, so a reply can arrive after the reader has already started a new run.
-Applying it would show the previous run's output as if it were current.
+Every run is asynchronous, and there is no real HTTP cancel — so a reply can arrive after the reader
+has already started a new run. Applying it would show the previous run's output as if it were
+current.
 
-The guard is a token type — an opaque, monotonic `RunHandle` that cannot be fabricated outside its
-module, so a stored handle can only have come from `started()`.
+The guard is a token: a monotonic `RunHandle`. Starting a run mints a new one; completion carries the
+handle it belongs to; the transition compares them and a mismatch is a **no-op**, not an error.
+Cancelling bumps the handle too, which is how "cancel" is implemented at all when the request itself
+cannot be recalled.
 
-Starting a run mints a new handle. Completion carries the handle it belongs to, and the transition
-compares it to the current one — a mismatch is a **no-op**, not an error.
+Press ▶, then try breaking it: delete the `if (handle !== state.runId)` guard and watch run 1's
+output overwrite run 2's.
 
-Here is the whole mechanism as a program you can run. Press ▶, then try breaking it: delete the
-`if handle != self.run_id` guard and watch run 1's output overwrite run 2's.
-
-```rust run
+```typescript run
 // The runnable-block state machine, cut down to the part that matters: a run in
 // flight, a restart, and a reply from the run that no longer matters.
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum RunState {
-    Idle,
-    Running,
-    Done,
+type RunState = "idle" | "running" | "done";
+
+// Branded, monotonic. A plain `number` cannot be assigned where a handle is
+// expected, so a handle you hold came from `started()` — see the note below on
+// what this guarantee is and is not.
+declare const runHandleBrand: unique symbol;
+type RunHandle = number & { readonly [runHandleBrand]: never };
+
+const INITIAL = 0 as RunHandle;
+const next = (h: RunHandle): RunHandle => ((h as number) + 1) as RunHandle;
+
+interface ExecutorState {
+  runState: RunState;
+  runId: RunHandle;
+  output: string | null;
 }
 
-/// Opaque and monotonic. The field is PRIVATE, so nothing outside this module can
-/// fabricate one — a handle you hold provably came from `started()`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct RunHandle(u64);
+const initial = (): ExecutorState => ({ runState: "idle", runId: INITIAL, output: null });
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct Executor {
-    state: RunState,
-    run_id: RunHandle,
-    output: Option<String>,
+/** A run begins: clear the previous outcome, mint the handle the result must show. */
+function started(state: ExecutorState): ExecutorState {
+  return { runState: "running", runId: next(state.runId), output: null };
 }
 
-impl Executor {
-    fn new() -> Self {
-        Executor { state: RunState::Idle, run_id: RunHandle(0), output: None }
-    }
-
-    /// Mint a fresh handle: starting a run invalidates whatever was in flight.
-    #[must_use]
-    fn started(&self) -> Self {
-        Executor { state: RunState::Running, run_id: RunHandle(self.run_id.0 + 1), output: None }
-    }
-
-    /// Apply a reply ONLY if it belongs to the run currently in flight.
-    #[must_use]
-    fn completed(&self, handle: RunHandle, out: &str) -> Self {
-        if handle != self.run_id {
-            return self.clone(); // stale — a no-op, not an error
-        }
-        Executor { state: RunState::Done, run_id: self.run_id, output: Some(out.to_owned()) }
-    }
+/** Apply a reply ONLY if it belongs to the run currently in flight. */
+function completed(state: ExecutorState, handle: RunHandle, out: string): ExecutorState {
+  if (handle !== state.runId) {
+    return state; // stale — a no-op, not an error
+  }
+  return { runState: "done", runId: state.runId, output: out };
 }
 
-fn main() {
-    let first = Executor::new().started();
-    let stale_ticket = first.run_id;
-    println!("run 1 started   -> {:?}", first.state);
+const first = started(initial());
+const staleTicket = first.runId;
+console.log(`run 1 started   -> ${first.runState}`);
 
-    let second = first.started(); // the reader hits Run again
-    println!("run 2 started   -> {:?}  (run 1's ticket is now stale)", second.state);
+const second = started(first); // the reader hits Run again
+console.log(`run 2 started   -> ${second.runState}  (run 1's ticket is now stale)`);
 
-    let after_stale = second.completed(stale_ticket, "output of run 1");
-    println!("run 1 replies   -> changed anything? {}", after_stale != second);
-    println!("                   output = {:?}", after_stale.output);
+const afterStale = completed(second, staleTicket, "output of run 1");
+console.log(`run 1 replies   -> changed anything? ${afterStale !== second}`);
+console.log(`                   output = ${JSON.stringify(afterStale.output)}`);
 
-    let done = second.completed(second.run_id, "output of run 2");
-    println!("run 2 replies   -> output = {:?}", done.output);
-}
+const done = completed(second, second.runId, "output of run 2");
+console.log(`run 2 replies   -> output = ${JSON.stringify(done.output)}`);
 ```
 
-Two details make this sturdier than a boolean flag. The field is **private**, so no other module can
-construct a `RunHandle` — a handle in hand provably came from `started()`. And the transitions are
-pure functions on state, so the guard is verified by a native unit test rather than by racing a real
-browser, which is why the program above needs no async machinery to demonstrate an async bug.
+Two details make this sturdier than a boolean flag. The transitions are pure functions on state, so
+the guard is verified by a unit test in milliseconds rather than by racing a real browser — which is
+why the program above demonstrates an async bug with no async machinery in it.
+
+And the handle is **branded**, which is where the port lost something and the book should say so. In
+the Rust original `RunHandle(u64)` had a private field: fabricating one outside its module was
+impossible, enforced by the compiler with no escape. A TypeScript brand is a compile-time fiction —
+`42 as RunHandle` compiles, and at runtime the handle is just a number. Genuine opacity would need a
+`WeakMap` or a closure, which is real machinery for an identifier that only ever needs `===`.
+
+So the guarantee weakened from "cannot be forged" to "cannot be *confused*", deliberately and with a
+comment in the source saying which. That is the honest shape of this kind of port: most of the design
+survives, one or two guarantees get thinner, and the ones that do should be named rather than quietly
+downgraded.
 
 <div style="border-left:4px solid #195045;background:rgba(25,80,69,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
 
@@ -244,170 +320,15 @@ code.
 
 </div>
 
-## The island boundary
+## The one Rust surface that stayed
 
-Some work has excellent JavaScript implementations and no reason to be rewritten: a code editor, a
-markdown pipeline, diagram layout engines, language tracers. These stay TypeScript, behind five
-declared seams:
+The visualisation engine did not move. It is still Rust, compiled to WebAssembly, shipped as a
+standalone **lazy 288 KiB gzipped bundle** loaded only when a page actually has a widget or a
+viz-hinted workbench — and capped in CI at 350 KiB.
 
-| `#[wasm_bindgen(module = …)]` | What it brings in |
-|---|---|
-| `@markdown/loader` | markdown → HTML, syntax highlighting |
-| `@editor/loader` | the code editor |
-| `@diagram/loader` | mermaid + d2 rendering |
-| `@tracer/loader` | language tracers |
-| `@auth/loader` | OIDC/PKCE |
-
-Five modules, each a **loader** rather than the library itself. That indirection is what makes the
-heavy dependencies lazy: the editor is hundreds of kilobytes and a diagram engine is multiple
-megabytes of WebAssembly, and a reader who never opens either should download neither. The loader
-dynamically imports on first use, so cost is paid on demand.
-
-The rule for what crosses the boundary: **strings and handles, not object graphs.** Send markdown,
-receive HTML. Send diagram source, receive SVG. Every value crossing pays a serialisation cost, so a
-chatty interface would be slower than either side alone.
-
-### Lifetimes across a foreign boundary
-
-The hardest part is not calling TypeScript — it is cleaning up after it. A mounted editor holds
-JavaScript closures that keep Rust values alive; drop the Rust side carelessly and you get a leak, or
-a callback firing into a disposed owner.
-
-The answer is to make the editor handle own its closures and dispose them on `Drop`. Rust's
-destructor timing is deterministic, so when the component goes away the handle drops, the closures
-are released, and the editor is torn down — in that order, without a manual cleanup call anyone can
-forget. This is one place where Rust's ownership model is a genuine advantage at an FFI boundary
-rather than a tax.
-
-## The WebAssembly boundary, precisely
-
-There is a second boundary, and unlike the island seam it was not designed — it is imposed by the
-platform. **WebAssembly cannot touch the DOM.** It has linear memory, a flat byte array, and no
-access to JS objects. Every DOM operation therefore crosses into JavaScript glue.
-
-This is where the comparison with the previous implementation gets interesting, because Scala.js
-compiles *to JavaScript*. `document.createElement("div")` in Laminar emitted literally that: native
-JS strings, DOM nodes held directly, zero marginal cost per operation. Rust cannot do this, so it is
-worth knowing exactly what it pays instead — and the answer has changed recently enough that most
-descriptions of it are out of date.
-
-Reading the generated glue in this repository (wasm-bindgen 0.2.126), the module declares **251
-import shims**. The next two blocks are **quoted from that generated file** rather than written for
-this chapter — they are evidence you can go and check, not programs to run. A representative shim:
-
-```js
-__wbg_closest_d889c758da4bb13b: function (arg0, arg1, arg2) {
-    const ret = arg0.closest(getStringFromWasm0(arg1, arg2));
-    return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
-}
-```
-
-Three things are visible there, and they are not equally expensive.
-
-**Object references are cheap now.** `arg0` is the DOM element itself — a real reference, passed
-straight through. Older wasm-bindgen kept a JavaScript array as a handle table and passed integer
-indices into it; this build uses **reference types**, so the element is an `externref` the WASM module
-holds directly. Returned objects go into a WASM-side table:
-
-```js
-function addToExternrefTable0(obj) {
-    const idx = wasm.__externref_table_alloc();
-    wasm.__wbindgen_externrefs.set(idx, obj);
-    return idx;
-}
-```
-
-That is a table allocation, not a JS-array scan, and it participates in the host GC. The "every DOM
-reference costs a lookup in a side table" objection is largely a description of the old model.
-
-**Strings are still marshalled, and this is the real cost.** `getStringFromWasm0(arg1, arg2)` takes a
-pointer and a length into linear memory and runs a UTF-8 → UTF-16 decode —
-`cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len))`.
-
-**56 of the 251 shims decode a string that way.** And strings are pervasive in DOM work — tag names,
-class names, attribute names and values, event names. Scala.js pays none of this, because its strings
-are already JS strings.
-
-**The call itself** is an import crossing. Modern engines inline much of it; it is the smallest of
-the three terms.
-
-### Put a number on it
-
-That is the mechanism. Rather than leave it there, here is the string half modelled as something you
-can run — UTF-8 bytes in a flat array, decoded per call, against a string that is simply already a
-string:
-
-```javascript run
-// What a string costs when it has to cross out of WebAssembly's linear memory.
-//
-// This does NOT measure the real boundary — it models the one part you can reproduce
-// in a plain runtime: WASM holds UTF-8 bytes, JS wants a UTF-16 string, so every
-// string argument is decoded on the way through. Scala.js, compiling to JavaScript,
-// hands over something that already IS a JS string.
-
-const N = 200000;
-const encoder = new TextEncoder();
-const decoder = new TextDecoder("utf-8");
-
-// The kind of strings DOM work actually passes.
-const words = ["div", "span", "class", "data-source", "click", "reader-sidebar"];
-
-// Pretend linear memory: those strings, already UTF-8, in one flat byte array.
-const parts = words.map((w) => encoder.encode(w));
-const total = parts.reduce((n, p) => n + p.length, 0);
-const memory = new Uint8Array(total);
-const spans = [];
-let at = 0;
-for (const p of parts) {
-  memory.set(p, at);
-  spans.push([at, p.length]);
-  at += p.length;
-}
-
-// (a) Scala.js shape: it is already a JS string. Just use it.
-let sink = 0;
-let t0 = process.hrtime.bigint();
-for (let i = 0; i < N; i++) {
-  sink += words[i % words.length].length;
-}
-const native = Number(process.hrtime.bigint() - t0) / 1e6;
-
-// (b) WASM shape: (ptr, len) into linear memory, decoded per call.
-sink = 0;
-t0 = process.hrtime.bigint();
-for (let i = 0; i < N; i++) {
-  const [ptr, len] = spans[i % spans.length];
-  sink += decoder.decode(memory.subarray(ptr, ptr + len)).length;
-}
-const marshalled = Number(process.hrtime.bigint() - t0) / 1e6;
-
-console.log(`${N} string arguments`);
-console.log(`  already a JS string : ${native.toFixed(1)} ms`);
-console.log(`  decoded from bytes  : ${marshalled.toFixed(1)} ms`);
-console.log(`  per call            : ${(((marshalled - native) * 1e6) / N).toFixed(0)} ns extra`);
-```
-
-It reports somewhere around **90–110 ns per string argument** — the figure moves run to run, which is
-itself worth noticing about microbenchmarks. Now put it next to the operation it rides along with: appending an element and letting the browser recalculate style and layout costs
-**microseconds**. So the marshalling is real, measurable, and still an order of magnitude below the
-thing it is attached to.
-
-That is the shape of the whole trade-off. Not "WASM is slow at the DOM" — rather, a genuine per-call
-tax on the cheap part of an expensive operation.
-
-Two properties of this application shrink it further. Fine-grained reactivity means an update touches
-only the nodes that actually changed — there is no VDOM diff issuing speculative writes. And the
-genuinely DOM-heavy work (the editor, the diagram engines) lives in **TypeScript islands**, which
-manipulate the DOM natively and never cross the boundary at all.
-
-## Where WebAssembly wins instead
-
-The boundary is a cost on DOM work. The compensation is that WASM is genuinely faster at *compute* —
-and this client has real compute in it, which is easy to miss in a reader app.
-
-The visualisation engine is **3,300 lines of pure logic that runs in the browser**, and the graph
-family's layout is a force simulation — 320 iterations of an O(n²) float loop over flat `Vec<f64>`
-arrays, every time a graph is drawn. Run it and watch the shape of the work:
+Keeping it was not sentiment. The engine is thousands of lines of pure logic with 93 unit tests and
+16 recorded goldens inherited from the implementation before it, and its hot path is genuinely
+compute:
 
 ```rust run
 // The graph family's layout, reduced to its hot loop: 320 ticks of O(n²) many-body
@@ -474,96 +395,72 @@ fn main() {
 Doubling the node count quadruples the inner steps and, near enough, the time — the quadratic term is
 visible in the output rather than merely claimed. Ignore the first row: it absorbs process warm-up,
 and on some runs `n = 10` reports *slower* than `n = 20`. That is a microbenchmark telling you the
-truth about itself, and the reason the interesting comparison is between the last two rows. Change
-`TICKS` or add a larger `n` to push it further.
+truth about itself, and the reason the interesting comparison is between the last two rows.
 
 That kernel is WebAssembly's home ground: no boxing, no GC pressure, arrays that *are* linear memory,
-and codegen that does not depend on a JIT deciding to specialise. Scala.js optimises numeric code
-well, but a tight `f64` loop is exactly where the gap favours WASM — and note the asymmetry with the
-section above. The DOM boundary taxes the *cheap* part of an expensive operation; this is the
-*expensive* part with no boundary in it at all.
+and codegen that does not depend on a JIT deciding to specialise. It is also the exact opposite of
+the workload that made the old client wrong — this is compute a reader opted into, not a document
+they were waiting for.
 
-So the client's workload is mixed, and the two halves point in opposite directions:
+The engine's purity is still a CI grep, now pointed at `viz-wasm/src/engine/`:
 
-| Work | Favours | Why |
-|---|---|---|
-| DOM manipulation | Scala.js | no boundary; strings are already JS strings |
-| Layout, adapt pipeline, diffing | WASM | flat float arrays, no GC, predictable codegen |
-| Heavy DOM (editor, diagrams) | neither | it is TypeScript in both implementations |
-| Playback while stepping | WASM | no GC pauses mid-animation |
+```
+→ viz engine purity (no leptos/web-sys/wasm-bindgen/js-sys/gloo under viz-wasm/src/engine/)
+  ok
+```
 
-<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
-
-⚠️ **All of the above is mechanism, not measurement.** The shape of the glue is checkable in this
-repository, and the force loop is in the source — but I have not benchmarked Laminar against Leptos
-on the same workload, and the Scala client is archived. Every claim here about which is *faster*
-should be read as "the mechanism points this way", not "I measured it". Treating a plausible
-mechanism as a result is the mistake this book is trying not to make.
-
-</div>
+Its bindgen glue still imports the editor and tracer islands by the same module specifiers the old
+client used, which is why those two islands are single-sourced rather than duplicated. The seam
+outlived the thing on the other side of it.
 
 ## Rendering that puts prose first
 
-One pipeline decision is worth surfacing because it changed how the page feels. Diagrams were
-originally rendered while parsing the markdown — so the *entire page* waited for every diagram's
-layout to finish before any prose appeared. A lesson with five diagrams stayed blank, then arrived at
-once.
+One pipeline decision predates the rewrite and survived it, because it turned out to be the same
+lesson at a smaller scale. Diagrams were originally rendered *while parsing* the markdown, so the
+entire page waited for every diagram's layout before any prose appeared. A lesson with five diagrams
+stayed blank, then arrived at once.
 
-Now the parse emits a placeholder carrying the diagram source, and rendering happens at mount, near
-the viewport:
+The fix was to change *when*, not *how fast*: the parse emits a placeholder carrying the diagram
+source, and rendering happens at mount, near the viewport.
 
 ```html
 <div class="mermaid-block" data-source="classDiagram%0A%20%20class%20SubmitSolution…">
 ```
 
 Prose paints immediately; each diagram renders independently and concurrently; a diagram far below
-the fold does not render until the reader approaches it. The heavy engines load only if a page
-actually has diagrams of that kind.
+the fold does not render until the reader approaches it; the heavy engines load only if a page has
+diagrams of that kind at all.
 
-The trade is a brief empty card before a diagram fills in, which a reserved min-height keeps from
-shifting the layout. Paying a small visible delay on one element to remove a total blocking delay on
-everything is a good trade — and it is the same principle as the 202 in the submission path:
-**do not make the common case wait for the expensive case.**
+Notice that this is the *same fix* the whole tier later received, one level up. Do not make the
+common case wait for the expensive case — first for diagrams inside a page, then for the entire
+document inside an application boot. Finding the same shape twice at different scales is usually a
+sign it is a principle rather than a trick, and it is the same one as the
+[202 in the submission path](/synapse/synapse-app-from-scratch/low-level-design/the-submission-lifecycle).
 
 <details>
-<summary>If TypeScript islands work well enough to keep, why compile the client to WebAssembly at all?</summary>
+<summary>Shared wire types between client and server were the main argument for a Rust client. TypeScript threw that away — so what replaced it?</summary>
 
-The honest answer is that the islands are where JavaScript is genuinely the right tool, and the
-application shell is where it is not — and those are different kinds of code.
+Code generation, and it is genuinely weaker in one specific way that is worth naming rather than
+glossing.
 
-The islands are **mature, self-contained libraries** with stable interfaces: a markdown renderer, an
-editor, a layout engine. Rewriting them would be months of work to reproduce behaviour that already
-works, and the result would be worse for years. There is no principled argument for rewriting a
-diagram layout engine, so they stayed.
+The server's OpenAPI document is code-first: the handlers and DTOs *are* the specification, rendered
+by utoipa. The web tier generates its TypeScript types from that document, and CI fails if the
+checked-in generated file is not what the current server produces. So a renamed field still breaks
+the build — the client cannot drift from the server unnoticed.
 
-The shell is the opposite: bespoke application logic — routing, catalog state, the executor machine,
-the visualisation contract — that shares types with the server. Compiling it to WebAssembly means the
-wire types are defined **once** in a shared crate and both ends are checked against the same
-definition at compile time. A field rename that breaks the client is a build failure rather than a
-runtime surprise. That, plus exhaustive matching on shared enums, is the actual prize.
+What is lost is that this is a **two-step** guarantee rather than a one-step one. With a shared crate,
+client and server were checked against the same definition by the same compiler in the same build;
+there was no artifact in between that could be stale. Now there is, and its freshness is enforced by
+a CI job. A CI job is a good mechanism, but it is a mechanism — the previous property needed none.
 
-The expected cost is download size, and this is where the honest answer diverges from the usual one.
-Measured against the Scala.js implementation it replaced — same script, gzipped, critical path — the
-WebAssembly client is **636 KiB against 624 KiB**: a 2% difference. The dominant term is the
-application, not the language it compiles to. The 700 KiB budget is enforced in CI regardless,
-because that number only moves in one direction if nobody watches it.
+The compensating gain is that the generated types are the *published contract*, not an internal one.
+Anything can consume that document; the old arrangement's guarantee only extended to clients written
+in Rust. Since the contract is now also diffed against a committed reference copy on every build, the
+API has something the shared crate never gave it: a record of what it promised, separate from what it
+currently compiles to.
 
-The costs that *are* structural are the DOM boundary and the string marshalling described above —
-paid on UI work, where Scala.js paid nothing. Against them sits a real gain on compute: the
-visualisation engine's force layout and adapt pipeline are the workload WebAssembly is good at.
-Mixed bag, honestly, and unmeasured either way.
-
-And the framing of the benefit deserves care: shared wire types were **not** a gain over the previous
-implementation. Scala.js compiled from the same source tree as the JVM server and already had them.
-What compiling this shell to WebAssembly buys is *keeping* that property once the server became Rust
-— a Rust server and a Scala.js client cannot share a type between them.
-
-So this is less "WebAssembly beat JavaScript" than "the client followed the server". Had the server
-stayed on the JVM, the case for moving the client would have rested on the viz engine's compute
-alone — a real argument, but not one that justifies rewriting a working client.
-
-The reason to state it that way rather than claiming a clean win: **an argument you would not have
-found persuasive beforehand should not become persuasive afterwards.** The compute advantage is
-genuine and was not why the client moved. Both halves of that sentence matter.
+Which is the honest summary — a compile-time guarantee traded for a build-time one, plus a real
+contract. Worth it here because the thing that pushed the decision was not type safety at all; it was
+seven seconds on a phone.
 
 </details>

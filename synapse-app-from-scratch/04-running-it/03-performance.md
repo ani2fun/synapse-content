@@ -12,13 +12,18 @@ essential: true
 
 ## How these numbers were taken
 
-Every figure here was measured against the live deployment on **2026-07-18** from a single client in
-**Western Europe**, twelve samples per figure, reporting median with min and max.
+The latency and origin figures were measured against the live deployment on **2026-07-18** from a
+single client in **Western Europe**, twelve samples per figure, reporting median with min and max.
 
 That last part is the important caveat: **one vantage point is not a global latency profile.** A
 reader in Sydney will see different numbers, dominated by physics I cannot measure from here. Where
 this chapter says "48 ms", it means "48 ms from one place, on one day" — not a service-level
 objective.
+
+The page-weight figures come from a different instrument on a later date: the CI budget gate, run
+against a production-shaped serve. Where a number's provenance differs from the rest of the chapter,
+this text says so next to the number rather than in a footnote — because a table that mixes two
+measurement methods without labelling them is how a plausible chapter becomes a wrong one.
 
 ## Latency
 
@@ -65,23 +70,69 @@ reader whose cached copy has just expired gets the stale copy **instantly** whil
 behind them. Nobody waits for revalidation; the cost is that someone might see a version up to a
 minute old.
 
-## The bundle
+## What the browser downloads
 
-Measured from production as delivered:
+This is the figure that changed most, and the way it changed is more interesting than the number.
 
-| Asset | Transfer size |
+The measurement above was taken while the reader was a WebAssembly application: a **~630 KiB critical
+path**, 96% of it one wasm module, against a 700 KiB budget. Every page paid all of it, and paid it
+*before* rendering any prose — measured at 1.25 s to readable content on broadband and **7.2 s on a
+mid-range phone over Fast-3G**.
+
+Server rendering does not make that bundle smaller. It removes the question, because there is no
+longer one bundle: each page ships only its own assets, and the prose is in the HTML.
+
+Measured against the live deployment before and after — median of three runs, the mobile figures
+throttled to Fast-3G with a 4× CPU penalty:
+
+| Measure | Before (WASM client) | After (server-rendered) |
+|---|---|---|
+| First content — broadband | 1.25 s | **0.52 s** (2.4×) |
+| First content — phone, slow 3G | 7.2 s | **1.86 s** (3.9×) |
+| Blocking JS before prose | 641 KiB gz | **~47 KiB gz** |
+| Prose arrives as | a compiler's output, after boot | HTML in the first response |
+| With JavaScript disabled | a blank page | the lesson, readable |
+
+The delivered 2.4× and 3.9× land slightly *under* the 3×/5× the change was modelled to produce, and
+that is worth stating rather than rounding up: the model was an upper bound, as models of this kind
+usually are. The structural line is the one that matters most anyway — time to content stopped being
+a function of how fast a bundle boots, so it is no longer a number that can quietly regress by a
+dependency getting heavier.
+
+| Page kind | Eager, gzipped |
 |---|---|
-| Entry JS | 10,329 B |
-| CSS | 16,100 B |
-| WASM | 619,122 B |
-| **Critical path** | **~630 KiB** (budget: 700 KiB) |
+| Landing | 42 KiB |
+| Prose lesson | 47 KiB |
+| Problem page | 48 KiB |
+| Blog index | 11 KiB |
+| **Budget, per page kind** | **250 KiB** |
+| Visualisation bundle (lazy, capped) | 288 KiB / 350 KiB |
 
-The WASM is 96% of it, and it is the whole application: routing, state, the catalog, the executor
-machine, the visualisation engine. What is *not* in there is as important — the code editor and the
-diagram engines are megabytes and load only when a page needs them.
+Two things about that table are worth more than the numbers.
 
-The budget is a **CI gate**. A number like this only moves upward unless something refuses to let it,
-and the honest reason for a hard limit is that no individual dependency ever looks like the problem.
+**The measurement method had to change with the architecture.** "Sum the entry chunk" is meaningless
+now. The gate fetches each page kind from a production-shaped serve, collects every script and
+stylesheet its HTML references, and gzip-sums them — so it measures *what a reader waits for*, which
+is what the old number was a proxy for.
+
+**The lazy half is absent by construction.** Monaco, keycloak-js, mermaid, d2, the tracers and the
+visualiser are dynamic imports, so they cannot appear in a page's HTML and cannot land in the sum. No
+exclusion list has to be maintained, and no future dependency can sneak into the critical path by
+being forgotten in a glob.
+
+The budget is a **CI gate**, and its headroom is deliberate — about five times the heaviest page. It
+is not sized to be tight; it is sized so that approaching it means something structural regressed, in
+which case the fix is to find the island that went eager rather than to raise the number.
+
+<div style="border-left:4px solid #da5233;background:rgba(218,82,51,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+⚠️ **The 42/47/48/11 figures are measured against fixture content**, because that is what the gate
+runs against in CI — small, stable pages with a known shape. Real lessons carry more HTML, and a
+lesson with many diagrams carries more still. They are honest as a measure of *what the page loads
+eagerly*, which is what the budget is about; they are not a claim about the total weight of a page of
+this book.
+
+</div>
 
 ## The origin is nearly idle
 
@@ -126,8 +177,9 @@ have made a blank page appear slightly sooner.
 
 ## What is deliberately not optimised
 
-- **The database.** Two tables, single-digit rows, one index for the one query that needs it. Tuning
-  it would be optimising a component that is not in any critical path.
+- **The database.** Six small tables, one index per query that needs one, and no query that is not
+  either a primary-key lookup or a two-column index scan. Tuning it would be optimising a component
+  that is not in any critical path.
 - **The judge.** It runs someone else's code; its duration is set by that code. The design goal was
   never to make judging fast — it was to stop judging from blocking anything else, which is what the
   202-and-poll shape achieves.
@@ -147,15 +199,18 @@ and ~190 ms of network — TLS, the trip to the edge, the edge to a home connect
 application is roughly **7%** of its own slowest path. Making it twice as fast would move 208 ms to
 about 201 ms.
 
-Then there is everything after the response arrives: parsing, instantiating 600 KiB of WebAssembly,
-mounting the application, and — on a heavy page — fetching a diagram engine and laying out diagrams.
-That client-side work can easily exceed the request that triggered it.
+Then there is everything after the response arrives. This used to be the dominant term by a distance:
+parsing and instantiating 600 KiB of WebAssembly, then mounting an application, before a single word
+appeared. Server rendering deleted that term — the prose is in the response — and what remains is
+per-page hydration of whatever islands the page actually has, plus, on a heavy page, fetching a
+diagram engine and laying out diagrams.
 
 So the levers that actually matter here are, in order: **serve from the edge** (208 ms → 48 ms, the
-single biggest win and already done), **ship less to the critical path** (why the budget is a gate
-and why the editor is lazy), and **do not let one slow thing gate everything else** (the prose-first
-fix). Optimising the server appears nowhere on that list, which is exactly why it is not being
-optimised.
+single biggest win and already done), **do not make the reader wait for the application** (the
+largest client-side win, and the one that ended the previous architecture), **ship less eagerly**
+(why the budget is a gate and why the editor is lazy), and **do not let one slow thing gate
+everything else** (the prose-first diagram fix). Optimising the server appears nowhere on that list,
+which is exactly why it is not being optimised.
 
 The general habit: measure the *whole* path a user waits on before optimising the part you find most
 interesting. Server code is usually the most interesting part and rarely the dominant one.

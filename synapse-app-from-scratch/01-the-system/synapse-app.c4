@@ -10,36 +10,37 @@
 // `include *` would pull in every other book's model.
 //
 // Element and view ids are FROZEN once published: element ids key `_c4-docs/<id>.md`, view ids
-// key the `<iframe src="/c4/view/…">` in the lessons.
+// key the `<iframe src="/c4/view/…">` in the lessons. `safSpa` therefore keeps its id even though
+// the thing it names stopped being a single-page application — it is now the Astro SSR web tier.
 
 model {
   safReader = actor 'Reader' {
-    description 'Reads lessons anonymously. Signs in only to edit code and submit solutions — the read path never needs an identity.'
+    description 'Reads lessons anonymously. Signs in only to run code against an account, submit solutions, or propose an edit — the read path never needs an identity.'
   }
   safAuthor = actor 'Author' {
-    description 'Publishes by pushing Markdown. There is no CMS and no admin upload: git push IS the deploy.'
+    description 'Publishes by pushing Markdown. There is no CMS: git push IS the deploy — and an allow-listed reader can now propose a change from inside the app, which lands as a pull request on the same repository.'
   }
 
   safContentRepo = sourceRepository 'synapse-content' {
-    description 'Books as Markdown, plus .c4 models and hidden test suites. One writer, many readers — which is the entire consistency story.'
+    description 'Books as Markdown, plus .c4 models and hidden test suites. One writer plus reviewed pull requests — which is the entire consistency story.'
     technology 'git (GitHub)'
   }
 
   safSys = system 'Synapse' {
-    description 'Interactive learning platform: prose, runnable code, step-through visualisation, and judged submissions.'
+    description 'Interactive learning platform: prose, runnable code, step-through visualisation, judged submissions, and in-app content contribution.'
 
     safEdge = cdn 'Edge' {
-      description 'Immutable-cached SPA assets; content JSON at max-age=60 + stale-while-revalidate=600. Measured ~49 ms cached vs ~153 ms to origin.'
+      description 'Immutable-cached hashed assets; HTML and content JSON at max-age=60 + stale-while-revalidate=600. Measured ~48 ms cached vs ~208 ms to origin.'
       technology 'Cloudflare'
     }
 
-    safSpa = webApplication 'Reader client' {
-      description 'Fine-grained reactive SPA compiled to WebAssembly. Heavy work (editor, markdown, diagrams, tracers) is deferred to lazily-loaded TypeScript islands.'
-      technology 'Rust · Leptos · WASM'
+    safSpa = webApplication 'Web tier' {
+      description 'Server-renders every page: prose is HTML in the response. Interactivity hydrates as lazy per-feature islands — the editor, diagrams, search, auth and the visualiser are dynamic imports, never eager. Runs as a Node sidecar behind the API in the same pod.'
+      technology 'Astro 5 SSR · TypeScript islands · Preact'
     }
 
     safApi = service 'Origin API' {
-      description 'Stateless modular monolith. Seven bounded contexts, ports-and-adapters, one replica by design — the rate limiter is per-process state.'
+      description 'Stateless modular monolith and the front door: it owns /api, /media, /c4, robots and sitemap, stamps security headers and compression, and forwards page requests to the web tier as its router FALLBACK. Ten bounded contexts, ports-and-adapters, one replica by design — the rate limiter is per-process state.'
       technology 'Rust · axum · tokio'
 
       safCatalog = component 'catalog' {
@@ -57,16 +58,25 @@ model {
       safBlog = component 'blog' {
         description 'A deliberate near-twin of catalog over the same filesystem seam. Kept separate because their lifecycles differ.'
       }
+      safAuthoring = component 'authoring' {
+        description 'In-app prose editing. Reads the lesson file as it is on disk, fingerprints it, validates the proposal, and asks a forge to commit and open a pull request. Mounted only where a forge is configured.'
+      }
+      safProgress = component 'progress' {
+        description 'Per-account completion. The reader syncs its ✓ ticks here and an accepted submission records into it, so progress belongs to the account rather than to one browser.'
+      }
+      safInsights = component 'insights' {
+        description 'Readership: which lessons get opened, which never do. Content popularity, deliberately not user tracking — no user id, no session, no IP.'
+      }
       safTutoring = component 'tutoring' {
         description 'Socratic coach over an OpenAI-compatible endpoint. Disabled by default — and disabled means the route is never mounted.'
       }
       safPlatform = component 'platform' {
-        description 'Cross-cutting: security headers, cache-control stamping, rate limiting, health and readiness, static and media serving, the /c4 proxy.'
+        description 'Cross-cutting: security headers, cache-control stamping, rate limiting, health and readiness, media serving, the /c4 proxy, and the page proxy to the web tier.'
       }
     }
 
     safSync = worker 'Content sidecar' {
-      description 'Polls the content repository every 60s and flips an atomic symlink. The API re-reads the commit SHA per request, so new prose needs no redeploy.'
+      description 'Polls the content repository and flips an atomic symlink. The API re-reads the commit SHA per request, so new prose needs no redeploy.'
       technology 'git-sync'
     }
 
@@ -75,8 +85,8 @@ model {
       technology 'go-judge'
     }
 
-    safDb = relationalDatabase 'Submissions store' {
-      description 'The system of record, and the only thing that grows. Two tables, one check constraint doing the work of an invariant.'
+    safDb = relationalDatabase 'Application store' {
+      description 'The system of record, and the only thing that grows. Six small tables: two for submissions, two for the account-owned conveniences, two for content contribution.'
       technology 'PostgreSQL 17'
 
       safSubmissions = component 'submissions' {
@@ -85,6 +95,22 @@ model {
       }
       safAllowlist = component 'submission_allowlist' {
         description 'Who may submit-and-save. Keyed by the human-grantable lowercase IdP username — deliberately NOT a foreign key to submissions.user_id, which stores the opaque OIDC subject.'
+        technology 'table'
+      }
+      safProgressTable = component 'problem_progress' {
+        description 'One row per (account, lesson) finished. Convenience state the account owns: resetting it clears these rows and nothing else.'
+        technology 'table'
+      }
+      safLessonViews = component 'lesson_view' {
+        description 'Append-only readership counter. One bit of attribution (signed-in or not) and nothing else — no user id, no session, no IP.'
+        technology 'table'
+      }
+      safEditors = component 'content_editor_allowlist' {
+        description 'Who may propose content changes. A SEPARATE grant from the submit allowlist, because opening pull requests under the deployment token is a much larger blast radius.'
+        technology 'table'
+      }
+      safEditRequests = component 'content_edit_request' {
+        description 'One row per (contributor, page, attempt): the branch the server commits to and the pull request it opened. The reuse rule lives here — an open request takes another commit rather than a second request.'
         technology 'table'
       }
     }
@@ -107,15 +133,21 @@ model {
 
   // ── read path ──
   safReader -> safEdge 'reads lessons'
-  safEdge -> safSpa 'serves assets (immutable) + content JSON (60s + swr)'
-  safSpa -> safApi 'JSON over HTTPS'
+  safEdge -> safApi 'HTML + JSON; hashed assets immutable, pages 60s + swr'
+  safApi -> safSpa 'forwards page requests (router fallback)'
+  safSpa -> safApi 'renders against the public content API — a real hop back'
   safSpa -> safCatalog 'index, lesson bodies, component docs'
   safCatalog -> safSync 'reads the checked-out tree'
+  safCatalog -> safLessonViews 'records that a lesson was opened'
 
   // ── authoring path ──
   safAuthor -> safContentRepo 'git push'
-  safContentRepo -> safSync 'polled every 60s'
+  safContentRepo -> safSync 'polled for new commits'
   safContentRepo -> safC4 'any .c4 change rebuilds the diagram image'
+  safSpa -> safAuthoring 'proposed edit + the source fingerprint'
+  safAuthoring -> safEditors 'may this user propose?'
+  safAuthoring -> safEditRequests 'branch, attempt, pull-request state'
+  safAuthoring -> safContentRepo 'commits the file and opens a pull request'
 
   // ── run + submit path ──
   safSpa -> safExecution 'run this code'
@@ -124,6 +156,9 @@ model {
   safSubmission -> safExecution 'judge each case in authored order'
   safSubmission -> safSubmissions 'insert pending → update judging → update completed'
   safSubmission -> safAllowlist 'may this user submit?'
+  safSubmission -> safProgress 'an accepted verdict marks the lesson done'
+  safSpa -> safProgress 'syncs the reader ✓ ticks'
+  safProgress -> safProgressTable 'one row per finished lesson'
 
   // ── identity ──
   safSpa -> safIdp 'authorization code + PKCE'
@@ -144,17 +179,19 @@ views {
   }
 
   view saf_component of safApi {
-    title 'Origin API — the seven bounded contexts'
+    title 'Origin API — the ten bounded contexts'
     include
       safApi,
-      safCatalog, safExecution, safSubmission, safIdentity, safBlog, safTutoring, safPlatform,
-      safDb, safSandbox, safIdp, safC4, safSync
+      safCatalog, safExecution, safSubmission, safIdentity, safBlog,
+      safAuthoring, safProgress, safInsights, safTutoring, safPlatform,
+      safDb, safSandbox, safIdp, safC4, safSync, safContentRepo
   }
 
   view saf_data of safDb {
-    title 'Data — two tables, and who writes to them'
+    title 'Data — six tables, and who writes to them'
     include
-      safDb, safSubmissions, safAllowlist,
-      safSubmission, safIdentity
+      safDb, safSubmissions, safAllowlist, safProgressTable, safLessonViews,
+      safEditors, safEditRequests,
+      safSubmission, safIdentity, safAuthoring, safProgress, safCatalog
   }
 }
