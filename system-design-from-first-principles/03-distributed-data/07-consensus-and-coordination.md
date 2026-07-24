@@ -268,6 +268,19 @@ While it was paused, the other nodes timed out, started an election with a *high
 
 </details>
 
+## PoC — Proof of concepts
+
+Consensus is the one algorithm you should watch run before you trust it:
+
+- [The Raft site](https://raft.github.io/) — the paper ("In Search of an Understandable Consensus
+  Algorithm"), the TLA+ spec, and a table of implementations in every language.
+- [Raft, visualized](https://thesecretlivesofdata.com/raft/) — an animation of leader election and log
+  replication; the fastest way to build the right mental model before reading code.
+- [etcd](https://github.com/etcd-io/etcd) — a production Raft key-value store (it backs Kubernetes);
+  the reference for how leader election and a replicated log are used in practice.
+- [Apache ZooKeeper](https://github.com/apache/zookeeper) — the older coordination service (ZAB, not
+  Raft) still under countless systems; useful for seeing how coordination primitives are exposed.
+
 ## Sources
 
 - DDIA2 ch. 10 pp. 425–429 (consensus intro; FLP; non-Byzantine assumption; the four properties; majority quorums)

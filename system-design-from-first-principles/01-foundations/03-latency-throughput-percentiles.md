@@ -233,6 +233,20 @@ Following the DDIA2 example shape (pp. 41–42): *"Median response time under 20
 
 </details>
 
+## PoC — Proof of concepts
+
+Measuring latency honestly is harder than it looks — these are the tools and talks that show why:
+
+- [HdrHistogram](https://github.com/HdrHistogram/HdrHistogram) — Gil Tene's high-dynamic-range
+  histogram: the standard way to record p99/p999 across many orders of magnitude without the
+  averaging that hides the tail. Ports exist for most languages.
+- [How NOT to Measure Latency](https://www.infoq.com/presentations/latency-response-time/) — Gil
+  Tene's talk on *coordinated omission*, the single most common way a percentile number quietly
+  lies about the system it claims to describe.
+- [Latency Numbers Every Programmer Should Know, interactive](https://colin-scott.github.io/personal_website/research/interactive_latency.html)
+  — the same constants this lesson uses, adjustable by year so you can watch which ones actually
+  improved.
+
 ## Sources
 
 - DDIA2 ch. 2 pp. 37–42 (describing performance; response time vs. latency vs. service time; queueing and head-of-line blocking; percentiles and tail latency; Amazon p999/p9999; tail-latency amplification; SLOs/SLAs; percentile estimation and histogram aggregation) — via digest `ch02-nonfunctional-requirements`.

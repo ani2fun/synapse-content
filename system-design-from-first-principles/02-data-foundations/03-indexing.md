@@ -207,6 +207,22 @@ For a normal secondary-index lookup: (1) traverse the secondary index's B-tree �
 The composite index serves the query *"posts by this user, newest first"* in one B-tree traversal: seek to `user_id`, then walk the leaves — already sorted by `created_at` within that user — to satisfy both the date filter and the `ORDER BY` in a single pass, no separate sort, no set intersection between two indexes. Two separate indexes force the planner to find both result sets and combine them, which is more work. The risk of reversing to `(created_at, user_id)`: `user_id` is no longer the leading column, so a query filtering by a single user can't seek — the users are scattered across every timestamp — and the index degrades to nearly useless for that access pattern. Leading column must be the one you constrain by equality; the range/sort column comes second.
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Indexing walkthrough](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/02-data-foundations/03-indexing)
+— a seeded Postgres and a series of `EXPLAIN ANALYZE` runs that turn "add an index" from advice into
+a visible change in the query plan (seq scan → index scan → index-only scan). From
+`proof-of-concepts/02-data-foundations/03-indexing/`, run `./run`.
+
+**Study real implementations.**
+
+- [Use The Index, Luke](https://use-the-index-luke.com/) — Markus Winand's free book on SQL indexing
+  and tuning across five databases; the best single explanation of *why* a plan chooses what it does.
+- [PostgreSQL — Indexes](https://www.postgresql.org/docs/current/indexes.html) — the primary source
+  for B-tree, GIN, BRIN, partial, expression and covering indexes, each with when-to-use guidance.
+- [pev2](https://github.com/dalibo/pev2) — a visualizer for `EXPLAIN (ANALYZE, FORMAT JSON)` output,
+  so a plan tree reads as a picture rather than nested text.
+
 ## Sources
 
 DDIA2 ch. 4 pp. 116–117 (index as derived structure, the read/write trade) · pp. 125–128 (B-trees: pages, branching factor, splits, WAL) · pp. 132–133 (secondary, clustered, covering indexes; heap files) · p. 134 (in-memory stores) · p. 145 (concatenated/multicolumn indexes)

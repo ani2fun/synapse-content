@@ -240,6 +240,19 @@ Yes — that query is a fixed aggregation along two dimensions (store × day), w
 
 </details>
 
+## PoC — Proof of concepts
+
+The column-oriented storage and analytical engines this lesson describes, in open source you can run:
+
+- [Apache Parquet](https://github.com/apache/parquet-format) — the format specification itself:
+  column chunks, row groups, encodings and page statistics, which is where the analytics speed
+  actually comes from.
+- [DuckDB](https://github.com/duckdb/duckdb) — an embeddable column-store you can `pip install` and
+  point at a Parquet file; the fastest way to *feel* the difference from a row store on your own
+  laptop.
+- [ClickHouse](https://github.com/ClickHouse/ClickHouse) — a production column-oriented DBMS built for
+  real-time analytics over billions of rows; the scale end of the same idea.
+
 ## Sources
 
 - DDIA2 ch. 4 pp. 134–146 (cloud data warehouses & storage/compute separation; column-oriented storage; bitmap & run-length compression; sort order; log-structured writes to column stores; query compilation & vectorization; materialized views & data cubes; wide-column vs column-oriented)

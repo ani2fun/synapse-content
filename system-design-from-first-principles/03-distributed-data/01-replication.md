@@ -265,6 +265,18 @@ No. Uniqueness is a global invariant, and multi-leader lets two regions independ
 
 </details>
 
+## PoC — Proof of concepts
+
+Replication is one of the most-tested areas in distributed systems — read what people found:
+
+- [PostgreSQL — High Availability & Replication](https://www.postgresql.org/docs/current/high-availability.html)
+  — streaming vs logical replication, synchronous vs asynchronous, replication slots and failover, in
+  primary-source detail rather than diagram form.
+- [Jepsen analyses](https://jepsen.io/analyses) — real replica-divergence, lost-update and stale-read
+  bugs found in shipping databases; the empirical counterweight to "replication just works".
+- [System Design Primer — replication](https://github.com/donnemartin/system-design-primer) — the
+  master-slave vs master-master trade-offs summarised with their failure modes.
+
 ## Sources
 
 - DDIA2 ch. 6 pp. 197–199 (motivations for replication; single-leader model; backup vs replication)

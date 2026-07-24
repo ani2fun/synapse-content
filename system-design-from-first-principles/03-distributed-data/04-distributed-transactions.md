@@ -227,6 +227,20 @@ An XA transaction across Postgres and Kafka introduces an in-doubt window with l
 
 </details>
 
+## PoC — Proof of concepts
+
+How the industry actually coordinates a transaction across services — and the school of thought that
+says don't:
+
+- [Spanner: Google's Globally-Distributed Database](https://research.google/pubs/spanner-googles-globally-distributed-database-2/)
+  — externally-consistent distributed transactions at global scale, paid for with TrueTime; the
+  strong-consistency end of the spectrum.
+- [Apache Seata](https://github.com/apache/incubator-seata) — a production framework implementing AT,
+  TCC and Saga modes, so you can read what two-phase commit and compensation look like in code.
+- [Saga pattern](https://microservices.io/patterns/data/saga.html) — Chris Richardson's canonical
+  write-up of the alternative: a sequence of local transactions with compensations, and the isolation
+  you give up to get it.
+
 ## Sources
 
 - DDIA2 ch. 8 pp. 323–324 (single-node commit; the atomic commitment problem; why independent commits are unsafe)

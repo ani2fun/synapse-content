@@ -238,6 +238,19 @@ STONITH can't protect against a request that was *already* delayed in the networ
 NTP's accuracy is bounded by the network round-trip time it relies on — the best you get over the internet is tens of milliseconds, spiking past 100 ms under congestion [pp. 364–365]. To order events safely you'd need clock error far *below* the network delay between the events, which is physically impossible. The honest alternatives are logical clocks (which capture ordering without measuring time) or a confidence-interval clock like TrueTime that waits out its own uncertainty [pp. 364–366].
 </details>
 
+## PoC — Proof of concepts
+
+Why "just use a timestamp" is a trap, and what production systems do instead:
+
+- [The trouble with timestamps](https://aphyr.com/posts/299-the-trouble-with-timestamps) — Kyle
+  Kingsbury on how last-write-wins silently loses data when a wall clock steps backward; the concrete
+  version of this lesson's warning.
+- [Spanner & TrueTime](https://research.google/pubs/spanner-googles-globally-distributed-database-2/)
+  — Google's answer: don't pretend the clock is exact, expose its *uncertainty* and wait it out.
+- [AWS ClockBound](https://github.com/aws/clock-bound) — the same idea as an open-source daemon:
+  a bounded clock-error interval you can query, so ordering decisions are made with the error, not
+  despite it.
+
 ## Sources
 
 - DDIA2 ch. 9 pp. 345–347 (faults & partial failure; reliable systems from unreliable components)

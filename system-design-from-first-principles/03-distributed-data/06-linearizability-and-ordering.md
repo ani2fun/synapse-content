@@ -215,6 +215,18 @@ You need **linearizability** on the check — an atomic compare-and-set on the e
 
 </details>
 
+## PoC — Proof of concepts
+
+The consistency hierarchy this lesson formalises, mapped and stress-tested:
+
+- [Jepsen — consistency models](https://jepsen.io/consistency) — the definitive map from linearizable
+  down through causal to eventual, with the phenomena that separate each level.
+- [Please stop calling databases CP or AP](https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap.html)
+  — Kleppmann on why linearizability (not "consistency" in the vague sense) is the property CAP is
+  actually about.
+- [Jepsen analyses](https://jepsen.io/analyses) — real systems caught violating the ordering they
+  claimed to provide; where the theory meets an actual failing test.
+
 ## Sources
 
 - DDIA2 ch. 10 pp. 401–402 (eventual vs strong consistency; two philosophies)

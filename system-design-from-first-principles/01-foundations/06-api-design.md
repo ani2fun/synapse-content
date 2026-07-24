@@ -267,6 +267,18 @@ Then the redirect: "so public REST, internal gRPC — which is the standard spli
 
 </details>
 
+## PoC — Proof of concepts
+
+The style guides and frameworks real APIs are actually built against:
+
+- [Google API Design Guide](https://docs.cloud.google.com/apis/design) — resource-oriented design,
+  naming, versioning and error models as one of the largest API surfaces on the planet standardises
+  them.
+- [Zalando RESTful API Guidelines](https://opensource.zalando.com/restful-api-guidelines/) — an
+  opinionated, public MUST/SHOULD/MAY style guide you can adopt wholesale rather than re-deriving.
+- [gRPC](https://github.com/grpc/grpc) — the reference implementation of contract-first RPC over
+  protobuf, the main alternative to REST this lesson weighs.
+
 ## Sources
 
 - **DDIA2 ch. 5 pp. 161–186 (REST/RPC, compatibility)** — backward/forward compatibility definitions and request/response directions [pp. 161–163]; round-trip unknown-field loss [pp. 162–163]; encoding sizes and the 2^53 / base64 / X dual-ID facts [pp. 165–172]; protobuf field-tag evolution rules [p. 171]; services, OpenAPI/protobuf IDLs and frameworks [pp. 180–182]; RPC history, location transparency's flaws, idempotence under retry [pp. 182–184]; servers-first compatibility rule, safe JSON evolution, versioning approaches, indefinite cross-org support [p. 186].

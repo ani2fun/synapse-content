@@ -243,6 +243,21 @@ Cloud economics favor the bursty half: elasticity means you rent a large fleet f
 
 </details>
 
+## PoC — Proof of concepts
+
+There is no program to run for a *way of thinking* — so here the "proof" is the canonical
+references that put trade-off reasoning to work in real engineering:
+
+- [Choose Boring Technology](https://boringtechnology.club/) — Dan McKinley's essay on spending
+  "innovation tokens" deliberately; the sharpest argument for the conservative side of most
+  trade-offs, with the Etsy story to back it.
+- [Architecture Decision Records](https://github.com/joelparkerhenderson/architecture-decision-record)
+  — templates and hundreds of worked examples for writing a decision down *with its context and
+  consequences*, which is the discipline this lesson is really about.
+- [System Design Primer](https://github.com/donnemartin/system-design-primer) — the recurring
+  trade-off tables (SQL vs NoSQL, consistency vs availability, latency vs throughput) collected and
+  cross-referenced in one place.
+
 ## Sources
 
 - DDIA2 ch. 1 pp. 1–3 (trade-off thesis; data-intensive applications; building blocks; frontend/backend/stateless terminology)

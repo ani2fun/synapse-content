@@ -197,6 +197,18 @@ PACELC's **else** clause: with no partition, you still trade **latency vs consis
 You apply the choice **per feature/data path**, not per system. Identify the paths where a stale or conflicting read is unacceptable — booking the last seat, debiting a balance, enforcing a unique username — and route those to a CP/EC store (linearizable, consensus-backed), accepting reduced availability under partition and higher latency always. Route everything tolerant of slight staleness — catalog browsing, feeds, timelines — to a PA/EL store for availability and speed. Naming *which* state can diverge and *how* you'd reconcile it is the senior-level answer.
 </details>
 
+## PoC — Proof of concepts
+
+The primary sources behind this lesson's insistence that CAP is more slogan than tool:
+
+- [Please stop calling databases CP or AP](https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap.html)
+  — Kleppmann's argument that most real databases fit neither label, with Postgres, MongoDB and
+  ZooKeeper as worked examples.
+- [Problems with CAP, and Yahoo's little-known NoSQL system](https://dbmsmusings.blogspot.com/2010/04/problems-with-cap-and-yahoos-little.html)
+  — Daniel Abadi introducing PACELC, the "else / latency" half of the trade-off CAP omits.
+- [Jepsen — consistency models](https://jepsen.io/consistency) — the map that replaces the two-letter
+  labels with a hierarchy you can actually reason about.
+
 ## Sources
 
 DDIA2 ch. 10 pp. 402–417 (linearizability, the cost of linearizability, the unhelpful CAP theorem, PACELC, Attiya–Welch) · DDIA2 ch. 10 pp. 424–425, 436–437 (Spanner TrueTime, consensus quorum cost) · `[web: Abadi, "Consistency Tradeoffs in Modern Distributed Database System Design," IEEE Computer, 2012]` (PACELC store classifications: PNUTS PC/EL, MongoDB PA/EC, Dynamo PA/EL, VoltDB PC/EC)

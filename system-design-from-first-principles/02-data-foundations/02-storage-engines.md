@@ -285,6 +285,22 @@ No. The B-tree's **write-ahead log** is a *recovery* mechanism: every change is 
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Toy LSM engine](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/02-data-foundations/02-storage-engines)
+— a from-scratch log-structured merge tree in pure Python: watch the write path, an overwrite, a
+Bloom-filter skip, a delete tombstone, compaction and a scan happen step by step. From
+`proof-of-concepts/02-data-foundations/02-storage-engines/`, run `./run`.
+
+**Study real implementations.**
+
+- [LevelDB](https://github.com/google/leveldb) — Google's compact, readable LSM key-value store; the
+  canonical codebase to read *after* the toy, small enough to follow end to end.
+- [RocksDB](https://github.com/facebook/rocksdb) — the same design taken to production scale
+  (leveled compaction, column families, tuning knobs); what the toy grows up into.
+- [The Architecture of SQLite](https://www.sqlite.org/arch.html) — the other family: a B-tree engine
+  laid out file by file, so you can compare update-in-place against the log-structured approach.
+
 ## Sources
 
 DDIA2 ch. 4 pp. 115–132 (log-structured storage, SSTables, memtables, compaction, Bloom filters, B-trees, WAL, and the LSM-vs-B-tree comparison; specific figures cited inline). All numeric figures are DDIA ch. 4 page-cited in *Numbers that matter*; engine throughput figures are rule-of-thumb estimates flagged as such.

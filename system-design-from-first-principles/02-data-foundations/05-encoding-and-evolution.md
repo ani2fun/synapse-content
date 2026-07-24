@@ -234,6 +234,23 @@ A **database** has no such ordering. During a rolling upgrade, a new write may b
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Encoding & schema evolution](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/02-data-foundations/05-encoding-and-evolution)
+— three evolution scenarios (add a field, drop a field, change a type) run through a real encoder to
+show exactly when old and new readers/writers stay compatible and when they break. From
+`proof-of-concepts/02-data-foundations/05-encoding-and-evolution/`, run `./run`.
+
+**Study real implementations.**
+
+- [Protocol Buffers — proto3 guide](https://protobuf.dev/programming-guides/proto3/) — field-number
+  rules, `reserved`, and the forward/backward-compatibility guarantees this lesson turns on.
+- [Apache Avro](https://github.com/apache/avro) — the writer-schema/reader-schema model, the other
+  major approach to evolution and the one that leans hardest on a schema registry.
+- [Confluent Schema Registry](https://github.com/confluentinc/schema-registry) — how compatibility is
+  actually *enforced* in a streaming pipeline: register a schema, and incompatible changes are
+  rejected at publish time.
+
 ## Sources
 
 - **DDIA2 ch. 5 pp. 161–163 (compatibility & rolling upgrades)** — rolling upgrades and client-update lag; schema-on-read holding mixed formats; backward vs forward definitions and request/response directions; the read-modify-write field-loss hazard (Fig. 5-1).

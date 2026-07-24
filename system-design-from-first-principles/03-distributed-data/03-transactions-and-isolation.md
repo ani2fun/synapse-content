@@ -267,6 +267,24 @@ Under *high contention*. Optimistic control (SSI) lets transactions run and abor
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Transaction isolation anomalies](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/03-distributed-data/03-transactions-and-isolation)
+— a real Postgres with staged, interleaved transactions that *reproduce* dirty read, non-repeatable
+read, phantom, lost update and write skew, then show each isolation level fixing them (including a
+Serializable `40001` retry). From `proof-of-concepts/03-distributed-data/03-transactions-and-isolation/`,
+run `./run`.
+
+**Study real implementations.**
+
+- [Hermitage](https://github.com/ept/hermitage) — Martin Kleppmann's test suite that runs the same
+  anomaly scripts against Postgres, MySQL, Oracle and others, tabulating what each level actually
+  prevents (often not what the SQL standard says).
+- [PostgreSQL — Transaction Isolation](https://www.postgresql.org/docs/current/transaction-iso.html)
+  — the primary source on MVCC snapshots and how Serializable Snapshot Isolation detects write skew.
+- [Jepsen — consistency models](https://jepsen.io/consistency) — where isolation (a transactional
+  property) sits relative to the consistency hierarchy, drawn as one map.
+
 ## Sources
 
 - DDIA2 ch. 8 pp. 277–282 (what a transaction is; the meaning of Atomicity, Consistency, Isolation, Durability)

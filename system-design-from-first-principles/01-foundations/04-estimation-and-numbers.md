@@ -255,6 +255,18 @@ Compare against the ladder: a well-tuned Postgres node sustains **20k+ simple wr
 
 </details>
 
+## PoC — Proof of concepts
+
+The reference numbers a back-of-the-envelope estimate leans on, in forms you can check:
+
+- [Latency numbers, interactive](https://colin-scott.github.io/personal_website/research/interactive_latency.html)
+  — Jeff Dean's table made adjustable across years, so the ratios you memorise are grounded in how
+  the hardware actually moved.
+- [The original latency-numbers gist](https://gist.github.com/jboner/2841832) — the plain table,
+  still the fastest thing to eyeball mid-estimate.
+- [System Design Primer — back-of-the-envelope](https://github.com/donnemartin/system-design-primer)
+  — powers of two, availability-in-nines and QPS/storage worked examples to calibrate against.
+
 ## Sources
 
 - DDIA2 ch. 2 pp. 33–52 — social-network volumetrics and fan-out math (pp. 34–36); queueing near capacity (p. 37); Amazon p99.9 vs. p99.99 (pp. 40–41); HDD/SSD failure rates (p. 44); order-of-magnitude planning cadence (p. 52).

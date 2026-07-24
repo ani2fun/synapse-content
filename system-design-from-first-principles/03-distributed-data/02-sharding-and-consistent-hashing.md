@@ -370,6 +370,22 @@ When range scans are core to the workload and you can neutralize the hot spot. T
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Consistent hashing](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/03-distributed-data/02-sharding-and-consistent-hashing)
+— the ring with virtual nodes, in pure Python: add and remove a node and watch that only ~1/N of the
+keys move, which is the entire point of the scheme. From
+`proof-of-concepts/03-distributed-data/02-sharding-and-consistent-hashing/`, run `./run`.
+
+**Study real implementations.**
+
+- [Amazon's Dynamo](https://www.allthingsdistributed.com/2007/10/amazons_dynamo.html) — the paper that
+  put consistent hashing into a production partitioning scheme, virtual nodes and all.
+- [Vitess](https://github.com/vitessio/vitess) — how MySQL is actually sharded at scale (YouTube,
+  Slack): keyspaces, vindexes and resharding without downtime.
+- [Citus](https://github.com/citusdata/citus) — the same problem for PostgreSQL, as an extension:
+  distributed tables, shard placement and rebalancing.
+
 ## Sources
 
 DDIA2 ch. 7 pp. 251–272 (sharding, key-range vs hash, consistent hashing, hot keys, rebalancing, request routing, secondary indexes)

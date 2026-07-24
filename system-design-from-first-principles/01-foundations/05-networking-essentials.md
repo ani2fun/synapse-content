@@ -255,6 +255,18 @@ More traps interviewers actually probe:
 
 </details>
 
+## PoC — Proof of concepts
+
+Read the protocols this lesson summarises at the depth production work eventually demands:
+
+- [High Performance Browser Networking](https://hpbn.co/) — Ilya Grigorik's free O'Reilly book on
+  TCP, TLS and HTTP/1.1 → HTTP/3, and exactly why each round trip costs what it does.
+- [Beej's Guide to Network Programming](https://beej.us/guide/bgnet/) — sockets from first
+  principles; the classic that turns "a connection" from an abstraction into `connect()` and
+  `recv()`.
+- [The Illustrated TLS 1.3 Connection](https://tls13.xargs.org/) — a real handshake, every byte
+  annotated, so the encryption this lesson treats as a box becomes concrete.
+
 ## Sources
 
 - DDIA2 ch. 9 pp. 347–349 (asynchronous packet networks; six failure modes of a request; TCP's guarantees and their limits — kernel ACKs, per-connection dedup, unknown progress on failure).

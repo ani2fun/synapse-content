@@ -267,6 +267,19 @@ For the timeline system, a crisp trio: *prioritize availability over consistency
 
 </details>
 
+## PoC — Proof of concepts
+
+How teams actually define and measure the "-ilities" this lesson names:
+
+- [Google SRE Book — Service Level Objectives](https://sre.google/sre-book/service-level-objectives/)
+  — the canonical treatment of SLIs, SLOs and SLAs, and why you keep a tighter internal target than
+  the one you advertise.
+- [awesome-scalability](https://github.com/binhnguyennus/awesome-scalability) — real post-mortems and
+  scaling write-ups, indexed by the non-functional property (availability, latency, durability) they
+  put under stress.
+- [System Design Primer](https://github.com/donnemartin/system-design-primer) — availability-in-nines
+  arithmetic and the consistency/availability framing, with the worked numbers.
+
 ## Sources
 
 - DDIA2 ch. 2 pp. 33–34 (functional vs nonfunctional requirements; case-study workload: 500M posts/day ≈ 5,800 posts/s avg, 150,000/s peak, 200 avg follows/followers, celebrities >100M followers)

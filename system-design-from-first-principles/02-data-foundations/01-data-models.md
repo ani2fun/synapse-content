@@ -236,6 +236,18 @@ Denormalized data is **derived** data: the moment the user renames themselves, e
 
 </details>
 
+## PoC — Proof of concepts
+
+The three data models this lesson contrasts, in the systems that made each one's case:
+
+- [PostgreSQL — JSON types](https://www.postgresql.org/docs/current/datatype-json.html) — the
+  relational model *and* the document model in one engine (`jsonb`, containment, GIN indexes), which
+  is exactly the "why choose?" this lesson raises.
+- [Neo4j](https://github.com/neo4j/neo4j) — the reference property-graph database; read its Cypher
+  examples to see relationship-first modelling that a join table only approximates.
+- [System Design Primer — SQL vs NoSQL](https://github.com/donnemartin/system-design-primer) — the
+  decision table, with the access patterns that push you toward one shape or the other.
+
 ## Sources
 
 - DDIA2 ch. 3 pp. 65–67 (data models as the most consequential layer; the stack of models; relational model origins)

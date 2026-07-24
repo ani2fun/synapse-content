@@ -155,6 +155,18 @@ Answer briefly, directly, without defensiveness — probes are how interviewers 
 
 </details>
 
+## PoC — Proof of concepts
+
+Open-source collections that mirror this lesson's map of the whole field — good for a second pass
+over any topic here:
+
+- [System Design Primer](https://github.com/donnemartin/system-design-primer) — the most-referenced
+  single index of the topics, with diagrams and worked examples.
+- [karanpratapsingh/system-design](https://github.com/karanpratapsingh/system-design) — a linear,
+  readable course covering the same ground end to end, if you prefer prose to a wiki.
+- [awesome-scalability](https://github.com/binhnguyennus/awesome-scalability) — the real-world
+  engineering write-ups and post-mortems behind each concept, from companies that hit the limits.
+
 ## Sources
 
 Original synthesis on interview delivery; this book's own framing.
