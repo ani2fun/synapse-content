@@ -3,11 +3,11 @@ title: "Reading a Synapse Lesson"
 summary: "A quick tour of what a Synapse lesson can render: a Mermaid flowchart, a D2 diagram, and a runnable code block you can execute and visualise step by step."
 ---
 
-# Reading a Synapse Lesson (and Edit)
+# Reading a Synapse Lesson
 
 A Synapse lesson is prose you can *run*. Alongside ordinary Markdown — headings, lists, tables, links, and
 highlighted code — a lesson can embed **diagrams that render**, **code you can execute**, and **step-by-step
-visualisations** of that code. This page shows each in turn.
+visualisations** of that code. This page shows each in turn. You can also edit it if you want to. 
 
 ## Mermaid diagrams
 
