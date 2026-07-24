@@ -243,6 +243,22 @@ Immutability is the same bargain the LSM storage engine makes, and the consequen
 2. **Deletes and updates are indirection, not mutation.** You can't edit an immutable segment, so a delete just writes a tombstone (soft-delete bit) and the space is reclaimed at the next merge; an update is a tombstone-plus-reinsert. This is why updates cost more than inserts. It also makes point-in-time snapshots cheap (record which segments exist) and crash recovery simple (discard a half-written segment).
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Inverted index & ranked search](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/04-building-blocks/08-search)
+— build an inverted index, rank with TF-IDF/BM25, and run a scatter-gather query across sharded
+in-process indexes; the tokenise → post → score → merge pipeline made concrete. From
+`proof-of-concepts/04-building-blocks/08-search/`, run `./run`.
+
+**Study real implementations.**
+
+- [Apache Lucene](https://github.com/apache/lucene) — the inverted-index library under Elasticsearch,
+  Solr and much else; the canonical implementation of postings, scoring and segment merges.
+- [Elasticsearch](https://github.com/elastic/elasticsearch) — Lucene turned into a distributed engine:
+  sharding, the query DSL and the scatter-gather this POC imitates, at scale.
+- [Tantivy](https://github.com/quickwit-oss/tantivy) — a Lucene-inspired engine in Rust, small and
+  readable enough to follow the index format end to end.
+
 ## Sources
 
 DDIA2 ch. 4 pp. 146–147 (full-text search, inverted index, postings lists, bitwise-AND intersection, Lucene's SSTable-like log-structured storage, n-grams, Levenshtein-automaton fuzzy matching), p. 132 (secondary indexes as postings lists) · `[web: Lucene BM25Similarity docs, lucene.apache.org]` (BM25 as the modern TF-IDF refinement — term-frequency saturation and length normalization; scoring is out of scope in DDIA) · Related: [Indexing](/synapse/system-design-from-first-principles/data-foundations/indexing), [Storage Engines](/synapse/system-design-from-first-principles/data-foundations/storage-engines), [Queues & Brokers](/synapse/system-design-from-first-principles/building-blocks/queues-and-brokers), [Ticketmaster](/synapse/system-design-from-first-principles/case-studies/ticketmaster), [Web Crawler](/synapse/system-design-from-first-principles/case-studies/web-crawler)

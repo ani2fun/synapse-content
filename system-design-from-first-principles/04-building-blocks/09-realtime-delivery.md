@@ -188,6 +188,19 @@ Long polling holds *one* request open until *one* update is ready, then responds
 
 </details>
 
+## PoC — Proof of concepts
+
+The transports and the servers that route real-time messages to millions of connections:
+
+- [MDN — WebSockets API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) — the
+  primary reference for the handshake and framing behind persistent connections (with SSE as the
+  lighter one-way alternative).
+- [Socket.IO](https://github.com/socketio/socket.io) — the widely-used client/server library that adds
+  reconnection, rooms and fallbacks on top of raw WebSockets.
+- [Centrifugo](https://github.com/centrifugal/centrifugo) — a scalable real-time messaging *server*:
+  channels, presence and horizontal fan-out — exactly the connection-routing problem this lesson
+  frames.
+
 ## Sources
 
 [web: MDN — Server-Sent Events / EventSource] · [web: MDN — WebRTC API] · [web: RFC 6455 — The WebSocket Protocol] · [web: "The C10K problem", Dan Kegel]

@@ -223,6 +223,17 @@ Because reads in a log-based broker are **non-destructive** and each consumer gr
 One partition is receiving disproportionate traffic — a **hot partition**, usually because the partition key is skewed (one viral ad, one whale account). The consumer assigned to it can't keep up, so its committed offset falls further behind the head. Levers: change the partition key to spread the hot entity (salting, or a compound key), add partitions and rebalance (costly and changes key→partition mapping going forward), scale up the single overloaded consumer, or apply backpressure upstream. What you *cannot* do is add more consumers to the same group to help with that one partition — a partition is consumed by exactly one consumer per group [p. 497].
 </details>
 
+## PoC — Proof of concepts
+
+The three broker designs this lesson distinguishes — log, queue, and lightweight bus:
+
+- [Apache Kafka](https://github.com/apache/kafka) — the partitioned, replicated *log*: consumer
+  groups, offsets and retention, which is why it doubles as a stream-processing substrate.
+- [RabbitMQ](https://github.com/rabbitmq/rabbitmq-server) — the classic *queue* broker (AMQP):
+  exchanges, bindings, acknowledgements and dead-letter queues, the work-distribution model.
+- [NATS](https://github.com/nats-io/nats-server) — the lightweight end: subject-based pub/sub with an
+  optional persistent log (JetStream); useful for seeing how little a broker can be.
+
 ## Sources
 
 DDIA2 ch. 12 pp. 488–500 (messaging systems, acknowledgments & redelivery, log-based brokers, consumer offsets, replay), pp. 527–528 (delivery semantics, atomic commit, idempotence) · Related: [Stream Processing](/synapse/system-design-from-first-principles/building-blocks/stream-processing), [Ad-Click Aggregator](/synapse/system-design-from-first-principles/case-studies/ad-click-aggregator), [Web Crawler](/synapse/system-design-from-first-principles/case-studies/web-crawler)

@@ -217,6 +217,17 @@ A few more traps interviewers reach for:
 **A:** Because most application logic is *stateful* — it reads and writes a primary database that lives in one or a few regions. An edge function that calls back to that central database on every request pays the full cross-region round trip anyway (the very latency the edge was supposed to remove), and it adds a new failure mode and a new place to reason about consistency. Edge compute wins only for work that is local to the *request* (header rewriting, routing, token validation, cache-key normalization) or that acts on data already replicated to the edge. The durable rule: push compute to the edge only when both the compute *and* the data it needs are near the user; everything central stays central.
 </details>
 
+## PoC — Proof of concepts
+
+A CDN is mostly an HTTP cache placed close to users — so the open building blocks are readable:
+
+- [MDN — HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching) — the
+  `Cache-Control`, `Vary` and revalidation semantics every edge decision rests on.
+- [Apache Traffic Server](https://github.com/apache/trafficserver) — a production caching proxy that
+  powered a real CDN; the open-source thing closest to what a CDN edge node actually runs.
+- [Envoy](https://github.com/envoyproxy/envoy) — increasingly the edge/mid-tier proxy of choice;
+  useful for seeing routing, TLS termination and cache filters as configuration.
+
 ## Sources
 
 - DDIA2 ch. 9 p. 350 (cross-region round-trip tail latency reaching minutes at high percentiles; intra-DC delay exceeding a minute during topology reconfiguration — the tail a cache miss exposes).

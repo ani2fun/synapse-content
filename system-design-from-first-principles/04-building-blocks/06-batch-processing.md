@@ -222,6 +222,17 @@ Skew bites in the **reduce** phase. The shuffle sends all values for a key to a 
 
 </details>
 
+## PoC — Proof of concepts
+
+The lineage from the idea to the engines that run batch jobs today:
+
+- [MapReduce: Simplified Data Processing on Large Clusters](https://research.google/pubs/mapreduce-simplified-data-processing-on-large-clusters/)
+  — Dean & Ghemawat's 2004 paper; the origin of the map/shuffle/reduce model this lesson teaches.
+- [Apache Spark](https://github.com/apache/spark) — the engine that largely replaced raw MapReduce:
+  RDDs/DataFrames and in-memory stages, with the same partition-and-shuffle skeleton.
+- [Apache Beam](https://github.com/apache/beam) — a unified batch-and-stream model, so you can see
+  batch as the bounded special case of streaming rather than a separate world.
+
 ## Sources
 
 - DDIA2 ch. 11 pp. 451–453 (batch vs online; throughput; human fault tolerance; MapReduce obsolete)

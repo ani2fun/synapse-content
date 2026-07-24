@@ -243,6 +243,18 @@ Dual writes let each store decide its own ordering, so two concurrent writes can
 When processing lag is reliably negligible and the answer only needs to be approximate — for example a coarse real-time ops dashboard where a rough "events in the last minute we saw" is good enough and you want to avoid the complexity of watermarks. The moment the number feeds billing, alerting thresholds, or anything re-run over historical data, you must switch to event time, because processing time is not reproducible and misbehaves under any backlog [DDIA2 pp. 518–519].
 </details>
 
+## PoC — Proof of concepts
+
+Watermarks, windows and exactly-once are easiest to believe once you see the engines that implement
+them:
+
+- [Apache Flink](https://github.com/apache/flink) — the reference stateful stream processor: event
+  time, watermarks, windowing and checkpointed exactly-once, all first-class.
+- [Apache Beam](https://github.com/apache/beam) — the Dataflow model in code (windowing, triggers,
+  allowed lateness); the clearest expression of the concepts this lesson names.
+- [Apache Kafka](https://github.com/apache/kafka) — the log that most streams flow through, and (via
+  Kafka Streams) a lighter processing model worth contrasting with Flink's.
+
 ## Sources
 
 DDIA2 ch. 12 pp. 487–529 · DDIA2 ch. 13 pp. 539–579 · [web: Apache Flink docs] (the term "watermark"; DDIA describes the mechanism without naming it)

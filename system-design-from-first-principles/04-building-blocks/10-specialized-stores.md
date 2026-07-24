@@ -215,6 +215,17 @@ Brute force is genuinely correct and often *simpler* when the candidate set is s
 
 </details>
 
+## PoC — Proof of concepts
+
+Each specialised store this lesson surveys, available as a Postgres extension you can add and query:
+
+- [PostGIS](https://github.com/postgis/postgis) — geospatial types and indexes (R-tree/GiST) on
+  PostgreSQL; the standard for "find things near a point" without a bespoke geo database.
+- [TimescaleDB](https://github.com/timescale/timescaledb) — time-series on PostgreSQL: hypertables,
+  automatic partitioning by time and continuous aggregates.
+- [pgvector](https://github.com/pgvector/pgvector) — vector similarity search (HNSW/IVFFlat) in
+  Postgres; the embeddings store this lesson describes, without leaving SQL.
+
 ## Sources
 
 DDIA2 ch. 4 pp. 137–138, 145–149 (columnar storage, multidimensional & vector indexes) · DDIA2 p. 120 (LSM append-only write path) · [web: en.wikipedia.org/wiki/Geohash] (geohash precision ladder) · [web: h3geo.org] (Uber H3 hexagonal grid) · [web: arxiv.org/abs/1603.09320] (HNSW, Malkov & Yashunin 2016)

@@ -198,6 +198,17 @@ Real S3 provides strong read-after-write consistency for new objects, so a `GET`
 
 </details>
 
+## PoC — Proof of concepts
+
+Object stores you can actually stand up and point an S3 client at:
+
+- [MinIO](https://github.com/minio/minio) — a high-performance, S3-compatible object store in a single
+  binary; run it locally to see buckets, multipart upload and erasure coding first-hand.
+- [SeaweedFS](https://github.com/seaweedfs/seaweedfs) — a different design optimised for billions of
+  small files (the Facebook Haystack lineage this lesson references), with tiering to cloud storage.
+- [Ceph](https://github.com/ceph/ceph) — the heavyweight: object, block and file on one distributed
+  cluster (RADOS); read it for how replication and placement groups scale storage.
+
 ## Sources
 
 - DDIA2 ch. 11 pp. 459–461 — object-store model (flat bucket+key, immutability, no directories/links/atomic renames), storage-vs-compute separation, replication & erasure coding, KV-vs-object-store access profiles.

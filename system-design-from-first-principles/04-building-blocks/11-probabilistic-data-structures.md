@@ -223,6 +223,23 @@ No single sketch does both, because they answer different questions. **Distinct 
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Probabilistic data structures](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/04-building-blocks/11-probabilistic-data-structures)
+— Bloom filter, HyperLogLog and Count-Min sketch built from scratch, measuring the real
+accuracy-vs-memory trade-off and merging sketches across shards (the property that makes them
+distributable). From `proof-of-concepts/04-building-blocks/11-probabilistic-data-structures/`, run
+`./run`.
+
+**Study real implementations.**
+
+- [RedisBloom](https://github.com/RedisBloom/RedisBloom) — production Bloom, Cuckoo, Count-Min, Top-K
+  and t-digest as Redis commands; the same structures this POC builds, hardened.
+- [Apache DataSketches](https://github.com/apache/datasketches-java) — the rigorous, mergeable
+  streaming-sketch library (quantiles, distinct counts, frequent items) with error bounds you can cite.
+- [Redis](https://github.com/redis/redis) — has HyperLogLog built in (`PFADD`/`PFCOUNT`); read that
+  implementation to see the register/bias-correction machinery in a widely-deployed system.
+
 ## Sources
 
 DDIA2 ch. 4 pp. 122–123 (Bloom filters: mechanism, one-sided error, ~10 bits/item ≈ 1% FP), p. 129 (Bloom filters cut LSM point-read I/O) · [web: Flajolet, Fusy, Gandouet, Meunier, "HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm", 2007] · [web: redis.io — HyperLogLog (~12 KB, 0.81% error)] · [web: Cormode & Muthukrishnan, "An Improved Data Stream Summary: The Count-Min Sketch and its Applications", 2005] · [web: Dunning & Ertl, "Computing Extremely Accurate Quantiles Using t-Digests", 2019] · [web: Fan, Andersen, Kaminsky, Mitzenmacher, "Cuckoo Filter: Practically Better Than Bloom", CoNEXT 2014]

@@ -211,6 +211,18 @@ A **hot key**. The cluster shards by hashing keys across nodes, but a single key
 
 </details>
 
+## PoC — Proof of concepts
+
+The caches this lesson's strategies are implemented on top of:
+
+- [Redis](https://github.com/redis/redis) — the data-structure server most application caches are
+  built on; read it for eviction policies (LRU/LFU), TTLs and the single-threaded execution model.
+- [Memcached](https://github.com/memcached/memcached) — the deliberately simpler multithreaded
+  key/value cache; the classic contrast to Redis and the subject of this lesson's Facebook source.
+- [MDN — HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching) — the *other*
+  cache: `Cache-Control`, `ETag`, freshness and validation, which is how caching works above the
+  application entirely.
+
 ## Sources
 
 DDIA2 ch. 4 pp. 133–134 (in-memory databases) · [web: Nishtala et al., "Scaling Memcache at Facebook", NSDI 2013] · Cross-links: [CDN & Edge](/synapse/system-design-from-first-principles/building-blocks/cdn-and-edge), [News Feed](/synapse/system-design-from-first-principles/case-studies/news-feed), [Rate Limiter](/synapse/system-design-from-first-principles/case-studies/rate-limiter), [Estimation & Numbers](/synapse/system-design-from-first-principles/foundations/estimation-and-numbers).

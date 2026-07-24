@@ -238,6 +238,22 @@ More traps interviewers probe:
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Load-balancing strategies](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/04-building-blocks/01-load-balancing-and-gateways)
+— five algorithms (round-robin, random, least-connections, EWMA, power-of-two-choices) driven against
+skewed, bursty load so you can see which ones keep the tail latency down and which collapse. From
+`proof-of-concepts/04-building-blocks/01-load-balancing-and-gateways/`, run `./run`.
+
+**Study real implementations.**
+
+- [HAProxy](https://github.com/haproxy/haproxy) — the reference software load balancer; its docs are a
+  short course in balancing algorithms, health checks and connection handling.
+- [Envoy](https://github.com/envoyproxy/envoy) — the modern L7 proxy behind most service meshes;
+  read it for outlier detection, circuit breaking and the power-of-two-choices policy in production.
+- [NGINX](https://github.com/nginx/nginx) — web server, reverse proxy and gateway in one; the most
+  common front door on the internet.
+
 ## Sources
 
 - DDIA2 ch. 5 pp. 184–186 — dataflow through services: load balancers (hardware, software NGINX/HAProxy, DNS), service discovery (etcd, ZooKeeper) with registration and heartbeats, and service meshes (Istio, Linkerd) deploying the balancer as an in-process library or sidecar handling encryption and observability.
