@@ -165,6 +165,17 @@ What the tail numbers mean and why they dominate user experience. All from DDIA 
 
 Related capacity figures live in [Capacity & Autoscaling](/synapse/system-design-from-first-principles/production-engineering/capacity-and-autoscaling).
 
+## PoC — Proof of concepts
+
+The primary sources for the numbers on this page — check them rather than trusting a memorised table:
+
+- [Latency numbers, interactive](https://colin-scott.github.io/personal_website/research/interactive_latency.html)
+  — the canonical constants, adjustable by year so you use current figures, not 2005's.
+- [The original latency-numbers gist](https://gist.github.com/jboner/2841832) — the plain table these
+  quick-reference numbers derive from.
+- [System Design Primer — appendix](https://github.com/donnemartin/system-design-primer) —
+  powers of two, availability-in-nines and the QPS/storage estimation examples to apply them.
+
 ## Sources
 
 - **DDIA2 ch.2** — *Defining Nonfunctional Requirements*, pp. 34–46 (fan-out math, percentiles/SLOs, hardware failure rates).

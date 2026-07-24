@@ -191,6 +191,17 @@ Start with **metrics**: the RED dashboard confirms the p99 duration for the chec
 
 </details>
 
+## PoC — Proof of concepts
+
+The three pillars — metrics, logs, traces — in the open-source stack that defines them today:
+
+- [Prometheus](https://github.com/prometheus/prometheus) — the de-facto metrics system: the pull
+  model, the time-series data model and PromQL, all of which this lesson's metrics section describes.
+- [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-specification) — the vendor-neutral
+  standard for traces, metrics and logs; the spec that lets instrumentation outlive any one backend.
+- [Grafana](https://github.com/grafana/grafana) — the visualization and alerting layer over all of
+  it; where dashboards and SLO burn-rate alerts actually live.
+
 ## Sources
 
 - DDIA2 ch. 2 pp. 38–42 (response-time percentiles, tail-latency amplification, SLI/SLO/SLA, histograms — the percentile/SLO grounding); pp. 53–54 (operability, monitoring, and observability as maintainability).

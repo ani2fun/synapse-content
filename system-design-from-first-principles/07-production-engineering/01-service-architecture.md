@@ -216,6 +216,18 @@ The *deploy-coordination pain across many teams* is exactly a legitimate pressur
 
 </details>
 
+## PoC — Proof of concepts
+
+The monolith-vs-services decision, in the patterns and platforms that shape it:
+
+- [Microservices.io](https://microservices.io/patterns/microservices.html) — Chris Richardson's
+  pattern language: decomposition, the database-per-service rule and the costs this lesson weighs
+  against a monolith.
+- [Kubernetes](https://github.com/kubernetes/kubernetes) — the platform most service architectures
+  actually run on; understanding it is understanding what "operating N services" really costs.
+- [System Design Primer](https://github.com/donnemartin/system-design-primer) — the microservices vs
+  monolith and SOA trade-offs, summarised with their failure modes.
+
 ## Sources
 
 DDIA2 ch. 1 pp. 19–22 (distributed vs single-node; microservices & serverless; "people problem") · DDIA2 ch. 5 pp. 180–186 (services: independent deployability, per-service databases, partial failure) · [web: Melvin Conway, "How Do Committees Invent?", 1968 — Conway's Law] · [web: martinfowler.com, "MonolithFirst" (2015) & "MicroservicePremium"] · [web: microservices.io (Chris Richardson) — Database-per-service, Decompose-by-business-capability, Distributed-monolith] · [web: Eric Evans, *Domain-Driven Design*, 2003 — bounded contexts] · [web: Shopify Engineering, "Deconstructing the Monolith", 2019] · [web: Jeff Dean, "Latency Numbers Every Programmer Should Know"]

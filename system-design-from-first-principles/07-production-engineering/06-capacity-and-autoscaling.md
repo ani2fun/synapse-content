@@ -194,6 +194,17 @@ This is **flapping**. Newly launched instances are cold — they briefly *raise*
 
 </details>
 
+## PoC — Proof of concepts
+
+Autoscaling and load-shedding, from the mechanisms to the doctrine:
+
+- [Kubernetes](https://github.com/kubernetes/kubernetes) — the Horizontal Pod Autoscaler: scale on a
+  metric toward a target, the feedback loop this lesson formalises.
+- [KEDA](https://github.com/kedacore/keda) — event-driven autoscaling, including scale-to-zero on
+  queue depth; scaling on the signal that actually predicts load rather than CPU after the fact.
+- [Google SRE — Handling Overload](https://sre.google/sre-book/handling-overload/) — what to do when
+  you *can't* scale fast enough: graceful degradation, load shedding and adaptive client throttling.
+
 ## Sources
 
 DDIA2 ch. 2 pp. 34–52 (load, throughput vs. response time & queueing, scalability, vertical vs. horizontal / shared-nothing) · DDIA2 ch. 9 p. 354 (queueing delay near maximum capacity) · DDIA2 ch. 1 pp. 13, 18 (cloud elasticity; "capacity planning becomes financial planning") · `[web: Kubernetes Horizontal Pod Autoscaler algorithm & stabilization window]` · `[web: AWS EC2 Auto Scaling target tracking; AWS Lambda provisioned concurrency]` · `[web: queueing theory, M/M/1 response-time model]`

@@ -218,6 +218,18 @@ Because the unit of skill is the **pattern**, not the product. An interviewer ca
 Don't try to cover all 13. Do a fast triage: attempt one problem from each of your *unfamiliar* skill groups (maybe contention, real-time, coordination) to find your weakest axes — that's ~3 attempts. Then spend the remaining ~5 attempts going *deep* on the one or two weakest groups, using siblings and the further-practice breakdowns. Targeted depth on your weaknesses beats a shallow pass over all thirteen. Front-load the diagnostic attempts, back-load the targeted drilling.
 </details>
 
+## PoC — Proof of concepts
+
+This lesson is a practice plan; the natural companion is a large, free bank of problems to work
+through in order:
+
+- [System Design Primer](https://github.com/donnemartin/system-design-primer) — the exercises with
+  worked solutions, the backbone of any practice ladder.
+- [awesome-system-design-resources](https://github.com/ashishps1/awesome-system-design-resources) —
+  a broad, categorised problem set to climb once the primer's exercises are comfortable.
+- [karanpratapsingh/system-design](https://github.com/karanpratapsingh/system-design) — read-through
+  material to fill a gap the moment a practice problem exposes one.
+
 ## Sources
 
 Original synthesis on interview delivery and calibration; this book's own framing.

@@ -233,6 +233,17 @@ Rollback is only safe while the previous version can still operate on the curren
 
 </details>
 
+## PoC — Proof of concepts
+
+Blue-green, canary and progressive rollout, as the controllers that actually perform them:
+
+- [Argo Rollouts](https://github.com/argoproj/argo-rollouts) — a Kubernetes controller for blue-green
+  and canary with automated analysis and rollback; the strategies in this lesson as runnable CRDs.
+- [Kubernetes](https://github.com/kubernetes/kubernetes) — the built-in rolling update and readiness
+  gates every strategy builds on; the baseline to understand first.
+- [Istio](https://github.com/istio/istio) — traffic-weight shifting at the mesh, which is how a canary
+  sends "5% of requests" to the new version independently of pod counts.
+
 ## Sources
 
 - DDIA2 ch. 5 pp. 161–162 (rolling upgrades; old and new code coexist; backward + forward compatibility required in both directions)

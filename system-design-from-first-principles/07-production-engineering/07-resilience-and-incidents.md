@@ -204,6 +204,17 @@ A blameless postmortem focuses on the *contributing causes in the sociotechnical
 It pages on a *cause*, not a *symptom*. A CPU spike on one host among thousands may have zero user impact — the load balancer routes around it, or it self-corrects. Paging a human for it causes alert fatigue, which is how real pages get ignored. You should alert on **SLO breach**: user-facing error rate or latency past your p99 target. Those mean "users are actually hurting." Causes belong on dashboards you consult *during* an incident, not on the pager [DDIA2 p.41; see Observability].
 </details>
 
+## PoC — Proof of concepts
+
+The resilience patterns, a way to test them, and the culture that closes the loop:
+
+- [Resilience4j](https://github.com/resilience4j/resilience4j) — circuit breaker, retry, bulkhead and
+  rate limiter as composable decorators; this lesson's patterns as a library you can read.
+- [Chaos Mesh](https://github.com/chaos-mesh/chaos-mesh) — inject faults (pod kills, network delay,
+  partitions) into a live cluster; the way to find out whether your resilience actually holds.
+- [Google SRE — Postmortem Culture](https://sre.google/sre-book/postmortem-culture/) — the blameless
+  postmortem, the practice that turns an incident into a permanent fix rather than a repeat.
+
 ## Sources
 
 - DDIA2 ch. 2 pp. 43–48 (fault vs. failure, fault tolerance & bounded fault budgets, hardware/software fault rates, humans & reliability, blameless postmortems) · pp. 37–38 (retry storms, metastable failure, load shedding, backpressure, circuit breakers)

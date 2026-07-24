@@ -222,6 +222,18 @@ Trap 8 — **not driving.** Answering competently but never proposing the next s
 
 </details>
 
+## PoC — Proof of concepts
+
+The follow-up questions that expose a shallow answer are the same failure modes real systems hit —
+so real write-ups are the best rehearsal:
+
+- [awesome-scalability](https://github.com/binhnguyennus/awesome-scalability) — post-mortems and
+  scaling stories; the "what breaks at scale" that every good follow-up is really probing for.
+- [System Design Primer](https://github.com/donnemartin/system-design-primer) — the common trade-off
+  tables, so you can pre-empt "why not the other option?" before it is asked.
+- [karanpratapsingh/system-design](https://github.com/karanpratapsingh/system-design) — concise
+  treatments of the topics interviewers most often pull a follow-up from.
+
 ## Sources
 
 Original synthesis on interview delivery and calibration; this book's own framing.

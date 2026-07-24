@@ -233,6 +233,18 @@ Record or mock a full 45-minute problem and grade yourself on the four dimension
 
 </details>
 
+## PoC — Proof of concepts
+
+Depth is calibrated by comparison — read enough real designs and the expected level for each seniority
+becomes concrete:
+
+- [awesome-system-design-resources](https://github.com/ashishps1/awesome-system-design-resources) —
+  case studies at varying depth, useful for seeing what "goes one level deeper" actually looks like.
+- [awesome-scalability](https://github.com/binhnguyennus/awesome-scalability) — real engineering
+  write-ups; the senior-level detail (trade-offs, failure modes, numbers) that calibration rewards.
+- [System Design Primer](https://github.com/donnemartin/system-design-primer) — the breadth baseline
+  every level is expected to cover before depth is judged.
+
 ## Sources
 
 Original synthesis on interview delivery and calibration; this book's own framing.

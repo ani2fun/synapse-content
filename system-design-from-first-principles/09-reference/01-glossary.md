@@ -194,6 +194,18 @@ A curated, skimmable index of the terms this book leans on most — from storage
 - **Sidecar** — a helper process deployed alongside a service instance that handles cross-cutting concerns (proxying, telemetry) out of the application. → [Service discovery & mesh](/synapse/system-design-from-first-principles/production-engineering/service-discovery-and-mesh)
 - **SLI / SLO / SLA** — a service level indicator is a measured metric; an objective is the target for it; an agreement is a contract with consequences if the objective is missed. → [Observability](/synapse/system-design-from-first-principles/production-engineering/observability)
 
+## PoC — Proof of concepts
+
+If a term here is still fuzzy, these define it in more depth (and often with a diagram or a runnable
+demo):
+
+- [System Design Primer](https://github.com/donnemartin/system-design-primer) — a broad glossary of
+  the same vocabulary, each term tied to where it is used.
+- [Jepsen — consistency models](https://jepsen.io/consistency) — the precise, formal definitions for
+  the consistency and isolation terms, which are the ones most often used loosely.
+- [awesome-system-design-resources](https://github.com/ashishps1/awesome-system-design-resources) —
+  a term-by-term index into deeper material when a one-line definition is not enough.
+
 ## Sources
 
 Definitions distilled and paraphrased from the DDIA (2nd ed.) chapter digests in this book's author notes and from the book's own lessons; each entry links to the lesson that teaches the concept in full, where the page-cited sources live.

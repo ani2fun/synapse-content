@@ -211,6 +211,17 @@ The dead instance never sends a deregister call, so the registry cannot rely on 
 
 </details>
 
+## PoC — Proof of concepts
+
+Discovery and the mesh, in the systems that implement them:
+
+- [HashiCorp Consul](https://github.com/hashicorp/consul) — service registry, health checking and a
+  service mesh in one; the clearest place to see discovery as a first-class concern.
+- [Istio](https://github.com/istio/istio) — the widely-deployed service mesh: sidecar proxies, mTLS,
+  traffic policy and telemetry, the control-plane/data-plane split this lesson describes.
+- [Envoy](https://github.com/envoyproxy/envoy) — the data-plane proxy under most meshes; read it to
+  understand what the sidecar actually does per request.
+
 ## Sources
 
 DDIA2 ch. 5 pp. 184–186 (load balancers, service discovery, service meshes; RPC network unpredictability p. 183) · DDIA2 ch. 10 pp. 438–440, 442 (coordination services as the registry backbone: ephemeral nodes, heartbeats, observers/stale reads, 3–5 node clusters, quorum cost) · [web: HashiCorp Consul docs — agents, health checks (HTTP/TCP/script), DNS interface, multi-datacenter] · [web: Kubernetes docs — Services, virtual IPs, endpoints, CoreDNS] · [web: Envoy docs — L7 sidecar proxy, retries/timeouts/circuit breaking/outlier detection, telemetry] · [web: Istio docs — istiod control plane, mTLS, traffic shifting, sidecar injection/ordering] · [web: Linkerd docs — Rust micro-proxy data plane]

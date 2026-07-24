@@ -209,6 +209,18 @@ Only when the number would change the architecture. The canonical example: for a
 
 </details>
 
+## PoC — Proof of concepts
+
+There is no code for a *delivery framework* — the "proof" is worked examples that apply the same
+requirements → estimate → API → high-level → deep-dive arc this lesson teaches:
+
+- [System Design Primer](https://github.com/donnemartin/system-design-primer) — full worked designs
+  (Pastebin, Twitter timeline, web crawler) you can trace the framework through, step by step.
+- [karanpratapsingh/system-design](https://github.com/karanpratapsingh/system-design) — a linear
+  course that models the same structured walk end to end.
+- [awesome-system-design-resources](https://github.com/ashishps1/awesome-system-design-resources) —
+  problems, patterns and case studies to rehearse the framework against.
+
 ## Sources
 
 Original synthesis on interview delivery and calibration; this book's own framing.

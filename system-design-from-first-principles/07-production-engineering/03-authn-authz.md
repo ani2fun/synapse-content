@@ -230,6 +230,17 @@ Password hashes are attacked by *guessing*: an attacker who steals the database 
 
 </details>
 
+## PoC — Proof of concepts
+
+The standards and the server behind "who are you, and what may you do":
+
+- [OAuth 2.0](https://oauth.net/2/) — the authorization framework (RFC 6749/6750) and OIDC on top of
+  it; the primary source for the flows this lesson names.
+- [Keycloak](https://github.com/keycloak/keycloak) — a full open-source identity provider (it is the
+  one Synapse itself uses): realms, clients, tokens and the authorization-code + PKCE flow, runnable.
+- [JWT.io](https://jwt.io/) — decode and inspect a JSON Web Token live; the fastest way to see
+  exactly what a bearer token carries and how its signature is checked.
+
 ## Sources
 
 - `[web: OAuth 2.0 — RFC 6749]` — the OAuth 2.0 Authorization Framework: roles, the authorization-code flow, `state`, refresh tokens, and PKCE (RFC 7636) hardening for public clients.
