@@ -294,6 +294,22 @@ Staleness ≈ speed × interval: at ~50 km/h a driver moves ~70 m between 5-seco
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Uber — geospatial matching](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/07-uber)
+— riders and drivers on a grid, matched under contention so two riders never grab the same driver;
+the proximity search plus the concurrency guard together. From
+`proof-of-concepts/06-case-studies/07-uber/`, run `./run`.
+
+**Study real implementations.**
+
+- [Uber H3](https://github.com/uber/h3) — the hexagonal geospatial index Uber built for exactly this:
+  bucket the world into cells so "drivers near me" is a cell lookup, not a full scan.
+- [PostGIS](https://github.com/postgis/postgis) — the alternative if you stay in SQL: spatial types
+  and GiST indexes for `ST_DWithin` proximity queries.
+- [Redis](https://github.com/redis/redis) — geospatial commands (`GEOADD`/`GEOSEARCH`) for the
+  fast-moving, in-memory index of live driver positions.
+
 ## Sources
 
 DDIA2 ch. 9 pp. 366–369, 373–377 (locks, leases, process pauses, zombies & fencing) · DDIA2 ch. 5 pp. 183, 187–189 (retries & idempotence, workflows & durable execution) · DDIA2 ch. 7 pp. 255–256, 263–264 (skew, hot spots & key salting)

@@ -293,6 +293,22 @@ The billing job runs late: money is owed regardless of your outage, and skipping
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Distributed job scheduler](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/13-job-scheduler)
+— due jobs claimed by competing workers with `SKIP LOCKED`, run at-least-once, and made idempotent so
+a duplicate execution is harmless; the scheduler's hard parts in one place. From
+`proof-of-concepts/06-case-studies/13-job-scheduler/`, run `./run`.
+
+**Study real implementations.**
+
+- [Quartz](https://github.com/quartz-scheduler/quartz) — the classic JVM scheduler: cron triggers,
+  misfire handling and a clustered mode that solves the "don't run twice" problem this POC models.
+- [Apache Airflow](https://github.com/apache/airflow) — scheduling as DAGs of dependent tasks, with a
+  scheduler/executor split; the data-pipeline shape of the same problem.
+- [Temporal](https://github.com/temporalio/temporal) — when a scheduled job is really a durable
+  workflow with retries and timers; the step up from a plain due-queue.
+
 ## Sources
 
 DDIA2 ch. 9 pp. 345–388 — leases and process pauses pp. 366–369, zombies and fencing tokens pp. 373–377, clocks pp. 358–365, clock monitoring p. 362 · DDIA2 ch. 10 pp. 401–442 — linearizable leases/leader election p. 408, epochs pp. 434–435, coordination services pp. 437–440 · DDIA2 ch. 12 pp. 487–529 — acks/redelivery pp. 493–495, DLQs p. 495, offsets p. 498, exactly-once and idempotence pp. 527–528 · [web: Quartz scheduler documentation — misfire instructions] · [web: Kubernetes CronJob documentation]

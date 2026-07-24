@@ -356,6 +356,20 @@ Closing honesty note: this section describes *this design's* operational surface
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [News feed — hybrid fan-out](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/03-news-feed)
+— push fan-out for ordinary users, pull for celebrities, merged at read time; watch where each path
+is chosen and why the hybrid exists. From `proof-of-concepts/06-case-studies/03-news-feed/`, run
+`./run`.
+
+**Study real implementations.**
+
+- [Redis](https://github.com/redis/redis) — sorted sets (`ZADD`/`ZREVRANGE`) are how a materialised
+  per-user timeline is actually stored and paged; the push-model data structure.
+- [System Design Primer — designing a news feed](https://github.com/donnemartin/system-design-primer)
+  — the fan-out-on-write vs on-read trade-off and the celebrity problem that forces the hybrid.
+
 ## Sources
 
 - `DDIA2 ch. 2 pp. 33–36 (home-timeline case study)` — the workload numbers (500M posts/day, 5,800/sec avg, 150k/sec peak, 200 avg fan-out, >100M celebrity followers, 5 s target); the polling-vs-materialized comparison (2M queries/sec, 400M lookups/sec vs just over 1M timeline writes/sec); materialized views and derived data; queueing deliveries through spikes; dropping timeline writes for hyper-followers; celebrities stored separately and merged at read. Plus pp. 43–44 — the crash-mid-fan-out example and its exactly-once requirement.

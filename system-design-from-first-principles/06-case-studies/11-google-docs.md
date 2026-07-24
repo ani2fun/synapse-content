@@ -283,6 +283,22 @@ Be honest that this shifts the design's center of gravity. Short disconnections 
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Google Docs — Operational Transformation](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/11-google-docs)
+— two clients editing the same document concurrently, their operations transformed against each other
+so both converge to the same text; OT made observable. From
+`proof-of-concepts/06-case-studies/11-google-docs/`, run `./run`.
+
+**Study real implementations.**
+
+- [ShareDB](https://github.com/share/sharedb) — a production OT backend for JSON documents; the same
+  approach as this POC, with the presence and subscription plumbing a real editor needs.
+- [Yjs](https://github.com/yjs/yjs) — the leading *CRDT* framework, the modern alternative to OT that
+  merges without a central transform server; essential for understanding the trade-off.
+- [Automerge](https://github.com/automerge/automerge) — another CRDT, with a clear data model and
+  strong offline story; read it against Yjs to see the design space.
+
 ## Sources
 
 DDIA2 ch. 6 pp. 220–229 (collaborative editors as multi-leader, sync engines & local-first, conflicting writes, LWW, strong eventual consistency, OT/CRDT) and pp. 238–239 (happens-before) · DDIA2 ch. 3 pp. 101–105 (event sourcing: events as source of truth, derived recomputable views, single processing order)

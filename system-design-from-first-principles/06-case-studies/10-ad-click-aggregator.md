@@ -350,6 +350,22 @@ The answer runs on the raw log, not the dashboard. First, the counts are re-deri
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Ad-click aggregator](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/10-ad-click-aggregator)
+— a click stream windowed and aggregated in near-real-time, with the reconciliation batch that fixes
+what the fast path approximated; the classic speed-vs-accuracy split. From
+`proof-of-concepts/06-case-studies/10-ad-click-aggregator/`, run `./run`.
+
+**Study real implementations.**
+
+- [Apache Kafka](https://github.com/apache/kafka) — the durable, replayable ingestion log every
+  click flows onto; replay is what makes the reconciliation pass possible.
+- [Apache Flink](https://github.com/apache/flink) — windowed, exactly-once stream aggregation with
+  event-time and watermarks; the engine that does the fast-path counting for real.
+- [Apache Druid](https://github.com/apache/druid) — the real-time analytics store these aggregates
+  land in for sub-second slice-and-dice queries.
+
 ## Sources
 
 DDIA2 ch. 12 pp. 488–528 (immutable events, partitioned logs & consumer offsets, event vs processing time, stragglers & window types, checkpointing, effectively-once & idempotence) · DDIA2 ch. 11 pp. 451–481 (derived output & human fault tolerance, pre-aggregation & OLAP serving, batch writes to serving stores) · DDIA2 ch. 13 pp. 541–578 (derived data & reprocessing, kappa architecture, end-to-end argument & request IDs, timeliness vs integrity, auditing) · DDIA2 ch. 7 pp. 255–264 (skew, hot shards, key salting) · [web: Apache Flink docs — "Timely Stream Processing"] (the term "watermark" for the event-time completeness signal)

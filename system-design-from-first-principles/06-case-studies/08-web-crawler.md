@@ -357,6 +357,21 @@ Layered defenses. A **max crawl depth** per URL (depth field incremented per hop
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Web crawler — the URL frontier](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/08-web-crawler)
+— the frontier that makes a crawler polite and productive: per-host queues, politeness delays,
+dedup and prioritisation. From `proof-of-concepts/06-case-studies/08-web-crawler/`, run `./run`.
+
+**Study real implementations.**
+
+- [Apache Nutch](https://github.com/apache/nutch) — a scalable, distributed crawler (the project
+  Hadoop grew out of); the reference for a production frontier and fetch/parse/index loop.
+- [Scrapy](https://github.com/scrapy/scrapy) — a smaller, very readable crawling framework: schedulers,
+  duplicate filters and politeness settings you can trace end to end.
+- [System Design Primer — web crawler](https://github.com/donnemartin/system-design-primer) — the
+  design exercise, with the dedup and freshness trade-offs laid out.
+
 ## Sources
 
 DDIA2 ch. 12 pp. 489–500, 527–528 (acknowledgments & redelivery, poison messages & dead-letter queues, log-based brokers & consumer offsets, broker-choice rule of thumb, exactly-once & idempotence) · DDIA2 ch. 11 pp. 464–466, 479 (workflow pipelines, fault handling at task granularity, durable intermediate outputs, LLM data prep & dedup)

@@ -381,6 +381,22 @@ A closing honesty note, as in the last case study: this section describes *this 
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Ticketmaster — no double-booking](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/02-ticketmaster)
+— a real Postgres and a 25-way concurrent stampede for one seat: exactly one booking wins, the rest
+get a clean rejection. From `proof-of-concepts/06-case-studies/02-ticketmaster/`, run `./run`.
+
+**Study real implementations.**
+
+- [PostgreSQL — Explicit Locking](https://www.postgresql.org/docs/current/explicit-locking.html) —
+  `SELECT … FOR UPDATE` and `SKIP LOCKED`, the exact primitives that make the seat-hold critical
+  section correct under contention.
+- [Redis](https://github.com/redis/redis) — where a short-lived *hold* (a key with a TTL) usually
+  lives, so an abandoned checkout releases the seat automatically.
+- [How to do distributed locking](https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html)
+  — the caveats if you reach for a distributed lock instead of the database's own row lock.
+
 ## Sources
 
 - `DDIA2 ch. 8 pp. 288–335 (isolation anomalies, locks, serializability)` — retry duplicates and idempotence (pp. 288, 334); exploitable weak-isolation bugs, the bankrupted exchange (p. 289); read committed as default, row locks vs dirty writes (pp. 290–292); lost updates, atomic/conditional writes, `FOR UPDATE`, MVCC's WHERE-clause visibility exception (pp. 299–302); write skew degenerating to lost update on the same object (pp. 303–304); double-booking, uniqueness constraints, phantoms, materializing conflicts (pp. 305–308); the three serializability implementations, 2PL blocking/deadlock/tail costs, SSI aborts, optimistic-vs-pessimistic under contention (pp. 308–318); Oracle's "serializable" = snapshot isolation (p. 281); the anomaly-by-level table (p. 335).

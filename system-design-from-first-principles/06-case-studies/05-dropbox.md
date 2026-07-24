@@ -325,6 +325,22 @@ Operational reality for this design's *shape* — sourcing flagged; none of it c
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Dropbox — content-addressed sync](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/05-dropbox)
+— chunk a file, address each chunk by its hash, and sync only the chunks that changed; the
+deduplication and delta-sync at the heart of the design. From
+`proof-of-concepts/06-case-studies/05-dropbox/`, run `./run`.
+
+**Study real implementations.**
+
+- [restic](https://github.com/restic/restic) — content-defined chunking and content-addressed,
+  deduplicated storage in a readable Go codebase; exactly this POC's core, production-grade.
+- [MinIO](https://github.com/minio/minio) — the S3-compatible blob store the chunks land in; the
+  durable object tier every file-sync service needs.
+- [SeaweedFS](https://github.com/seaweedfs/seaweedfs) — an alternative store tuned for billions of
+  small objects (chunks are small and numerous), with cloud tiering.
+
 ## Sources
 
 - `DDIA2 ch. 6 pp. 220–228 (sync engines, local-first, conflicts)` — offline devices as multi-leader replicas with hours–days lag, each a "region" [p. 220]; the sync engine defined, offline-first/local-first distinguished [p. 221]; local-read/write advantages and the download-in-advance fit ("a user's own files") [pp. 221–222]; concurrency as mutual unawareness [p. 222]; LWW's real meaning — a concurrent write silently discarded, clock-skew sensitivity [pp. 224–225]; siblings / keep-both (CouchDB) [p. 225]; CRDTs and OT and why they need structured data [pp. 226–228].

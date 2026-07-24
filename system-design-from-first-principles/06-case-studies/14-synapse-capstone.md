@@ -354,6 +354,22 @@ not arguing it won't.
 
 </details>
 
+## PoC — Proof of concepts
+
+This capstone is unusual: the proof of concept is not a toy in `proof-of-concepts/` but the *entire
+platform you are reading this on*. Both repositories are public, and there is a whole book that
+designs them from first principles.
+
+- [ani2fun/synapse](https://github.com/ani2fun/synapse) — the application: the Rust axum server, the
+  Astro web tier, the visualisation engine and the sandbox/judging/identity contexts this case study
+  discusses.
+- [ani2fun/synapse-content](https://github.com/ani2fun/synapse-content) — the content repository (this
+  book lives here), and the [`proof-of-concepts/`](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts)
+  directory that backs every *other* case study above.
+- [Synapse App From Scratch](/synapse/synapse-app-from-scratch/index) — the companion book that
+  documents this exact system in depth: architecture, the ten bounded contexts, the measured numbers,
+  and the content pipeline that turned this lesson into a page.
+
 ## Sources
 
 - [ani2fun/synapse](https://github.com/ani2fun/synapse) — the implementation this lesson describes:

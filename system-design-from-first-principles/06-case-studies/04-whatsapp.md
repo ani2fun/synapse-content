@@ -337,6 +337,22 @@ Everything here is operational reality for *this design's shape* — stateful co
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [WhatsApp — realtime messaging](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/04-whatsapp)
+— persistent connections, per-device delivery and the online/offline mailbox that lets a message
+survive a recipient being away. From `proof-of-concepts/06-case-studies/04-whatsapp/`, run `./run`.
+
+**Study real implementations.**
+
+- [libsignal](https://github.com/signalapp/libsignal) — the Signal Protocol (Double Ratchet) that
+  WhatsApp actually uses for end-to-end encryption; the reference for the crypto this lesson gestures
+  at.
+- [MDN — WebSockets API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) — the
+  persistent-connection transport underneath any chat system, handshake and framing included.
+- [Centrifugo](https://github.com/centrifugal/centrifugo) — a scalable connection/fan-out *server*:
+  presence, channels and routing to millions of sockets, the operational half of the design.
+
 ## Sources
 
 - `DDIA2 ch. 12 pp. 488–498, 527–528 (messaging systems, acks/redelivery, ordering, exactly-once)` — polling's overhead curve and push-based messaging [p. 489]; the durability-vs-latency trade [p. 490]; brokers deleting on ack [pp. 491–492]; ack-triggered redelivery [p. 493] and redelivery reordering [p. 494]; partition-scoped total order and ordering keys [pp. 496–498]; exactly-once as "effectively-once" [p. 527]; idempotence-based dedup [p. 528].

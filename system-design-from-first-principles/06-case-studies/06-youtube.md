@@ -378,6 +378,22 @@ Operational reality for this design's *shape* — sourcing flagged; none of it c
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [YouTube — transcoding DAG](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/06-youtube)
+— an upload fanned into a directed graph of transcode jobs (renditions, thumbnails, manifests) with
+dependencies and retries; the pipeline that turns one file into an adaptive ladder. From
+`proof-of-concepts/06-case-studies/06-youtube/`, run `./run`.
+
+**Study real implementations.**
+
+- [FFmpeg](https://github.com/FFmpeg/FFmpeg) — the tool that *is* the transcode step: codecs,
+  bitrate ladders and segmenting into HLS/DASH; every video platform shells out to it.
+- [hls.js](https://github.com/video-dev/hls.js) — the client side of adaptive streaming: how a player
+  switches renditions from a manifest, which is why you produce the ladder at all.
+- [MinIO](https://github.com/minio/minio) — the object store the segments and manifests are served
+  from (behind a CDN); the durable tier of the pipeline.
+
 ## Sources
 
 - `DDIA2 ch. 11 pp. 451–453 (batch fundamentals)` — batch jobs read read-only input and generate output from scratch [p. 451]; human fault tolerance — recover from buggy code by rolling back and rerunning, the principle behind re-encode campaigns [pp. 451–452].

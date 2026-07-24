@@ -330,6 +330,21 @@ Three artifacts, each impossible in the naive UPDATE design. First, the **append
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Payment system — Stripe-style](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/12-stripe-payments)
+— an idempotent charge flow over a double-entry ledger, so a retried payment never double-charges and
+the books always balance. From `proof-of-concepts/06-case-studies/12-stripe-payments/`, run `./run`.
+
+**Study real implementations.**
+
+- [Stripe — idempotent requests](https://docs.stripe.com/api/idempotent_requests) — the production
+  idempotency-key contract this POC imitates; the definitive statement of "retry safely".
+- [TigerBeetle](https://github.com/tigerbeetle/tigerbeetle) — a database built specifically for
+  double-entry accounting at high throughput; the ledger this design needs, done seriously.
+- [Temporal](https://github.com/temporalio/temporal) — durable orchestration for the multi-step
+  authorise → capture → settle flow, so a payment survives a crash mid-way without losing money.
+
 ## Sources
 
 DDIA2 ch. 8 pp. 288, 306, 329–334 (exactly-once: retry duplicates, double-spend write skew, why heterogeneous atomic commit fails, message-ID dedup under a uniqueness constraint) · DDIA2 ch. 13 pp. 562–578 (end-to-end argument and operation identifiers pp. 562–566; enforcing constraints pp. 566–568; timeliness vs integrity pp. 571–572; compensating transactions pp. 573–574; trust-but-verify and auditability pp. 575–578) · DDIA2 ch. 3 pp. 101–105 (event sourcing: immutable events as source of truth, derived recomputable views, audit-log value, single processing order)

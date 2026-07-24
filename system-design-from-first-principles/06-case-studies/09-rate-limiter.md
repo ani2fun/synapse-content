@@ -329,6 +329,22 @@ Context versus cost. A dedicated service is called from application code, which 
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Rate limiter](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/09-rate-limiter)
+— token-bucket, fixed-window and sliding-window limiters side by side, so you can see the boundary
+bursts a fixed window allows and the sliding window prevents. From
+`proof-of-concepts/06-case-studies/09-rate-limiter/`, run `./run`.
+
+**Study real implementations.**
+
+- [Redis](https://github.com/redis/redis) — `INCR`/`EXPIRE` and sorted sets are how distributed rate
+  limiters keep a shared counter across many app servers; the standard backing store.
+- [Envoy](https://github.com/envoyproxy/envoy) — global rate limiting at the proxy: a dedicated
+  rate-limit service the edge consults, so limits hold across a fleet.
+- [System Design Primer](https://github.com/donnemartin/system-design-primer) — where the algorithms
+  sit relative to the rest of an API gateway.
+
 ## Sources
 
 DDIA2 ch. 8 pp. 281–302 (lost updates, read-modify-write cycles, atomic single-object operations) · DDIA2 ch. 7 pp. 255–264 (skew, hot keys, key salting)

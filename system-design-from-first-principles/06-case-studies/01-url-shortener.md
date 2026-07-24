@@ -345,6 +345,19 @@ Closing honesty note: this section describes *this* design's operational surface
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [URL shortener](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/01-url-shortener)
+— the full design running: FastAPI + Postgres + Redis, with range-leased IDs, Base62 encoding and a
+fire-and-forget click stream. From `proof-of-concepts/06-case-studies/01-url-shortener/`, run `./run`.
+
+**Study real implementations.**
+
+- [Redis](https://github.com/redis/redis) — the redirect cache and the atomic counter this design
+  leans on (`INCR`, `INCRBY`); the hot path of every shortener.
+- [System Design Primer — Pastebin / URL shortener](https://github.com/donnemartin/system-design-primer)
+  — the canonical exercise, with the key-generation and read-heavy trade-offs written out.
+
 ## Sources
 
 - `DDIA2 ch. 10 pp. 409–425 (ID generators)` — uniqueness as linearizability (p. 409); async-failover write loss (p. 411); the single-node counter as linearizable fetch-and-add and its limits (pp. 417–418); the ordering ladder — preallocated blocks, wall-clock IDs, Lamport/hybrid clocks (pp. 418–422); linearizable generators, the timestamp oracle, batching, persist-before-issue, Spanner's alternative (pp. 423–425); fault-tolerant agreement as consensus (p. 425).
