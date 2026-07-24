@@ -193,6 +193,18 @@ When writes dominate reads, or when most produced items are never consumed. An a
 
 </details>
 
+## PoC — Proof of concepts
+
+Fan-out-on-write vs on-read is easiest to believe when you can run it:
+
+- [Our News Feed POC](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/06-case-studies/03-news-feed)
+  — the case study's hybrid fan-out implemented end to end (push for normal users, pull for
+  celebrities); from `proof-of-concepts/06-case-studies/03-news-feed/`, `./run`.
+- [Redis](https://github.com/redis/redis) — sorted sets (`ZADD`/`ZREVRANGE`) are how push-model
+  timelines are actually materialised per user; the data structure this pattern leans on.
+- [System Design Primer — fan-out](https://github.com/donnemartin/system-design-primer) — the
+  push/pull/hybrid trade-off with the celebrity-follower problem that forces the hybrid.
+
 ## Sources
 
 DDIA2 ch. 2 pp. 34–36 (home-timeline fan-out: materializing/updating timelines, fan-out factor, celebrity carve-out, dropping writes for heavy-follow users) and p. 43–44 (crash-mid-fan-out → exactly-once) · Cross-links: [News feed](/synapse/system-design-from-first-principles/case-studies/news-feed) case study (the worked design this pattern generalizes), [Real-time delivery](/synapse/system-design-from-first-principles/building-blocks/realtime-delivery) (transport), [Idempotency & exactly-once](/synapse/system-design-from-first-principles/patterns/idempotency-and-exactly-once), [Event-driven, CQRS, outbox & CDC](/synapse/system-design-from-first-principles/patterns/event-driven-cqrs-outbox-cdc).

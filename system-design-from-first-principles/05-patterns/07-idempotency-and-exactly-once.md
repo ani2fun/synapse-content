@@ -185,6 +185,19 @@ Because a timeout is ambiguous: it happens both when the request never arrived *
 The client generates a UUID before the first attempt and sends it as an `Idempotency-Key` header, reusing the *same* key on every retry. The payment service, inside one database transaction, `INSERT`s a row into a `requests` table that has a `UNIQUE(request_id)` constraint, performs the charge, and commits — so the key and the effect are atomic. On a retry, the duplicate `INSERT` violates the uniqueness constraint and the transaction aborts, or the service looks the key up first and replays the stored result [DDIA2 p. 564, 334]. The *database's uniqueness constraint* is what enforces once-only, because it holds even under weak isolation and even when two retries race concurrently — an application-level check-then-insert would not [DDIA2 p. 564]. The key travels end-to-end from client to that constraint; no intermediate layer (TCP, the broker) is trusted to dedup.
 </details>
 
+## PoC — Proof of concepts
+
+"Exactly-once" is a lie you make true with idempotency and dedup — read how the pros phrase it:
+
+- [Stripe — idempotent requests](https://docs.stripe.com/api/idempotent_requests) — the canonical
+  idempotency-key API: send a key, and a retried POST returns the first result instead of charging
+  twice. This is the pattern in production form.
+- [You Cannot Have Exactly-Once Delivery](https://bravenewgeek.com/you-cannot-have-exactly-once-delivery/)
+  — Tyler Treat on why the network can only offer at-least-once, so *processing* must be idempotent;
+  the theory behind the key.
+- [Apache Kafka](https://github.com/apache/kafka) — its transactions and idempotent producer are the
+  most-studied real implementation of "effectively once"; read the design to see the dedup machinery.
+
 ## Sources
 
 DDIA2 ch. 8 pp. 288, 329–330, 334 (exactly-once message processing, idempotent dedup by message-ID, retry ambiguity) · DDIA2 ch. 12 pp. 498, 527–528 (at-least-once redelivery, effectively-once, idempotence, offset-tagged writes) · DDIA2 ch. 13 pp. 562–565, 572–573 (end-to-end argument, request IDs, uniqueness constraints, TCP dedup scope) · [web: stripe.com/docs/api/idempotent_requests] (24-hour key retention) · Cross-links: [Distributed Transactions](/synapse/system-design-from-first-principles/distributed-data/distributed-transactions), [Stream Processing](/synapse/system-design-from-first-principles/building-blocks/stream-processing), [Faults, Clocks & Time](/synapse/system-design-from-first-principles/distributed-data/faults-clocks-and-time), [Transactions & Isolation](/synapse/system-design-from-first-principles/distributed-data/transactions-and-isolation), [Dealing with Contention](/synapse/system-design-from-first-principles/patterns/dealing-with-contention), [Multi-step Processes & Sagas](/synapse/system-design-from-first-principles/patterns/multi-step-processes-and-sagas), [Event-driven Architecture: CQRS, Outbox & CDC](/synapse/system-design-from-first-principles/patterns/event-driven-cqrs-outbox-cdc), [Design a Payment System (Stripe)](/synapse/system-design-from-first-principles/case-studies/stripe-payments), [Design an Ad Click Aggregator](/synapse/system-design-from-first-principles/case-studies/ad-click-aggregator), [Design a Job Scheduler](/synapse/system-design-from-first-principles/case-studies/job-scheduler), [Design WhatsApp](/synapse/system-design-from-first-principles/case-studies/whatsapp)

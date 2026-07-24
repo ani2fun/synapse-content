@@ -191,6 +191,19 @@ The lease expires while the worker is frozen. A second worker acquires the lock 
 When the conflict rate is high (so optimistic retries would storm and waste work on an already-loaded system), or when the cost of a single mistake is severe (money, a physical seat) and you want zero chance of a lost update rather than eventual-detect-and-retry, or when the decision logic can't be expressed as a single conditional write (multi-row invariants, external validity checks) so there's no clean value to compare-and-set on. Pessimistic trades throughput for unconditional, up-front safety — the right trade when collisions are the norm rather than the exception [DDIA2 p. 300, 318].
 </details>
 
+## PoC — Proof of concepts
+
+The mechanics of pessimistic and optimistic contention control, from the primary sources:
+
+- [PostgreSQL — Explicit Locking](https://www.postgresql.org/docs/current/explicit-locking.html) —
+  row locks (`FOR UPDATE`), advisory locks and the deadlock detector; the pessimistic side made
+  precise.
+- [How to do distributed locking](https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html)
+  — Kleppmann on why a distributed lock needs a *fencing token*, and how naive Redis locks fail; the
+  trap this lesson warns about.
+- [Redis](https://github.com/redis/redis) — `SET key val NX PX` and `WATCH`/`MULTI` are the building
+  blocks of application-level optimistic concurrency; read them alongside the critique above.
+
 ## Sources
 
 DDIA2 ch. 8 pp. 299–302 (lost updates, atomic writes, compare-and-set), pp. 303–304 (write skew), pp. 309–318 (serial execution, 2PL, optimistic vs. pessimistic) · DDIA2 ch. 9 pp. 366–376 (leases, process pauses, split brain, fencing tokens) · Cross-links: [Transactions & Isolation](/synapse/system-design-from-first-principles/distributed-data/transactions-and-isolation), [Faults, Clocks & Time](/synapse/system-design-from-first-principles/distributed-data/faults-clocks-and-time), [Scaling Writes](/synapse/system-design-from-first-principles/patterns/scaling-writes), [Idempotency & Exactly-once](/synapse/system-design-from-first-principles/patterns/idempotency-and-exactly-once), [Design Ticketmaster](/synapse/system-design-from-first-principles/case-studies/ticketmaster), [Design Uber](/synapse/system-design-from-first-principles/case-studies/uber), [Design a Rate Limiter](/synapse/system-design-from-first-principles/case-studies/rate-limiter)

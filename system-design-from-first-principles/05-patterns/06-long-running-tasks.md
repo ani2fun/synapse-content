@@ -233,6 +233,17 @@ Because the duplicate isn't created on the wire — it's created by the crash. A
 
 </details>
 
+## PoC — Proof of concepts
+
+The accept-now / work-later pattern, in the task systems that industry actually deploys:
+
+- [Celery](https://github.com/celery/celery) — the Python distributed task queue: enqueue a job,
+  return immediately, process on a worker pool; the archetype this lesson describes.
+- [Sidekiq](https://github.com/sidekiq/sidekiq) — the Ruby equivalent, thread-based over Redis; good
+  for seeing retry, scheduling and dead-job handling concretely.
+- [Temporal](https://github.com/temporalio/temporal) — when a "task" is really a long, stateful
+  workflow with retries and timers, this is the durable step up from a plain queue.
+
 ## Sources
 
 DDIA2 ch. 12 pp. 491–499 (message brokers as durable stream databases; acknowledgments and redelivery; reordering; poison messages and dead-letter queues; consumer-offset reprocessing on failover; log-based vs traditional brokers; disk-buffer sizing) and pp. 527–528 (exactly-once/effectively-once, idempotence via offset metadata, fencing assumptions) · Cross-links: [Queues & Brokers](/synapse/system-design-from-first-principles/building-blocks/queues-and-brokers), [Faults, Clocks & Time](/synapse/system-design-from-first-principles/distributed-data/faults-clocks-and-time), [Real-time delivery](/synapse/system-design-from-first-principles/building-blocks/realtime-delivery), [Idempotency & exactly-once](/synapse/system-design-from-first-principles/patterns/idempotency-and-exactly-once), [Multi-step processes & sagas](/synapse/system-design-from-first-principles/patterns/multi-step-processes-and-sagas), and the [YouTube](/synapse/system-design-from-first-principles/case-studies/youtube), [Web crawler](/synapse/system-design-from-first-principles/case-studies/web-crawler), and [Job scheduler](/synapse/system-design-from-first-principles/case-studies/job-scheduler) case studies.

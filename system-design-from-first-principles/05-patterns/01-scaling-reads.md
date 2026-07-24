@@ -188,6 +188,17 @@ Keep the read replicas for throughput, but add read-your-writes routing for the 
 
 </details>
 
+## PoC — Proof of concepts
+
+The three levers this lesson pulls for reads — replicas, pooling, and a cache — in real tooling:
+
+- [PostgreSQL — High Availability & Replication](https://www.postgresql.org/docs/current/high-availability.html)
+  — read replicas and hot standby: how you get more read capacity without touching the write path.
+- [PgBouncer](https://github.com/pgbouncer/pgbouncer) — connection pooling, the unglamorous fix that
+  keeps a read fan-out from exhausting the database's connection slots.
+- [Redis](https://github.com/redis/redis) — the cache tier in front of it all; the fastest read is
+  the one that never reaches the database.
+
 ## Sources
 
 DDIA2 ch. 6 pp. 209–214 (replication lag: eventual consistency, read-your-writes, monotonic and consistent-prefix reads) · DDIA2 ch. 6 pp. 198–200 (single-leader leader/follower model, sync vs async, lag figures) · DDIA2 ch. 6 p. 234 (measuring replication lag). Related lessons: [Caching](/synapse/system-design-from-first-principles/building-blocks/caching), [Replication](/synapse/system-design-from-first-principles/distributed-data/replication), [CDN & Edge](/synapse/system-design-from-first-principles/building-blocks/cdn-and-edge), [Sharding & Consistent Hashing](/synapse/system-design-from-first-principles/distributed-data/sharding-and-consistent-hashing), [Scaling Writes](/synapse/system-design-from-first-principles/patterns/scaling-writes), [Event-Driven, CQRS, Outbox & CDC](/synapse/system-design-from-first-principles/patterns/event-driven-cqrs-outbox-cdc), [News Feed](/synapse/system-design-from-first-principles/case-studies/news-feed), [URL Shortener](/synapse/system-design-from-first-principles/case-studies/url-shortener).

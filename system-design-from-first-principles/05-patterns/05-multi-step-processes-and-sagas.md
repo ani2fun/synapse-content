@@ -205,6 +205,17 @@ Reserve inventory → capture payment → ship the package. Put the **hardest-to
 Honestly acknowledge the cost: because the workflow is emergent from event subscriptions, there is no single place holding the run's state. You answer the question with **distributed tracing** — a correlation ID (the order ID) attached to every event, aggregated in a tracing/observability system so you can reconstruct the order's path and see which event it's waiting on. This is precisely the visibility advantage orchestration gives you for free, and a strong reason complex workflows drift toward orchestration or a durable-execution engine.
 </details>
 
+## PoC — Proof of concepts
+
+The saga this lesson describes, in the frameworks that run multi-step processes for real:
+
+- [Saga pattern](https://microservices.io/patterns/data/saga.html) — Chris Richardson's canonical
+  choreography-vs-orchestration write-up, with the compensating-transaction model spelled out.
+- [Temporal](https://github.com/temporalio/temporal) — durable execution: you write the workflow as
+  ordinary code and the engine survives crashes mid-saga, which is the hard part made routine.
+- [Conductor OSS](https://github.com/conductor-oss/conductor) — Netflix's workflow orchestrator; a
+  contrasting "define the DAG as data" approach to the same coordination problem.
+
 ## Sources
 
 DDIA2 ch. 5 pp. 186–189 (durable execution & workflows) · DDIA2 ch. 8 pp. 323–334 (2PC contrast, in-doubt participants, exactly-once via idempotency) · `[web: docs.aws.amazon.com/step-functions]` (execution/state-size limits)

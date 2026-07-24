@@ -246,6 +246,22 @@ CDC extracts **low-level row changes** from the database's replication log *afte
 
 </details>
 
+## PoC — Proof of concepts
+
+**Run it yourself.** [Transactional outbox](https://github.com/ani2fun/synapse-content/tree/main/proof-of-concepts/05-patterns/08-event-driven-cqrs-outbox-cdc)
+— a real Postgres where the business row and the outbox row commit in one transaction, then a relay
+publishes and marks them sent; watch it stay consistent across a simulated crash mid-publish. From
+`proof-of-concepts/05-patterns/08-event-driven-cqrs-outbox-cdc/`, run `./run`.
+
+**Study real implementations.**
+
+- [Transactional Outbox pattern](https://microservices.io/patterns/data/transactional-outbox.html) —
+  Chris Richardson's canonical description of exactly this pattern and why it beats a dual write.
+- [Debezium](https://github.com/debezium/debezium) — production change-data-capture: tail the
+  database log and emit change events, the CDC half of this lesson, used to drive the outbox at scale.
+- [Apache Kafka](https://github.com/apache/kafka) — the log these events flow onto, and (with Kafka
+  Connect) the standard transport from a Debezium source to downstream read models.
+
 ## Sources
 
 DDIA2 ch. 12 pp. 500–508 (CDC, event sourcing, dual writes, outbox) · pp. 495–499 (log-based brokers, retention) · DDIA2 ch. 13 pp. 541–559 (derived data, systems of record, write/read paths) · DDIA2 ch. 3 pp. 101–105 (event sourcing & CQRS) · [web: debezium.io], [web: stripe.com] (tooling references)

@@ -211,6 +211,17 @@ Two things. First, the burst must be *temporary* — the steady-state inflow mus
 It's impossible when the invariant inherently spans records that can't all share a partition key — a money transfer between two accounts that hash to different shards, or a uniqueness constraint over a whole namespace. Then you pay for coordination: a distributed transaction to update the shards atomically (slower, a potential bottleneck), or a design that funnels those specific operations through a single serializing authority. The goal is to keep that expensive category as small as possible — most operations shard-local and fast, only the genuinely cross-shard ones coordinated.
 </details>
 
+## PoC — Proof of concepts
+
+Writes scale by partitioning — here is how three systems make that automatic:
+
+- [Vitess](https://github.com/vitessio/vitess) — MySQL sharded horizontally with online resharding;
+  the write-scaling story behind YouTube and Slack.
+- [Citus](https://github.com/citusdata/citus) — distributed tables on PostgreSQL, so a single logical
+  table absorbs writes across many nodes.
+- [CockroachDB](https://github.com/cockroachdb/cockroach) — distributed SQL that shards and rebalances
+  ranges for you (Raft per range); write scaling without hand-managing shards.
+
 ## Sources
 
 DDIA2 ch. 7 pp. 251–272 (sharding, skew/hot shards, hot keys pp. 255–256, hash vs. consistent hashing pp. 258–263, key salting & heat management p. 264, rebalancing & cascading failure pp. 257–265, cross-shard transactions pp. 253, 272) · cross-refs: [storage-engines](/synapse/system-design-from-first-principles/data-foundations/storage-engines), [replication](/synapse/system-design-from-first-principles/distributed-data/replication), [event-driven-cqrs-outbox-cdc](/synapse/system-design-from-first-principles/patterns/event-driven-cqrs-outbox-cdc)
