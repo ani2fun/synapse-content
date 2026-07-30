@@ -1,0 +1,113 @@
+name: Build, Push, and Promote LikeC4
+
+# The lesson C4 diagrams live in THIS repo (the delta vs Cortex, whose content is
+# in-app): any .c4 push rebuilds the merged /c4 SPA. The build engine is vendored
+# here as `_build-push-promote.yml` — see the note on the `call` job for why the
+# cross-repo reference was dropped.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.c4'
+      - 'likec4.Dockerfile'
+      - 'c4-sources.json'
+      - '.github/workflows/likec4-build-push-promote.yml'
+  # A satellite guide repo fires this when ITS .c4 files change — the workspace is merged, so a
+  # diagram living in another repository still has to rebuild this image.
+  repository_dispatch:
+    types: [c4-changed]
+  # Belt and braces: a dispatch that never arrives (a revoked token, a renamed repo) would
+  # otherwise leave the viewer stale indefinitely. Nightly bounds that to a day.
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: synapse-likec4-main
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # ── Gather the satellites' .c4 files into the build context ──────────────────
+  # The viewer is ONE merged workspace with exactly one `specification {}`, and books now live in
+  # their own repositories. The registry knows which; ask the running app, and fall back to the
+  # checked-in list so a prod blip cannot ship an image with missing diagrams.
+  gather:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: resolve the source list
+        id: sources
+        run: |
+          set -uo pipefail
+          if curl -fsS --max-time 20 https://synapse.kakde.eu/api/c4/sources -o live.json; then
+            echo "→ using the live registry"
+            jq -r '.[] | "\(.repo) \(.branch)"' live.json > sources.txt
+          else
+            echo "::warning::the registry was unreachable — falling back to c4-sources.json"
+            jq -r '.sources[] | "\(.repo) \(.branch)"' c4-sources.json > sources.txt
+          fi
+          cat sources.txt
+      - name: download each source's .c4 files
+        run: |
+          set -euo pipefail
+          mkdir -p _c4-sources
+          # The artifact has to exist even when nothing is gathered. Most registered books are
+          # prose only, and `download-artifact` treats a missing artifact as a hard failure — so
+          # "every source carried zero .c4 files", which is the ordinary case, would otherwise
+          # fail the image build. The manifest guarantees one file, and records the per-source
+          # count: a diagram that goes missing here shows up as a blank iframe and nothing else.
+          : > _c4-sources/MANIFEST.txt
+          while read -r repo branch; do
+            [ -z "$repo" ] && continue
+            slug="${repo##*/}"
+            echo "→ $repo@$branch"
+            curl -fsSL "https://codeload.github.com/$repo/tar.gz/refs/heads/$branch" -o "$slug.tgz"
+            mkdir -p "_c4-sources/$slug"
+            # ONLY the .c4 files: the prose, media and sidecars are served by the app from its own
+            # content cache and have no business in this image.
+            tar -xzf "$slug.tgz" -C "_c4-sources/$slug" --strip-components=1 --wildcards '*.c4' || true
+            rm -f "$slug.tgz"
+            count="$(find "_c4-sources/$slug" -name '*.c4' | wc -l | tr -d ' ')"
+            echo "$repo@$branch $count" >> _c4-sources/MANIFEST.txt
+            echo "  $count .c4 file(s)"
+          done < sources.txt
+          find _c4-sources -name '*.c4' | sed 's/^/  /'
+      # `likec4 build` does NOT validate: it exits 0 on a workspace full of duplicate elements and
+      # views, silently resolving each collision one way or the other. That is precisely the state
+      # a migrating book passes through — registered as a satellite while the spine still holds its
+      # .c4 — so the merged workspace has to be checked explicitly, before an image is built from
+      # it. Failing here leaves the previous image serving, which is the right outcome: deleting
+      # the book from the spine turns it green again.
+      - name: the merged workspace must be valid
+        run: npx --yes likec4@latest validate .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: c4-sources
+          path: _c4-sources
+          # The manifest is always written, so an empty upload means this job broke, not that the
+          # books have no diagrams.
+          if-no-files-found: error
+
+  call:
+    needs: gather
+    # Vendored, deliberately. This used to be `ani2fun/synapse/.github/...@main` — a cross-repo
+    # reference that the 2026-07-18 renames turned into a SILENT hazard: `ani2fun/synapse` now
+    # names the Rust app, whose engine happens to take the same inputs, so the job would have
+    # kept working while running a different repo's file. Owning the copy removes the coupling.
+    uses: ./.github/workflows/_build-push-promote.yml
+    with:
+      image_repo: ghcr.io/ani2fun/synapse-likec4
+      dockerfile: likec4.Dockerfile
+      buildx_cache_scope: synapse-likec4
+      infra_kustomization_file: deploy/apps/synapse-likec4/overlays/prod/kustomization.yaml
+      commit_message: "chore(synapse-likec4): promote image to"
+      context_artifact: c4-sources
+      context_artifact_path: _c4-sources
+    secrets: inherit

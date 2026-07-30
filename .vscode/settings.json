@@ -1,0 +1,33 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#86cc85",
+        "activityBar.background": "#86cc85",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#7879c7",
+        "activityBarBadge.foreground": "#15202b",
+        "commandCenter.border": "#15202b99",
+        "sash.hoverBorder": "#86cc85",
+        "statusBar.background": "#63bd61",
+        "statusBar.foreground": "#15202b",
+        "statusBarItem.hoverBackground": "#47a645",
+        "statusBarItem.remoteBackground": "#6264bd",
+        "statusBarItem.remoteForeground": "#15202b",
+        "titleBar.activeBackground": "#63bd61",
+        "titleBar.activeForeground": "#15202b",
+        "titleBar.inactiveBackground": "#63bd6199",
+        "titleBar.inactiveForeground": "#15202b99",
+        "activityBarTop.activeBackground": "#86cc85",
+        "activityBarTop.background": "#86cc85",
+        "activityBarTop.foreground": "#15202b",
+        "activityBarTop.inactiveForeground": "#15202b99",
+        "commandCenter.foreground": "#15202b",
+        "statusBar.debuggingBackground": "#63bd61",
+        "statusBar.debuggingForeground": "#15202b"
+    },
+    "peacock.color": "#63bd61"
+
+    // The Python settings moved with the code they resolve: the proofs of concept now live in
+    // ani2fun/system-design-guide under _proof-of-concepts/, and its own .vscode/settings.json
+    // points Pylance at all 22 uv projects.
+}

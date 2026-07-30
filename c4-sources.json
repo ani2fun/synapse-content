@@ -1,0 +1,6 @@
+{
+    "_comment": "Fallback for the merged /c4 workspace when the live registry is unreachable. The build asks GET /api/c4/sources first; this is what it uses if that fails, so a prod blip cannot produce a diagram-less image. Keep it in step with what is registered.",
+    "sources": [
+        { "repo": "ani2fun/system-design-guide", "branch": "main" }
+    ]
+}
