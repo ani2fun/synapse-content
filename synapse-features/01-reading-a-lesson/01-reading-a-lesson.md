@@ -39,6 +39,131 @@ prose -> code: try it
 code -> viz: watch it run
 ```
 
+## D2 Interactive diagrams
+
+````d2
+direction: right
+
+github: GitHub {
+  shape: image
+  icon: https://icons.d2lang.com/dev%2Fgithub.svg
+  style: {
+    font-color: green
+    font-size: 30
+  }
+}
+
+github_actions: GitHub Actions {
+  lambda_action: Lambda Action {
+    icon: https://icons.d2lang.com/dev%2Fgithub.svg
+    style.multiple: true
+  }
+  style: {
+    stroke: blue
+    font-color: purple
+    stroke-dash: 3
+    fill: white
+  }
+}
+
+aws: AWS Cloud VPC {
+  style: {
+    font-color: purple
+    fill: white
+    opacity: 0.5
+  }
+  lambda01: Lambda01 {
+    icon: https://icons.d2lang.com/aws%2FCompute%2FAWS-Lambda.svg
+    shape: parallelogram
+    style.fill: "#B6DDF6"
+  }
+  lambda02: Lambda02 {
+    icon: https://icons.d2lang.com/aws%2FCompute%2FAWS-Lambda.svg
+    shape: parallelogram
+    style.fill: "#B6DDF6"
+  }
+  lambda03: Lambda03 {
+    icon: https://icons.d2lang.com/aws%2FCompute%2FAWS-Lambda.svg
+    shape: parallelogram
+    style.fill: "#B6DDF6"
+  }
+}
+
+github -> github_actions: GitHub Action Flow {
+  style: {
+    animated: true
+    font-size: 20
+  }
+}
+github_actions -> aws.lambda01: Update Lambda {
+  style: {
+    animated: true
+    font-size: 20
+  }
+}
+github_actions -> aws.lambda02: Update Lambda {
+  style: {
+    animated: true
+    font-size: 20
+  }
+}
+github_actions -> aws.lambda03: Update Lambda {
+  style: {
+    animated: true
+    font-size: 20
+  }
+}
+
+explanation: |md
+  ```yaml
+  deploy_source:
+    name: deploy lambda from source
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout source code
+        uses: actions/checkout@v3
+      - name: default deploy
+        uses: appleboy/lambda-action@v0.1.7
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.AWS_REGION }}
+          function_name: gorush
+          source: example/index.js
+  ```
+| {near: bottom-center}
+````
+
+## Stepped image sequences
+
+Not every animation is a diagram Synapse can draw — sometimes the frames already exist as pictures. A run of
+consecutive images whose alt text ends `— frame i of N` collapses into **one figure you step through** instead of
+N near-identical stills to scroll past, and the `// Interactive Diagram (N frames): …` line above the run becomes
+its caption. The reader gets previous/next buttons, a scrubber, a play button, the arrow keys, and **Enlarge**.
+
+The five frames below merge two **binomial heaps**. A binomial heap is a *forest* of trees of distinct rank, so
+merging two of them walks both forests in rank order — and whenever two trees of the same rank meet, they are
+linked into a single tree of the next rank up. That is exactly the carry in binary addition, which is why merging
+an *n*-node and an *m*-node heap costs only O(log n + log m). Press play, or step it a frame at a time:
+
+// Interactive Diagram (5 frames): Merging two binomial heaps, linking trees of equal rank like a binary carry
+
+![Merging two binomial heaps, linking trees of equal rank like a binary carry — frame 1 of 5](/media/synapse-features/binomial-heap-merge/step-1.svg)
+
+![Merging two binomial heaps, linking trees of equal rank like a binary carry — frame 2 of 5](/media/synapse-features/binomial-heap-merge/step-2.svg)
+
+![Merging two binomial heaps, linking trees of equal rank like a binary carry — frame 3 of 5](/media/synapse-features/binomial-heap-merge/step-3.svg)
+
+![Merging two binomial heaps, linking trees of equal rank like a binary carry — frame 4 of 5](/media/synapse-features/binomial-heap-merge/step-4.svg)
+
+![Merging two binomial heaps, linking trees of equal rank like a binary carry — frame 5 of 5](/media/synapse-features/binomial-heap-merge/step-5.svg)
+
+*Frames by Dimitris131 via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Binomial_heaps_merge_step_1.svg),
+released under CC0.*
+
+The alt text is the only grouping signal, so two unrelated images that happen to sit next to each other stay two
+images. A lone image under a `// Diagram: …` line keeps that line as its caption instead of stepping.
+
 ## Runnable code, and Visualise
 
 Here's the real magic. A code fence tagged `run` becomes an **editable, runnable** block — Python or Java, executed
