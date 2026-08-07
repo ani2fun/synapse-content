@@ -5,9 +5,10 @@ summary: "A quick tour of D2 Syntax snippets a Synapse lesson can render."
 
 # D2 diagram snippets
 
-A cheat sheet of [D2](https://d2lang.com), one feature per snippet. Every figure below is rendered
-in your browser from a `d2` fence — nothing here is a screenshot. Click **Enlarge** on any diagram
-to pan and zoom.
+A cheat sheet of [D2](https://d2lang.com), one feature per snippet. Every figure below is drawn
+from the `d2` fence printed above it — nothing here is a screenshot. Synapse renders them on the
+server and sends the finished SVG with the page, so they are already there when it loads. Click
+**Enlarge** on any diagram to pan and zoom.
 
 ## D2 diagrams
 
