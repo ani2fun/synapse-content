@@ -32,7 +32,7 @@ choice for architecture-ish sketches:
 direction: right
 reader: "You"
 prose: "Prose"
-code: "Runnable code"
+code: "Runnable code block"
 viz: "Visualiser"
 reader -> prose: reads
 prose -> code: try it
