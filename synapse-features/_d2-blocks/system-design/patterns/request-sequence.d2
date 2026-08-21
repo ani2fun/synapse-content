@@ -1,0 +1,40 @@
+# ── PATTERN · ONE REQUEST, END TO END ─────────────────────────────────────────
+# `shape: sequence_diagram` reads the connections in ORDER, top to bottom, so this is
+# the shape to reach for when the question is "walk me through a request" — a box
+# diagram shows what exists, this shows what happens and in what order.
+#
+# The two things a box diagram cannot show and this can: which calls are on the critical
+# path (everything above the 200) and which are not (everything below it).
+#
+# Blocks group related messages, and a self-edge is work a service does alone.
+#
+# Knobs: the participants, in the order they are first called. Adding one later
+# reshuffles the whole figure, so decide the cast first.
+
+...@../../lib/theme
+
+shape: sequence_diagram
+
+client: "Client" { class: client }
+gw: "API gateway" { class: edge }
+svc: "Order service" { class: svc }
+cache: "Cache" { class: data }
+db: "Primary" { class: data }
+bus: "Event bus" { class: async }
+
+client -> gw: "POST /orders"
+gw -> gw: "verify JWT"
+gw -> svc: "createOrder()"
+
+svc -> cache: "GET inventory:sku-9"
+cache -> svc: "MISS"
+svc -> db: "SELECT … FOR UPDATE"
+db -> svc: "12 in stock"
+svc -> db: "INSERT order · COMMIT"
+
+svc -> bus: "publish OrderPlaced"
+svc -> client: "201 Created"
+
+# TODO: everything below this line is off the critical path — the user already has
+# their 201. Keep it below, and say so.
+bus -> svc: "async: email, analytics, fraud"

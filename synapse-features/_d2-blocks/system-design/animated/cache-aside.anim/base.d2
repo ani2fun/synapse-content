@@ -1,0 +1,42 @@
+# ── ANIMATION BASE · CACHE-ASIDE READ PATH ────────────────────────────────────
+# animation-mode: highlight
+# lesson: animating-a-diagram
+# caption: Cache-aside, one step at a time
+# The whole diagram with nothing happening yet. Frame zero, and the file every frame
+# spreads in with `...@./base`.
+#
+# FOUR RULES, and this file enforces all four. Break one and the animation stops being
+# watchable, because the picture jumps between frames instead of changing.
+#
+#   1. DECLARE EVERYTHING HERE — every node, every edge, every label the sequence will
+#      ever show. A frame that adds a node makes ELK re-run and the layout move.
+#   2. FRAMES RECOLOUR, THEY DO NOT RELABEL. An edge label is measured by the layout
+#      engine; changing one moves everything around it.
+#   3. PIN THE TITLE'S WIDTH. The per-frame caption is the one thing that does differ,
+#      and a `near: top-center` text shape widens the whole diagram to fit itself. With
+#      `width` pinned, a long caption and a short one produce the same bounding box.
+#   4. KEEP THE EDGE COUNT DOWN. Every edge is drawn in every frame, so seven of them is
+#      a spaghetti diagram N times over. Three carry this whole sequence.
+#
+# The dim edges are already `stroke-width: 2`, the weight `step` uses, so lighting one up
+# changes its colour and not its geometry.
+#
+# Knobs: the boxes, and how many steps you split the sequence into.
+
+...@../../../lib/theme
+
+direction: right
+
+# TODO: pin this to a little more than your widest frame. Too narrow and long captions
+# wrap; too wide and every frame carries dead margin.
+title: "cache-aside · the read path" { near: top-center; shape: text; width: 900; style: { font-size: 20; bold: true } }
+
+app: "Application\nowns the cache logic" { class: [svc; dim] }
+cache: "Cache · TTL 5m\nkey: user:42" { class: [data; dim] }
+db: "Database" { class: [data; dim]; shape: cylinder }
+
+# The labels name every step up front — `1. GET · 4. SET` is one arrow doing two jobs at
+# two different moments, and saying so is what lets the frames leave it alone.
+app -> cache: "1. GET user:42   ·   4. SET user:42 EX 300" { class: dim; style.stroke-width: 2 }
+cache -> app: "2. HIT / MISS" { class: dim; style.stroke-width: 2 }
+app <-> db: "3. SELECT … WHERE id=42  →  row" { class: dim; style.stroke-width: 2 }

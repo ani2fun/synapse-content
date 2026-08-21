@@ -1,0 +1,7 @@
+# Frame 4 — reads that miss the cache still land on one machine. Replicas spread them
+# out, at the cost of serving data that is a little behind.
+...@./03-cache
+title: "4 · read replicas — reads scale, writes still do not"
+replica: "Read replicas ×2\nlag ~80ms" { class: data; shape: cylinder }
+db -> replica: "async replication" { class: hint }
+app -> replica: "reads"

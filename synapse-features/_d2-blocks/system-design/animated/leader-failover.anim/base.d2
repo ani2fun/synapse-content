@@ -1,0 +1,41 @@
+# ── ANIMATION BASE · LEADER FAILOVER ──────────────────────────────────────────
+# animation-mode: highlight
+# lesson: animated-system-design
+# caption: A leader failing over, start to finish
+# A failure over TIME, which is the one thing a static architecture diagram cannot show
+# at all. The boxes never move; what changes is which node is the leader, and that is
+# carried entirely by colour:
+#
+#   hot     the leader — the node accepting writes right now
+#   active  a healthy follower
+#   pruned  unreachable
+#   current the node this frame is about
+#
+# Because the ROLE is a colour and not a label, promotion costs one line in a frame file
+# and moves nothing on screen. Naming the nodes "Primary" and "Replica" would have made
+# that impossible — the label would be a lie for half the sequence.
+#
+# Knobs: the node count (three is the smallest quorum that tolerates one loss) and the
+# detection window, which is the number every follow-up question is really about.
+
+...@../../../lib/theme
+
+direction: right
+
+title: "leader failover · one node loss, start to finish" { near: top-center; shape: text; width: 980; style: { font-size: 20; bold: true } }
+
+client: "Writers" { class: [client; dim] }
+router: "Router / proxy\nsends writes to the leader" { class: [edge; dim] }
+
+cluster: "Replica set" { class: panel
+  a: "Node A" { class: [data; dim]; shape: cylinder }
+  b: "Node B" { class: [data; dim]; shape: cylinder }
+  c: "Node C" { class: [data; dim]; shape: cylinder }
+}
+
+client -> router: "write" { class: dim; style.stroke-width: 2 }
+router -> cluster.a: "" { class: dim; style.stroke-width: 2 }
+router -> cluster.b: "" { class: dim; style.stroke-width: 2 }
+cluster.a -> cluster.b: "replicate" { class: dim; style.stroke-width: 2 }
+cluster.a -> cluster.c: "replicate" { class: dim; style.stroke-width: 2 }
+cluster.b <-> cluster.c: "heartbeat · 2s" { class: dim; style.stroke-width: 2 }

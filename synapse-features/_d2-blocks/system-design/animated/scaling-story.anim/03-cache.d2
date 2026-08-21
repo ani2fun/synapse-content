@@ -1,0 +1,7 @@
+# Frame 3 — the database is now the bottleneck, and most reads are the same few rows.
+# A cache is the cheapest thing that helps, and the first one that adds a consistency
+# problem you have to think about.
+...@./02-scale-out
+title: "3 · cache the hot reads — the first consistency trade"
+cache: "Cache\nhot keys, TTL" { class: [data; hot] }
+app -> cache: "read first"

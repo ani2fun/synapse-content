@@ -1,0 +1,40 @@
+# ── ANIMATION BASE · ROLLING DEPLOY, AND THE ROLLBACK ─────────────────────────
+# animation-mode: highlight
+# lesson: animated-system-design
+# caption: A canary deploy and the rollback it exists for
+# A deploy is a sequence, so a static picture of it is always the wrong picture: it shows
+# one moment and the reader has to imagine the rest.
+#
+# The version an instance is running is carried by COLOUR, not by its label — `active` is
+# the old build, `current` is the new one, `pruned` is one that is failing. That is what
+# lets a frame promote or roll back an instance without touching the layout.
+#
+# The sequence deliberately ends in a rollback. A canary that only ever succeeds is not a
+# canary, it is a slower deploy; the reason to route 1% first is to have somewhere cheap
+# to fail.
+#
+# Knobs: the instance count, the traffic split in each title, and the metric that trips
+# the rollback — that last one is the whole design.
+
+...@../../../lib/theme
+
+direction: right
+
+title: "rolling deploy · canary, and the rollback it exists for" { near: top-center; shape: text; width: 1000; style: { font-size: 20; bold: true } }
+
+lb: "Load balancer\nweighted routing" { class: [edge; dim] }
+
+fleet: "Fleet" { class: panel
+  i1: "instance 1" { class: [svc; dim] }
+  i2: "instance 2" { class: [svc; dim] }
+  i3: "instance 3" { class: [svc; dim] }
+  i4: "instance 4" { class: [svc; dim] }
+}
+
+metrics: "Error rate\nSLO: < 0.5%" { class: [svc; dim] }
+
+lb -> fleet.i1: "" { class: dim; style.stroke-width: 2 }
+lb -> fleet.i2: "" { class: dim; style.stroke-width: 2 }
+lb -> fleet.i3: "" { class: dim; style.stroke-width: 2 }
+lb -> fleet.i4: "" { class: dim; style.stroke-width: 2 }
+fleet -> metrics: "emit" { class: dim; style.stroke-width: 2 }

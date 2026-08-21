@@ -1,0 +1,27 @@
+# ── PRIMITIVES · ASYNC AND MESSAGING ──────────────────────────────────────────
+# The purple tier: everything that decouples a caller from a callee in TIME. A request
+# crossing one of these boundaries stops being synchronous, and every guarantee changes
+# with it — which is why they get their own colour.
+#
+# `queue` is a native shape. Use it: it reads as a buffer at a glance, and unlike an
+# icon it costs the reader no network fetch.
+#
+# Knobs: the delivery semantics in each label. "at-least-once" is not decoration — it is
+# the reason the consumer has to be idempotent, and the interviewer will ask.
+
+...@../../lib/theme
+...@../../lib/icons
+
+grid-rows: 2
+grid-columns: 3
+grid-gap: 40
+
+queue: "Work queue\nat-least-once · one consumer" { class: async; shape: queue }
+topic: "Pub/sub topic\nfan-out to N subscribers" { class: async; icon: ${icon.topic} }
+stream: "Event stream\nordered, replayable log" { class: async; icon: ${icon.stream} }
+
+# TODO: a dead-letter queue is where you put the message you could not process. Draw it
+# every time you draw a consumer — the design is incomplete without one.
+dlq: "Dead-letter queue\npoison messages land here" { class: async; shape: queue }
+hook: "Webhook\nyou push, they receive" { class: async; icon: ${icon.webhook} }
+socket: "WebSocket\nlong-lived, server push" { class: async; icon: ${icon.websocket} }

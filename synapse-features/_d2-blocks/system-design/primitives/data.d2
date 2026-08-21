@@ -1,0 +1,24 @@
+# ── PRIMITIVES · DATA STORES ──────────────────────────────────────────────────
+# Where state lives. Orange in the five-role palette — and the one tier where the SHAPE
+# earns its keep: `cylinder` says "database" with no icon and no network fetch.
+#
+# Each label names the access pattern the store is chosen FOR. That is the answer to
+# "why this store?", and writing it in the box means you never have to remember it.
+#
+# Knobs: the engine names. The shapes and colours stay.
+
+...@../../lib/theme
+...@../../lib/icons
+
+grid-rows: 2
+grid-columns: 3
+grid-gap: 40
+
+primary: "Primary\nwrites · strong reads" { class: data; shape: cylinder }
+replica: "Read replica\nasync · lags ~100ms" { class: data; shape: cylinder }
+# TODO: say what you sharded ON. A shard key with no rationale is the follow-up question.
+shards: "Sharded store\nby user_id, 16 shards" { class: data; icon: ${icon.sharded_db} }
+
+cache: "Cache\nhot keys · TTL 5m" { class: data; icon: ${icon.cache} }
+nosql: "Document store\nkey lookups, no joins" { class: data; icon: ${icon.nosql} }
+blob: "Object storage\nblobs · pay per GB" { class: data; icon: ${icon.object_storage} }

@@ -1,0 +1,43 @@
+# ── PATTERN · CQRS + EVENT SOURCING ───────────────────────────────────────────
+# Two patterns that get named in one breath and are separable:
+#
+#   CQRS            the write model and the read model are different models.
+#   Event sourcing  the write model stores the EVENTS, not the current state.
+#
+# You can do CQRS without event sourcing (a materialised view over a normal table). You
+# should not do event sourcing without CQRS — replaying a log to answer a GET is not a
+# read path.
+#
+# What the log buys: a complete audit trail, and the ability to build a NEW read model
+# later by replaying history. What it costs: schema evolution on events you can never
+# rewrite, and a read side that is always a little behind.
+#
+# Knobs: the projections. Each one is a read model shaped for exactly one query.
+
+...@../../lib/theme
+
+direction: right
+
+cmd: "Command\nPlaceOrder" { class: client }
+handler: "Command handler\nvalidates invariants" { class: svc }
+
+# TODO: append-only. No UPDATE, no DELETE — that constraint is the pattern.
+log: "Event store\nOrderPlaced, OrderPaid, …\nappend-only" { class: async; shape: stored_data }
+
+projector: "Projector\none per read model" { class: [async; svc] }
+
+reads: "Read models" { class: panel
+  orders: "Order summary\nfor the order page" { class: data; shape: cylinder }
+  search: "Search index\nfor the list page" { class: data }
+  metrics: "Daily rollup\nfor the dashboard" { class: data; shape: cylinder }
+}
+
+query: "Query\nGET /orders/42" { class: client }
+
+cmd -> handler: "1."
+handler -> log: "2. append event"
+log -> projector: "3. subscribe"
+projector -> reads.orders: "4. project"
+projector -> reads.search
+projector -> reads.metrics
+reads.orders -> query: "5. read · eventually consistent" { class: hint }

@@ -1,0 +1,39 @@
+# ── BOUNDARIES · NETWORK AND TRUST ────────────────────────────────────────────
+# Two boundaries, and they are not the same one. The VPC is a NETWORK fact: what can
+# route to what. The trust boundary is a SECURITY fact: where a request stops being
+# believed and has to prove itself.
+#
+# They are drawn differently on purpose — the dashed red frame is the trust edge, and
+# every arrow that crosses it should be able to name what authenticates it.
+#
+# This is the figure to reach for when the question is "how does the internet reach your
+# database?" The answer you want to be able to point at is: it does not.
+#
+# Knobs: what sits in the public subnet (as little as possible) and what authenticates
+# each crossing.
+
+...@../../lib/theme
+
+direction: right
+
+internet: "Internet\nuntrusted" { class: client; shape: cloud }
+
+vpc: "VPC 10.0.0.0/16" { class: panel
+
+  public: "Public subnet · 10.0.1.0/24" { class: panel
+    style: { stroke: "#dc2626"; stroke-dash: 4 }
+    lb: "Load balancer\nthe ONLY public IP" { class: edge }
+  }
+
+  # TODO: everything that holds state belongs here — no route to the internet, no
+  # public address, reachable only from the subnet above.
+  private: "Private subnet · 10.0.2.0/24 · no egress" { class: panel
+    app: "App servers" { class: svc }
+    db: "Primary" { class: data; shape: cylinder }
+    app -> db
+  }
+
+  public.lb -> private.app: "mTLS\nsecurity group allows :8443 only"
+}
+
+internet -> vpc.public.lb: "TLS · WAF · rate limit" { class: step }

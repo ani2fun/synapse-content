@@ -5,22 +5,30 @@
 // file on disk and against nothing at all inside a ```d2 block, so publishing a file
 // verbatim would hand the reader source that silently loses every colour.
 //
-// Three transformations, in order:
+// Four transformations, in order:
 //
 //   1. the leading header comment is dropped — the lesson's prose already says what the
 //      figure shows; every other comment (the `# TODO:` knobs especially) travels along
-//   2. `...@lib/theme` becomes a `classes: {}` block holding ONLY the classes this file
-//      actually names, in theme order, so a fence stays short enough to read
-//   3. `...@lib/icons` disappears and every `${icon.foo}` becomes its literal URL
+//   2. every LOCAL spread import (`...@./base`, `...@../foo/bar`) is inlined in place,
+//      recursively. This is what lets an animation's frames share one base diagram: the
+//      frame on disk is three lines of delta, and the frame in the lesson is whole
+//   3. `...@lib/theme` becomes a `classes: {}` block holding ONLY the classes the merged
+//      source actually names, in theme order, so a fence stays short enough to read
+//   4. `...@lib/icons` disappears and every `${icon.foo}` becomes its literal URL
 //
 // Usage:  node lib/flatten.mjs <file.d2>        → flattened source on stdout
 //         node lib/flatten.mjs --check <file>   → exit 1 if anything is unresolved
 
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const LIB = dirname(fileURLToPath(import.meta.url));
+
+/** A spread import line: `...@some/path`, with or without a `.d2` suffix. */
+const IMPORT = /^\s*\.\.\.@(\S+?)(?:\.d2)?\s*$/;
+/** The two library imports, resolved by substitution rather than by inlining. */
+const isLibImport = (path) => /(^|\/)lib\/(theme|icons)$/.test(path);
 
 /** Every `name: { … }` at the top level of a `classes` block, in declaration order.
  *  Theme classes are one line each by construction — a multi-line one throws here rather
@@ -76,16 +84,38 @@ function dropHeader(lines) {
   return lines.slice(i);
 }
 
+/**
+ * One file's lines with every local import spliced in, depth first.
+ *
+ * The library imports are NOT inlined — steps 3 and 4 resolve those by substitution, and
+ * a base that pulls the theme in must not make each of its frames pull it in again.
+ * `seen` is the import stack, so a cycle is a named error rather than a hang.
+ */
+function inlineImports(path, wantsTheme, seen = []) {
+  if (seen.includes(path)) throw new Error(`import cycle: ${[...seen, path].join(" → ")}`);
+  const out = [];
+  for (const line of dropHeader(readFileSync(path, "utf8").split("\n"))) {
+    const match = IMPORT.exec(line);
+    if (!match) {
+      out.push(line);
+      continue;
+    }
+    if (isLibImport(match[1])) {
+      if (match[1].endsWith("theme")) wantsTheme.value = true;
+      continue;
+    }
+    out.push(...inlineImports(resolve(dirname(path), `${match[1]}.d2`), wantsTheme, [...seen, path]));
+  }
+  return out;
+}
+
 export function flatten(path) {
-  const source = readFileSync(path, "utf8");
   const theme = readClasses(join(LIB, "theme.d2"));
   const icons = readIcons(join(LIB, "icons.d2"));
   const unresolved = [];
 
-  let lines = dropHeader(source.split("\n"));
-
-  const wantsTheme = lines.some((l) => /^\s*\.\.\.@(?:\.\.\/)*lib\/theme\s*$/.test(l));
-  lines = lines.filter((l) => !/^\s*\.\.\.@(?:\.\.\/)*lib\/(?:theme|icons)\s*$/.test(l));
+  const wantsTheme = { value: false };
+  const lines = inlineImports(path, wantsTheme);
   while (lines.length && lines[0].trim() === "") lines.shift();
 
   let body = lines.join("\n").replace(/\$\{icon\.([\w]+)\}/g, (whole, name) => {
@@ -97,7 +127,7 @@ export function flatten(path) {
     return url;
   });
 
-  if (wantsTheme) {
+  if (wantsTheme.value) {
     const used = [...classesUsed(body)].filter((name) => theme.has(name));
     const missing = [...classesUsed(body)].filter((name) => !theme.has(name));
     // A class the file declares itself is fine; one it declares nowhere is a typo that
@@ -113,16 +143,20 @@ export function flatten(path) {
   return { source: body.replace(/\n+$/, "\n"), unresolved };
 }
 
-const args = process.argv.slice(2);
-const check = args.includes("--check");
-const file = args.find((a) => !a.startsWith("--"));
-if (!file) {
-  console.error("usage: flatten.mjs [--check] <file.d2>");
-  process.exit(2);
+// Only when run as a command. `drift.mjs` imports `flatten`, and without this guard that
+// import would run the CLI against drift's own argv and read a directory.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const args = process.argv.slice(2);
+  const check = args.includes("--check");
+  const file = args.find((a) => !a.startsWith("--"));
+  if (!file) {
+    console.error("usage: flatten.mjs [--check] <file.d2>");
+    process.exit(2);
+  }
+  const { source, unresolved } = flatten(resolve(file));
+  if (unresolved.length > 0) {
+    for (const problem of unresolved) console.error(`${file}: ${problem}`);
+    if (check) process.exit(1);
+  }
+  if (!check) process.stdout.write(source);
 }
-const { source, unresolved } = flatten(resolve(file));
-if (unresolved.length > 0) {
-  for (const problem of unresolved) console.error(`${file}: ${problem}`);
-  if (check) process.exit(1);
-}
-if (!check) process.stdout.write(source);

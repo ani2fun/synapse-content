@@ -1,0 +1,8 @@
+# Frame 3 — the APPLICATION goes to the database, not the cache. Nothing here is
+# read-through, which is why the application is the only box that knows both stores.
+...@./base
+title: "3 · read through to the store"
+app.class: [svc; current]
+cache.class: [data; cold]
+db.class: [data; current]
+(app <-> db)[0].class: step

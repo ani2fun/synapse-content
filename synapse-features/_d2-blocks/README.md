@@ -31,6 +31,10 @@ build/            rendered output (gitignored)
 | `./render.sh png` | the same, plus a PNG per block |
 | `./render.sh sheet` | one captioned contact sheet per directory |
 | `./render.sh fence <path>` | the ```` ```bash ```` + ```` ```d2 ```` pair to paste into a lesson |
+| `./render.sh anim <dir>` | the ```` ```bash ```` + N consecutive ```` ```d2 ```` fences of a **stepper** |
+| `./render.sh player <dir>` | the ```` ```bash ```` + the frame run of a **player** |
+| `./render.sh stable` | every highlight-mode animation is layout-stable to within 2% |
+| `./render.sh media` | redraw the figures that ship as files, under `_media/synapse-features/` |
 | `./render.sh icons` | every icon URL answers 200 |
 | `./render.sh app` | draw every lesson fence with the engine the app actually ships |
 
@@ -71,12 +75,27 @@ cannot fetch into an empty box without a word of complaint.
 
 ## The state palette
 
-Six state classes — `active`, `current`, `visited`, `pruned`, `hot`, `cold` — layer over a structure
-class with the list form, so recolouring is a one-word edit and never a hex edit:
+Eight state classes layer over a structure class with the list form, so recolouring is a one-word
+edit and never a hex edit:
 
 ```
 v3: 9 { class: [cell; current] }
 ```
+
+| | |
+| --- | --- |
+| `active` | in play — inside the window, in range |
+| `current` | being touched right now |
+| `visited` | already processed |
+| `pruned` | cut off, proven impossible |
+| `hot` | frequent — a cache hit, a busy path |
+| `cold` | rare — a cache miss, a cold path |
+| `idle` | declared, untouched, **recolourable** — see below |
+| `dim` | on screen, and not what this frame is about |
+
+The last two exist for the animations. `idle` looks exactly like an unstyled cell, and what it buys
+is the *slot*: D2 will not override a scalar `class: cell` with a list, so anything a frame will
+recolour has to be declared two-class from the start.
 
 ## Layout rules worth knowing
 
@@ -88,6 +107,43 @@ v3: 9 { class: [cell; current] }
 | **A nested container ignores `direction`** | ELK lays every container out in the **root's** direction. Panels holding a tree therefore need `direction: down` at the root, and they stack vertically. |
 | **Unconnected siblings lay out perpendicular to the direction** | `direction: right` stacks two panels; `direction: down` puts them in a row. Join them with an edge and they line up along the direction. |
 | **The panel IS the grid** | Do not nest a `board` inside a `panel`. The wrapper costs about 100×70px of dead space and buys nothing. |
+| **Same form in, same form out** | D2 will not override a scalar `class: cell` with a **list**, and says nothing when it declines — the node simply keeps its old colour. Overriding with a bare `class: active` does apply, and drops `cell` along with its pinned width. Anything a frame will recolour is declared `[cell; idle]` from the start. |
+| **A `near:` title sizes the diagram** | A free-floating text shape widens the whole figure to fit itself, so a long caption and a short one give different bounding boxes. Pin its `width` and they do not. |
+| **Redeclaring an edge makes a second one** | `a -> b: "x"` written twice is two connections, indexed `(a -> b)[0]` and `(a -> b)[1]`. To change one, address it by index — `(a -> b)[0].class: step` — never by writing it again. |
+| **An undeclared key is a declaration** | `db_a -> db_b` where neither exists creates two empty boxes and draws them. Fully qualify a cross-container edge: `az_a.db_a -> az_b.db_b`. |
+
+## Animations
+
+Two panels show one step; an animation shows the run. The sources are directories:
+
+```
+dsa/sliding-window.anim/
+  base.d2          # every node, edge and label — dimmed. Frame zero.
+  01-open.d2       # ...@./base  +  a title and three classes
+  02-grow.d2
+  …
+```
+
+Four rules make one watchable, and `base.d2` is where they are enforced: **declare everything in
+the base**, **recolour rather than relabel**, **pin the title's width**, and **keep the edge count
+down**. `./render.sh stable` reads the `viewBox` off every frame and fails an animation whose
+frames drift more than 2%.
+
+There are two modes. **Highlight** freezes the layout and moves colour through it — right for a
+sequence of events. **Build** lets the diagram grow, chaining each frame's import from the one
+before, and is exempt from the stability gate — right for a system evolving. A build chain can add
+but never remove; to retire something, blank its label and set `style.opacity: 0` through its index.
+
+Four transports put one in a lesson, and the trade is where the frames get drawn:
+
+| | Reader gets | Drawn |
+| --- | --- | --- |
+| **Stepper** — consecutive ```` ```d2 ```` fences | ‹ 3/5 › | in the reader's browser, pulling the ~6 MB engine |
+| **Player** — a run of images, alt `— frame i of N` | ▶ ⏸ scrubber, arrow keys | at authoring time, by `./render.sh media` |
+| **Auto-loop** — `steps:` + `--animate-interval` | plays itself, forever, no controls | at authoring time; never a fence |
+| **Walkthrough** — ```` ```d2 boards ```` + `layers:` | click to drill, ⌂ ☰, shareable | by content CI, into `_d2/` beside the lesson |
+
+The player is the default for anything longer than a few frames.
 
 ## The transition skeleton
 
@@ -187,5 +243,74 @@ struck through by its own arrow. Put the invariant in the panel titles.
 
 ## Index — system design
 
-Not built yet. `system-design/primitives`, `system-design/shapes`, `system-design/boundaries` and
-`system-design/patterns` land in the next pass.
+### Primitives
+
+Every box, grouped by tier. Each file is a catalog: copy the whole grid to start, or one
+line to add a box to a diagram you already have.
+
+| Block | File | Preview | When to use it |
+| --- | --- | --- | --- |
+| `async` | [system-design/primitives/async.d2](system-design/primitives/async.d2) | `build/system-design/primitives/async.svg` | The purple tier: everything that decouples a caller from a callee in TIME. A request crossing one of these boundaries stops being synchronous, and every guarantee changes with it — which is why they g |
+| `clients` | [system-design/primitives/clients.d2](system-design/primitives/clients.d2) | `build/system-design/primitives/clients.svg` | Everything that originates a request. Copy the ONE line you need — each node here is a complete, self-contained declaration. |
+| `compute` | [system-design/primitives/compute.d2](system-design/primitives/compute.d2) | `build/system-design/primitives/compute.svg` | The things that run your code. Green in the five-role palette. |
+| `data` | [system-design/primitives/data.d2](system-design/primitives/data.d2) | `build/system-design/primitives/data.svg` | Where state lives. Orange in the five-role palette — and the one tier where the SHAPE earns its keep: `cylinder` says "database" with no icon and no network fetch. |
+| `edge` | [system-design/primitives/edge.d2](system-design/primitives/edge.d2) | `build/system-design/primitives/edge.svg` | Everything a request passes through before it reaches code you wrote. Blue in the five-role palette, because "edge" is a tier, not a technology. |
+| `mesh` | [system-design/primitives/mesh.d2](system-design/primitives/mesh.d2) | `build/system-design/primitives/mesh.svg` | What sits BETWEEN your services once there are more than about five of them. These are the boxes an "and how do the services find each other?" question is fishing for. |
+| `platform` | [system-design/primitives/platform.d2](system-design/primitives/platform.d2) | `build/system-design/primitives/platform.svg` | The boxes that serve every other box. They are the ones candidates forget and operators care most about. |
+
+### Native shapes and boundaries
+
+| Block | File | Preview | When to use it |
+| --- | --- | --- | --- |
+| `native-shapes` | [system-design/shapes/native-shapes.d2](system-design/shapes/native-shapes.d2) | `build/system-design/shapes/native-shapes.svg` | Six shapes d2 draws itself. Prefer them over an icon whenever they fit, for three reasons: they need no network (an icon is a remote fetch in the reader's browser), they scale cleanly, and they carry |
+| `sql-table` | [system-design/shapes/sql-table.d2](system-design/shapes/sql-table.d2) | `build/system-design/shapes/sql-table.svg` | `shape: sql_table` turns a node's keys into typed rows, and a connection BETWEEN TWO ROWS draws the foreign key. This is the fastest way to answer "what does your schema look like?" without leaving th |
+| `regions-and-azs` | [system-design/boundaries/regions-and-azs.d2](system-design/boundaries/regions-and-azs.d2) | `build/system-design/boundaries/regions-and-azs.svg` | A container is a BLAST RADIUS. Nesting says what fails together: an AZ can go dark without taking its region with it, and a region can go dark without taking the service with it — but only if you drew |
+| `vpc-and-trust` | [system-design/boundaries/vpc-and-trust.d2](system-design/boundaries/vpc-and-trust.d2) | `build/system-design/boundaries/vpc-and-trust.svg` | Two boundaries, and they are not the same one. The VPC is a NETWORK fact: what can route to what. The trust boundary is a SECURITY fact: where a request stops being believed and has to prove itself. |
+
+### Patterns
+
+| Block | File | Preview | When to use it |
+| --- | --- | --- | --- |
+| `cache-aside` | [system-design/patterns/cache-aside.d2](system-design/patterns/cache-aside.d2) | `build/system-design/patterns/cache-aside.svg` | The default caching strategy, and the one worth being able to draw from memory. The APPLICATION owns the cache: it looks, it misses, it loads, it fills. The cache itself knows nothing about the databa |
+| `cqrs-event-sourcing` | [system-design/patterns/cqrs-event-sourcing.d2](system-design/patterns/cqrs-event-sourcing.d2) | `build/system-design/patterns/cqrs-event-sourcing.svg` | Two patterns that get named in one breath and are separable: |
+| `event-driven` | [system-design/patterns/event-driven.d2](system-design/patterns/event-driven.d2) | `build/system-design/patterns/event-driven.svg` | One publisher, three subscribers, and nobody knows about anybody. The producer does not import a client for Email, Analytics or Fraud — it publishes a fact and stops caring, which is why a fourth cons |
+| `multi-region-active-active` | [system-design/patterns/multi-region-active-active.d2](system-design/patterns/multi-region-active-active.d2) | `build/system-design/patterns/multi-region-active-active.svg` | Both regions serve writes. That single sentence is the entire difficulty: two writers, one dataset, and the speed of light between them. |
+| `rate-limited-api` | [system-design/patterns/rate-limited-api.d2](system-design/patterns/rate-limited-api.d2) | `build/system-design/patterns/rate-limited-api.svg` | Where a request gets rejected, and by what. The order of these checks is the design: the cheapest rejection comes first, so an abusive caller never reaches anything expensive. |
+| `replicas-and-shards` | [system-design/patterns/replicas-and-shards.d2](system-design/patterns/replicas-and-shards.d2) | `build/system-design/patterns/replicas-and-shards.svg` | The two ways to scale a database, drawn side by side because they solve DIFFERENT problems and candidates reach for the wrong one under pressure: |
+| `request-sequence` | [system-design/patterns/request-sequence.d2](system-design/patterns/request-sequence.d2) | `build/system-design/patterns/request-sequence.svg` | `shape: sequence_diagram` reads the connections in ORDER, top to bottom, so this is the shape to reach for when the question is "walk me through a request" — a box diagram shows what exists, this show |
+| `three-tier` | [system-design/patterns/three-tier.d2](system-design/patterns/three-tier.d2) | `build/system-design/patterns/three-tier.svg` | The diagram every system-design answer starts from. Draw this in the first two minutes, then earn the rest of the whiteboard by breaking one tier at a time. |
+| `write-behind` | [system-design/patterns/write-behind.d2](system-design/patterns/write-behind.d2) | `build/system-design/patterns/write-behind.svg` | The write returns before the durable store has it. That is the trade in one sentence, and the whole diagram exists to make the consequences visible. |
+
+## Index — animations
+
+An animation is a DIRECTORY, not a file: `base.d2` holds the whole diagram dimmed, and each
+numbered frame spreads it in and overrides three or four lines. `base.d2` declares its mode, the
+lesson its frames are drawn into, and the caption that groups them:
+
+```
+# animation-mode: highlight     # highlight = layout frozen · build = layout grows
+# lesson: animated-dsa          # _media/<book>/<lesson>/<name>/frame-N.svg
+# caption: A sliding window …   # must match the alt text byte for byte
+```
+
+`./render.sh stable` fails a highlight-mode animation whose frames drift more than 2%.
+`./render.sh media` draws every frame. `./render.sh player <dir>` emits the lesson markup, and
+`./render.sh anim <dir>` emits the stepper form instead.
+
+| Animation | Directory | Frames | When to use it |
+| --- | --- | --- | --- |
+| `cache-aside` | [system-design/animated/cache-aside.anim/](system-design/animated/cache-aside.anim/) | 5 · *highlight* | The whole diagram with nothing happening yet. Frame zero, and the file every frame spreads in with `...@./base`. |
+| `leader-failover` | [system-design/animated/leader-failover.anim/](system-design/animated/leader-failover.anim/) | 6 · *highlight* | A failure over TIME, which is the one thing a static architecture diagram cannot show at all. The boxes never move; what changes is which node is the leader, and that is carried entirely by colour: |
+| `rolling-deploy` | [system-design/animated/rolling-deploy.anim/](system-design/animated/rolling-deploy.anim/) | 5 · *highlight* | A deploy is a sequence, so a static picture of it is always the wrong picture: it shows one moment and the reader has to imagine the rest. |
+| `scaling-story` | [system-design/animated/scaling-story.anim/](system-design/animated/scaling-story.anim/) | 5 · *build* | The OTHER animation mode. Everywhere else in this library a frame recolours a fixed picture; here each frame ADDS to the last, and the diagram grows. |
+| `bfs-frontier` | [dsa/bfs-frontier.anim/](dsa/bfs-frontier.anim/) | 5 · *highlight* | Breadth-first search is a wave, and a wave is the thing a still picture is worst at. Five frames show the frontier expanding one hop at a time — which IS the proof that BFS finds shortest paths: a nod |
+| `binary-search` | [dsa/binary-search.anim/](dsa/binary-search.anim/) | 5 · *highlight* | The search space halving, frame by frame. A static picture of binary search shows one comparison; the whole idea is what happens to the OTHER half, and only a sequence shows that. |
+| `dp-2d-fill` | [dsa/dp-2d-fill.anim/](dsa/dp-2d-fill.anim/) | 5 · *highlight* | Counting paths across a 4×4 grid, moving only right or down. Every cell is the sum of the one above it and the one to its left — and THAT is the thing a static table cannot show: which two cells the a |
+| `sliding-window` | [dsa/sliding-window.anim/](dsa/sliding-window.anim/) | 6 · *highlight* | The canonical animated DSA figure: a window that grows on the right and shrinks on the left, over a fixed strip. Problem: the longest subarray with sum ≤ 8. |
+
+### The other two transports
+
+| Block | File | Preview | When to use it |
+| --- | --- | --- | --- |
+| `cache-aside-loop` | [system-design/animated/cache-aside-loop.d2](system-design/animated/cache-aside-loop.d2) | `build/system-design/animated/cache-aside-loop.svg` | The same cache-aside sequence as cache-aside.anim/, written as d2 `steps:` and compiled with `--animate-interval`. The output is a SINGLE svg carrying CSS keyframes: it plays by itself, forever, with |
+| `drilldown-boards` | [system-design/animated/drilldown-boards.d2](system-design/animated/drilldown-boards.d2) | `build/system-design/animated/drilldown-boards.svg` | The fourth transport, and the only one that is not a sequence. d2 `layers:` compiles to a TREE of boards, and a node carrying `link:` is a door into one of them: overview → the edge → the service → th |

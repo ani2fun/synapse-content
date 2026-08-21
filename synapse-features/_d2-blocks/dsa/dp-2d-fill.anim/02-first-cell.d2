@@ -1,0 +1,12 @@
+# Frame 2 — the first real cell. The two lit neighbours are the entire recurrence: this
+# frame is the one to pause on.
+...@./base
+title: "2 · [1][1] = 1 above + 1 left = 2"
+table.r0c0.class: [cell; visited]
+table.r0c1: 1 { class: [cell; hot] }
+table.r0c2: 1 { class: [cell; visited] }
+table.r0c3: 1 { class: [cell; visited] }
+table.r1c0: 1 { class: [cell; hot] }
+table.r1c1: 2 { class: [cell; current] }
+table.r2c0: 1 { class: [cell; visited] }
+table.r3c0: 1 { class: [cell; visited] }

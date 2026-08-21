@@ -1,0 +1,38 @@
+# ── PATTERN · CACHE-ASIDE READ PATH ───────────────────────────────────────────
+# The default caching strategy, and the one worth being able to draw from memory. The
+# APPLICATION owns the cache: it looks, it misses, it loads, it fills. The cache itself
+# knows nothing about the database.
+#
+# Both paths are drawn, because the miss path is where every follow-up question lives:
+# what is the TTL, what happens when 10,000 requests miss the same key at once
+# (stampede), and what invalidates the entry on a write.
+#
+# `hot` and `cold` are the state classes doing the teaching here — the hit path is warm,
+# the miss path is not.
+#
+# Knobs: the TTL, and the miss-path steps.
+
+...@../../lib/theme
+
+direction: right
+
+app: "Application\nowns the cache logic" { class: svc }
+cache: "Cache · TTL 5m\nkey: user:{id}" { class: [data; hot] }
+db: "Database" { class: [data; cold]; shape: cylinder }
+
+app -> cache: "1. GET user:42"
+cache -> app: "2a. HIT → return" { class: step }
+
+# TODO: the miss path. Three edges, always in this order — read, then fill, then return.
+cache -> app: "2b. MISS" { class: hint }
+app -> db: "3. SELECT * FROM users WHERE id=42"
+db -> app: "4. row"
+app -> cache: "5. SET user:42, EX 300" { class: hint }
+
+note: |md
+  **Ask before you leave this diagram**
+
+  - stampede — one hot key expiring, N misses at once
+  - invalidation — who deletes `user:42` when the row changes?
+  - what a cache outage costs: every read becomes a database read
+| { class: panel; near: bottom-center }

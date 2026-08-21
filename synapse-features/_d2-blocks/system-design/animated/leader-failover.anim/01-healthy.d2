@@ -1,0 +1,12 @@
+# Frame 1 — steady state. A is the leader; every write goes through it and fans out.
+...@./base
+title: "1 · steady state — A is the leader"
+client.class: [client; active]
+router.class: [edge; active]
+cluster.a.class: [data; hot]
+cluster.b.class: [data; active]
+cluster.c.class: [data; active]
+(client -> router)[0].class: step
+(router -> cluster.a)[0].class: step
+(cluster.a -> cluster.b)[0].class: hint
+(cluster.a -> cluster.c)[0].class: hint

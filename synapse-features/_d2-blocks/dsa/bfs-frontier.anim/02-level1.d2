@@ -1,0 +1,9 @@
+# Frame 2 — every neighbour of A, all at once. This is the "breadth" — the whole level
+# is enqueued before any of it is explored.
+...@./base
+title: "2 · level 1 · queue [B, C] · distance 1"
+a.class: [node; visited]
+b.class: [node; current]
+c.class: [node; current]
+(a -> b)[0].class: step
+(a -> c)[0].class: step

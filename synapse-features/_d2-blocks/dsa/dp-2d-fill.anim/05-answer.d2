@@ -1,0 +1,20 @@
+# Frame 5 — the answer sits in the corner: 20 paths. Sixteen cells were computed, each
+# once, each in constant time — O(rows × cols), and no path was ever enumerated.
+...@./base
+title: "5 · 20 paths · every cell computed exactly once — O(r × c)"
+table.r0c0.class: [cell; visited]
+table.r0c1: 1 { class: [cell; visited] }
+table.r0c2: 1 { class: [cell; visited] }
+table.r0c3: 1 { class: [cell; visited] }
+table.r1c0: 1 { class: [cell; visited] }
+table.r1c1: 2 { class: [cell; visited] }
+table.r1c2: 3 { class: [cell; visited] }
+table.r1c3: 4 { class: [cell; visited] }
+table.r2c0: 1 { class: [cell; visited] }
+table.r2c1: 3 { class: [cell; visited] }
+table.r2c2: 6 { class: [cell; visited] }
+table.r2c3: 10 { class: [cell; visited] }
+table.r3c0: 1 { class: [cell; visited] }
+table.r3c1: 4 { class: [cell; visited] }
+table.r3c2: 10 { class: [cell; visited] }
+table.r3c3: 20 { class: [cell; current] }

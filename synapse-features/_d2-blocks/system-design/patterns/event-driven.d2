@@ -1,0 +1,34 @@
+# ── PATTERN · EVENT-DRIVEN MICROSERVICES ──────────────────────────────────────
+# One publisher, three subscribers, and nobody knows about anybody. The producer does
+# not import a client for Email, Analytics or Fraud — it publishes a fact and stops
+# caring, which is why a fourth consumer can be added without touching it.
+#
+# The price is paid in operations, not in code: no single place shows the whole flow,
+# ordering is per-partition at best, and every consumer must be idempotent because
+# at-least-once delivery WILL deliver twice.
+#
+# Draw the DLQ. A consumer without one loses the message it could not handle.
+#
+# Knobs: the topic name (a past-tense fact — `OrderPlaced`, never `SendEmail`) and the
+# consumer list.
+
+...@../../lib/theme
+
+direction: right
+
+order: "Order service\nthe producer" { class: svc }
+topic: "topic: OrderPlaced\npartitioned by order_id" { class: async }
+
+email: "Email service" { class: svc }
+analytics: "Analytics sink" { class: svc }
+fraud: "Fraud scoring" { class: svc }
+dlq: "DLQ" { class: async; shape: queue }
+
+order -> topic: "publish a FACT,\nnot a command" { class: step }
+topic -> email: "consumer group A"
+topic -> analytics: "group B"
+topic -> fraud: "group C"
+fraud -> dlq: "give up after N" { class: hint }
+
+# TODO: every consumer here must survive the same message arriving twice. Write down
+# the idempotency key you would use — order_id is usually it.

@@ -1,0 +1,32 @@
+# ── PATTERN · WRITE-BEHIND VIA A QUEUE ────────────────────────────────────────
+# The write returns before the durable store has it. That is the trade in one sentence,
+# and the whole diagram exists to make the consequences visible.
+#
+# What you buy: a p99 that no longer depends on the slowest store in the chain, and a
+# spike absorbed by the queue instead of by the database.
+# What you pay: a window where the write is acknowledged and not yet durable, and a
+# read-your-own-writes problem for the user who just clicked save.
+#
+# The DLQ is not optional decoration — a consumer that can fail needs somewhere to put
+# what it could not process.
+#
+# Knobs: the ack point (marked below), the batch size, and the lag figure.
+
+...@../../lib/theme
+
+direction: right
+
+client: "Client" { class: client }
+api: "Write API" { class: svc }
+queue: "Durable queue\nreplicated, ordered per key" { class: async; shape: queue }
+worker: "Consumer\nbatches of 500" { class: [async; svc] }
+db: "Store of record" { class: data; shape: cylinder }
+dlq: "Dead-letter queue" { class: async; shape: queue }
+
+client -> api: "1. POST /events"
+api -> queue: "2. enqueue"
+# TODO: THE line. Move it and you have changed the durability guarantee, not the layout.
+api -> client: "3. 202 Accepted\n← durable in the QUEUE, not the DB" { class: step }
+queue -> worker: "4. poll"
+worker -> db: "5. batch insert · lag ~2s"
+worker -> dlq: "6. after 3 failed attempts" { class: hint }

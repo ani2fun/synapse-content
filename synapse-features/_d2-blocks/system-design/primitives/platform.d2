@@ -1,0 +1,26 @@
+# ── PRIMITIVES · PLATFORM AND CROSS-CUTTING ───────────────────────────────────
+# The boxes that serve every other box. They are the ones candidates forget and
+# operators care most about.
+#
+# Colour follows what the thing DOES, not where it sits: a search index holds state
+# (orange), auth is on the request path (blue), observability is a consumer of data
+# your services emit (green).
+#
+# Knobs: labels. Every one of these is a place where "how do you know it is working?"
+# gets asked.
+
+...@../../lib/theme
+...@../../lib/icons
+
+grid-rows: 2
+grid-columns: 3
+grid-gap: 40
+
+search: "Search index\ninverted · eventually consistent" { class: data; icon: ${icon.search_index} }
+warehouse: "Data warehouse\ncolumnar · analytics" { class: data; icon: ${icon.data_warehouse} }
+lake: "Cold storage\nraw events, cheap" { class: data; shape: stored_data }
+
+auth: "Identity provider\nOIDC · issues tokens" { class: edge; icon: ${icon.auth} }
+limiter: "Rate limiter\ntoken bucket, per key" { class: edge; icon: ${icon.rate_limiter} }
+# TODO: name the three signals you actually collect — metrics, logs, traces.
+telemetry: "Observability\nmetrics · logs · traces" { class: svc; icon: ${icon.observability} }

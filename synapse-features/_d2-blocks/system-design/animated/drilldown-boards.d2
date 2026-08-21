@@ -1,0 +1,69 @@
+# ── WALKTHROUGH · A DRILL-DOWN THE READER DRIVES ──────────────────────────────
+# The fourth transport, and the only one that is not a sequence. d2 `layers:` compiles to
+# a TREE of boards, and a node carrying `link:` is a door into one of them: overview →
+# the edge → the service → the data layer, as deep as you care to go.
+#
+# Published as ```d2 boards name="…" root="…" — the `boards` marker is REQUIRED. Without
+# it the fence draws the root board only and every link is dead. Full contract:
+# /synapse/synapse-features/reading-a-lesson/d2-walkthroughs
+#
+# ⚠️  `link:` RESOLVES AGAINST THE BOARD IT IS WRITTEN IN. At the root, `layers.edge` is
+# right. One level down, the same text means that layer's OWN `edge` child, which does not
+# exist — and d2 drops the link silently, with no error and no warning. Use `_.layers.x`
+# to step up to the parent board. That single rule is most of the debugging on this file.
+#
+# Knobs: the layer names (they become the board titles, title-cased) and which node in
+# each board is the door to the next one.
+
+...@../../lib/theme
+
+direction: right
+
+user: "Reader" { class: client; shape: person }
+
+# TODO: one door per layer. A node with no `link:` is just a box.
+edge: "Edge\nCDN · LB · gateway" { class: edge; link: layers.edge }
+svc: "Services" { class: svc; link: layers.services }
+store: "Data" { class: data; shape: cylinder; link: layers.data }
+
+user -> edge: "HTTPS"
+edge -> svc
+svc -> store
+
+layers: {
+  edge: {
+    direction: right
+    dns: "DNS\nTTL 60s" { class: edge }
+    cdn: "CDN\ncacheable GETs" { class: edge }
+    lb: "Load balancer\nTLS terminates here" { class: edge }
+    gw: "API gateway\nauthn · quotas" { class: edge }
+    # `_` steps up one board: without it this reads as `edge`'s own `services` layer.
+    onward: "→ Services" { class: svc; link: _.layers.services }
+
+    dns -> cdn -> lb -> gw -> onward
+  }
+
+  services: {
+    direction: right
+    api: "Public API" { class: svc }
+    worker: "Workers" { class: [async; svc] }
+    queue: "Queue" { class: async; shape: queue }
+    onward: "→ Data" { class: data; shape: cylinder; link: _.layers.data }
+
+    api -> queue -> worker
+    api -> onward: "reads"
+    worker -> onward: "writes"
+  }
+
+  data: {
+    direction: right
+    cache: "Cache" { class: [data; hot] }
+    primary: "Primary" { class: data; shape: cylinder }
+    replica: "Replicas ×2" { class: data; shape: cylinder }
+    blob: "Object storage" { class: data; shape: stored_data }
+
+    cache -> primary: "on miss" { class: hint }
+    primary -> replica: "async" { class: hint }
+    primary -> blob: "archive" { class: hint }
+  }
+}

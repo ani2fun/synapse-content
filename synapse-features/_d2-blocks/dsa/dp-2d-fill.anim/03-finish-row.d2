@@ -1,0 +1,13 @@
+# Frame 3 — the same rule, one step right. The cell it read a moment ago is now one of
+# the inputs, which is why the table is filled in this order and no other.
+...@./base
+title: "3 · [1][2] = 1 above + 2 left = 3 · yesterday's answer is today's input"
+table.r0c0.class: [cell; visited]
+table.r0c1: 1 { class: [cell; visited] }
+table.r0c2: 1 { class: [cell; hot] }
+table.r0c3: 1 { class: [cell; visited] }
+table.r1c0: 1 { class: [cell; visited] }
+table.r1c1: 2 { class: [cell; hot] }
+table.r1c2: 3 { class: [cell; current] }
+table.r2c0: 1 { class: [cell; visited] }
+table.r3c0: 1 { class: [cell; visited] }

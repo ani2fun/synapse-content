@@ -1,0 +1,54 @@
+# ── ANIMATION BASE · SLIDING WINDOW ───────────────────────────────────────────
+# animation-mode: highlight
+# lesson: animated-dsa
+# caption: A sliding window growing and shrinking
+# The canonical animated DSA figure: a window that grows on the right and shrinks on the
+# left, over a fixed strip. Problem: the longest subarray with sum ≤ 8.
+#
+# A GRID makes this the easy case. Every cell has a pinned width, so unlike a free layout
+# a frame can safely change a cell's LABEL — the column cannot resize, the strip cannot
+# shift. That is why the pointer row works: `L` and `R` move by relabelling ticks, and
+# nothing else on the page notices.
+#
+# Three rows, all six columns wide:
+#   values    the array. Frames recolour these — `active` inside the window. Declared
+#             `[cell; idle]`, never `cell`: d2 refuses to override a scalar `class:` with a
+#             list, and a bare `class: active` override would drop `cell` and its pinned
+#             width. Same form in, same form out.
+#   index     never changes.
+#   pointers  `·` by default; a frame writes L and R into two of them.
+#
+# Knobs: the values, the constraint in the title, and the number of frames.
+
+...@../../lib/theme
+
+title: "sliding window · longest subarray with sum ≤ 8" { near: top-center; shape: text; width: 620; style: { font-size: 19; bold: true } }
+
+strip: "" { class: board
+  grid-rows: 3
+  grid-columns: 6
+  grid-gap: 0
+
+  v0: 2 { class: [cell; idle] }
+  v1: 1 { class: [cell; idle] }
+  v2: 5 { class: [cell; idle] }
+  v3: 1 { class: [cell; idle] }
+  v4: 3 { class: [cell; idle] }
+  v5: 2 { class: [cell; idle] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+
+  # The pointer row. `·` is a placeholder that reserves the row's height, so a frame that
+  # writes L or R into a tick changes a glyph and nothing else.
+  p0: "·" { class: tick }
+  p1: "·" { class: tick }
+  p2: "·" { class: tick }
+  p3: "·" { class: tick }
+  p4: "·" { class: tick }
+  p5: "·" { class: tick }
+}

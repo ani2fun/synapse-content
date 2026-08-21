@@ -1,0 +1,57 @@
+# ── ANIMATION BASE · BINARY SEARCH ────────────────────────────────────────────
+# animation-mode: highlight
+# lesson: animated-dsa
+# caption: Binary search halving its range
+# The search space halving, frame by frame. A static picture of binary search shows one
+# comparison; the whole idea is what happens to the OTHER half, and only a sequence shows
+# that.
+#
+# Sorted array, target 23. Three rows, nine columns:
+#   values    `active` while still in range, `pruned` once discarded, `current` at mid
+#   index     never changes
+#   pointers  lo / mid / hi, written into the ticks
+#
+# Every value cell is declared `[cell; idle]` rather than `cell`, because a frame can only
+# override a class list with another class list. See lib/theme.d2.
+#
+# Knobs: the values, the target in the title, and how many halvings you show.
+
+...@../../lib/theme
+
+title: "binary search · target 23" { near: top-center; shape: text; width: 900; style: { font-size: 19; bold: true } }
+
+strip: "" { class: board
+  grid-rows: 3
+  grid-columns: 9
+  grid-gap: 0
+
+  v0: 3 { class: [cell; idle] }
+  v1: 7 { class: [cell; idle] }
+  v2: 11 { class: [cell; idle] }
+  v3: 15 { class: [cell; idle] }
+  v4: 19 { class: [cell; idle] }
+  v5: 23 { class: [cell; idle] }
+  v6: 27 { class: [cell; idle] }
+  v7: 31 { class: [cell; idle] }
+  v8: 35 { class: [cell; idle] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+  i7: 7 { class: idx }
+  i8: 8 { class: idx }
+
+  p0: "·" { class: tick }
+  p1: "·" { class: tick }
+  p2: "·" { class: tick }
+  p3: "·" { class: tick }
+  p4: "·" { class: tick }
+  p5: "·" { class: tick }
+  p6: "·" { class: tick }
+  p7: "·" { class: tick }
+  p8: "·" { class: tick }
+}

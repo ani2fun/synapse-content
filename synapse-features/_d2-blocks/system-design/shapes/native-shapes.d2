@@ -1,0 +1,25 @@
+# ── NATIVE SHAPES · WHEN THE SHAPE BEATS AN ICON ──────────────────────────────
+# Six shapes d2 draws itself. Prefer them over an icon whenever they fit, for three
+# reasons: they need no network (an icon is a remote fetch in the reader's browser),
+# they scale cleanly, and they carry meaning that survives being printed in greyscale.
+#
+# Reach for an icon only when the SPECIFIC technology matters — a Redis logo says
+# something a cylinder does not. Where the category is the point, use these.
+#
+# Knobs: the class on each. Shape and colour are independent, so any shape can wear any
+# role — a purple cylinder is a perfectly good event store.
+
+...@../../lib/theme
+
+grid-rows: 2
+grid-columns: 3
+grid-gap: 40
+
+db: "cylinder\nany database" { class: data; shape: cylinder }
+q: "queue\na buffer, a backlog" { class: async; shape: queue }
+# TODO: `cloud` means "someone else runs this" — a managed service, another company's API.
+ext: "cloud\nnot your problem" { class: client; shape: cloud }
+
+who: "person\nan actor, not a system" { class: client; shape: person }
+raw: "stored_data\nfiles, blobs, a lake" { class: data; shape: stored_data }
+stage: "step\none stage of a pipeline" { class: svc; shape: step }

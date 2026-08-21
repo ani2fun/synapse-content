@@ -1,0 +1,11 @@
+# Frame 2 — A is gone. Nothing knows it yet: the writer is still sending, the router is
+# still routing, and the write is being lost.
+...@./base
+title: "2 · A dies — and for now, nobody knows"
+client.class: [client; active]
+router.class: [edge; active]
+cluster.a.class: [data; pruned]
+cluster.b.class: [data; active]
+cluster.c.class: [data; active]
+(client -> router)[0].class: step
+(router -> cluster.a)[0].class: pruned

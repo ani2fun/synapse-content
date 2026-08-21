@@ -1,0 +1,44 @@
+# ── ANIMATION BASE · BFS FRONTIER ─────────────────────────────────────────────
+# animation-mode: highlight
+# lesson: animated-dsa
+# caption: A BFS frontier expanding one hop at a time
+# Breadth-first search is a wave, and a wave is the thing a still picture is worst at.
+# Five frames show the frontier expanding one hop at a time — which IS the proof that
+# BFS finds shortest paths: a node is reached in the first frame it could possibly be
+# reached in.
+#
+# Free layout, not a grid, so the stability rule is the strict one: every node and edge
+# is declared here and frames only recolour. The `node` class pins 56×56, so even the
+# heavier `current` border cannot resize a circle.
+#
+#   dim      not reached yet — fainter than everything else, deliberately
+#   current  the frontier — the level the queue is chewing through now
+#   visited  dequeued and done
+#
+# `dim` rather than `idle` here: on a graph, "not reached" and "already done" are the two
+# states a reader most needs to tell apart, and `idle` (plain white) against `visited`
+# (pale grey) is too fine a difference to read at a glance.
+#
+# Knobs: the graph. Keep it shallow — four levels is already a long animation.
+
+...@../../lib/theme
+
+direction: down
+
+title: "BFS · the frontier expands one hop at a time" { near: top-center; shape: text; width: 640; style: { font-size: 19; bold: true } }
+
+a: A { class: [node; dim]; shape: circle }
+b: B { class: [node; dim]; shape: circle }
+c: C { class: [node; dim]; shape: circle }
+d: D { class: [node; dim]; shape: circle }
+e: E { class: [node; dim]; shape: circle }
+f: F { class: [node; dim]; shape: circle }
+g: G { class: [node; dim]; shape: circle }
+
+a -> b: "" { class: dim; style.stroke-width: 2 }
+a -> c: "" { class: dim; style.stroke-width: 2 }
+b -> d: "" { class: dim; style.stroke-width: 2 }
+b -> e: "" { class: dim; style.stroke-width: 2 }
+c -> e: "" { class: dim; style.stroke-width: 2 }
+c -> f: "" { class: dim; style.stroke-width: 2 }
+e -> g: "" { class: dim; style.stroke-width: 2 }

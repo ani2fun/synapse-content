@@ -1,0 +1,10 @@
+# Frame 1 — all four on v1, all healthy, all taking traffic.
+...@./base
+title: "1 · v1 everywhere · 100% of traffic · errors 0.1%"
+lb.class: [edge; active]
+metrics.class: [svc; active]
+fleet.i1.class: [svc; active]
+fleet.i2.class: [svc; active]
+fleet.i3.class: [svc; active]
+fleet.i4.class: [svc; active]
+(fleet -> metrics)[0].class: hint

@@ -1,0 +1,12 @@
+# Frame 5 — the write path is the last thing standing. Take the work that does not have
+# to be synchronous off it, and only what genuinely must be durable-before-200 remains.
+#
+# TODO: the honest next frame after this one is sharding, and it is the expensive one.
+# Do not draw it until the numbers say you need it.
+...@./04-replicas
+title: "5 · take work off the write path"
+queue: "Queue" { class: async; shape: queue }
+worker: "Workers" { class: [async; svc] }
+app -> queue: "enqueue, return 202"
+queue -> worker
+worker -> db: "write later"

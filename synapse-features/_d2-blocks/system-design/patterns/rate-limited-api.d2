@@ -1,0 +1,34 @@
+# ── PATTERN · RATE-LIMITED PUBLIC API ─────────────────────────────────────────
+# Where a request gets rejected, and by what. The order of these checks is the design:
+# the cheapest rejection comes first, so an abusive caller never reaches anything
+# expensive.
+#
+#   1. the network layer drops floods before they cost you a socket
+#   2. authentication turns an anonymous request into a KEY to count against
+#   3. the limiter counts per key, in shared state, so every gateway agrees
+#   4. only then does a request reach code that touches a database
+#
+# The shared counter matters: a token bucket held in each gateway's memory lets a caller
+# get N× their quota by spreading requests across N gateways.
+#
+# Knobs: the quota, the window, and the algorithm named in the limiter box.
+
+...@../../lib/theme
+
+direction: right
+
+caller: "API caller\nkey: sk_live_…" { class: client }
+waf: "WAF\nIP floods, bad signatures" { class: edge }
+gw: "API gateway" { class: edge }
+limiter: "Rate limiter\ntoken bucket · 1000 req/min/key" { class: edge }
+counters: "Shared counters\nper key, per window" { class: [data; hot] }
+api: "Your API" { class: svc }
+
+caller -> waf: "1. request"
+waf -> gw: "2. survived"
+gw -> limiter: "3. authenticated → key"
+limiter -> counters: "4. INCR + TTL" { class: hint }
+limiter -> api: "5. under quota"
+# TODO: return the budget in the response. A caller that can see its remaining quota
+# backs off on its own; one that cannot, retries into the wall.
+limiter -> caller: "429 + Retry-After\nX-RateLimit-Remaining: 0" { class: step }

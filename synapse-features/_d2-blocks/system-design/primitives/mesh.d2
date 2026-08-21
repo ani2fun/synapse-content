@@ -1,0 +1,28 @@
+# ── PRIMITIVES · SERVICE-TO-SERVICE PLUMBING ──────────────────────────────────
+# What sits BETWEEN your services once there are more than about five of them. These
+# are the boxes an "and how do the services find each other?" question is fishing for.
+#
+# Drawn as a row rather than a grid: they form a chain, and the connections make the
+# layout deterministic on their own.
+#
+# Knobs: the sidecar is drawn as a container holding the service it wraps — that nesting
+# IS the point, so keep it if you copy this.
+
+...@../../lib/theme
+...@../../lib/icons
+
+direction: right
+
+registry: "Service registry\nwho is healthy, right now" { class: svc; icon: ${icon.network} }
+
+pod: "Pod" { class: panel
+  sidecar: "Sidecar proxy\nmTLS · retries · timeouts" { class: edge; icon: ${icon.service_mesh} }
+  svc: "Your service" { class: svc; icon: ${icon.microservice} }
+  sidecar -> svc: "localhost"
+}
+
+# TODO: point this at whatever actually holds your config — Consul, etcd, a config map.
+config: "Config / secrets\nrotated, never in the image" { class: data; icon: ${icon.protection} }
+
+registry -> pod.sidecar: "resolve"
+config -> pod.sidecar: "certs"

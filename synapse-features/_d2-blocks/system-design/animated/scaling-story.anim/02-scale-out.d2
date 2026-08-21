@@ -1,0 +1,15 @@
+# Frame 2 — more app servers behind a load balancer. This works only because the app
+# tier is stateless; if sessions lived on disk, this frame would be a bug.
+...@./01-split
+title: "2 · scale the app tier out — it is stateless, so this is easy"
+lb: "Load balancer" { class: edge }
+app: "App servers ×N" { class: svc }
+users -> lb: "HTTPS"
+lb -> app
+
+# Build mode can ADD but never delete, and users no longer reach the app directly. Retire
+# the edge instead: blank its label and set opacity to 0 THROUGH ITS INDEX. Writing
+# `users -> app: ""` would declare a SECOND connection rather than change the first, and
+# leave the original drawn.
+(users -> app)[0].label: ""
+(users -> app)[0].style.opacity: 0

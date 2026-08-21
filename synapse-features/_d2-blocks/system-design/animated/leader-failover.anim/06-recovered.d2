@@ -1,0 +1,12 @@
+# Frame 6 — recovered, and smaller. Two nodes tolerate ZERO further failures, so the
+# incident is not over until A (or a replacement) rejoins.
+...@./base
+title: "6 · serving again — on two nodes, tolerating zero more losses"
+client.class: [client; active]
+router.class: [edge; active]
+cluster.a.class: [data; pruned]
+cluster.b.class: [data; hot]
+cluster.c.class: [data; active]
+(client -> router)[0].class: step
+(router -> cluster.b)[0].class: step
+(cluster.b <-> cluster.c)[0].class: hint

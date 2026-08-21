@@ -1,0 +1,7 @@
+# Frame 1 — split the tiers. The database stops competing with the application for the
+# same CPU, and for the first time the two can be sized independently.
+...@./base
+title: "1 · split the tiers"
+app: "App server" { class: svc }
+db: "Database" { class: data; shape: cylinder }
+app -> db: "queries"

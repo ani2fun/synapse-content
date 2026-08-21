@@ -1,0 +1,8 @@
+# Frame 5 — the next reader of user:42 stops here, and the database stays untouched for
+# five minutes or until someone invalidates the key.
+...@./base
+title: "5 · the next read is a HIT — the store is never touched"
+app.class: [svc; active]
+cache.class: [data; hot]
+(app -> cache)[0].class: hint
+(cache -> app)[0].class: step

@@ -1,0 +1,12 @@
+# Frame 4 — v2 is failing. The whole point of frame 2 is that this costs 1% of requests
+# rather than all of them.
+...@./base
+title: "4 · errors 4.2% on the canary — SLO breached"
+lb.class: [edge; active]
+metrics.class: [svc; pruned]
+fleet.i1.class: [svc; active]
+fleet.i2.class: [svc; active]
+fleet.i3.class: [svc; active]
+fleet.i4.class: [svc; pruned]
+(fleet -> metrics)[0].class: step
+(lb -> fleet.i4)[0].class: pruned

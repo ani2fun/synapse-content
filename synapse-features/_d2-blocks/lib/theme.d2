@@ -5,11 +5,11 @@
 #
 # Two vocabularies, deliberately separate:
 #   STRUCTURE  what a thing is  — cell, idx, node, board, panel, ghost
-#   STATE      what is happening to it — active, current, visited, pruned, hot, cold
+#   STATE      what is happening to it — idle, active, current, visited, pruned, hot, cold, dim
 #
 # Apply both at once with the list form:  { class: [cell; current] }
 #
-# TODO: to restyle the whole library, edit the six state fills below and re-run ./render.sh.
+# TODO: to restyle the whole library, edit the eight state fills below and re-run ./render.sh.
 
 classes: {
   # ── STRUCTURE ───────────────────────────────────────────────────────────────
@@ -53,6 +53,19 @@ classes: {
   pruned:  { style: { fill: "#fee2e2"; stroke: "#dc2626"; stroke-dash: 4; font-color: "#991b1b" } }   # cut off, never explored
   hot:     { style: { fill: "#ffedd5"; stroke: "#ea580c" } }   # frequent — cache hit, high traffic
   cold:    { style: { fill: "#eff6ff"; stroke: "#93c5fd"; font-color: "#64748b" } }   # rare — cache miss, cold path
+
+  # Present, but not what this frame is about — the backdrop of an ANIMATION. Every node an
+  # animated block declares stays on screen in EVERY frame, and only its class changes, so the
+  # layout never jumps between frames. `dim` is what "on screen, not the point right now" looks
+  # like. It works on a connection too: stroke and font-color are all it sets.
+  dim:     { style: { fill: "#fbfcfe"; stroke: "#cbd5e1"; font-color: "#94a3b8" } }   # this frame is not about it
+
+  # The neutral state — "nothing has happened to this yet". It looks like an unstyled cell or
+  # node ON PURPOSE; what it buys is the SLOT. d2 will not override a scalar `class: cell` with
+  # a list, and overriding it with a bare `class: active` drops `cell` and its pinned width. So
+  # anything a frame will recolour must be declared two-class from the start — `[cell; idle]` —
+  # and every frame overrides in the same shape: `[cell; active]`. Same form in, same form out.
+  idle:    { style: { fill: "#ffffff"; stroke: "#94a3b8" } }   # declared, untouched, recolourable
 
   # ── CONNECTIONS ─────────────────────────────────────────────────────────────
 

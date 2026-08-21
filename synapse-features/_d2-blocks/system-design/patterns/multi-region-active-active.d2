@@ -1,0 +1,39 @@
+# ── PATTERN · MULTI-REGION ACTIVE-ACTIVE ──────────────────────────────────────
+# Both regions serve writes. That single sentence is the entire difficulty: two writers,
+# one dataset, and the speed of light between them.
+#
+# What you buy: a region can disappear and the service does not, plus a latency win for
+# whoever is nearer.
+# What you pay: conflicts are now YOUR problem. Two users editing the same row in two
+# regions is not an edge case, it is Tuesday — so the diagram names the resolution
+# strategy instead of leaving it implied.
+#
+# Active-PASSIVE is the honest default for most systems. Reach for this when the
+# availability target genuinely requires it, and say so out loud.
+#
+# Knobs: the conflict-resolution rule, and the replication lag.
+
+...@../../lib/theme
+
+direction: right
+
+dns: "GeoDNS / anycast\nnearest healthy region" { class: edge }
+
+us: "us-east-1 · ACTIVE" { class: panel
+  app_us: "App tier" { class: svc }
+  db_us: "Regional store\naccepts writes" { class: data; shape: cylinder }
+  app_us -> db_us
+}
+
+eu: "eu-west-1 · ACTIVE" { class: panel
+  app_eu: "App tier" { class: svc }
+  db_eu: "Regional store\naccepts writes" { class: data; shape: cylinder }
+  app_eu -> db_eu
+}
+
+dns -> us.app_us
+dns -> eu.app_eu
+
+# TODO: name the rule. Last-write-wins loses data silently; CRDTs and per-region key
+# ownership do not. Whichever you pick, it belongs in the label.
+us.db_us <-> eu.db_eu: "bi-directional replication · ~90ms\nconflicts: last-write-wins on updated_at" { class: step }

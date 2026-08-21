@@ -1,0 +1,25 @@
+# ── PRIMITIVES · THE EDGE ─────────────────────────────────────────────────────
+# Everything a request passes through before it reaches code you wrote. Blue in the
+# five-role palette, because "edge" is a tier, not a technology.
+#
+# These are the boxes that get skipped in a whiteboard interview and then asked about:
+# where TLS terminates, where a request is rejected, where a cache already answered.
+#
+# Knobs: the labels carry the DECISION each box makes — keep that, change the product.
+
+...@../../lib/theme
+...@../../lib/icons
+
+grid-rows: 2
+grid-columns: 3
+grid-gap: 40
+
+dns: "DNS\nname → IP, TTL 60s" { class: edge; icon: ${icon.dns} }
+cdn: "CDN / edge cache\nstatic + cacheable GETs" { class: edge; icon: ${icon.cdn} }
+lb: "Load balancer\nL7, least-connections" { class: edge; icon: ${icon.load_balancer} }
+
+gateway: "API gateway\nauthn · routing · quotas" { class: edge; icon: ${icon.api_gateway} }
+# TODO: a reverse proxy and a load balancer are drawn the same and decided differently —
+# say which one you mean in the label.
+proxy: "Reverse proxy\nTLS termination" { class: edge; icon: ${icon.proxy} }
+waf: "WAF / firewall\nIP + rule filtering" { class: edge; icon: ${icon.firewall} }

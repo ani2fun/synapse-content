@@ -3,28 +3,36 @@
 # vocabulary the rest of the library is written in — recolouring a node means swapping one
 # of these words, never editing a hex value.
 #
+# `idle` looks exactly like a bare cell, and that is the point: it is a SLOT, not a colour.
+# d2 will not override a scalar `class: cell` with a list, so anything an animation frame
+# will recolour has to be declared two-class from the start — `[cell; idle]`.
+#
 # Knobs: none. This figure documents the theme; change the theme instead.
 
 ...@../lib/theme
 
 sw: "layer a state over a structure:  { class: [cell; current] }" { class: panel
   grid-rows: 2
-  grid-columns: 7
+  grid-columns: 9
   grid-gap: 0
 
   s0: "—" { class: cell }
-  s1: "" { class: [cell; active] }
-  s2: "" { class: [cell; current] }
-  s3: "" { class: [cell; visited] }
-  s4: "" { class: [cell; pruned] }
-  s5: "" { class: [cell; hot] }
-  s6: "" { class: [cell; cold] }
+  s1: "" { class: [cell; idle] }
+  s2: "" { class: [cell; active] }
+  s3: "" { class: [cell; current] }
+  s4: "" { class: [cell; visited] }
+  s5: "" { class: [cell; pruned] }
+  s6: "" { class: [cell; hot] }
+  s7: "" { class: [cell; cold] }
+  s8: "" { class: [cell; dim] }
 
   n0: "(none)" { class: idx }
-  n1: active   { class: idx }
-  n2: current  { class: idx }
-  n3: visited  { class: idx }
-  n4: pruned   { class: idx }
-  n5: hot      { class: idx }
-  n6: cold     { class: idx }
+  n1: idle     { class: idx }
+  n2: active   { class: idx }
+  n3: current  { class: idx }
+  n4: visited  { class: idx }
+  n5: pruned   { class: idx }
+  n6: hot      { class: idx }
+  n7: cold     { class: idx }
+  n8: dim      { class: idx }
 }

@@ -1,0 +1,10 @@
+# Frame 5 — B is the leader. Note what did NOT happen: no box moved, no arrow was added.
+# The role is a colour, so promotion is a recolour.
+...@./base
+title: "5 · B is promoted — writes have somewhere to go again"
+router.class: [edge; current]
+cluster.a.class: [data; pruned]
+cluster.b.class: [data; hot]
+cluster.c.class: [data; active]
+(router -> cluster.b)[0].class: step
+(cluster.b <-> cluster.c)[0].class: hint

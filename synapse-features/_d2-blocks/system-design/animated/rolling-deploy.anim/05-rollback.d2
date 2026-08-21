@@ -1,0 +1,12 @@
+# Frame 5 — drained and rolled back. Recovery took one routing change, because nothing
+# had been migrated, replaced or rewritten yet. That is the property you are paying for.
+...@./base
+title: "5 · rolled back · instance 4 drained, fleet is v1 again"
+lb.class: [edge; active]
+metrics.class: [svc; active]
+fleet.i1.class: [svc; active]
+fleet.i2.class: [svc; active]
+fleet.i3.class: [svc; active]
+fleet.i4.class: [svc; visited]
+(lb -> fleet.i4)[0].class: hint
+(fleet -> metrics)[0].class: hint

@@ -17,13 +17,20 @@ fence is generated from a real file on disk.
 
 ```bash
 synapse-features/_d2-blocks/
-  lib/theme.d2        # every colour and size, in one place
-  lib/icons.d2        # verified icon URLs for the system-design blocks
-  demo/               # the three figures on this page
-  dsa/                # data structures and algorithms
-  system-design/      # primitives, native shapes, boundaries, patterns
-  render.sh           # the gate: compile everything, twice, two engines
-  README.md           # the index — every block, with a preview
+  lib/theme.d2         # every colour and size, in one place
+  lib/icons.d2         # verified icon URLs for the system-design blocks
+  lib/flatten.mjs      # resolves the imports away, for publication
+  demo/                # the three figures on this page
+  dsa/                 # data structures and algorithms
+    *.anim/            # animations: a base diagram + one file per frame
+  system-design/
+    primitives/        # the boxes, grouped by tier
+    shapes/            # where a native shape beats an icon
+    boundaries/        # regions, AZs, VPCs, trust
+    patterns/          # nine composed architectures
+    animated/          # failover, growth, a deploy — and the four transports
+  render.sh            # the gate: compile everything, twice, two engines
+  README.md            # the index — every block, with a preview
 ```
 
 The directory starts with `_`, which keeps the content walker out of it. Without the underscore its
@@ -46,28 +53,34 @@ classes: {
   pruned:  { style: { fill: "#fee2e2"; stroke: "#dc2626"; stroke-dash: 4; font-color: "#991b1b" } }   # cut off, never explored
   hot:     { style: { fill: "#ffedd5"; stroke: "#ea580c" } }   # frequent — cache hit, high traffic
   cold:    { style: { fill: "#eff6ff"; stroke: "#93c5fd"; font-color: "#64748b" } }   # rare — cache miss, cold path
+  dim:     { style: { fill: "#fbfcfe"; stroke: "#cbd5e1"; font-color: "#94a3b8" } }   # this frame is not about it
+  idle:    { style: { fill: "#ffffff"; stroke: "#94a3b8" } }   # declared, untouched, recolourable
 }
 
 sw: "layer a state over a structure:  { class: [cell; current] }" { class: panel
   grid-rows: 2
-  grid-columns: 7
+  grid-columns: 9
   grid-gap: 0
 
   s0: "—" { class: cell }
-  s1: "" { class: [cell; active] }
-  s2: "" { class: [cell; current] }
-  s3: "" { class: [cell; visited] }
-  s4: "" { class: [cell; pruned] }
-  s5: "" { class: [cell; hot] }
-  s6: "" { class: [cell; cold] }
+  s1: "" { class: [cell; idle] }
+  s2: "" { class: [cell; active] }
+  s3: "" { class: [cell; current] }
+  s4: "" { class: [cell; visited] }
+  s5: "" { class: [cell; pruned] }
+  s6: "" { class: [cell; hot] }
+  s7: "" { class: [cell; cold] }
+  s8: "" { class: [cell; dim] }
 
   n0: "(none)" { class: idx }
-  n1: active   { class: idx }
-  n2: current  { class: idx }
-  n3: visited  { class: idx }
-  n4: pruned   { class: idx }
-  n5: hot      { class: idx }
-  n6: cold     { class: idx }
+  n1: idle     { class: idx }
+  n2: active   { class: idx }
+  n3: current  { class: idx }
+  n4: visited  { class: idx }
+  n5: pruned   { class: idx }
+  n6: hot      { class: idx }
+  n7: cold     { class: idx }
+  n8: dim      { class: idx }
 }
 ```
 
@@ -82,28 +95,34 @@ classes: {
   pruned:  { style: { fill: "#fee2e2"; stroke: "#dc2626"; stroke-dash: 4; font-color: "#991b1b" } }   # cut off, never explored
   hot:     { style: { fill: "#ffedd5"; stroke: "#ea580c" } }   # frequent — cache hit, high traffic
   cold:    { style: { fill: "#eff6ff"; stroke: "#93c5fd"; font-color: "#64748b" } }   # rare — cache miss, cold path
+  dim:     { style: { fill: "#fbfcfe"; stroke: "#cbd5e1"; font-color: "#94a3b8" } }   # this frame is not about it
+  idle:    { style: { fill: "#ffffff"; stroke: "#94a3b8" } }   # declared, untouched, recolourable
 }
 
 sw: "layer a state over a structure:  { class: [cell; current] }" { class: panel
   grid-rows: 2
-  grid-columns: 7
+  grid-columns: 9
   grid-gap: 0
 
   s0: "—" { class: cell }
-  s1: "" { class: [cell; active] }
-  s2: "" { class: [cell; current] }
-  s3: "" { class: [cell; visited] }
-  s4: "" { class: [cell; pruned] }
-  s5: "" { class: [cell; hot] }
-  s6: "" { class: [cell; cold] }
+  s1: "" { class: [cell; idle] }
+  s2: "" { class: [cell; active] }
+  s3: "" { class: [cell; current] }
+  s4: "" { class: [cell; visited] }
+  s5: "" { class: [cell; pruned] }
+  s6: "" { class: [cell; hot] }
+  s7: "" { class: [cell; cold] }
+  s8: "" { class: [cell; dim] }
 
   n0: "(none)" { class: idx }
-  n1: active   { class: idx }
-  n2: current  { class: idx }
-  n3: visited  { class: idx }
-  n4: pruned   { class: idx }
-  n5: hot      { class: idx }
-  n6: cold     { class: idx }
+  n1: idle     { class: idx }
+  n2: active   { class: idx }
+  n3: current  { class: idx }
+  n4: visited  { class: idx }
+  n5: pruned   { class: idx }
+  n6: hot      { class: idx }
+  n7: cold     { class: idx }
+  n8: dim      { class: idx }
 }
 ```
 
@@ -247,6 +266,14 @@ before -> after: "<the step>" { class: step }
 
 Put the invariant in the panel titles — a running sum, a candidate count, a bound. The titles are
 what turn two pictures into an argument.
+
+### When two panels are not enough
+
+The transition shows **one** step. For a sequence of them — a cache filling, a leader failing over,
+a window sliding — the library has animations: a base diagram plus one short file per frame, drawn
+into a figure the reader can play or step through.
+[Animating a diagram](/synapse/synapse-features/d2-component-library/animating-a-diagram) covers the
+four ways to put one in a lesson and the rules that stop it jumping.
 
 ## Copying one
 
@@ -443,9 +470,10 @@ reach for when two panels land the wrong way round.
 ./render.sh all
 ```
 
-Four things, in order: every icon URL answers 200, every `lib/` file parses, every block compiles
-**and** its flattened form compiles, and every fence in these lessons compiles again under the WASM
-d2 the app actually ships.
+Seven things, in order: every icon URL answers 200; every `lib/` file parses; every block compiles
+**and** its flattened form compiles; the multi-board sources draw an animated SVG and a board tree;
+every highlight-mode animation is layout-stable to within 2%; the figures that ship as files are
+redrawn; and every fence in these lessons compiles again under the WASM d2 the app actually ships.
 
 That last one is not paranoia. The app pins d2 v0.7.0 and renders with **ELK** at `pad: 20`; your CLI
 is probably v0.8.1 and defaults to dagre at `pad: 100`. Gate with the defaults and you are eyeballing
@@ -461,3 +489,8 @@ cell has nowhere to hide.
 | [Trees, heaps and range structures](/synapse/synapse-features/d2-component-library/dsa-trees-and-heaps) | binary trees, BSTs, heaps, tries, segment and Fenwick trees |
 | [Graphs and traversal](/synapse/synapse-features/d2-component-library/dsa-graphs) | three representations, BFS, DFS, topological order, union-find |
 | [DP and divide-and-conquer](/synapse/synapse-features/d2-component-library/dsa-dp-and-divide) | DP tables, recursion trees, binary search, partition, merge, grids |
+| [System design — primitives](/synapse/synapse-features/d2-component-library/sd-primitives) | every box a system diagram needs, with verified icons and boundaries |
+| [System design — patterns](/synapse/synapse-features/d2-component-library/sd-patterns) | nine composed architectures, trade-off included |
+| [Animating a diagram](/synapse/synapse-features/d2-component-library/animating-a-diagram) | four transports for a sequence, and the rules that keep one watchable |
+| [Animated system design](/synapse/synapse-features/d2-component-library/animated-system-design) | failover, growth, and a deploy that rolls back |
+| [Animated DSA](/synapse/synapse-features/d2-component-library/animated-dsa) | a sliding window, a binary search, a BFS frontier, a DP table |

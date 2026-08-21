@@ -1,0 +1,11 @@
+# Frame 3 — the bake. Nothing is happening on purpose: you are buying enough traffic for
+# a rare failure to show up before it is on every instance.
+...@./base
+title: "3 · bake for 10 minutes — watching, not deploying"
+lb.class: [edge; active]
+metrics.class: [svc; current]
+fleet.i1.class: [svc; active]
+fleet.i2.class: [svc; active]
+fleet.i3.class: [svc; active]
+fleet.i4.class: [svc; current]
+(fleet -> metrics)[0].class: step

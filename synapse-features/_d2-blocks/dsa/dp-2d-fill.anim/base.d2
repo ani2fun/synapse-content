@@ -1,0 +1,47 @@
+# ── ANIMATION BASE · A DP TABLE FILLING IN ────────────────────────────────────
+# animation-mode: highlight
+# lesson: animated-dsa
+# caption: A DP table filling in, one cell at a time
+# Counting paths across a 4×4 grid, moving only right or down. Every cell is the sum of
+# the one above it and the one to its left — and THAT is the thing a static table cannot
+# show: which two cells the answer came from.
+#
+# Each frame lights the cell being computed (`current`) and the cells it reads (`hot`).
+# Filled cells go `visited`, the untouched remainder stays `idle`. Read the frames in
+# order and you are watching the recurrence, not the result.
+#
+# Grid cells have a pinned width, so a frame can safely write a NUMBER into one. That is
+# the exception to "frames never relabel": inside a grid, a label cannot resize a column.
+#
+# Knobs: the grid size and the recurrence. The same skeleton draws edit distance, LCS,
+# knapsack — anything with a two-dimensional table and a local rule.
+
+...@../../lib/theme
+
+title: "dynamic programming · paths[r][c] = paths[r-1][c] + paths[r][c-1]" { near: top-center; shape: text; width: 700; style: { font-size: 19; bold: true } }
+
+table: "" { class: board
+  grid-rows: 4
+  grid-columns: 4
+  grid-gap: 0
+
+  r0c0: 1 { class: [cell; idle] }
+  r0c1: "·" { class: [cell; idle] }
+  r0c2: "·" { class: [cell; idle] }
+  r0c3: "·" { class: [cell; idle] }
+
+  r1c0: "·" { class: [cell; idle] }
+  r1c1: "·" { class: [cell; idle] }
+  r1c2: "·" { class: [cell; idle] }
+  r1c3: "·" { class: [cell; idle] }
+
+  r2c0: "·" { class: [cell; idle] }
+  r2c1: "·" { class: [cell; idle] }
+  r2c2: "·" { class: [cell; idle] }
+  r2c3: "·" { class: [cell; idle] }
+
+  r3c0: "·" { class: [cell; idle] }
+  r3c1: "·" { class: [cell; idle] }
+  r3c2: "·" { class: [cell; idle] }
+  r3c3: "·" { class: [cell; idle] }
+}

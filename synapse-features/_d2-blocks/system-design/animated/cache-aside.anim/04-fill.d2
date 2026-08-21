@@ -1,0 +1,7 @@
+# Frame 4 — the fill. The TTL set here IS the consistency story: until it expires, a
+# write that lands in the database is invisible to this cache.
+...@./base
+title: "4 · fill the cache · the TTL starts now"
+app.class: [svc; current]
+cache.class: [data; hot]
+(app -> cache)[0].class: step

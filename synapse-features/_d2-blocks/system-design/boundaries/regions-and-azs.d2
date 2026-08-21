@@ -1,0 +1,39 @@
+# ── BOUNDARIES · REGIONS AND AVAILABILITY ZONES ───────────────────────────────
+# A container is a BLAST RADIUS. Nesting says what fails together: an AZ can go dark
+# without taking its region with it, and a region can go dark without taking the service
+# with it — but only if you drew the second copy.
+#
+# The rule this figure encodes: state that must survive an AZ failure is replicated
+# ACROSS AZs, and the replication edge is drawn, labelled with its lag.
+#
+# Knobs: the AZ count (three is the usual quorum-friendly minimum) and the lag figure.
+
+...@../../lib/theme
+
+direction: right
+
+region: "us-east-1 · region" { class: panel
+  style.stroke-dash: 3
+
+  az_a: "az-1a" { class: panel
+    app_a: "App ×4" { class: svc }
+    db_a: "Primary" { class: data; shape: cylinder }
+    app_a -> db_a
+  }
+
+  # TODO: a second AZ is the minimum that survives one going dark. A third is what a
+  # quorum-based store (etcd, ZooKeeper, a Raft group) actually needs.
+  az_b: "az-1b" { class: panel
+    app_b: "App ×4" { class: svc }
+    db_b: "Standby" { class: data; shape: cylinder }
+    app_b -> db_b
+  }
+
+  # Fully-qualified: written as `db_a -> db_b` these would be TWO NEW EMPTY NODES at region
+  # scope, drawn as stray boxes. d2 creates an undeclared key rather than complaining.
+  az_a.db_a -> az_b.db_b: "sync replication\nRPO 0" { class: hint }
+}
+
+lb: "Load balancer\ncross-AZ, health-checked" { class: edge }
+lb -> region.az_a.app_a
+lb -> region.az_b.app_b

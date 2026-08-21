@@ -1,0 +1,38 @@
+# ── ANIMATION BASE · SCALING, ONE BOTTLENECK AT A TIME ────────────────────────
+# animation-mode: build
+# lesson: animated-system-design
+# caption: One system outgrowing itself, one bottleneck at a time
+# The OTHER animation mode. Everywhere else in this library a frame recolours a fixed
+# picture; here each frame ADDS to the last, and the diagram grows.
+#
+#   highlight mode   layout is frozen, colour moves         → a sequence of events
+#   build mode       layout grows, boxes appear             → a system evolving
+#
+# The layout DOES jump between frames here, and that is the point — the reader is meant
+# to see the architecture getting bigger. Use build mode only when growth is the subject.
+#
+# Chained imports are what keep it DRY: 02 spreads in 01, 03 spreads in 02, and so on, so
+# every frame file holds only what that step added. Each one still compiles alone.
+#
+# One consequence to expect: flattened, the last frame carries EVERY step's `title:` line,
+# in order. d2 takes the last one, so the figure is right — and the stack of them is a
+# readable history of how the diagram got there.
+#
+# The other consequence: a chain can add, never remove. When a step RETIRES something —
+# users stop talking to the app directly once a load balancer arrives — blank its label
+# and set `style.opacity: 0`. It keeps its slot in the layout and disappears from view,
+# which is exactly what you want; deleting it would move everything else.
+#
+# Knobs: this file is the naive starting point. Keep it genuinely naive — the animation
+# is worthless if frame 1 is already a good design.
+
+...@../../../lib/theme
+
+direction: right
+
+title: "scaling · one bottleneck at a time" { near: top-center; shape: text; width: 760; style: { font-size: 20; bold: true } }
+
+users: "Users" { class: client; shape: person }
+app: "One server\napp + database, same box" { class: svc }
+
+users -> app: "everything"

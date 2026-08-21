@@ -1,0 +1,66 @@
+# ── AUTO-LOOP · ONE FILE, ONE SELF-ANIMATING SVG ──────────────────────────────
+# The same cache-aside sequence as cache-aside.anim/, written as d2 `steps:` and compiled
+# with `--animate-interval`. The output is a SINGLE svg carrying CSS keyframes: it plays
+# by itself, forever, with no JavaScript and no controls.
+#
+#   d2 --layout elk --pad 20 --target '*' --animate-interval 1600 \
+#      cache-aside-loop.d2 ../../../_media/synapse-features/animating-a-diagram/cache-aside-loop.svg
+#
+# ⚠️  This is NOT a fence. The app's renderer never passes `animateInterval`, so a `steps:`
+# source inside a ```d2 fence draws its root board and nothing else. An auto-loop reaches a
+# reader only as a committed file under `_media/`, referenced as an ordinary image. That is
+# also why it costs a page nothing: it is a URL, not inlined source.
+#
+# `steps:` boards INHERIT from the previous step, so this file is naturally DRY — each step
+# says only what changed, exactly like the frame files, but without the imports.
+#
+# Knobs: the interval (1600ms reads comfortably; below ~1000 nobody can follow it) and how
+# many steps you split the sequence into. Nobody can pause this, so keep it short.
+
+...@../../lib/theme
+
+direction: right
+
+title: "cache-aside · the read path" { near: top-center; shape: text; width: 900; style: { font-size: 20; bold: true } }
+
+app: "Application\nowns the cache logic" { class: [svc; dim] }
+cache: "Cache · TTL 5m\nkey: user:42" { class: [data; dim] }
+db: "Database" { class: [data; dim]; shape: cylinder }
+
+app -> cache: "1. GET user:42   ·   4. SET user:42 EX 300" { class: dim; style.stroke-width: 2 }
+cache -> app: "2. HIT / MISS" { class: dim; style.stroke-width: 2 }
+app <-> db: "3. SELECT … WHERE id=42  →  row" { class: dim; style.stroke-width: 2 }
+
+steps: {
+  lookup: {
+    title: "1 · ask the cache first"
+    app.class: [svc; current]
+    cache.class: [data; current]
+    (app -> cache)[0].class: step
+  }
+  miss: {
+    title: "2 · MISS — the key is not there"
+    cache.class: [data; cold]
+    (app -> cache)[0].class: dim
+    (cache -> app)[0].class: step
+  }
+  read: {
+    title: "3 · read through to the store"
+    db.class: [data; current]
+    (cache -> app)[0].class: dim
+    (app <-> db)[0].class: step
+  }
+  fill: {
+    title: "4 · fill the cache · the TTL starts now"
+    cache.class: [data; hot]
+    db.class: [data; dim]
+    (app <-> db)[0].class: dim
+    (app -> cache)[0].class: step
+  }
+  hit: {
+    title: "5 · the next read is a HIT — the store is never touched"
+    app.class: [svc; active]
+    (app -> cache)[0].class: hint
+    (cache -> app)[0].class: step
+  }
+}

@@ -1,0 +1,29 @@
+# ── PRIMITIVES · CLIENTS AND CALLERS ──────────────────────────────────────────
+# Everything that originates a request. Copy the ONE line you need — each node here is
+# a complete, self-contained declaration.
+#
+# The `client` class is the neutral grey of the five-role palette: a caller is not part
+# of your system, so it should not wear a system colour.
+#
+# A grid rather than a row of loose nodes, because unconnected siblings lay out
+# perpendicular to `direction` under ELK and a catalog is easier to read in fixed
+# columns. Both `grid-rows` and `grid-columns` are required — one alone is ignored.
+#
+# Knobs: swap `${icon.x}` for any name in lib/icons.d2; drop the icon entirely and the
+# label still carries the meaning.
+
+...@../../lib/theme
+...@../../lib/icons
+
+grid-rows: 2
+grid-columns: 3
+grid-gap: 40
+
+web: "Web client\nbrowser" { class: client; icon: ${icon.client_web} }
+mobile: "Mobile client\niOS · Android" { class: client; icon: ${icon.client_mobile} }
+desktop: "Desktop app" { class: client; icon: ${icon.client_desktop} }
+
+# TODO: `person` is a native shape — no icon, no network, and it reads instantly.
+person: "End user" { class: client; shape: person }
+fleet: "User population\n10M MAU" { class: client; icon: ${icon.users} }
+partner: "Third-party API\nyou call out to" { class: client; icon: ${icon.third_party} }

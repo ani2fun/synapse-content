@@ -1,0 +1,12 @@
+# Frame 2 — one instance takes v2 and 1% of traffic. One instance, because the cost of
+# being wrong is what you are choosing here.
+...@./base
+title: "2 · instance 4 → v2 · 1% of traffic"
+lb.class: [edge; active]
+metrics.class: [svc; active]
+fleet.i1.class: [svc; active]
+fleet.i2.class: [svc; active]
+fleet.i3.class: [svc; active]
+fleet.i4.class: [svc; current]
+(lb -> fleet.i4)[0].class: step
+(fleet -> metrics)[0].class: hint

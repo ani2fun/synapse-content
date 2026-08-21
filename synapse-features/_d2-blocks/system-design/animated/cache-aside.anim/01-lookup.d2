@@ -1,0 +1,7 @@
+# Frame 1 — the application asks the cache FIRST. The cache never talks to the database
+# and knows nothing about it; that is what "aside" means.
+...@./base
+title: "1 · ask the cache first"
+app.class: [svc; current]
+cache.class: [data; current]
+(app -> cache)[0].class: step

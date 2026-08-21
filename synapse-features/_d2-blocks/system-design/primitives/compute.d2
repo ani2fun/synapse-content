@@ -1,0 +1,25 @@
+# ── PRIMITIVES · COMPUTE ──────────────────────────────────────────────────────
+# The things that run your code. Green in the five-role palette.
+#
+# The distinction that matters in a design review is not the runtime — it is whether a
+# box is on the request path (a user is waiting) or off it (nobody is). Say which in the
+# label, as these do.
+#
+# Knobs: replica counts and the "N instances" line — an interviewer reads those as your
+# capacity estimate, so make them match your numbers.
+
+...@../../lib/theme
+...@../../lib/icons
+
+grid-rows: 2
+grid-columns: 3
+grid-gap: 40
+
+app: "App server\nstateless · 12 instances" { class: svc; icon: ${icon.app_server} }
+service: "Microservice\nowns one bounded context" { class: svc; icon: ${icon.microservice} }
+farm: "Server fleet\nautoscaling group" { class: svc; icon: ${icon.server_farm} }
+
+# TODO: off the request path — nobody is waiting on these. Label the trigger.
+worker: "Background worker\npulls from the queue" { class: svc; icon: ${icon.worker} }
+cron: "Scheduled job\nnightly rollup" { class: svc; icon: ${icon.cron} }
+runtime: "Container\none image, N replicas" { class: svc; icon: ${icon.container} }

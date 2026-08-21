@@ -1,0 +1,8 @@
+# Frame 4 — the election. Two survivors out of three is a majority, which is the whole
+# reason the cluster has an odd number of nodes.
+...@./base
+title: "4 · election — B and C are a majority of 3"
+cluster.a.class: [data; pruned]
+cluster.b.class: [data; current]
+cluster.c.class: [data; active]
+(cluster.b <-> cluster.c)[0].class: step

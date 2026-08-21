@@ -1,0 +1,14 @@
+# Frame 3 — E is reachable from both B and C, and is reached exactly once: the first
+# visit wins, and because levels are finished in order, the first visit is the shortest.
+...@./base
+title: "3 · level 2 · queue [D, E, F] · E is reached once, not twice"
+a.class: [node; visited]
+b.class: [node; visited]
+c.class: [node; visited]
+d.class: [node; current]
+e.class: [node; current]
+f.class: [node; current]
+(b -> d)[0].class: step
+(b -> e)[0].class: step
+(c -> e)[0].class: hint
+(c -> f)[0].class: step

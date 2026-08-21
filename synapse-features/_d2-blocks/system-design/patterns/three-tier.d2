@@ -1,0 +1,37 @@
+# ── PATTERN · THREE-TIER WEB APP ──────────────────────────────────────────────
+# The diagram every system-design answer starts from. Draw this in the first two minutes,
+# then earn the rest of the whiteboard by breaking one tier at a time.
+#
+# What makes it a good OPENING answer is the stateless middle: the app tier holds
+# nothing, so it scales by adding boxes, and every hard problem is pushed into the tier
+# below it — which is exactly where the interesting conversation is.
+#
+# Knobs: instance counts, and the store. Everything else is the skeleton.
+
+...@../../lib/theme
+
+direction: right
+
+browser: "Browser" { class: client; shape: person }
+
+edge: "Edge" { class: panel
+  cdn: "CDN\nstatic assets, cached HTML" { class: edge }
+  lb: "Load balancer\nTLS, health checks" { class: edge }
+}
+
+# TODO: stateless is the whole point — no sessions on disk, no local files. If a box
+# cannot be killed mid-request without a user noticing, this tier is a lie.
+app: "App tier · stateless ×N" { class: panel
+  web: "Web servers\nrender + API" { class: svc }
+}
+
+store: "Data tier" { class: panel
+  db: "Primary\nsingle writer" { class: data; shape: cylinder }
+  cache: "Cache\nsessions, hot reads" { class: data }
+}
+
+browser -> edge.cdn: "1. GET /"
+edge.cdn -> edge.lb: "2. miss → origin"
+edge.lb -> app.web: "3. round-robin"
+app.web -> store.cache: "4. read-through"
+app.web -> store.db: "5. on miss"

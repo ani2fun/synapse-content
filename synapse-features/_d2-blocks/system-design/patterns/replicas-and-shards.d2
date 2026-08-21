@@ -1,0 +1,44 @@
+# ── PATTERN · READ REPLICAS AND SHARDING ──────────────────────────────────────
+# The two ways to scale a database, drawn side by side because they solve DIFFERENT
+# problems and candidates reach for the wrong one under pressure:
+#
+#   replicas  scale READS.  Every replica holds all the data. Writes do not get faster.
+#   shards    scale WRITES (and data size). Each shard holds a slice. Cross-shard
+#             queries and transactions get much harder.
+#
+# A read-heavy feed: replicas. A write-heavy ledger: shards. Both: both.
+#
+# Knobs: the shard key — and it is the only decision on this page that is expensive to
+# change later.
+
+...@../../lib/theme
+
+direction: right
+
+replicas: "Scale READS · replication" { class: panel
+  w: "Writes" { class: svc }
+  p: "Primary" { class: data; shape: cylinder }
+  r1: "Replica 1\nlag ~80ms" { class: data; shape: cylinder }
+  r2: "Replica 2\nlag ~80ms" { class: data; shape: cylinder }
+  reads: "Reads" { class: svc }
+
+  w -> p
+  p -> r1: "async" { class: hint }
+  p -> r2: "async" { class: hint }
+  r1 -> reads: "stale by a beat" { class: hint }
+  r2 -> reads: { class: hint }
+}
+
+shards: "Scale WRITES · partitioning" { class: panel
+  router: "Router\nhash(user_id) % 16" { class: edge }
+  s0: "Shard 0\nusers 0–4M" { class: data; shape: cylinder }
+  s1: "Shard 1\nusers 4–8M" { class: data; shape: cylinder }
+  s2: "Shard 2\nusers 8–12M" { class: data; shape: cylinder }
+
+  router -> s0
+  router -> s1
+  router -> s2
+}
+
+# TODO: pick the shard key for the ACCESS PATTERN, not for the entity. Sharding orders
+# by order_id spreads one customer's orders across every shard.

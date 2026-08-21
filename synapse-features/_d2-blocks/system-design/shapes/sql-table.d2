@@ -1,0 +1,47 @@
+# ── NATIVE SHAPES · SQL TABLES AND FOREIGN KEYS ───────────────────────────────
+# `shape: sql_table` turns a node's keys into typed rows, and a connection BETWEEN TWO
+# ROWS draws the foreign key. This is the fastest way to answer "what does your schema
+# look like?" without leaving the diagram.
+#
+# `{constraint: primary_key}` renders a key marker; `foreign_key` and `unique` also work.
+#
+# ⚠️  DO NOT put a palette class on a sql_table. d2 reads `style.stroke` as the ROW FILL
+# and `style.fill` as the HEADER fill, and leaves the header text white — so `class: data`
+# paints solid orange rows, and a light header fill makes the title invisible. The default
+# styling (dark header, white rows, blue keys) is already good; leave it alone. This is
+# the one place in the library where the five-role palette does not apply.
+#
+# Two habits worth keeping: index the columns you filter on and say so in the row name,
+# and draw the FK edges — an interviewer reads the arrows, not the columns.
+#
+# Knobs: the columns. Keep the table count low — three tables is a schema, ten is a wall.
+
+direction: right
+
+users: {
+  shape: sql_table
+  id: "bigint" { constraint: primary_key }
+  email: "text" { constraint: unique }
+  created_at: timestamptz
+}
+
+# TODO: the access pattern this table exists to serve, in one comment, right here.
+# "list a user's orders, newest first" → index on (user_id, created_at desc).
+orders: {
+  shape: sql_table
+  id: "bigint" { constraint: primary_key }
+  user_id: "bigint" { constraint: foreign_key }
+  status: "text  -- pending | paid | shipped"
+  total_cents: bigint
+  created_at: "timestamptz  -- idx (user_id, created_at)"
+}
+
+items: {
+  shape: sql_table
+  order_id: "bigint" { constraint: foreign_key }
+  sku: text
+  qty: int
+}
+
+orders.user_id -> users.id
+items.order_id -> orders.id
