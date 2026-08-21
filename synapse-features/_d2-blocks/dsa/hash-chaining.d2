@@ -1,0 +1,28 @@
+# ── HASH TABLE · SEPARATE CHAINING ────────────────────────────────────────────
+# A bucket array on the left, a list hanging off each occupied slot. Empty buckets are
+# drawn, not omitted — the ratio of empty to occupied IS the load factor, and load factor
+# is the only number that matters about a hash table.
+#
+# The buckets are NOT a grid here: connections do not route into grid children, and the
+# chains are connections. A plain column plus `direction: right` gets the same picture.
+#
+# Knobs: bucket count, chain contents, and which bucket collides.
+
+...@../lib/theme
+
+direction: right
+
+b0: "0" { class: cell }
+b1: "1" { class: cell }
+b2: "2" { class: cell }
+b3: "3" { class: cell }
+b4: "4" { class: cell }
+
+# TODO: the collision — two keys landing in one bucket is the case worth drawing.
+b1 -> k_ada: { class: hint }
+k_ada: "\"ada\" → 41" { class: [node; hot]; width: 120 }
+k_ada -> k_bob: { class: hint }
+k_bob: "\"bob\" → 7" { class: [node; hot]; width: 120 }
+
+b3 -> k_cy: { class: hint }
+k_cy: "\"cy\" → 19" { class: node; width: 120 }

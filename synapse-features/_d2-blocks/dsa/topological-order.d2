@@ -1,0 +1,29 @@
+# ── TOPOLOGICAL ORDER ─────────────────────────────────────────────────────────
+# A DAG laid out left to right so every edge points forward — which IS the topological
+# order, made visible. The in-degree of each node is written on it, because that number
+# is what Kahn's algorithm actually consumes.
+#
+# Knobs: the tasks, the dependencies, and the in-degrees (keep them honest!).
+
+...@../lib/theme
+
+direction: right
+
+# TODO: in-degree 0 — the only nodes that can start.
+a: "A\nin:0" { class: [node; active]; width: 66 }
+b: "B\nin:1" { class: node; width: 66 }
+c: "C\nin:1" { class: node; width: 66 }
+d: "D\nin:2" { class: node; width: 66 }
+e: "E\nin:1" { class: node; width: 66 }
+
+a -> b
+a -> c
+b -> d
+c -> d
+d -> e
+
+order: "a valid order:  A → B → C → D → E" {
+  near: bottom-center
+  shape: text
+  style: { font-size: 15; font-color: "#475569" }
+}

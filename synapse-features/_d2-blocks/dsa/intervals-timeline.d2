@@ -1,0 +1,72 @@
+# ── INTERVALS ON A TIMELINE ───────────────────────────────────────────────────
+# One row per interval, one column per time unit, so an overlap is a column with two
+# filled cells in it. Sorting the rows by start time is not cosmetic — every interval
+# algorithm assumes it, and a picture drawn out of order teaches the wrong instinct.
+#
+# A bare key renders its own name, so every bar cell carries an explicit `: ""`. Miss one
+# and the figure grows a stray "b4" inside the bar.
+#
+# Knobs: rows (intervals), columns (time units), and which cells each interval fills.
+
+...@../lib/theme
+
+tl: "sorted by start · B and C overlap at t=4" { class: panel
+  grid-rows: 5
+  grid-columns: 9
+  grid-gap: 0
+
+  # ── A = [0, 3)
+  la: A { class: tick; width: 40 }
+  a0: "" { class: [cell; active] }
+  a1: "" { class: [cell; active] }
+  a2: "" { class: [cell; active] }
+  a3 { class: ghost }
+  a4 { class: ghost }
+  a5 { class: ghost }
+  a6 { class: ghost }
+  a7 { class: ghost }
+
+  # ── B = [2, 5)
+  lb: B { class: tick; width: 40 }
+  b0 { class: ghost }
+  b1 { class: ghost }
+  b2: "" { class: [cell; active] }
+  b3: "" { class: [cell; active] }
+  # TODO: the overlapping cell — the one the sweep has to notice.
+  b4: "" { class: [cell; current] }
+  b5 { class: ghost }
+  b6 { class: ghost }
+  b7 { class: ghost }
+
+  # ── C = [4, 7)
+  lc: C { class: tick; width: 40 }
+  c0 { class: ghost }
+  c1 { class: ghost }
+  c2 { class: ghost }
+  c3 { class: ghost }
+  c4: "" { class: [cell; current] }
+  c5: "" { class: [cell; active] }
+  c6: "" { class: [cell; active] }
+  c7 { class: ghost }
+
+  # ── D = [7, 8)
+  ld: D { class: tick; width: 40 }
+  d0 { class: ghost }
+  d1 { class: ghost }
+  d2 { class: ghost }
+  d3 { class: ghost }
+  d4 { class: ghost }
+  d5 { class: ghost }
+  d6 { class: ghost }
+  d7: "" { class: [cell; active] }
+
+  lt { class: ghost; width: 40 }
+  t0: 0 { class: idx }
+  t1: 1 { class: idx }
+  t2: 2 { class: idx }
+  t3: 3 { class: idx }
+  t4: 4 { class: idx }
+  t5: 5 { class: idx }
+  t6: 6 { class: idx }
+  t7: 7 { class: idx }
+}

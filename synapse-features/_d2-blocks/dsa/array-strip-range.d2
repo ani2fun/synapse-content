@@ -1,0 +1,42 @@
+# ── ARRAY STRIP, HIGHLIGHTED RANGE ────────────────────────────────────────────
+# The same strip with a half-open range [lo, hi) called out, and a caption row naming
+# the bounds. Use it for "the answer is this subarray", for a partition, or for any claim
+# about a slice.
+#
+# Knobs: swap `cell` for `[cell; active]` on the cells in range; move the `lo` / `hi`
+# captions to the matching columns of the spacer row.
+
+...@../lib/theme
+
+arr: { class: board
+  grid-rows: 3
+  grid-columns: 7
+  grid-gap: 0
+
+  v0: 2  { class: cell }
+  v1: 7  { class: cell }
+  # TODO: the range — [2, 5) here.
+  v2: 11 { class: [cell; active] }
+  v3: 15 { class: [cell; active] }
+  v4: 1  { class: [cell; active] }
+  v5: 8  { class: cell }
+  v6: 4  { class: cell }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+
+  # A spacer row is how you label ONE column. Connections do not route into a grid, so
+  # an arrow pointing at cell 2 is not an option — an invisible cell holding a caption is.
+  c0 { class: ghost }
+  c1 { class: ghost }
+  c2: "▲ lo"   { class: tick; style.font-color: "#16a34a" }
+  c3 { class: ghost }
+  c4: "▲ hi-1" { class: tick; style.font-color: "#16a34a" }
+  c5 { class: ghost }
+  c6 { class: ghost }
+}

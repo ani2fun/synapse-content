@@ -1,0 +1,43 @@
+# ── SLIDING WINDOW ────────────────────────────────────────────────────────────
+# A window [l, r] over a strip, with both bounds labelled on a spacer row and the
+# window's invariant in the title. Use it to state the problem before showing a step.
+#
+# Knobs: which cells carry `active` (the window), which columns carry the l / r ticks,
+# and the invariant in the title.
+
+...@../lib/theme
+
+win: "window [1, 4]  ·  sum = 31" { class: panel
+  grid-rows: 3
+  grid-columns: 8
+  grid-gap: 0
+
+  v0: 4  { class: cell }
+  # TODO: the window — the run of `active` cells.
+  v1: 12 { class: [cell; active] }
+  v2: 7  { class: [cell; active] }
+  v3: 9  { class: [cell; active] }
+  v4: 3  { class: [cell; active] }
+  v5: 15 { class: cell }
+  v6: 6  { class: cell }
+  v7: 2  { class: cell }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+  i7: 7 { class: idx }
+
+  # TODO: move the two ticks to the window's columns.
+  p0 { class: ghost }
+  p1: "▲ l" { class: tick; style.font-color: "#16a34a" }
+  p2 { class: ghost }
+  p3 { class: ghost }
+  p4: "▲ r" { class: tick; style.font-color: "#16a34a" }
+  p5 { class: ghost }
+  p6 { class: ghost }
+  p7 { class: ghost }
+}

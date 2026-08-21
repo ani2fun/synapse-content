@@ -1,0 +1,38 @@
+# ── ARRAY STRIP ───────────────────────────────────────────────────────────────
+# A contiguous run of cells with its indices printed underneath. The base every other
+# linear block is built from: a window, a pointer pair, a DP row are all this plus a
+# state class on some cells.
+#
+# Use it whenever the picture needs positions, not just values — anything where "index 3"
+# is part of the explanation.
+#
+# Knobs: the cell count (add a pair of `vN` / `iN` keys and bump grid-columns), the
+# values, and `cell.width` in the theme if the values are wide.
+
+...@../lib/theme
+
+arr: { class: board
+  # grid-rows AND grid-columns, both of them. With only grid-columns, D2 fills
+  # column-major and the index row lands beside the values instead of beneath them.
+  grid-rows: 2
+  grid-columns: 7
+  grid-gap: 0   # what makes the cells read as one strip rather than seven boxes
+
+  # TODO: the values — row 1.
+  v0: 2  { class: cell }
+  v1: 7  { class: cell }
+  v2: 11 { class: cell }
+  v3: 15 { class: cell }
+  v4: 1  { class: cell }
+  v5: 8  { class: cell }
+  v6: 4  { class: cell }
+
+  # TODO: the indices — row 2. One per value, or the columns stop lining up.
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+}

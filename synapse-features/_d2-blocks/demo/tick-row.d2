@@ -1,0 +1,36 @@
+# ── POINTING AT A COLUMN ──────────────────────────────────────────────────────
+# Connections do not route into a grid's children, so you cannot draw an arrow to cell 3.
+# The way around it is a spacer row: one invisible cell per column, and the caption goes
+# in the column you mean.
+#
+# `ghost` is blank padding. `tick` is the one that shows its label. Both are transparent
+# and both are pinned to the cell width so the columns stay in step.
+#
+# Knobs: which column carries the caption, and its colour.
+
+...@../lib/theme
+
+t: "pointing at column 2" { class: panel
+  grid-rows: 3
+  grid-columns: 5
+  grid-gap: 0
+
+  v0: 2 { class: cell }
+  v1: 7 { class: cell }
+  v2: 9 { class: [cell; current] }
+  v3: 4 { class: cell }
+  v4: 1 { class: cell }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+
+  # TODO: move the caption to whichever column you mean.
+  p0 { class: ghost }
+  p1 { class: ghost }
+  p2: "▲ here" { class: tick; style.font-color: "#ca8a04" }
+  p3 { class: ghost }
+  p4 { class: ghost }
+}

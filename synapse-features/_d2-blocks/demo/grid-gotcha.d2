@@ -1,0 +1,40 @@
+# ── GRID GOTCHA · SET BOTH ROWS AND COLUMNS ───────────────────────────────────
+# The single most expensive mistake in this library. Give a grid only `grid-columns` and
+# D2 fills it COLUMN-major and re-flows the cells to fit: the index row scatters into the
+# value row, and the explicit widths and heights are quietly overridden.
+#
+# Set both. Always. The wrong panel below is not a caricature — it is what the identical
+# eight cells actually render as with one keyword missing.
+#
+# Knobs: none. This figure documents the rule.
+
+...@../lib/theme
+
+direction: down
+
+wrong: "✗ grid-columns: 4 only" { class: panel
+  grid-columns: 4
+  grid-gap: 0
+  v0: 2 { class: cell }
+  v1: 7 { class: cell }
+  v2: 9 { class: cell }
+  v3: 4 { class: cell }
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+}
+
+right: "✓ grid-rows: 2 AND grid-columns: 4" { class: panel
+  grid-rows: 2
+  grid-columns: 4
+  grid-gap: 0
+  v0: 2 { class: cell }
+  v1: 7 { class: cell }
+  v2: 9 { class: cell }
+  v3: 4 { class: cell }
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+}

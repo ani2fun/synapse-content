@@ -1,0 +1,35 @@
+# ── QUEUE ─────────────────────────────────────────────────────────────────────
+# Horizontal, head on the left, tail on the right, work flowing left to right. Reserve
+# the vertical column for a stack so the two never get confused in one lesson.
+#
+# Knobs: the entries, and the head / tail tick columns.
+
+...@../lib/theme
+
+q: "queue · 4 waiting" { class: panel
+  grid-rows: 3
+  grid-columns: 6
+  grid-gap: 0
+
+  # TODO: the entries, oldest first.
+  v0: A { class: [cell; current] }
+  v1: B { class: cell }
+  v2: C { class: cell }
+  v3: D { class: cell }
+  v4: "" { class: [cell; cold] }
+  v5: "" { class: [cell; cold] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+
+  p0: "▲ head" { class: tick; style.font-color: "#ca8a04" }
+  p1 { class: ghost }
+  p2 { class: ghost }
+  p3 { class: ghost }
+  p4: "▲ tail" { class: tick; style.font-color: "#0284c7" }
+  p5 { class: ghost }
+}

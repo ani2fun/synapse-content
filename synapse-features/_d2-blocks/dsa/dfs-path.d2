@@ -1,0 +1,28 @@
+# ── DFS · ONE PATH ────────────────────────────────────────────────────────────
+# Depth-first commits to a branch and only backs out when it must. Numbering the visit
+# order is what separates this from BFS on paper — without the numbers the two pictures
+# are the same graph.
+#
+# The backtrack is dashed: it is not an edge of the graph, it is the call stack unwinding.
+# Drawing it solid invents an edge that does not exist.
+#
+# Knobs: the visit order in the edge labels, and which node is the dead end.
+
+...@../lib/theme
+
+direction: down
+
+a: A { class: [node; visited]; shape: circle }
+b: B { class: [node; visited]; shape: circle }
+d: D { class: [node; visited]; shape: circle }
+# TODO: the dead end that forces the backtrack.
+g: G { class: [node; pruned]; shape: circle }
+c: C { class: [node; current]; shape: circle }
+e: E { class: [node; cold]; shape: circle }
+
+a -> b: 1 { class: step; style.stroke: "#16a34a" }
+b -> d: 2 { class: step; style.stroke: "#16a34a" }
+d -> g: 3 { class: step; style.stroke: "#16a34a" }
+g -> a: "4. backtrack" { class: step; style.stroke: "#dc2626"; style.stroke-dash: 5 }
+a -> c: 5 { class: step; style.stroke: "#ca8a04" }
+c -> e: { class: hint }

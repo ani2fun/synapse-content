@@ -1,0 +1,68 @@
+# ── MERGE STEP ────────────────────────────────────────────────────────────────
+# Two sorted runs and the output being built from them, one comparison at a time. The
+# reason merge sort needs O(n) extra space is right here in the picture: there is a third
+# strip, and it is as long as the other two together.
+#
+# Knobs: the two runs, the head positions, and how much output exists so far.
+
+...@../lib/theme
+
+direction: down
+
+runs: "two sorted runs · compare the heads" { class: panel
+  grid-rows: 4
+  grid-columns: 5
+  grid-gap: 0
+
+  la: L { class: tick; width: 40 }
+  # TODO: L's head — the smaller of the two heads wins.
+  l0: 3 { class: [cell; visited] }
+  l1: 8 { class: [cell; current] }
+  l2: 14 { class: cell }
+  l3: 21 { class: cell }
+
+  la2 { class: ghost; width: 40 }
+  il0: 0 { class: idx }
+  il1: 1 { class: idx }
+  il2: 2 { class: idx }
+  il3: 3 { class: idx }
+
+  lb: R { class: tick; width: 40 }
+  r0: 5 { class: [cell; visited] }
+  r1: 6 { class: [cell; current] }
+  r2: 17 { class: cell }
+  r3: 30 { class: cell }
+
+  lb2 { class: ghost; width: 40 }
+  ir0: 0 { class: idx }
+  ir1: 1 { class: idx }
+  ir2: 2 { class: idx }
+  ir3: 3 { class: idx }
+}
+
+out: "output · 6 < 8, so 6 is written next" { class: panel
+  grid-rows: 2
+  grid-columns: 8
+  grid-gap: 0
+
+  o0: 3 { class: [cell; visited] }
+  o1: 5 { class: [cell; visited] }
+  # TODO: the cell about to be written.
+  o2: 6 { class: [cell; current] }
+  o3: "·" { class: [cell; cold] }
+  o4: "·" { class: [cell; cold] }
+  o5: "·" { class: [cell; cold] }
+  o6: "·" { class: [cell; cold] }
+  o7: "·" { class: [cell; cold] }
+
+  j0: 0 { class: idx }
+  j1: 1 { class: idx }
+  j2: 2 { class: idx }
+  j3: 3 { class: idx }
+  j4: 4 { class: idx }
+  j5: 5 { class: idx }
+  j6: 6 { class: idx }
+  j7: 7 { class: idx }
+}
+
+runs -> out: "min(8, 6) = 6\nadvance R" { class: step }

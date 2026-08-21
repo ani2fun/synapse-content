@@ -1,0 +1,54 @@
+# ── DP · 2-D GRID ─────────────────────────────────────────────────────────────
+# The same idea one dimension up. The three cells feeding dp[i][j] — up, left, and
+# diagonal — are what determine the fill order, so they are drawn `active` while the cell
+# being written is `current`.
+#
+# The diagonal neighbour is the one that decides whether you can drop to a single row of
+# memory later, so it is worth drawing even when the recurrence happens not to use it.
+#
+# Knobs: the two strings on the axes, the fill frontier, and which neighbours are read.
+
+...@../lib/theme
+
+lcs: "LCS · match ⇒ diag+1, else max(up, left)" { class: panel
+  grid-rows: 5
+  grid-columns: 6
+  grid-gap: 0
+
+  h_: ""  { class: idx; height: 44 }
+  h0: "∅" { class: idx; height: 44 }
+  hA: A   { class: idx; height: 44 }
+  hB: B   { class: idx; height: 44 }
+  hC: C   { class: idx; height: 44 }
+  hD: D   { class: idx; height: 44 }
+
+  r0: "∅" { class: idx; height: 52 }
+  c00: 0 { class: [cell; visited]; height: 52 }
+  c01: 0 { class: [cell; visited]; height: 52 }
+  c02: 0 { class: [cell; visited]; height: 52 }
+  c03: 0 { class: [cell; visited]; height: 52 }
+  c04: 0 { class: [cell; visited]; height: 52 }
+
+  rA: A { class: idx; height: 52 }
+  c10: 0 { class: [cell; visited]; height: 52 }
+  c11: 1 { class: [cell; visited]; height: 52 }
+  c12: 1 { class: [cell; visited]; height: 52 }
+  c13: 1 { class: [cell; visited]; height: 52 }
+  c14: 1 { class: [cell; visited]; height: 52 }
+
+  rC: C { class: idx; height: 52 }
+  c20: 0 { class: [cell; visited]; height: 52 }
+  c21: 1 { class: [cell; visited]; height: 52 }
+  # TODO: the three neighbours the recurrence reads — diag, up, left.
+  c22: 1 { class: [cell; active]; height: 52 }
+  c23: 1 { class: [cell; active]; height: 52 }
+  c24: "·" { class: [cell; cold]; height: 52 }
+
+  rD: D { class: idx; height: 52 }
+  c30: 0 { class: [cell; visited]; height: 52 }
+  c31: 1 { class: [cell; visited]; height: 52 }
+  c32: 1 { class: [cell; active]; height: 52 }
+  # TODO: the cell being written.
+  c33: 2 { class: [cell; current]; height: 52 }
+  c34: "·" { class: [cell; cold]; height: 52 }
+}

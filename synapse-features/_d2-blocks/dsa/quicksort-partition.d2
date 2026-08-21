@@ -1,0 +1,46 @@
+# ── QUICKSORT · PARTITION STEP ────────────────────────────────────────────────
+# The invariant Lomuto partitioning maintains, drawn as three regions plus the pivot. The
+# regions are the point: everything left of `i` is ≤ pivot, everything between `i` and `j`
+# is >, and everything right of `j` is unexamined.
+#
+# Knobs: the values, the pivot, and the two region boundaries.
+
+...@../lib/theme
+
+qs: "pivot = 7 · a[..i] ≤ 7 · a[i..j] > 7 · a[j..] unseen" { class: panel
+  grid-rows: 3
+  grid-columns: 8
+  grid-gap: 0
+
+  # TODO: the ≤ pivot region.
+  v0: 3 { class: [cell; active] }
+  v1: 5 { class: [cell; active] }
+  # TODO: the > pivot region.
+  v2: 9  { class: [cell; hot] }
+  v3: 12 { class: [cell; hot] }
+  # TODO: the cell being examined now.
+  v4: 4 { class: [cell; current] }
+  # TODO: not yet seen.
+  v5: 11 { class: cell }
+  v6: 2  { class: cell }
+  # TODO: the pivot, parked at the end until the swap-back.
+  v7: 7 { class: [cell; visited] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+  i7: 7 { class: idx }
+
+  p0 { class: ghost }
+  p1 { class: ghost }
+  p2: "▲ i" { class: tick; style.font-color: "#16a34a" }
+  p3 { class: ghost }
+  p4: "▲ j" { class: tick; style.font-color: "#ca8a04" }
+  p5 { class: ghost }
+  p6 { class: ghost }
+  p7: "▲ pivot" { class: tick }
+}

@@ -1,0 +1,66 @@
+# ── SLIDING WINDOW · SHRINK ───────────────────────────────────────────────────
+# One contraction step: the window has broken its constraint, so l advances and the cell
+# it leaves behind is subtracted. The mirror of sliding-window-expand.d2.
+#
+# Knobs: the constraint named in the titles (`sum ≤ 25` here), the values, the ticks.
+
+...@../lib/theme
+
+direction: right
+
+before: "before · sum = 28 > 25 ✗" { class: panel
+  grid-rows: 3
+  grid-columns: 6
+  grid-gap: 0
+
+  v0: 4  { class: cell }
+  # TODO: the cell about to leave the window.
+  v1: 12 { class: [cell; current] }
+  v2: 7  { class: [cell; active] }
+  v3: 9  { class: [cell; active] }
+  v4: 3  { class: cell }
+  v5: 15 { class: cell }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+
+  p0 { class: ghost }
+  p1: "▲ l" { class: tick; style.font-color: "#ca8a04" }
+  p2 { class: ghost }
+  p3: "▲ r" { class: tick; style.font-color: "#16a34a" }
+  p4 { class: ghost }
+  p5 { class: ghost }
+}
+
+after: "after · sum = 16 ≤ 25 ✓" { class: panel
+  grid-rows: 3
+  grid-columns: 6
+  grid-gap: 0
+
+  v0: 4  { class: cell }
+  v1: 12 { class: [cell; visited] }
+  v2: 7  { class: [cell; active] }
+  v3: 9  { class: [cell; active] }
+  v4: 3  { class: cell }
+  v5: 15 { class: cell }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+
+  p0 { class: ghost }
+  p1 { class: ghost }
+  p2: "▲ l" { class: tick; style.font-color: "#16a34a" }
+  p3: "▲ r" { class: tick; style.font-color: "#16a34a" }
+  p4 { class: ghost }
+  p5 { class: ghost }
+}
+
+before -> after: "l++\n− a[1]" { class: step }

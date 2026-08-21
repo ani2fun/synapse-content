@@ -1,0 +1,27 @@
+# ── FAST / SLOW POINTERS ──────────────────────────────────────────────────────
+# Two walkers on a list, one hopping once per tick and the other twice. Nodes are plain
+# shapes rather than grid cells because the HOP LENGTHS, not the positions, are what the
+# picture has to show — so each pointer's move is drawn as its own labelled arc.
+#
+# Knobs: node count, where each pointer sits, and the hop arcs at the bottom.
+
+...@../lib/theme
+
+direction: right
+
+n1: 1 { class: [node; visited] }
+n2: 2 { class: [node; visited] }
+# TODO: where slow is now.
+n3: 3 { class: [node; current] }
+n4: 4 { class: node }
+# TODO: where fast is now — twice as far along.
+n5: 5 { class: [node; active] }
+n6: 6 { class: node }
+n7: 7 { class: node }
+
+n1 -> n2 -> n3 -> n4 -> n5 -> n6 -> n7: { class: hint }
+
+# The two moves of one tick, drawn at the length they actually cover. Fast closes the
+# gap by exactly one node per tick, which is why it catches slow inside any cycle.
+n3 -> n4: "slow +1" { class: step; style.stroke: "#ca8a04" }
+n5 -> n7: "fast +2" { class: step; style.stroke: "#16a34a" }

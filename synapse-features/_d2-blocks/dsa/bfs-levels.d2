@@ -1,0 +1,35 @@
+# ── BFS · LEVELS ──────────────────────────────────────────────────────────────
+# The whole reason BFS finds shortest paths, in one picture: it finishes a level before
+# it starts the next, so the first time it reaches a node is by the fewest hops there is.
+# The levels are containers, which is what pins each node to its own row.
+#
+# Knobs: which nodes sit in which level, and the frontier.
+
+...@../lib/theme
+
+direction: down
+
+l0: "level 0 · start" { class: panel
+  a: A { class: [node; visited]; shape: circle }
+}
+
+l1: "level 1 · 1 hop" { class: panel
+  b: B { class: [node; visited]; shape: circle }
+  c: C { class: [node; visited]; shape: circle }
+}
+
+# TODO: the frontier — the level the queue is chewing through now.
+l2: "level 2 · 2 hops — the frontier" { class: panel
+  d: D { class: [node; current]; shape: circle }
+  e: E { class: [node; current]; shape: circle }
+}
+
+l3: "level 3 · not reached yet" { class: panel
+  f: F { class: [node; cold]; shape: circle }
+}
+
+l0.a -> l1.b
+l0.a -> l1.c
+l1.b -> l2.d
+l1.c -> l2.e
+l2.d -> l3.f: { class: hint }

@@ -1,0 +1,26 @@
+# ── BINARY TREE ───────────────────────────────────────────────────────────────
+# Plain shape with `direction: down`. Draw the missing child as an explicit ∅ wherever the
+# lesson turns on it — a tree drawn with only its real children looks balanced even when
+# it is not, and "looks balanced" is the misconception most tree lessons are fighting.
+#
+# Knobs: the values, the depth, and which gaps get an explicit ∅.
+
+...@../lib/theme
+
+direction: down
+
+r: 8 { class: [node; current] }
+a: 3 { class: node }
+b: 10 { class: node }
+c: 1 { class: node }
+d: 6 { class: node }
+# TODO: an explicit hole, where the shape of the tree is the point.
+e: "∅" { class: [node; cold] }
+f: 14 { class: node }
+
+r -> a
+r -> b
+a -> c
+a -> d
+b -> e
+b -> f

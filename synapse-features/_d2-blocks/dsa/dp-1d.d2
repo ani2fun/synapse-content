@@ -1,0 +1,46 @@
+# ── DP · 1-D TABLE ────────────────────────────────────────────────────────────
+# A table part-filled, with the cell being computed and the cells it reads picked out
+# separately. Showing the DEPENDENCIES is the whole job: a DP table drawn without them is
+# just an array, and the recurrence is the thing the reader came for.
+#
+# Knobs: the recurrence in the title, how far the fill has got, and which cells feed the
+# current one.
+
+...@../lib/theme
+
+dp: "fib · dp[i] = dp[i−1] + dp[i−2]" { class: panel
+  grid-rows: 3
+  grid-columns: 8
+  grid-gap: 0
+
+  # TODO: already computed.
+  v0: 0 { class: [cell; visited] }
+  v1: 1 { class: [cell; visited] }
+  v2: 1 { class: [cell; visited] }
+  v3: 2 { class: [cell; visited] }
+  # TODO: the two the recurrence reads.
+  v4: 3 { class: [cell; active] }
+  v5: 5 { class: [cell; active] }
+  # TODO: the one being written now.
+  v6: 8 { class: [cell; current] }
+  # TODO: not reached.
+  v7: "·" { class: [cell; cold] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+  i7: 7 { class: idx }
+
+  p0 { class: ghost }
+  p1 { class: ghost }
+  p2 { class: ghost }
+  p3 { class: ghost }
+  p4: "▲ i−2" { class: tick; style.font-color: "#16a34a" }
+  p5: "▲ i−1" { class: tick; style.font-color: "#16a34a" }
+  p6: "▲ i" { class: tick; style.font-color: "#ca8a04" }
+  p7 { class: ghost }
+}

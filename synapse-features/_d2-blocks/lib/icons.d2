@@ -1,0 +1,84 @@
+# ── ICON URLS ─────────────────────────────────────────────────────────────────
+# Named icon URLs for the system-design blocks. Spread this in beside the theme:
+#
+#   ...@lib/theme
+#   ...@lib/icons
+#   api: API { icon: ${icon.app_server} }
+#
+# Every URL here is verified by `./render.sh icons`, which fails on any non-200.
+# That gate is not optional: the icon CDN answers 403 for a path that does not
+# exist, so a typo produces a silently empty box rather than an error.
+#
+# Icons are fetched by the READER'S BROWSER — d2 leaves them as remote <image href>
+# and never inlines the bytes. A reader with no route to icons.d2lang.com sees the
+# node's box and label, and nothing else. Where the shape carries the meaning on its
+# own (a queue, a cylinder, a person), prefer a native shape over an icon.
+#
+# TODO: to add one, copy its path off https://icons.terrastruct.com (click any icon)
+# and re-run `./render.sh icons`.
+
+vars: {
+  icon: {
+
+    # clients & people
+    client_web:      "https://icons.d2lang.com/tech%2Fbrowser-2.svg"
+    client_mobile:   "https://icons.d2lang.com/tech%2F052-smartphone-3.svg"
+    client_desktop:  "https://icons.d2lang.com/tech%2Fdesktop.svg"
+    user:            "https://icons.d2lang.com/essentials%2F365-user.svg"
+    users:           "https://icons.d2lang.com/essentials%2F359-users.svg"
+
+    # edge
+    dns:             "https://icons.d2lang.com/essentials%2F140-internet.svg"
+    cdn:             "https://icons.d2lang.com/infra%2F040-global%20network.svg"
+    load_balancer:   "https://icons.d2lang.com/tech%2Frouter.svg"
+    api_gateway:     "https://icons.d2lang.com/infra%2F025-plug-in.svg"
+    proxy:           "https://icons.d2lang.com/dev%2Fnginx.svg"
+
+    # compute
+    app_server:      "https://icons.d2lang.com/tech%2F022-server.svg"
+    microservice:    "https://icons.d2lang.com/infra%2F022-hosting.svg"
+    server_farm:     "https://icons.d2lang.com/tech%2Fservers.svg"
+    worker:          "https://icons.d2lang.com/essentials%2F204-settings.svg"
+    container:       "https://icons.d2lang.com/dev%2Fdocker.svg"
+    cpu:             "https://icons.d2lang.com/tech%2F014-cpu.svg"
+
+    # async
+    topic:           "https://icons.d2lang.com/essentials%2F108-megaphone.svg"
+    stream:          "https://icons.d2lang.com/infra%2F013-transfer.svg"
+
+    # data
+    cache:           "https://icons.d2lang.com/dev%2Fredis.svg"
+    rdbms:           "https://icons.d2lang.com/dev%2Fpostgresql.svg"
+    mysql:           "https://icons.d2lang.com/dev%2Fmysql.svg"
+    nosql:           "https://icons.d2lang.com/dev%2Fmongodb.svg"
+    database:        "https://icons.d2lang.com/essentials%2F117-database.svg"
+    sharded_db:      "https://icons.d2lang.com/infra%2F011-data-storage.svg"
+    object_storage:  "https://icons.d2lang.com/essentials%2F304-archive.svg"
+    folder:          "https://icons.d2lang.com/essentials%2F245-folder.svg"
+    disk:            "https://icons.d2lang.com/tech%2F069-hard-drive.svg"
+    backup:          "https://icons.d2lang.com/infra%2F002-backup.svg"
+
+    # analytics & search
+    search_index:    "https://icons.d2lang.com/essentials%2F313-search.svg"
+    data_warehouse:  "https://icons.d2lang.com/infra%2F012-data.svg"
+    analytics:       "https://icons.d2lang.com/essentials%2F001-analytics.svg"
+    observability:   "https://icons.d2lang.com/essentials%2F089-data%20analysis.svg"
+
+    # platform
+    auth:            "https://icons.d2lang.com/essentials%2F216-key.svg"
+    unlocked:        "https://icons.d2lang.com/essentials%2F001-unlocked.svg"
+    firewall:        "https://icons.d2lang.com/infra%2F003-firewall.svg"
+    protection:      "https://icons.d2lang.com/infra%2F033-protection.svg"
+    rate_limiter:    "https://icons.d2lang.com/essentials%2F215-funnel.svg"
+    service_mesh:    "https://icons.d2lang.com/infra%2F019-network.svg"
+    network:         "https://icons.d2lang.com/infra%2F014-network.svg"
+    satellite:       "https://icons.d2lang.com/infra%2F007-satellite.svg"
+
+    # integration & scheduling
+    cron:            "https://icons.d2lang.com/essentials%2F226-alarm%20clock.svg"
+    clock:           "https://icons.d2lang.com/essentials%2Ftime.svg"
+    webhook:         "https://icons.d2lang.com/essentials%2F287-link.svg"
+    websocket:       "https://icons.d2lang.com/essentials%2F103-wireless%20internet.svg"
+    third_party:     "https://icons.d2lang.com/infra%2F010-data-sharing.svg"
+  }
+}

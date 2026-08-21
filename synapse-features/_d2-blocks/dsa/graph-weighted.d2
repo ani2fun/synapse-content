@@ -1,0 +1,23 @@
+# ── GRAPH · WEIGHTED ──────────────────────────────────────────────────────────
+# Weights on the edges and the shortest path picked out. Draw a path whose hop count is
+# NOT the cheapest — here A→C→D costs 4 across two hops while the single hop A→D costs 9.
+# A figure where fewest-hops happens to win teaches the wrong reflex.
+#
+# Knobs: the weights, and which edges form the highlighted path.
+
+...@../lib/theme
+
+direction: right
+
+a: A { class: [node; current]; shape: circle }
+b: B { class: node; shape: circle }
+c: C { class: [node; active]; shape: circle }
+d: D { class: [node; active]; shape: circle }
+
+# TODO: the cheapest path — 1 + 3 = 4.
+a -> c: 1 { class: step; style.stroke: "#16a34a" }
+c -> d: 3 { class: step; style.stroke: "#16a34a" }
+
+a -> b: 2 { class: hint }
+b -> d: 8 { class: hint }
+a -> d: 9 { class: hint }

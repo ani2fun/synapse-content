@@ -1,0 +1,20 @@
+# ── SINGLY LINKED LIST ────────────────────────────────────────────────────────
+# Boxes and one-way arrows, with the null terminator drawn rather than implied. Draw the
+# terminator: half of all list bugs live at the end of the list, and a picture that stops
+# at the last node quietly suggests there is nothing there to get wrong.
+#
+# Knobs: node count and values; which node `head` points at.
+
+...@../lib/theme
+
+direction: right
+
+head: head { class: tick; width: 70; style.font-color: "#ca8a04" }
+n0: 3 { class: node }
+n1: 7 { class: node }
+n2: 1 { class: node }
+n3: 9 { class: node }
+nil: "∅" { class: [node; cold] }
+
+head -> n0: { class: hint }
+n0 -> n1 -> n2 -> n3 -> nil

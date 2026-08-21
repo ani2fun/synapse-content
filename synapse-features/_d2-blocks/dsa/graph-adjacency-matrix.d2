@@ -1,0 +1,48 @@
+# ── ADJACENCY MATRIX ──────────────────────────────────────────────────────────
+# V × V cells, one per possible edge. Its cost is the point: O(V²) whether the graph has
+# a million edges or none, which is why it only earns its keep on a dense graph — or when
+# "is there an edge A→D?" has to answer in one lookup.
+#
+# The matrix here is the DIRECTED graph from graph-node-edge.d2, so it is asymmetric.
+# An undirected graph's matrix is symmetric across the diagonal — a good thing to check.
+#
+# Knobs: the vertex count and which cells hold 1.
+
+...@../lib/theme
+
+m: "directed · row = from, column = to" { class: panel
+  grid-rows: 5
+  grid-columns: 5
+  grid-gap: 0
+
+  h0: ""  { class: idx; height: 48 }
+  hA: A   { class: idx; height: 48 }
+  hB: B   { class: idx; height: 48 }
+  hC: C   { class: idx; height: 48 }
+  hD: D   { class: idx; height: 48 }
+
+  rA: A   { class: idx; height: 56 }
+  aa: 0 { class: [cell; cold] }
+  # TODO: the 1s — one per edge.
+  ab: 1 { class: [cell; active] }
+  ac: 1 { class: [cell; active] }
+  ad: 0 { class: [cell; cold] }
+
+  rB: B   { class: idx; height: 56 }
+  ba: 0 { class: [cell; cold] }
+  bb: 0 { class: [cell; cold] }
+  bc: 0 { class: [cell; cold] }
+  bd: 1 { class: [cell; active] }
+
+  rC: C   { class: idx; height: 56 }
+  ca: 0 { class: [cell; cold] }
+  cb: 0 { class: [cell; cold] }
+  cc: 0 { class: [cell; cold] }
+  cd: 0 { class: [cell; cold] }
+
+  rD: D   { class: idx; height: 56 }
+  da: 0 { class: [cell; cold] }
+  db: 0 { class: [cell; cold] }
+  dc: 1 { class: [cell; active] }
+  dd: 0 { class: [cell; cold] }
+}

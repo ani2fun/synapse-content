@@ -1,0 +1,113 @@
+# ── FENWICK (BINARY INDEXED) TREE ─────────────────────────────────────────────
+# The coverage map. Fenwick index i stores the sum of (i − lowbit(i), i], and THAT is the
+# whole structure — there is no tree in memory, only an array whose indices happen to
+# describe one. Nothing else about a Fenwick tree makes sense until this picture does.
+#
+# Read a row as "index i covers these positions". Powers of two reach furthest: index 8
+# covers everything, index 4 covers half, and every odd index covers only itself.
+#
+# 1-indexed, necessarily — lowbit(0) is 0 and the walk would never terminate.
+#
+# Every covered cell carries an explicit `: ""` — a bare key renders its own name, and a
+# coverage map full of "a41" is not a coverage map.
+#
+# Knobs: the size (stay on a power of two), and which rows a query highlights.
+
+...@../lib/theme
+
+fw: "tree[i] covers (i − lowbit(i), i]  ·  prefix(6) = tree[6] + tree[4]" { class: panel
+  grid-rows: 9
+  grid-columns: 9
+  grid-gap: 0
+
+  hh: "i \\ pos" { class: idx; width: 84; height: 40 }
+  h1: 1 { class: idx; height: 40 }
+  h2: 2 { class: idx; height: 40 }
+  h3: 3 { class: idx; height: 40 }
+  h4: 4 { class: idx; height: 40 }
+  h5: 5 { class: idx; height: 40 }
+  h6: 6 { class: idx; height: 40 }
+  h7: 7 { class: idx; height: 40 }
+  h8: 8 { class: idx; height: 40 }
+
+  r1: "tree[1]" { class: idx; width: 84; height: 40 }
+  a11: "" { class: [cell; active]; height: 40 }
+  a12 { class: ghost; height: 40 }
+  a13 { class: ghost; height: 40 }
+  a14 { class: ghost; height: 40 }
+  a15 { class: ghost; height: 40 }
+  a16 { class: ghost; height: 40 }
+  a17 { class: ghost; height: 40 }
+  a18 { class: ghost; height: 40 }
+
+  r2: "tree[2]" { class: idx; width: 84; height: 40 }
+  a21: "" { class: [cell; active]; height: 40 }
+  a22: "" { class: [cell; active]; height: 40 }
+  a23 { class: ghost; height: 40 }
+  a24 { class: ghost; height: 40 }
+  a25 { class: ghost; height: 40 }
+  a26 { class: ghost; height: 40 }
+  a27 { class: ghost; height: 40 }
+  a28 { class: ghost; height: 40 }
+
+  r3: "tree[3]" { class: idx; width: 84; height: 40 }
+  a31 { class: ghost; height: 40 }
+  a32 { class: ghost; height: 40 }
+  a33: "" { class: [cell; active]; height: 40 }
+  a34 { class: ghost; height: 40 }
+  a35 { class: ghost; height: 40 }
+  a36 { class: ghost; height: 40 }
+  a37 { class: ghost; height: 40 }
+  a38 { class: ghost; height: 40 }
+
+  # TODO: the rows a prefix query lands on — here prefix(6) = tree[6] + tree[4].
+  r4: "tree[4]" { class: idx; width: 84; height: 40 }
+  a41: "" { class: [cell; current]; height: 40 }
+  a42: "" { class: [cell; current]; height: 40 }
+  a43: "" { class: [cell; current]; height: 40 }
+  a44: "" { class: [cell; current]; height: 40 }
+  a45 { class: ghost; height: 40 }
+  a46 { class: ghost; height: 40 }
+  a47 { class: ghost; height: 40 }
+  a48 { class: ghost; height: 40 }
+
+  r5: "tree[5]" { class: idx; width: 84; height: 40 }
+  a51 { class: ghost; height: 40 }
+  a52 { class: ghost; height: 40 }
+  a53 { class: ghost; height: 40 }
+  a54 { class: ghost; height: 40 }
+  a55: "" { class: [cell; active]; height: 40 }
+  a56 { class: ghost; height: 40 }
+  a57 { class: ghost; height: 40 }
+  a58 { class: ghost; height: 40 }
+
+  r6: "tree[6]" { class: idx; width: 84; height: 40 }
+  a61 { class: ghost; height: 40 }
+  a62 { class: ghost; height: 40 }
+  a63 { class: ghost; height: 40 }
+  a64 { class: ghost; height: 40 }
+  a65: "" { class: [cell; current]; height: 40 }
+  a66: "" { class: [cell; current]; height: 40 }
+  a67 { class: ghost; height: 40 }
+  a68 { class: ghost; height: 40 }
+
+  r7: "tree[7]" { class: idx; width: 84; height: 40 }
+  a71 { class: ghost; height: 40 }
+  a72 { class: ghost; height: 40 }
+  a73 { class: ghost; height: 40 }
+  a74 { class: ghost; height: 40 }
+  a75 { class: ghost; height: 40 }
+  a76 { class: ghost; height: 40 }
+  a77: "" { class: [cell; active]; height: 40 }
+  a78 { class: ghost; height: 40 }
+
+  r8: "tree[8]" { class: idx; width: 84; height: 40 }
+  a81: "" { class: [cell; active]; height: 40 }
+  a82: "" { class: [cell; active]; height: 40 }
+  a83: "" { class: [cell; active]; height: 40 }
+  a84: "" { class: [cell; active]; height: 40 }
+  a85: "" { class: [cell; active]; height: 40 }
+  a86: "" { class: [cell; active]; height: 40 }
+  a87: "" { class: [cell; active]; height: 40 }
+  a88: "" { class: [cell; active]; height: 40 }
+}

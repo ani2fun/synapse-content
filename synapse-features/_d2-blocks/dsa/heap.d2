@@ -1,0 +1,25 @@
+# ── BINARY HEAP · AS A TREE ───────────────────────────────────────────────────
+# A min-heap drawn as the tree it behaves like. The only invariant is parent ≤ child —
+# note what is NOT claimed: siblings are unordered, and a level is not sorted. Readers
+# who have only seen a BST assume both.
+#
+# Knobs: the values, and which node is being sifted.
+
+...@../lib/theme
+
+direction: down
+
+r: 2 { class: [node; current] }
+a: 4 { class: node }
+b: 7 { class: node }
+c: 9 { class: node }
+d: 5 { class: node }
+e: 8 { class: node }
+f: 11 { class: node }
+
+r -> a
+r -> b
+a -> c
+a -> d
+b -> e
+b -> f

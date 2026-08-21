@@ -1,0 +1,42 @@
+# ── STACK · PUSH ──────────────────────────────────────────────────────────────
+# One push. Everything below the top is untouched — that is the whole claim a stack
+# makes, and two panels prove it at a glance.
+#
+# Knobs: flip the panel titles and the arrow label to show a pop instead.
+
+...@../lib/theme
+
+direction: right
+
+before: "before · top = 4" { class: panel
+  grid-rows: 4
+  grid-columns: 2
+  grid-gap: 0
+
+  b3 { class: ghost }
+  bt3 { class: ghost }
+  v2: 4 { class: [cell; current] }
+  t2: "◀ top" { class: tick; width: 110; style.font-color: "#ca8a04" }
+  v1: 7 { class: cell }
+  t1 { class: ghost }
+  v0: 2 { class: cell }
+  t0 { class: ghost }
+}
+
+after: "after · top = 9" { class: panel
+  grid-rows: 4
+  grid-columns: 2
+  grid-gap: 0
+
+  # TODO: the pushed value.
+  v3: 9 { class: [cell; current] }
+  t3: "◀ top" { class: tick; width: 110; style.font-color: "#ca8a04" }
+  v2: 4 { class: [cell; visited] }
+  t2 { class: ghost }
+  v1: 7 { class: cell }
+  t1 { class: ghost }
+  v0: 2 { class: cell }
+  t0 { class: ghost }
+}
+
+before -> after: "push 9" { class: step }

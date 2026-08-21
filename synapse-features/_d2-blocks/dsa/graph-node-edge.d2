@@ -1,0 +1,37 @@
+# ── GRAPH · NODES AND EDGES ───────────────────────────────────────────────────
+# The plain picture, in both flavours. Directed and undirected are drawn as ONE figure
+# here on purpose: the difference is a single arrowhead, and putting them side by side is
+# the fastest way to make a reader check which one a problem actually gave them.
+#
+# The panels stack rather than sitting side by side, and that is ELK being consistent:
+# siblings with no edge between them are laid out PERPENDICULAR to the root direction.
+# `direction: right` stacks them; `direction: down` would put them in a row. Join two
+# panels with an edge and they line up along the direction instead.
+#
+# Knobs: the nodes, the edges, and `--` vs `->`.
+
+...@../lib/theme
+
+direction: right
+
+undirected: "undirected · edges have no side" { class: panel
+  a: A { class: node; shape: circle }
+  b: B { class: node; shape: circle }
+  c: C { class: node; shape: circle }
+  d: D { class: node; shape: circle }
+  a -- b
+  a -- c
+  b -- d
+  c -- d
+}
+
+directed: "directed · A→B does not give B→A" { class: panel
+  x: A { class: node; shape: circle }
+  y: B { class: node; shape: circle }
+  z: C { class: node; shape: circle }
+  w: D { class: node; shape: circle }
+  x -> y
+  x -> z
+  y -> w
+  z -> w
+}

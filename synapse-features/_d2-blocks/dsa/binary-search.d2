@@ -1,0 +1,45 @@
+# ── BINARY SEARCH ON A RANGE ──────────────────────────────────────────────────
+# lo, mid and hi over a sorted strip, with the discarded half already greyed out. The
+# grey is the algorithm: each comparison throws away half the remaining range, and that
+# is where the log n comes from.
+#
+# Knobs: the values, the target in the title, and the three tick columns.
+
+...@../lib/theme
+
+bs: "search 11 · a[mid]=8 < 11 ⇒ the left half is gone" { class: panel
+  grid-rows: 3
+  grid-columns: 9
+  grid-gap: 0
+
+  # TODO: the half just discarded.
+  v0: 1  { class: [cell; pruned] }
+  v1: 3  { class: [cell; pruned] }
+  v2: 5  { class: [cell; pruned] }
+  v3: 8  { class: [cell; pruned] }
+  v4: 11 { class: [cell; active] }
+  v5: 14 { class: [cell; active] }
+  v6: 19 { class: [cell; active] }
+  v7: 23 { class: [cell; active] }
+  v8: 27 { class: [cell; active] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+  i7: 7 { class: idx }
+  i8: 8 { class: idx }
+
+  p0 { class: ghost }
+  p1 { class: ghost }
+  p2 { class: ghost }
+  p3: "▲ mid" { class: tick; style.font-color: "#dc2626" }
+  p4: "▲ new lo" { class: tick; style.font-color: "#16a34a" }
+  p5 { class: ghost }
+  p6 { class: ghost }
+  p7 { class: ghost }
+  p8: "▲ hi" { class: tick; style.font-color: "#16a34a" }
+}

@@ -1,0 +1,83 @@
+# ── BINARY SEARCH · ONE HALVING ───────────────────────────────────────────────
+# One comparison, one half gone. Put the range SIZE in both titles — 9 → 4 → 2 → 1 is the
+# sequence a reader should leave with, and it does not survive being described in words.
+#
+# Knobs: the values, the target, and the two range sizes.
+
+...@../lib/theme
+
+direction: right
+
+before: "before · 9 candidates" { class: panel
+  grid-rows: 3
+  grid-columns: 9
+  grid-gap: 0
+
+  v0: 1  { class: [cell; active] }
+  v1: 3  { class: [cell; active] }
+  v2: 5  { class: [cell; active] }
+  v3: 8  { class: [cell; current] }
+  v4: 11 { class: [cell; active] }
+  v5: 14 { class: [cell; active] }
+  v6: 19 { class: [cell; active] }
+  v7: 23 { class: [cell; active] }
+  v8: 27 { class: [cell; active] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+  i7: 7 { class: idx }
+  i8: 8 { class: idx }
+
+  p0: "▲ lo" { class: tick; style.font-color: "#16a34a" }
+  p1 { class: ghost }
+  p2 { class: ghost }
+  p3: "▲ mid" { class: tick; style.font-color: "#ca8a04" }
+  p4 { class: ghost }
+  p5 { class: ghost }
+  p6 { class: ghost }
+  p7 { class: ghost }
+  p8: "▲ hi" { class: tick; style.font-color: "#16a34a" }
+}
+
+after: "after · 4 candidates" { class: panel
+  grid-rows: 3
+  grid-columns: 9
+  grid-gap: 0
+
+  v0: 1  { class: [cell; pruned] }
+  v1: 3  { class: [cell; pruned] }
+  v2: 5  { class: [cell; pruned] }
+  v3: 8  { class: [cell; pruned] }
+  v4: 11 { class: [cell; active] }
+  v5: 14 { class: [cell; active] }
+  v6: 19 { class: [cell; current] }
+  v7: 23 { class: [cell; active] }
+  v8: 27 { class: [cell; active] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+  i7: 7 { class: idx }
+  i8: 8 { class: idx }
+
+  p0 { class: ghost }
+  p1 { class: ghost }
+  p2 { class: ghost }
+  p3 { class: ghost }
+  p4: "▲ lo" { class: tick; style.font-color: "#16a34a" }
+  p5 { class: ghost }
+  p6: "▲ mid" { class: tick; style.font-color: "#ca8a04" }
+  p7 { class: ghost }
+  p8: "▲ hi" { class: tick; style.font-color: "#16a34a" }
+}
+
+before -> after: "8 < 11\nlo = mid+1" { class: step }

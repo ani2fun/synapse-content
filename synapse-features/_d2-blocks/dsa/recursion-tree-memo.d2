@@ -1,0 +1,34 @@
+# ── RECURSION TREE WITH MEMO HITS ─────────────────────────────────────────────
+# The call tree with repeated subproblems marked as cache hits. This is the ONE figure
+# that explains memoisation, because the saving is visible as area: every `hot` node is a
+# subtree that never got expanded.
+#
+# Knobs: the function and argument in each node, and which calls hit the memo.
+
+...@../lib/theme
+
+direction: down
+
+f5: "fib(5)" { class: [node; current]; width: 76 }
+f4: "fib(4)" { class: node; width: 76 }
+f3: "fib(3)" { class: node; width: 76 }
+f3b: "fib(3)\n✓ memo" { class: [node; hot]; width: 76; height: 62 }
+f2: "fib(2)" { class: node; width: 76 }
+f2b: "fib(2)\n✓ memo" { class: [node; hot]; width: 76; height: 62 }
+f1: "fib(1)" { class: [node; visited]; width: 76 }
+f0: "fib(0)" { class: [node; visited]; width: 76 }
+
+f5 -> f4
+f5 -> f3b
+f4 -> f3
+f4 -> f2b
+f3 -> f2
+f3 -> f1
+f2 -> f1
+f2 -> f0
+
+note: "every ✓ memo node is a subtree that was never expanded" {
+  near: bottom-center
+  shape: text
+  style: { font-size: 15; font-color: "#ea580c" }
+}

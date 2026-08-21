@@ -1,0 +1,26 @@
+# ── STACK ─────────────────────────────────────────────────────────────────────
+# A single column, top at the top. Drawing it vertically is not decoration: it is what
+# makes "push" and "pop" mean the same thing to the reader as they do in the code.
+#
+# Knobs: the entries (top first), and the tick beside the top.
+
+...@../lib/theme
+
+st: "stack · top = 9" { class: panel
+  grid-rows: 4
+  grid-columns: 2
+  grid-gap: 0
+
+  # TODO: the top of the stack — first row, because the top is drawn at the top.
+  v3: 9 { class: [cell; current] }
+  t3: "◀ top" { class: tick; width: 110; style.font-color: "#ca8a04" }
+
+  v2: 4 { class: cell }
+  t2 { class: ghost }
+
+  v1: 7 { class: cell }
+  t1 { class: ghost }
+
+  v0: 2 { class: cell }
+  t0: "◀ bottom" { class: tick; width: 110 }
+}

@@ -1,0 +1,57 @@
+# ── BINARY HEAP · TREE AND BACKING ARRAY ──────────────────────────────────────
+# The same heap twice: the tree it behaves like, and the flat array it actually is. Each
+# node carries its index so the reader can check the arithmetic themselves — and the
+# arithmetic is the whole trick, because it is what lets a tree live in a contiguous block
+# with no pointers at all.
+#
+#   left(i) = 2i+1     right(i) = 2i+2     parent(i) = (i-1)/2
+#
+# Knobs: the values (keep both halves in step!), and which node is highlighted.
+#
+# The two panels are joined by an edge for one reason only: unconnected siblings get
+# placed side by side, and this figure wants them stacked.
+
+...@../lib/theme
+
+direction: down
+
+tree: "the tree it behaves like" { class: panel
+  direction: down
+  r: "2\n[0]" { class: [node; current]; height: 62 }
+  a: "4\n[1]" { class: node; height: 62 }
+  b: "7\n[2]" { class: node; height: 62 }
+  c: "9\n[3]" { class: node; height: 62 }
+  d: "5\n[4]" { class: node; height: 62 }
+  e: "8\n[5]" { class: node; height: 62 }
+  f: "11\n[6]" { class: node; height: 62 }
+  r -> a
+  r -> b
+  a -> c
+  a -> d
+  b -> e
+  b -> f
+}
+
+arr: "the array it actually is · left(i)=2i+1, right(i)=2i+2" { class: panel
+  grid-rows: 2
+  grid-columns: 7
+  grid-gap: 0
+
+  v0: 2  { class: [cell; current] }
+  v1: 4  { class: cell }
+  v2: 7  { class: cell }
+  v3: 9  { class: cell }
+  v4: 5  { class: cell }
+  v5: 8  { class: cell }
+  v6: 11 { class: cell }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+}
+
+tree -> arr: "same seven numbers,\nno pointers" { class: hint }

@@ -1,0 +1,48 @@
+# ── GRID / MATRIX TRAVERSAL ───────────────────────────────────────────────────
+# A grid with walls, visited cells and the path found. Every grid problem is a graph
+# problem where the edges are implicit — this figure is the translation, and drawing the
+# walls is what stops a reader treating the grid as a full mesh.
+#
+# Walls override `pruned`s dash to a solid stroke: a dashed border reads as "ruled out
+# for now", and a wall is not provisional.
+#
+# Knobs: the dimensions, the walls, the start/goal, and the path.
+
+...@../lib/theme
+
+g: "shortest path S → G · ▓ is a wall" { class: panel
+  grid-rows: 4
+  grid-columns: 6
+  grid-gap: 0
+
+  # TODO: the start.
+  a0: S { class: [cell; current] }
+  a1: "·" { class: [cell; visited] }
+  a2: "▓" { class: [cell; pruned]; style.stroke-dash: 0 }
+  a3: "·" { class: cell }
+  a4: "·" { class: cell }
+  a5: "·" { class: cell }
+
+  b0: "·" { class: [cell; visited] }
+  b1: "·" { class: [cell; visited] }
+  b2: "▓" { class: [cell; pruned]; style.stroke-dash: 0 }
+  b3: "·" { class: cell }
+  b4: "▓" { class: [cell; pruned]; style.stroke-dash: 0 }
+  b5: "·" { class: cell }
+
+  c0: "▓" { class: [cell; pruned]; style.stroke-dash: 0 }
+  # TODO: the path.
+  c1: "·" { class: [cell; active] }
+  c2: "·" { class: [cell; active] }
+  c3: "·" { class: [cell; active] }
+  c4: "·" { class: cell }
+  c5: "·" { class: cell }
+
+  d0: "·" { class: cell }
+  d1: "·" { class: cell }
+  d2: "·" { class: cell }
+  d3: "·" { class: [cell; active] }
+  # TODO: the goal.
+  d4: G { class: [cell; current] }
+  d5: "·" { class: cell }
+}

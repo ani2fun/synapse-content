@@ -1,0 +1,26 @@
+# ── DOUBLY LINKED LIST ────────────────────────────────────────────────────────
+# Two independent chains of pointers over the same nodes, drawn as two rows of arrows so
+# the reader can count them. The cost a doubly linked list charges is exactly this: every
+# structural change must fix BOTH chains, and the second one is the one people forget.
+#
+# Only the tail terminator is drawn. A left-hand null is a back-edge from the first node,
+# and ELK parks it below the row where it reads as part of the tangle rather than as an
+# end — say "head.prev is null too" in prose instead of fighting the layout for it.
+#
+# Knobs: node count; the terminator.
+
+...@../lib/theme
+
+direction: right
+
+n0: 3 { class: node }
+n1: 7 { class: node }
+n2: 1 { class: node }
+nil_r: "∅" { class: [node; cold] }
+
+n0 -> n1: next
+n1 -> n2: next
+n2 -> nil_r: next
+
+n1 -> n0: prev { class: hint }
+n2 -> n1: prev { class: hint }

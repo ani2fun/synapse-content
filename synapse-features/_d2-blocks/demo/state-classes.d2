@@ -1,0 +1,30 @@
+# ── THE STATE PALETTE ─────────────────────────────────────────────────────────
+# Every state class in lib/theme.d2, on the structure class they layer over. This is the
+# vocabulary the rest of the library is written in — recolouring a node means swapping one
+# of these words, never editing a hex value.
+#
+# Knobs: none. This figure documents the theme; change the theme instead.
+
+...@../lib/theme
+
+sw: "layer a state over a structure:  { class: [cell; current] }" { class: panel
+  grid-rows: 2
+  grid-columns: 7
+  grid-gap: 0
+
+  s0: "—" { class: cell }
+  s1: "" { class: [cell; active] }
+  s2: "" { class: [cell; current] }
+  s3: "" { class: [cell; visited] }
+  s4: "" { class: [cell; pruned] }
+  s5: "" { class: [cell; hot] }
+  s6: "" { class: [cell; cold] }
+
+  n0: "(none)" { class: idx }
+  n1: active   { class: idx }
+  n2: current  { class: idx }
+  n3: visited  { class: idx }
+  n4: pruned   { class: idx }
+  n5: hot      { class: idx }
+  n6: cold     { class: idx }
+}

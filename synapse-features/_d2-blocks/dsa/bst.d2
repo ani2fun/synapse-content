@@ -1,0 +1,35 @@
+# ── BINARY SEARCH TREE ────────────────────────────────────────────────────────
+# A tree plus the invariant that makes it a BST, with the search path picked out. What is
+# worth showing is not the path but the SUBTREES IT NEVER LOOKED AT — those are drawn
+# `pruned`, and they are where the log n comes from.
+#
+# The comparisons live in the title, not on the edges. A labelled edge makes ELK stretch
+# the level it sits on and the tree stops looking like a tree; colour carries the path
+# just as well.
+#
+# Knobs: the values, the target, and which nodes are on the path vs pruned.
+
+...@../lib/theme
+
+direction: down
+
+title: "search 6  ·  8 → 3 → 6  ·  everything red was never visited" {
+  near: top-center
+  shape: text
+  style: { font-size: 16; font-color: "#475569" }
+}
+
+# TODO: the nodes actually compared.
+r: 8 { class: [node; current] }
+a: 3 { class: [node; current] }
+d: 6 { class: [node; active] }
+# TODO: the subtrees the invariant let it skip.
+b: 10 { class: [node; pruned] }
+c: 1 { class: [node; pruned] }
+f: 14 { class: [node; pruned] }
+
+r -> a: { class: step; style.stroke: "#ca8a04" }
+a -> d: { class: step; style.stroke: "#ca8a04" }
+r -> b: { class: hint }
+a -> c: { class: hint }
+b -> f: { class: hint }

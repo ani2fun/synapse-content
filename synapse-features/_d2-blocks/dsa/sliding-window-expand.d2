@@ -1,0 +1,67 @@
+# ── SLIDING WINDOW · EXPAND ───────────────────────────────────────────────────
+# One growth step: r advances, the new cell joins the window, the running total rises.
+# Pair it with sliding-window-shrink.d2 to tell the whole two-phase story.
+#
+# Knobs: the values, which cells are `active`, the tick columns, and the totals in the
+# two titles — the totals are what make the step mean something.
+
+...@../lib/theme
+
+direction: right
+
+before: "before · sum = 19" { class: panel
+  grid-rows: 3
+  grid-columns: 6
+  grid-gap: 0
+
+  v0: 4  { class: cell }
+  v1: 12 { class: [cell; active] }
+  v2: 7  { class: [cell; active] }
+  v3: 9  { class: cell }
+  v4: 3  { class: cell }
+  v5: 15 { class: cell }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+
+  p0 { class: ghost }
+  p1: "▲ l" { class: tick; style.font-color: "#16a34a" }
+  p2: "▲ r" { class: tick; style.font-color: "#16a34a" }
+  p3 { class: ghost }
+  p4 { class: ghost }
+  p5 { class: ghost }
+}
+
+after: "after · sum = 28" { class: panel
+  grid-rows: 3
+  grid-columns: 6
+  grid-gap: 0
+
+  v0: 4  { class: cell }
+  v1: 12 { class: [cell; active] }
+  v2: 7  { class: [cell; active] }
+  # TODO: the cell that just entered the window.
+  v3: 9  { class: [cell; current] }
+  v4: 3  { class: cell }
+  v5: 15 { class: cell }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+
+  p0 { class: ghost }
+  p1: "▲ l" { class: tick; style.font-color: "#16a34a" }
+  p2 { class: ghost }
+  p3: "▲ r" { class: tick; style.font-color: "#ca8a04" }
+  p4 { class: ghost }
+  p5 { class: ghost }
+}
+
+before -> after: "r++\n+ a[3]" { class: step }

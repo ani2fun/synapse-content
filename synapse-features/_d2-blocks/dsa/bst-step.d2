@@ -1,0 +1,39 @@
+# ── BST · INSERT ──────────────────────────────────────────────────────────────
+# One insertion. A new key always lands as a LEAF — it never displaces anything — and two
+# panels are the cheapest way to make that stick.
+#
+# NOTE the root `direction: down`. ELK ignores `direction` set on a nested container, so a
+# panel always draws in the ROOT's direction: ask for `right` and the trees inside come out
+# sideways. Panels holding a tree therefore stack vertically. Everything else in this
+# library uses `direction: right` and side-by-side panels.
+#
+# Knobs: the inserted key, and which leaf it hangs off.
+
+...@../lib/theme
+
+direction: down
+
+before: "before · insert 5" { class: panel
+  r: 8 { class: [node; current] }
+  a: 3 { class: [node; current] }
+  b: 10 { class: node }
+  d: 6 { class: [node; current] }
+  r -> a
+  r -> b
+  a -> d
+}
+
+after: "after · 5 hangs off 6 as a leaf" { class: panel
+  r2: 8 { class: node }
+  a2: 3 { class: node }
+  b2: 10 { class: node }
+  d2: 6 { class: node }
+  # TODO: the new key — always a leaf.
+  n2: 5 { class: [node; active] }
+  r2 -> a2
+  r2 -> b2
+  a2 -> d2
+  d2 -> n2
+}
+
+before -> after: "5 < 8 → left\n5 > 3 → right\n5 < 6 → left" { class: step }

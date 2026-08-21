@@ -1,0 +1,42 @@
+# ── TWO POINTERS ──────────────────────────────────────────────────────────────
+# Two indices closing in from the ends of a sorted strip. The cells between them are
+# still in play; the cells outside are ruled out for good.
+#
+# Knobs: which cells are `visited` (ruled out) vs plain (still in play), the tick
+# columns, and the decision rule in the title.
+
+...@../lib/theme
+
+tp: "sorted · looking for a pair summing to 18" { class: panel
+  grid-rows: 3
+  grid-columns: 8
+  grid-gap: 0
+
+  # TODO: cells already ruled out.
+  v0: 1  { class: [cell; visited] }
+  v1: 3  { class: [cell; current] }
+  v2: 6  { class: cell }
+  v3: 8  { class: cell }
+  v4: 11 { class: cell }
+  v5: 14 { class: [cell; current] }
+  v6: 19 { class: [cell; visited] }
+  v7: 23 { class: [cell; visited] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+  i7: 7 { class: idx }
+
+  p0 { class: ghost }
+  p1: "▲ lo" { class: tick; style.font-color: "#ca8a04" }
+  p2 { class: ghost }
+  p3 { class: ghost }
+  p4 { class: ghost }
+  p5: "▲ hi" { class: tick; style.font-color: "#ca8a04" }
+  p6 { class: ghost }
+  p7 { class: ghost }
+}

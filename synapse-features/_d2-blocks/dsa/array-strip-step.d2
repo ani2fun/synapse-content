@@ -1,0 +1,70 @@
+# ── TRANSITION SKELETON ───────────────────────────────────────────────────────
+# THE block to copy. Two panels — the state before a step and the state after it —
+# joined by an arrow that names the step. Every other `-step` file in this library is
+# this shape with different cells inside, so learn it once.
+#
+# The skeleton, minus the contents:
+#
+#   direction: right
+#   before: "before · <state>" { class: panel   <grid keys, then cells> }
+#   after:  "after · <state>"  { class: panel   <grid keys, then cells> }
+#   before -> after: "<the step>" { class: step }
+#
+# Use it for anything where the change IS the lesson: a pointer moving, a cell filling,
+# a node linking in, a rebalance. A single static picture cannot show a change; two can.
+#
+# The panel IS the grid — do not nest a `board` inside it. A wrapper container costs
+# about 100×70px of dead space per panel and buys nothing.
+#
+# Knobs: the two panel titles (carry the invariant — a running sum, a count, a bound),
+# the arrow label (ONE step, kept short), and the state classes on whichever cells differ.
+
+...@../lib/theme
+
+direction: right
+
+before: "before · writing index 3" { class: panel
+  grid-rows: 2
+  grid-columns: 6
+  grid-gap: 0
+
+  v0: 2 { class: [cell; visited] }
+  v1: 7 { class: [cell; visited] }
+  v2: 9 { class: [cell; visited] }
+  # TODO: the cell about to change.
+  v3: "·" { class: [cell; current] }
+  v4: "·" { class: cell }
+  v5: "·" { class: cell }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+}
+
+after: "after · index 3 written" { class: panel
+  grid-rows: 2
+  grid-columns: 6
+  grid-gap: 0
+
+  v0: 2 { class: [cell; visited] }
+  v1: 7 { class: [cell; visited] }
+  v2: 9 { class: [cell; visited] }
+  v3: 4 { class: [cell; visited] }
+  # TODO: and the one that becomes current next.
+  v4: "·" { class: [cell; current] }
+  v5: "·" { class: cell }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+}
+
+# Keep this label SHORT. ELK routes the edge straight through its text, so a long one
+# ends up struck through by its own arrow. Two or three words, or a `\n` break.
+before -> after: "write 4\nadvance" { class: step }

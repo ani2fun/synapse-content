@@ -1,0 +1,31 @@
+# ── ADJACENCY LIST ────────────────────────────────────────────────────────────
+# One row per vertex, its neighbours hanging off it. The representation to reach for by
+# default: the space it uses is O(V + E), so a sparse graph costs what it actually is.
+#
+# Not a grid — connections do not route into grid children, and the neighbour chains are
+# connections. A plain column plus `direction: right` gives the same picture.
+#
+# Knobs: the vertices and their neighbour lists.
+
+...@../lib/theme
+
+direction: right
+
+a: A { class: [cell; current]; width: 48 }
+b: B { class: cell; width: 48 }
+c: C { class: cell; width: 48 }
+d: D { class: cell; width: 48 }
+
+a -> a1: { class: hint }
+a1: B { class: node; width: 48 }
+a1 -> a2: { class: hint }
+a2: C { class: node; width: 48 }
+
+b -> b1: { class: hint }
+b1: D { class: node; width: 48 }
+
+c -> c1: { class: hint }
+c1: D { class: node; width: 48 }
+
+d -> d1: { class: hint }
+d1: "∅" { class: [node; cold]; width: 48 }

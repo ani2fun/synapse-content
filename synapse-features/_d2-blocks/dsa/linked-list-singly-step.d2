@@ -1,0 +1,33 @@
+# ── SINGLY LINKED LIST · INSERT ───────────────────────────────────────────────
+# Splicing a node in after n1. Both pointer writes are shown because the ORDER of them
+# is the bug: set the new node's next FIRST, then n1's. Do it the other way and the tail
+# of the list is unreachable for the instant in between — which is exactly long enough
+# for another thread, or a garbage collector, to notice.
+#
+# Knobs: where the splice happens, and the two numbered write labels.
+
+...@../lib/theme
+
+direction: right
+
+before: "before" { class: panel
+  direction: right
+  a0: 3 { class: node }
+  a1: 7 { class: [node; current] }
+  a2: 1 { class: node }
+  a0 -> a1 -> a2
+}
+
+after: "after" { class: panel
+  direction: right
+  b0: 3 { class: node }
+  b1: 7 { class: [node; current] }
+  # TODO: the spliced node.
+  bx: 5 { class: [node; active] }
+  b2: 1 { class: node }
+  b0 -> b1
+  b1 -> bx: "2. n1.next" { class: step; style.stroke: "#ca8a04" }
+  bx -> b2: "1. new.next" { class: step; style.stroke: "#16a34a" }
+}
+
+before -> after: "insert 5\nafter n1" { class: step }

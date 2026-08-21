@@ -1,0 +1,42 @@
+{
+  "generator": 1,
+  "source": "06896e7e",
+  "root": "root",
+  "boards": [
+    {
+      "id": "root",
+      "slug": "root",
+      "title": "System Context",
+      "parent": null,
+      "links": [
+        "root.layers.container"
+      ]
+    },
+    {
+      "id": "root.layers.container",
+      "slug": "container",
+      "title": "Container",
+      "parent": "root",
+      "links": [
+        "root.layers.component"
+      ]
+    },
+    {
+      "id": "root.layers.component",
+      "slug": "component",
+      "title": "Component",
+      "parent": "root",
+      "links": [
+        "root.layers.code"
+      ]
+    },
+    {
+      "id": "root.layers.code",
+      "slug": "code",
+      "title": "Code",
+      "parent": "root",
+      "links": []
+    }
+  ],
+  "warnings": []
+}

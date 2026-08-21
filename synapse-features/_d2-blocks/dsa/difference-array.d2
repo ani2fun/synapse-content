@@ -1,0 +1,52 @@
+# ── DIFFERENCE ARRAY ──────────────────────────────────────────────────────────
+# Prefix sum run backwards: to add v across a whole range in O(1), touch two cells and
+# let a later prefix pass spread the change. `d[lo] += v` and `d[hi+1] -= v` — the second
+# one is what stops the increment leaking past the range, and it is the one people forget.
+#
+# Knobs: the range and the delta in the title, and which two `d` cells carry ±v.
+
+...@../lib/theme
+
+diff: "range update: a[2..4] += 5  →  d[2] += 5, d[5] −= 5" { class: panel
+  grid-rows: 4
+  grid-columns: 8
+  grid-gap: 0
+
+  ld: "d" { class: tick }
+  d0: 0  { class: cell }
+  d1: 0  { class: cell }
+  # TODO: the two cells a range update touches. Everything else stays put.
+  d2: "+5" { class: [cell; current] }
+  d3: 0  { class: cell }
+  d4: 0  { class: cell }
+  d5: "−5" { class: [cell; current] }
+  d6: 0  { class: cell }
+
+  ld2 { class: ghost }
+  id0: 0 { class: idx }
+  id1: 1 { class: idx }
+  id2: 2 { class: idx }
+  id3: 3 { class: idx }
+  id4: 4 { class: idx }
+  id5: 5 { class: idx }
+  id6: 6 { class: idx }
+
+  # The prefix sum of d is the applied result — one pass, all ranges at once.
+  la: "Σd" { class: tick }
+  a0: 0 { class: cell }
+  a1: 0 { class: cell }
+  a2: 5 { class: [cell; active] }
+  a3: 5 { class: [cell; active] }
+  a4: 5 { class: [cell; active] }
+  a5: 0 { class: cell }
+  a6: 0 { class: cell }
+
+  la2 { class: ghost }
+  ia0: 0 { class: idx }
+  ia1: 1 { class: idx }
+  ia2: 2 { class: idx }
+  ia3: 3 { class: idx }
+  ia4: 4 { class: idx }
+  ia5: 5 { class: idx }
+  ia6: 6 { class: idx }
+}

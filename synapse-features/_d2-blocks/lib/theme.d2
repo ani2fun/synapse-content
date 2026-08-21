@@ -1,0 +1,74 @@
+# ── SHARED THEME ──────────────────────────────────────────────────────────────
+# Every block in this library spreads this file in with `...@lib/theme`, so a colour
+# lives in exactly one place. Recolouring a node is a one-word change: swap the state
+# class, never the hex.
+#
+# Two vocabularies, deliberately separate:
+#   STRUCTURE  what a thing is  — cell, idx, node, board, panel, ghost
+#   STATE      what is happening to it — active, current, visited, pruned, hot, cold
+#
+# Apply both at once with the list form:  { class: [cell; current] }
+#
+# TODO: to restyle the whole library, edit the six state fills below and re-run ./render.sh.
+
+classes: {
+  # ── STRUCTURE ───────────────────────────────────────────────────────────────
+
+  # The container a grid lives in. D2 draws a border and a fill around a grid parent;
+  # this makes it disappear so the cells read as one continuous strip.
+  board: { label: ""; style: { fill: transparent; stroke-width: 0 } }
+
+  # One array/table cell. Square-ish and uniform — width is what makes a strip line up.
+  # TODO: widen for multi-digit values (width: 80) or shrink for a long row (width: 44).
+  cell: { style: { fill: "#ffffff"; stroke: "#94a3b8"; font-size: 18 }; width: 64; height: 56 }
+
+  # The index number printed under a cell. Same width as `cell` so the columns align.
+  idx: { style: { fill: transparent; stroke-width: 0; font-size: 13; font-color: "#64748b" }; width: 64; height: 24 }
+
+  # An invisible cell that pads a grid row out to the right length. `label: ""` is the
+  # point of it, so do not give one a caption — the class would win and blank it.
+  ghost: { label: ""; style: { fill: transparent; stroke-width: 0 }; width: 64; height: 28 }
+
+  # An invisible cell that DOES show its label: a pointer glyph or caption parked under
+  # one specific column. Connections do not route into a grid, so a spacer row of these
+  # is how a figure points at a column.
+  # `width` is pinned so a caption under a strip cannot widen its column and knock the
+  # cells out of line; a long label simply overhangs, centred, which looks right. Height
+  # is deliberately NOT pinned — a two-line caption would be clipped. A tick standing in
+  # a column of its own (beside a vertical stack, say) should override the width.
+  tick: { style: { fill: transparent; stroke-width: 0; font-size: 14; font-color: "#0f172a" }; width: 64 }
+
+  # A free-standing node: tree, graph, linked-list box.
+  node: { style: { fill: "#ffffff"; stroke: "#64748b"; font-size: 16 }; width: 56; height: 56 }
+
+  # The before / after frame of a two-panel transition.
+  panel: { style: { fill: "#fbfcfe"; stroke: "#cbd5e1"; font-size: 15; font-color: "#475569" } }
+
+  # ── STATE ───────────────────────────────────────────────────────────────────
+  # Layer these over a structure class. Fill + stroke only, so they compose with anything.
+
+  active:  { style: { fill: "#dcfce7"; stroke: "#16a34a" } }   # in play — inside the window, in range
+  current: { style: { fill: "#fef08a"; stroke: "#ca8a04"; stroke-width: 3 } }   # being touched right now
+  visited: { style: { fill: "#e2e8f0"; stroke: "#94a3b8"; font-color: "#64748b" } }   # already processed
+  pruned:  { style: { fill: "#fee2e2"; stroke: "#dc2626"; stroke-dash: 4; font-color: "#991b1b" } }   # cut off, never explored
+  hot:     { style: { fill: "#ffedd5"; stroke: "#ea580c" } }   # frequent — cache hit, high traffic
+  cold:    { style: { fill: "#eff6ff"; stroke: "#93c5fd"; font-color: "#64748b" } }   # rare — cache miss, cold path
+
+  # ── CONNECTIONS ─────────────────────────────────────────────────────────────
+
+  # The labelled arrow between a before panel and an after panel. Bold, because it is
+  # the whole point of the figure: it names the one step that happened.
+  step: { style: { stroke: "#0f172a"; stroke-width: 2; font-size: 15; bold: true } }
+
+  # A pointer or dependency arrow inside a figure.
+  hint: { style: { stroke: "#94a3b8"; stroke-dash: 3; font-size: 13; font-color: "#64748b" } }
+
+  # ── SYSTEM DESIGN ROLES ─────────────────────────────────────────────────────
+  # The five-role palette the rest of this repo's architecture diagrams use.
+
+  client: { style: { fill: "#f3f4f6"; stroke: "#6b7280"; font-color: "#111827" } }
+  edge:   { style: { fill: "#dbeafe"; stroke: "#2563eb"; font-color: "#1e3a8a" } }
+  svc:    { style: { fill: "#dcfce7"; stroke: "#16a34a"; font-color: "#14532d" } }
+  data:   { style: { fill: "#ffedd5"; stroke: "#ea580c"; font-color: "#7c2d12" } }
+  async:  { style: { fill: "#f3e8ff"; stroke: "#9333ea"; font-color: "#581c87" } }
+}

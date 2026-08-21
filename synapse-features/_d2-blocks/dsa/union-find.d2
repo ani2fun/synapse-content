@@ -1,0 +1,34 @@
+# ── UNION-FIND FOREST ─────────────────────────────────────────────────────────
+# Disjoint sets as a forest of parent pointers, arrows running UP toward each root. Two
+# elements are in the same set exactly when they climb to the same root — that is the
+# entire data structure.
+#
+# One set is drawn already flattened by path compression and the other is not, so the
+# optimisation has something to be compared against. Each set gets its own panel: without
+# them the two trees interleave and it stops being obvious which element belongs where.
+#
+# Knobs: the members, and which root each belongs to.
+
+...@../lib/theme
+
+direction: up
+
+flat: "set {1,2,3,4} · path compressed" { class: panel
+  # TODO: a root is a node whose parent is itself.
+  r1: "1\nroot" { class: [node; current]; width: 62 }
+  n2: 2 { class: node }
+  n3: 3 { class: node }
+  n4: 4 { class: node }
+  n2 -> r1
+  n3 -> r1
+  # 4 points straight at the root instead of climbing through 3.
+  n4 -> r1: compressed { class: step; style.stroke: "#16a34a" }
+}
+
+deep: "set {5,6,7} · still a chain" { class: panel
+  r5: "5\nroot" { class: [node; current]; width: 62 }
+  n6: 6 { class: node }
+  n7: 7 { class: node }
+  n6 -> r5
+  n7 -> n6: "find(7) climbs twice" { class: step; style.stroke: "#ea580c" }
+}

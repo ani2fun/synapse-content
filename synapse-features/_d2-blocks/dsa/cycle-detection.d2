@@ -1,0 +1,27 @@
+# ── CYCLE DETECTION ───────────────────────────────────────────────────────────
+# The shape the whole problem is named after: a straight run into a loop. Marking the
+# entry node is what makes the second half of Floyd's algorithm — the part that finds
+# WHERE the cycle starts, not just that one exists — worth explaining.
+#
+# Knobs: tail length before the loop, loop size, and where the two pointers meet.
+
+...@../lib/theme
+
+direction: right
+
+n1: 1 { class: [node; visited] }
+n2: 2 { class: [node; visited] }
+# TODO: the node the cycle re-enters — what phase two of Floyd's algorithm returns.
+n3: 3 { class: [node; current] }
+n4: 4 { class: node }
+# TODO: where slow and fast collide.
+n5: 5 { class: [node; active] }
+n6: 6 { class: node }
+
+n1 -> n2 -> n3 -> n4 -> n5 -> n6
+n6 -> n3: "loops back" { class: step; style.stroke: "#dc2626" }
+
+entry: "cycle entry" { class: tick; width: 110; style.font-color: "#ca8a04" }
+meet: "slow meets fast" { class: tick; width: 130; style.font-color: "#16a34a" }
+entry -> n3: { class: hint }
+meet -> n5: { class: hint }

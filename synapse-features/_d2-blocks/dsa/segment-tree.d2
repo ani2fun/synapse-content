@@ -1,0 +1,35 @@
+# ── SEGMENT TREE ──────────────────────────────────────────────────────────────
+# Each node owns a RANGE and stores the aggregate over it. Labelling both — the range and
+# the value — is what makes the structure legible: a segment tree drawn with only values
+# looks like a heap, and it is not one.
+#
+# The highlighted nodes are the O(log n) that a query for [1,4] actually touches. Draw a
+# query, not just the structure: the shape of the answer is the interesting part.
+#
+# Knobs: the leaf values, the ranges, and which nodes a query lands on.
+
+...@../lib/theme
+
+direction: down
+
+root: "[0,5]\nsum 42" { class: node; width: 76; height: 62 }
+l: "[0,2]\nsum 14" { class: node; width: 76; height: 62 }
+r: "[3,5]\nsum 28" { class: node; width: 76; height: 62 }
+
+ll: "[0,1]\nsum 9" { class: node; width: 76; height: 62 }
+lr: "[2,2]\n5" { class: [node; active]; width: 76; height: 62 }
+rl: "[3,4]\nsum 19" { class: [node; active]; width: 76; height: 62 }
+rr: "[5,5]\n9" { class: node; width: 76; height: 62 }
+
+root -> l
+root -> r
+l -> ll
+l -> lr
+r -> rl
+r -> rr
+
+note: "query sum[2,4] = 5 + 19 = 24 — two nodes, not three leaves" {
+  near: bottom-center
+  shape: text
+  style: { font-size: 15; font-color: "#16a34a" }
+}

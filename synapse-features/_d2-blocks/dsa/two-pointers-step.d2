@@ -1,0 +1,73 @@
+# ── TWO POINTERS · ONE COMPARISON ─────────────────────────────────────────────
+# The step that makes the technique work: the sum is too small, so the ONLY move that
+# can help is lo++. Say which pointer moved and why in the arrow label — that "why" is
+# the whole argument for the algorithm being correct.
+#
+# Knobs: the target, the two values compared, and which pointer advances.
+
+...@../lib/theme
+
+direction: right
+
+before: "before · 3 + 14 = 17 < 18" { class: panel
+  grid-rows: 3
+  grid-columns: 7
+  grid-gap: 0
+
+  v0: 1  { class: [cell; visited] }
+  v1: 3  { class: [cell; current] }
+  v2: 6  { class: cell }
+  v3: 8  { class: cell }
+  v4: 11 { class: cell }
+  v5: 14 { class: [cell; current] }
+  v6: 19 { class: [cell; visited] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+
+  p0 { class: ghost }
+  p1: "▲ lo" { class: tick; style.font-color: "#ca8a04" }
+  p2 { class: ghost }
+  p3 { class: ghost }
+  p4 { class: ghost }
+  p5: "▲ hi" { class: tick; style.font-color: "#ca8a04" }
+  p6 { class: ghost }
+}
+
+after: "after · 6 + 14 = 20 > 18" { class: panel
+  grid-rows: 3
+  grid-columns: 7
+  grid-gap: 0
+
+  v0: 1  { class: [cell; visited] }
+  # TODO: the value the moved pointer left behind — ruled out for good.
+  v1: 3  { class: [cell; visited] }
+  v2: 6  { class: [cell; current] }
+  v3: 8  { class: cell }
+  v4: 11 { class: cell }
+  v5: 14 { class: [cell; current] }
+  v6: 19 { class: [cell; visited] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+
+  p0 { class: ghost }
+  p1 { class: ghost }
+  p2: "▲ lo" { class: tick; style.font-color: "#ca8a04" }
+  p3 { class: ghost }
+  p4 { class: ghost }
+  p5: "▲ hi" { class: tick; style.font-color: "#ca8a04" }
+  p6 { class: ghost }
+}
+
+before -> after: "17 < 18\nlo++" { class: step }

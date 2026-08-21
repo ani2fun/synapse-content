@@ -1,0 +1,40 @@
+# ── HASH TABLE · OPEN ADDRESSING ──────────────────────────────────────────────
+# No chains: a collision walks forward to the next free slot, so the table IS the strip.
+# The probe sequence is drawn on the caption row because the number of probes is the
+# thing that degrades — and it degrades sharply, not gradually, as the table fills.
+#
+# Knobs: the slot contents, and the probe captions under the walk.
+
+...@../lib/theme
+
+oa: "insert \"cy\" · h(\"cy\") = 1 · 2 probes" { class: panel
+  grid-rows: 3
+  grid-columns: 7
+  grid-gap: 0
+
+  v0: "" { class: [cell; cold] }
+  # TODO: the home slot — occupied, so the probe walks on.
+  v1: ada { class: [cell; hot] }
+  v2: bob { class: [cell; hot] }
+  # TODO: where it lands.
+  v3: cy { class: [cell; current] }
+  v4: "" { class: [cell; cold] }
+  v5: dee { class: cell }
+  v6: "" { class: [cell; cold] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+
+  p0 { class: ghost }
+  p1: "probe 1\ntaken" { class: tick; style.font-color: "#ea580c" }
+  p2: "probe 2\ntaken" { class: tick; style.font-color: "#ea580c" }
+  p3: "probe 3\nfree ✓" { class: tick; style.font-color: "#16a34a" }
+  p4 { class: ghost }
+  p5 { class: ghost }
+  p6 { class: ghost }
+}

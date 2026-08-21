@@ -1,0 +1,42 @@
+# ── CIRCULAR BUFFER ───────────────────────────────────────────────────────────
+# A fixed strip with head and tail that wrap. Drawn straight rather than as a ring,
+# because the wrap is easier to believe when you can see tail sitting to the LEFT of
+# head with the filled cells split across the ends.
+#
+# Knobs: capacity (the cell count), where head and tail sit, and which cells are filled.
+
+...@../lib/theme
+
+cb: "capacity 8 · 5 items · tail has wrapped past the end" { class: panel
+  grid-rows: 3
+  grid-columns: 8
+  grid-gap: 0
+
+  # TODO: the filled cells. Here they run 5,6,7 then wrap to 0,1.
+  v0: R { class: [cell; active] }
+  v1: S { class: [cell; active] }
+  v2: "" { class: [cell; cold] }
+  v3: "" { class: [cell; cold] }
+  v4: "" { class: [cell; cold] }
+  v5: O { class: [cell; active] }
+  v6: P { class: [cell; active] }
+  v7: Q { class: [cell; active] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+  i6: 6 { class: idx }
+  i7: 7 { class: idx }
+
+  p0 { class: ghost }
+  p1 { class: ghost }
+  p2: "▲ tail\n(next write)" { class: tick; style.font-color: "#0284c7" }
+  p3 { class: ghost }
+  p4 { class: ghost }
+  p5: "▲ head\n(next read)" { class: tick; style.font-color: "#ca8a04" }
+  p6 { class: ghost }
+  p7 { class: ghost }
+}

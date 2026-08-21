@@ -1,0 +1,35 @@
+# ── DEQUE ─────────────────────────────────────────────────────────────────────
+# A queue that grows and shrinks at both ends, so both ends get a labelled pair of
+# operations. The four labels are the point — a deque IS its four operations.
+#
+# Knobs: the entries; the operation captions at each end.
+
+...@../lib/theme
+
+dq: "deque · push and pop at either end" { class: panel
+  grid-rows: 3
+  grid-columns: 6
+  grid-gap: 0
+
+  v0: A { class: [cell; active] }
+  v1: B { class: cell }
+  v2: C { class: cell }
+  v3: D { class: cell }
+  v4: E { class: [cell; active] }
+  v5: "" { class: [cell; cold] }
+
+  i0: 0 { class: idx }
+  i1: 1 { class: idx }
+  i2: 2 { class: idx }
+  i3: 3 { class: idx }
+  i4: 4 { class: idx }
+  i5: 5 { class: idx }
+
+  # TODO: the four operations, parked under the ends they act on.
+  p0: "push_front\npop_front" { class: tick; style.font-color: "#16a34a" }
+  p1 { class: ghost }
+  p2 { class: ghost }
+  p3 { class: ghost }
+  p4: "push_back\npop_back" { class: tick; style.font-color: "#16a34a" }
+  p5 { class: ghost }
+}

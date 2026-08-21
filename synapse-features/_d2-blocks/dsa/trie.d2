@@ -1,0 +1,28 @@
+# ── TRIE ──────────────────────────────────────────────────────────────────────
+# One character per EDGE, not per node — that is the distinction the drawing has to earn,
+# because a node in a trie is a prefix, not a letter. Terminal nodes are marked, since
+# "cat" being a word while "ca" is not is invisible otherwise.
+#
+# Knobs: the words stored, and which nodes are terminal.
+
+...@../lib/theme
+
+direction: right
+
+root: "root\n(\"\")" { class: [node; cold]; width: 70 }
+c: "c" { class: node; width: 44 }
+ca: "ca" { class: node; width: 44 }
+# TODO: terminal nodes — a stored word ends here.
+cat: "cat ●" { class: [node; active]; width: 58 }
+car: "car ●" { class: [node; active]; width: 58 }
+card: "card ●" { class: [node; active]; width: 66 }
+d: "d" { class: node; width: 44 }
+do: "do ●" { class: [node; active]; width: 52 }
+
+root -> c: c
+c -> ca: a
+ca -> cat: t
+ca -> car: r
+car -> card: d
+root -> d: d
+d -> do: o
