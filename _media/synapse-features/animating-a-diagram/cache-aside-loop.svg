@@ -1,0 +1,921 @@
+<?xml version="1.0" encoding="utf-8"?><svg width="962" height="309" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" d2Version="v0.8.1-HEAD" preserveAspectRatio="xMinYMin meet" viewBox="0 0 962 309"><svg class="d2-svg" width="962" height="309" viewBox="-100 -55 962 309"><style type="text/css"><![CDATA[
+.d2-2779973239 .text-bold {
+	font-family: "d2-2779973239-font-bold";
+}
+@font-face {
+	font-family: d2-2779973239-font-bold;
+	src: url("data:application/font-woff;base64,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");
+}
+.d2-2779973239 .text-italic {
+	font-family: "d2-2779973239-font-italic";
+}
+@font-face {
+	font-family: d2-2779973239-font-italic;
+	src: url("data:application/font-woff;base64,d09GRgABAAAAABMEAAoAAAAAHNAAARhRAAAAAAAAAAAAAAAAAAAAAAAAAABPUy8yAAAA9AAAAGAAAABgW1SVeGNtYXAAAAFUAAAA3QAAATBpDgdsZ2x5ZgAAAjQAAAvFAAAQbD2/U8VoZWFkAAAN/AAAADYAAAA2G7Ur2mhoZWEAAA40AAAAJAAAACQLeAjdaG10eAAADlgAAADPAAAA5GmVBk9sb2NhAAAPKAAAAHQAAAB0fjaCtm1heHAAAA+cAAAAIAAAACAAUQD2bmFtZQAAD7wAAAMmAAAIMgntVzNwb3N0AAAS5AAAACAAAAAg/8YAMgADAeEBkAAFAAACigJY//EASwKKAlgARAFeADIBIwAAAgsFAwMEAwkCBCAAAHcAAAADAAAAAAAAAABBREJPAAEAIP//Au7/BgAAA9gBESAAAZMAAAAAAeYClAAAACAAA3icjNC9LqsBHMfxz3P6nJf29Lz3vKE8pYrSqrdFYhARkbCIhNUoFrGJu3ALZoyNQXAjUvcg6fiXNMLqN3+GX75I5CQoSpMq6jKpgkxD07QFi5YsW7Vu07Zd+w4da2elrFY5jeDFtp7tijUbtuzYc+Do1caDXIQ0uvEY3biL27iJ67iKdlzGRZzHSafcyd+f9R69dYmWhjljxk2omzSlad47Oan3Pvjok7yCz4q++Oqb73746ZeS3/7465//+vQbUDZoSKZi2IiqUTWzZnolPAEAAP//AQAA///BhjTBAAAAeJx8V31sI3V6ft/fTDxJ1vmwxx7H3jiOPfaM44wdx2N77CS2kzgfTmInm6/9zsfusgtZUsiyByxdFjjSXre0tzWI9lSEerS9VlchVaeFSleVcgd7bVPool7FVbR3h8TBhTu2CIhSeofIuJqxk3hXav+xRrZ/7/s+z/s+z/sbqAEvALmPPAsU1EETmMEKILNuipIVhbdRsijyDKOILMt4n8SNJ5+js8d/7n/h15KLHv3qX0381/KL5NmdVXxi4fHH1RNXz549cuuWGsB/vwUAQEpvAuCPSBHqwATAMrIoCCJvMCDKLC/yzPs9N+rpepp2yOq/4F3H89PmX6zgI2tr0fOJ5N3qNCnurN28CYCQLG2TIHkeXAA1HkGIRdNEjnA2RhB4TyOxWjhOjsQVm8GAnol74uHjV/KJ6ZY4Gxd6lga9nvFef7ad9y4Ys5cmC88+PKoEOtrF1F2X+noXYu0HI66gVivwACSu18pqDMgRzmoxGHhRjsTjsajA8/z6b/7u1+e/ef/hw/OPZu8+EyfF33nk4ZfP9s/90amFFQ0v6jGaSREO6BwybkZmeMbN8Ot4vkF9P/BZ4ycyCo2kOPCjwc8HK7h6yfPg0XH9H7AUXpEpgwGlh66ET3x1unfarrCKP3162MvnM94k67va8FbSu2h8+tLksw+P7IHrWYy3NP9Nv/pBm2+vtpXd2mTKzcoUz7opfn0ygf5EYX0yo76TJkX1Flp31jChbpTPwDYpAlU+w69PrmtN2Y2Hz5Ai1FTiMfz65ENoaSDFneuDlXyvkCLY9d9Zm6zoGeNxhWcontLmgKH49YUkR4/cWFifyNc5jPTUa1KKow2NteOkqP7J1at4emcNH5DOdz6jfgtPPiOtSOq1Sq9EUoQG4PZ7xbA8xVOsHNlt18snL9w3e3F29QFl6MziXRO5ZVIcmT1xn0l9Hzn1I5yfGYl3lftmLG2jSp6HAIDNI4iKTnwsKoiiNmzx+F5XDAarhbPZOH02Psyu+ZPOeaVvOujLB3pjJ3t7l12yfSTkizm7vfmuaO85Y09PZ2dkKOGNcCHHmBKZiUT9obYOV/ig0MUFW0eVnhNRQFgAIDFSBEZDwytuhqf+8sFXG/DNhu89SArZ7M5L5TqXACiJFMFd5txgYOR4XGFllrNYy0/IU9G4onO7VHeonqJo2hbmvjVah7Sl03KtoG6dYQjSjW7TS6SofiO6GoutRnFF/Ub03nj83iiu7Kzh094pUcyL6v1aztJPAIin3EeepWQbx9m0VIpMsXxFzwzj/XJ1LsEYaymTp+nSzMcPzvUxzbUU6zM9gXPY99ec5Gjp5l5UX1Wvf9cuOxyK/WVdc2JpG3+FW2DROmrbV4CsyBSvoRC1+d+Tw0v9eWl8URZTJppNn8rU0vxRszDllayRVm825uo2npgfeeSk7HenVEfO19Uf6voPwRMYW4hkUrofgau0jZ+SDbBqrqd1mmd4VmY0FvUZaiRiJE208fEYGIbjPhJTJsqSuVYQOeKdC+rpY95srC3c4ZnmQxbZ6HenyMary87O44e11P2BsQU5nQr4PhQ8gOArbeN13ILW29DtT1LFtd6ZuksqnIpJfVyQFZzhw/FkT3uc8zgKxnMLQxfnuzz2sM06tJYdHHGYIhYf7HJHxCos+9z9/+T1mKlmoVCssDfpu5M9sX3p1Z3EnfQRHcv3cAsc4KvOpyvPbdhzYErW7VJD+MHhleDEybAy0GasUX9Q154NOJO2Nuf0H5cIZe7gY4vG86eG12ak0KFIq9yYOeSzm2SrC30HWhpau13zgNAJgF8nb4NN10WGVCuR0cyV6pzPHBhobppMOQLmg/UHTe6OWtNp45l5/HayZnp8tuGAwtRHOmfT6lGNMyx5cQu3wAWhaqUrisHA3z59BgN1G3svdh/mva3D/vR4o12Y60od6hw72S2kTRSbOcdeTPLTnk6uu5UfkNu6fiI4YzZPvv8eQTo8n/3KsYg2j9TSOXR3Bv5V8HSMHA339pb17ALAd8hGxSP355DRjTIW1WBSrmuFcDPdMSOlY7XpfB9N51pzoWGycSvFdw0kXF71DZQsLQ0TgZD67VJJiwlfkOtEgDgAGEDJ7ef6mGyAsewdWj6WFxnGda2wTH599PUHJxfWHGRDdSK+qf784wcuA4JU2oYvyAaYNbZiUUX3HKul0urfGDBcLlxBNFEGBus5Y8ZkJ/fuPM3UUWYkvTS9l5d8hFuat2o5yxBtFaCG25BWgz6VYWhhVujpruk66kvFaTpdSNH0qDUnDWscjHC5zmHcHPN2K35JHkiY2izVPOw/7fOMW9BSXcOdNGsZO2ZCt7GsZ7iT5D394Y9xC5rAWa2HsomUrwxlkb89tSiNL0amlqSJxUBwWo5HtA/jPSeGL86Hyp/9g2tDg6PZtaHBEf3e9HlJxk9xq6xtpqriRsLrrsWwt/lU/VMZA+WbD+kSjwh9LDG7/qLap26Sl/pdwYrAXfd8E7FiVMIvfO79+XgUt6C5iiMbI+xyc4B25oN268FmhzfvSuHmgpSqG6rN9Ko3AUtflrbxCm6BeOf+vHN9atuzvDz/vHvBHrb1C4FURyKUlMak0HhriJXdQne8PR0NzxijfsHlD/EO0eVId3QO+Lxtfosj6GoTzJ4+KTjk02ruK23jUbK6569xRXMJWXeGKn/92/4ojcnRA3nvwMHLxitJqtXT6Dhgau4yZoJNjgY0J2u+9rW0+pHZ3NZWX6MwTVrsRGkbP8FNTZu7sfenn61Y7It7k5lzjkrDeW0p+eeMg4rJxWJcfZu1ayODR1XHOC+Xee4FwPdwExoANBVW1ikr45OjeS9toGmTl/2DgrqDm+qH/ATvHfOiXXWUz44AkH/CTX3/V5/df6J4qrKTqRU+34yIdNPB5icmTETb+o7mx3M/XWrUv3U2PYSb6s88Qx7PkAfbqp4cWM/nvN4cr34OWHobAP+tzAPPilX7n7Ht73/pP09MBmobGbqpvWl+duPMlFRrqqebPewikg9WOdFq6bCu/vdnD3AhjpNsF7V7xeulLnwfN8EBwOgzoxvxbYw0EkN9e6PdbPYN2M2zeaGmlqJNPvPv59Wf2XtzP2SYZF0qwuOH6ifuAs/nPWja+ayrIJX1GSht41vkKTBpbNn23xpuX/O6uW9ERn2BseVYZMTbMbbULWajTimkfxoTZ9LH/vTR0Z4z6eMvXB5JDV24OpQ9Mnzh6tDgEUCtdnyCPKbfqRXt5hZXZEpmHA2/t3yhfl7p/cqTxn58N2L07Lzer2H+HAB/QJ7SzvFKmqoIWNwTN+Nm6muXry12ybH2AY8oHQnPHA3MPDqLFmNo+vLpYyGpz+0KCx3HhmKLy2u5QS3m/5S28Z/JU+C/Q3u8sudCjLjrttay+P5u4GybbBvvHjoyd9Y4dUKMyM6sU5xdOHRkYjzWm1oxDgT9nuhEUh7s6Ui1BeKtNjlzaDB10kqbcpHUsW6NX00kN8ljUA8WADevuBXUsPM+WYmXb6A4kePVX9bh4tyhWeOsWvoHwWBmaIvf8p0oPqeupdN/7xxwt0ZbyrMNmp+Sx6C9GsceANbN8Mzu0jC8MrDojHADiUBOykRdUrv7EHY2/DJqCthzS9n7jJlghzsaKMjpvmaTA4ODr9Qa52fz96f0PLbSNlyFVa1nZV2XY45wdrGVa/EZWzmH5OTsEpRK+n838KdEhCD04wUwQBC072dL29RhWAUBgn0AIgTxtwGAgSB5q/Ju9C7Wo117b9KEwht/3PDu7s7n4T3yLtrKv7kZ/gD5zoH34nE97hQa4fv4W4SBICSwRb9/f7e0jH9G/lH7P4My5vB6Qi28QJ378jnQz4ThBr6BPyQCJOA8GCABf6jnsZQ+JWlSA3UANaLijrlFBa2YEG+o/fj9GyIamgOvZV4LqL+q2fN/uImbu+96rlOF07ipGw/CKJmA6+S6xhlbxdklto23WZw8mbBxdncLZ28HhDCG8A28W4vDxtzWMD6HoWQSAP4XAAD//wEAAP//VfxspwAAAAABAAAAARhRb1ntm18PPPUAAQPoAAAAANhdoMwAAAAA3WYvN/69/t0IHQPJAAIAAwACAAAAAAAAAAEAAAPY/u8AAAhA/r39vAgdA+gAwv/RAAAAAAAAAAAAAAA5eJwUzbEuQ2EchvHnfc+IkJCULt/wqZM4BqOGFYsEITZxByZX4j5MFptikUhMxg6fC2BopBVp+pczPMMz/XzDOq+gWbx5g75PyJqQfUTf12SmZL2T/UR2Q9Yf85px6R+u9B1Dr1F7laR7eu5Q65OeujReRp4j8UXSkMQvW1UieYHkitqdGOuCpNuYap89L7GjAbt+4UB38aFBPKuwqUJXJcYqMVFhUQUY0WmrHjlTQ65EZsSxzuNBhW2fstK6wGH7/wAAAP//AQAA//89uTkcAAAAAC4ALgBSAIQApgC+APQBDgEcASwBWgGCAcIB1gIQAj4CdgKuAtwDFANOA3YDvgPoA/QEDgQwBHIEnATKBQQFIgVeBYwFuAXWBhAGPAZsBp4GtgbgBxwHRAd4B44HmgeqB7gHxgfQB+AH7AgECBIIKAg2AAEAAAA5AIwADABmAAcAAQAAAAAAAAAAAAAAAAAEAAN4nJyU204bVxSGPwfbbXq6qFBEbtC+TKVkTKMQJeHKlKCMinDqcXqQqkqDPT6I8czIM5iSJ+h136Jvkas+Rp+i6nW1fy+DHUVBIAT8e/Y6/Gutf21gk//YoFa/C/zdnBuusd382fAdvmgeGd5gv/mZ4ToPG/8YbjBovDXc5EGja/gT3tX/NPwpT+q/Gb7LVv3Q8Oc8rm8a/nLD8a/hr3jCuwWuwTP+MFxji8LwHTb51fAG97CYtTr32DHc4Gu2DTfZBnpMqEiZkDHCMWTCiDNmJJREJMyYMCRhgCOkTUqlrxmxkGP0wa8xERUzYkUcU+FIiUiJKRlbxLfyynmtjEOdZnbXpmJMzIk8TonJcOSMyMlIOFWcioqCF7RoUdIX34KKkoCSCSkBOTNGtOhwyBE9xkwocRwqkmcWkTOk4pxY+Z1Z+M70ScgojdUZGQPxdOKXyDvkCEeHQrarkY/WIjzE8aO8Pbdctt8S6NetMFvPu2QTM1c/U3Ul1c25JjjWrc/b5gfhihe4W/Vnncn1PRrof6XIJ5xp/gNNKhOTDOe2aBNJQZG7j2Nf55BIHfmJkB6v6PCGns5tunRpc0yPkJfy7dDF8R0djjmQRyi8uDuUYo75Bcf3hLLxsRPrz2JiCb9TmLpLcZypjimFeu6ZB6o1UYU3n7DfoXxNHaV8+tojb+k0v0x7FjMyVRRiOFUvl9oorX8DU8RUtfjZXt37bZjb7i23+IJcO+zVuuDkJ7dgdN1Ug/c0c66fgJgBOSey6JMzpUXFhXi/JuaMFMeBuvdKW1LRvvTxeS6kkoSpGIRkijOj0N/YdBMZ9/6a7p29JQP5e6anl1XdJotTr65m9EbdW95F1uVkZQItm2q+oqa+uGam/UQ7tco/km+p1y3nEaHiLnb7Q6/ADs/ZZY+xsvR1M7+886+Et9hTB05JZDWUpn0NjwnYJeApu+zynKfv9XLJxhkft8ZnNX+bA/bpsHdtNQvbDvu8XIv28cx/ie2O6nE8ujw9u/U0H9xAtd9o367eza4m56cxt2hX23FMzNRzcVurNbn7BP8DAAD//wEAAP//cqFRQAAAAAMAAP/1AAD/zgAyAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+}]]></style><style type="text/css"><![CDATA[.shape {
+  shape-rendering: geometricPrecision;
+  stroke-linejoin: round;
+}
+.connection {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.blend {
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+		.d2-2779973239 .fill-N1{fill:#0A0F25;}
+		.d2-2779973239 .fill-N2{fill:#676C7E;}
+		.d2-2779973239 .fill-N3{fill:#9499AB;}
+		.d2-2779973239 .fill-N4{fill:#CFD2DD;}
+		.d2-2779973239 .fill-N5{fill:#DEE1EB;}
+		.d2-2779973239 .fill-N6{fill:#EEF1F8;}
+		.d2-2779973239 .fill-N7{fill:#FFFFFF;}
+		.d2-2779973239 .fill-B1{fill:#0D32B2;}
+		.d2-2779973239 .fill-B2{fill:#0D32B2;}
+		.d2-2779973239 .fill-B3{fill:#E3E9FD;}
+		.d2-2779973239 .fill-B4{fill:#E3E9FD;}
+		.d2-2779973239 .fill-B5{fill:#EDF0FD;}
+		.d2-2779973239 .fill-B6{fill:#F7F8FE;}
+		.d2-2779973239 .fill-AA2{fill:#4A6FF3;}
+		.d2-2779973239 .fill-AA4{fill:#EDF0FD;}
+		.d2-2779973239 .fill-AA5{fill:#F7F8FE;}
+		.d2-2779973239 .fill-AB4{fill:#EDF0FD;}
+		.d2-2779973239 .fill-AB5{fill:#F7F8FE;}
+		.d2-2779973239 .stroke-N1{stroke:#0A0F25;}
+		.d2-2779973239 .stroke-N2{stroke:#676C7E;}
+		.d2-2779973239 .stroke-N3{stroke:#9499AB;}
+		.d2-2779973239 .stroke-N4{stroke:#CFD2DD;}
+		.d2-2779973239 .stroke-N5{stroke:#DEE1EB;}
+		.d2-2779973239 .stroke-N6{stroke:#EEF1F8;}
+		.d2-2779973239 .stroke-N7{stroke:#FFFFFF;}
+		.d2-2779973239 .stroke-B1{stroke:#0D32B2;}
+		.d2-2779973239 .stroke-B2{stroke:#0D32B2;}
+		.d2-2779973239 .stroke-B3{stroke:#E3E9FD;}
+		.d2-2779973239 .stroke-B4{stroke:#E3E9FD;}
+		.d2-2779973239 .stroke-B5{stroke:#EDF0FD;}
+		.d2-2779973239 .stroke-B6{stroke:#F7F8FE;}
+		.d2-2779973239 .stroke-AA2{stroke:#4A6FF3;}
+		.d2-2779973239 .stroke-AA4{stroke:#EDF0FD;}
+		.d2-2779973239 .stroke-AA5{stroke:#F7F8FE;}
+		.d2-2779973239 .stroke-AB4{stroke:#EDF0FD;}
+		.d2-2779973239 .stroke-AB5{stroke:#F7F8FE;}
+		.d2-2779973239 .background-color-N1{background-color:#0A0F25;}
+		.d2-2779973239 .background-color-N2{background-color:#676C7E;}
+		.d2-2779973239 .background-color-N3{background-color:#9499AB;}
+		.d2-2779973239 .background-color-N4{background-color:#CFD2DD;}
+		.d2-2779973239 .background-color-N5{background-color:#DEE1EB;}
+		.d2-2779973239 .background-color-N6{background-color:#EEF1F8;}
+		.d2-2779973239 .background-color-N7{background-color:#FFFFFF;}
+		.d2-2779973239 .background-color-B1{background-color:#0D32B2;}
+		.d2-2779973239 .background-color-B2{background-color:#0D32B2;}
+		.d2-2779973239 .background-color-B3{background-color:#E3E9FD;}
+		.d2-2779973239 .background-color-B4{background-color:#E3E9FD;}
+		.d2-2779973239 .background-color-B5{background-color:#EDF0FD;}
+		.d2-2779973239 .background-color-B6{background-color:#F7F8FE;}
+		.d2-2779973239 .background-color-AA2{background-color:#4A6FF3;}
+		.d2-2779973239 .background-color-AA4{background-color:#EDF0FD;}
+		.d2-2779973239 .background-color-AA5{background-color:#F7F8FE;}
+		.d2-2779973239 .background-color-AB4{background-color:#EDF0FD;}
+		.d2-2779973239 .background-color-AB5{background-color:#F7F8FE;}
+		.d2-2779973239 .color-N1{color:#0A0F25;}
+		.d2-2779973239 .color-N2{color:#676C7E;}
+		.d2-2779973239 .color-N3{color:#9499AB;}
+		.d2-2779973239 .color-N4{color:#CFD2DD;}
+		.d2-2779973239 .color-N5{color:#DEE1EB;}
+		.d2-2779973239 .color-N6{color:#EEF1F8;}
+		.d2-2779973239 .color-N7{color:#FFFFFF;}
+		.d2-2779973239 .color-B1{color:#0D32B2;}
+		.d2-2779973239 .color-B2{color:#0D32B2;}
+		.d2-2779973239 .color-B3{color:#E3E9FD;}
+		.d2-2779973239 .color-B4{color:#E3E9FD;}
+		.d2-2779973239 .color-B5{color:#EDF0FD;}
+		.d2-2779973239 .color-B6{color:#F7F8FE;}
+		.d2-2779973239 .color-AA2{color:#4A6FF3;}
+		.d2-2779973239 .color-AA4{color:#EDF0FD;}
+		.d2-2779973239 .color-AA5{color:#F7F8FE;}
+		.d2-2779973239 .color-AB4{color:#EDF0FD;}
+		.d2-2779973239 .color-AB5{color:#F7F8FE;}.appendix text.text{fill:#0A0F25}.md{--color-fg-default:#0A0F25;--color-fg-muted:#676C7E;--color-fg-subtle:#9499AB;--color-canvas-default:#FFFFFF;--color-canvas-subtle:#EEF1F8;--color-border-default:#0D32B2;--color-border-muted:#0D32B2;--color-neutral-muted:#EEF1F8;--color-accent-fg:#0D32B2;--color-accent-emphasis:#0D32B2;--color-attention-subtle:#676C7E;--color-danger-fg:red;}.sketch-overlay-B1{fill:url(#streaks-darker-d2-2779973239);mix-blend-mode:lighten}.sketch-overlay-B2{fill:url(#streaks-darker-d2-2779973239);mix-blend-mode:lighten}.sketch-overlay-B3{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.sketch-overlay-B4{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.sketch-overlay-B5{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.sketch-overlay-B6{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.sketch-overlay-AA2{fill:url(#streaks-dark-d2-2779973239);mix-blend-mode:overlay}.sketch-overlay-AA4{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.sketch-overlay-AA5{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.sketch-overlay-AB4{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.sketch-overlay-AB5{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.sketch-overlay-N1{fill:url(#streaks-darker-d2-2779973239);mix-blend-mode:lighten}.sketch-overlay-N2{fill:url(#streaks-dark-d2-2779973239);mix-blend-mode:overlay}.sketch-overlay-N3{fill:url(#streaks-normal-d2-2779973239);mix-blend-mode:color-burn}.sketch-overlay-N4{fill:url(#streaks-normal-d2-2779973239);mix-blend-mode:color-burn}.sketch-overlay-N5{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.sketch-overlay-N6{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.sketch-overlay-N7{fill:url(#streaks-bright-d2-2779973239);mix-blend-mode:darken}.light-code{display: block}.dark-code{display: none}]]></style><style type="text/css">.md em,
+.md dfn {
+  font-family: "d2-2779973239-font-italic";
+}
+
+.md b,
+.md strong {
+  font-family: "d2-2779973239-font-bold";
+}
+
+.md code,
+.md kbd,
+.md pre,
+.md samp {
+  font-family: "d2-2779973239-font-mono";
+  font-size: 1em;
+}
+
+.md {
+  tab-size: 4;
+}
+
+/* variables are provided in d2renderers/d2svg/d2svg.go */
+
+.md {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  margin: 0;
+  background-color: transparent; /* we don't want to define the background color */
+  font-family: "d2-2779973239-font-regular";
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.md details,
+.md figcaption,
+.md figure {
+  display: block;
+}
+
+.md summary {
+  display: list-item;
+}
+
+.md [hidden] {
+  display: none !important;
+}
+
+.md a {
+  background-color: transparent;
+  color: var(--color-accent-fg);
+  text-decoration: none;
+}
+
+.md a:active,
+.md a:hover {
+  outline-width: 0;
+}
+
+.md abbr[title] {
+  border-bottom: none;
+  text-decoration: underline dotted;
+}
+
+.md dfn {
+  font-style: italic;
+}
+
+.md h1 {
+  margin: 0.67em 0;
+  padding-bottom: 0.3em;
+  font-size: 2em;
+  border-bottom: 1px solid var(--color-border-muted);
+}
+
+.md mark {
+  background-color: var(--color-attention-subtle);
+  color: var(--color-text-primary);
+}
+
+.md small {
+  font-size: 90%;
+}
+
+.md sub,
+.md sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.md sub {
+  bottom: -0.25em;
+}
+
+.md sup {
+  top: -0.5em;
+}
+
+.md img {
+  border-style: none;
+  max-width: 100%;
+  box-sizing: content-box;
+  background-color: var(--color-canvas-default);
+}
+
+.md figure {
+  margin: 1em 40px;
+}
+
+.md hr {
+  box-sizing: content-box;
+  overflow: hidden;
+  background: transparent;
+  border-bottom: 1px solid var(--color-border-muted);
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: var(--color-border-default);
+  border: 0;
+}
+
+.md input {
+  font: inherit;
+  margin: 0;
+  overflow: visible;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.md [type="button"],
+.md [type="reset"],
+.md [type="submit"] {
+  -webkit-appearance: button;
+}
+
+.md [type="button"]::-moz-focus-inner,
+.md [type="reset"]::-moz-focus-inner,
+.md [type="submit"]::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+.md [type="button"]:-moz-focusring,
+.md [type="reset"]:-moz-focusring,
+.md [type="submit"]:-moz-focusring {
+  outline: 1px dotted ButtonText;
+}
+
+.md [type="checkbox"],
+.md [type="radio"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.md [type="number"]::-webkit-inner-spin-button,
+.md [type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+.md [type="search"] {
+  -webkit-appearance: textfield;
+  outline-offset: -2px;
+}
+
+.md [type="search"]::-webkit-search-cancel-button,
+.md [type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+.md ::-webkit-input-placeholder {
+  color: inherit;
+  opacity: 0.54;
+}
+
+.md ::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  font: inherit;
+}
+
+.md a:hover {
+  text-decoration: underline;
+}
+
+.md hr::before {
+  display: table;
+  content: "";
+}
+
+.md hr::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.md table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+}
+
+.md td,
+.md th {
+  padding: 0;
+}
+
+.md details summary {
+  cursor: pointer;
+}
+
+.md details:not([open]) > *:not(summary) {
+  display: none !important;
+}
+
+.md kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  color: var(--color-fg-default);
+  vertical-align: middle;
+  background-color: var(--color-canvas-subtle);
+  border: solid 1px var(--color-neutral-muted);
+  border-bottom-color: var(--color-neutral-muted);
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 var(--color-neutral-muted);
+}
+
+.md h1,
+.md h2,
+.md h3,
+.md h4,
+.md h5,
+.md h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 400;
+  line-height: 1.25;
+  font-family: "font-semibold";
+}
+
+.md h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.5em;
+  border-bottom: 1px solid var(--color-border-muted);
+}
+
+.md h3 {
+  font-size: 1.25em;
+}
+
+.md h4 {
+  font-size: 1em;
+}
+
+.md h5 {
+  font-size: 0.875em;
+}
+
+.md h6 {
+  font-size: 0.85em;
+  color: var(--color-fg-muted);
+}
+
+.md p {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.md blockquote {
+  margin: 0;
+  padding: 0 1em;
+  color: var(--color-fg-muted);
+  border-left: 0.25em solid var(--color-border-default);
+}
+
+.md ul,
+.md ol {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 2em;
+}
+
+.md ol ol,
+.md ul ol {
+  list-style-type: lower-roman;
+}
+
+.md ul ul ol,
+.md ul ol ol,
+.md ol ul ol,
+.md ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.md dd {
+  margin-left: 0;
+}
+
+.md pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  word-wrap: normal;
+}
+
+.md ::placeholder {
+  color: var(--color-fg-subtle);
+  opacity: 1;
+}
+
+.md input::-webkit-outer-spin-button,
+.md input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.md::before {
+  display: table;
+  content: "";
+}
+
+.md::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.md > *:first-child {
+  margin-top: 0 !important;
+}
+
+.md > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+.md a:not([href]) {
+  color: inherit;
+  text-decoration: none;
+}
+
+.md .absent {
+  color: var(--color-danger-fg);
+}
+
+.md .anchor {
+  float: left;
+  padding-right: 4px;
+  margin-left: -20px;
+  line-height: 1;
+}
+
+.md .anchor:focus {
+  outline: none;
+}
+
+.md p,
+.md blockquote,
+.md ul,
+.md ol,
+.md dl,
+.md table,
+.md pre,
+.md details {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.md blockquote > :first-child {
+  margin-top: 0;
+}
+
+.md blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.md sup > a::before {
+  content: "[";
+}
+
+.md sup > a::after {
+  content: "]";
+}
+
+.md h1:hover .anchor,
+.md h2:hover .anchor,
+.md h3:hover .anchor,
+.md h4:hover .anchor,
+.md h5:hover .anchor,
+.md h6:hover .anchor {
+  text-decoration: none;
+}
+
+.md h1 tt,
+.md h1 code,
+.md h2 tt,
+.md h2 code,
+.md h3 tt,
+.md h3 code,
+.md h4 tt,
+.md h4 code,
+.md h5 tt,
+.md h5 code,
+.md h6 tt,
+.md h6 code {
+  padding: 0 0.2em;
+  font-size: inherit;
+}
+
+.md ul.no-list,
+.md ol.no-list {
+  padding: 0;
+  list-style-type: none;
+}
+
+.md ol[type="1"] {
+  list-style-type: decimal;
+}
+
+.md ol[type="a"] {
+  list-style-type: lower-alpha;
+}
+
+.md ol[type="i"] {
+  list-style-type: lower-roman;
+}
+
+.md div > ol:not([type]) {
+  list-style-type: decimal;
+}
+
+.md ul ul,
+.md ul ol,
+.md ol ol,
+.md ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.md li > p {
+  margin-top: 16px;
+}
+
+.md li + li {
+  margin-top: 0.25em;
+}
+
+.md dl {
+  padding: 0;
+}
+
+.md dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-family: "font-semibold";
+}
+
+.md dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.md table th {
+  font-family: "font-semibold";
+}
+
+.md table th,
+.md table td {
+  padding: 6px 13px;
+  border: 1px solid var(--color-border-default);
+}
+
+.md table tr {
+  background-color: var(--color-canvas-default);
+  border-top: 1px solid var(--color-border-muted);
+}
+
+.md table tr:nth-child(2n) {
+  background-color: var(--color-canvas-subtle);
+}
+
+.md table img {
+  background-color: transparent;
+}
+
+.md img[align="right"] {
+  padding-left: 20px;
+}
+
+.md img[align="left"] {
+  padding-right: 20px;
+}
+
+.md span.frame {
+  display: block;
+  overflow: hidden;
+}
+
+.md span.frame > span {
+  display: block;
+  float: left;
+  width: auto;
+  padding: 7px;
+  margin: 13px 0 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+}
+
+.md span.frame span img {
+  display: block;
+  float: left;
+}
+
+.md span.frame span span {
+  display: block;
+  padding: 5px 0 0;
+  clear: both;
+  color: var(--color-fg-default);
+}
+
+.md span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+.md span.align-center > span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.md span.align-center span img {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.md span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+.md span.align-right > span {
+  display: block;
+  margin: 13px 0 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+.md span.align-right span img {
+  margin: 0;
+  text-align: right;
+}
+
+.md span.float-left {
+  display: block;
+  float: left;
+  margin-right: 13px;
+  overflow: hidden;
+}
+
+.md span.float-left span {
+  margin: 13px 0 0;
+}
+
+.md span.float-right {
+  display: block;
+  float: right;
+  margin-left: 13px;
+  overflow: hidden;
+}
+
+.md span.float-right > span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+.md code,
+.md tt {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  background-color: var(--color-neutral-muted);
+  border-radius: 6px;
+}
+
+.md code br,
+.md tt br {
+  display: none;
+}
+
+.md del code {
+  text-decoration: inherit;
+}
+
+.md pre code {
+  font-size: 100%;
+}
+
+.md pre > code {
+  padding: 0;
+  margin: 0;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.md .highlight {
+  margin-bottom: 16px;
+}
+
+.md .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.md .highlight pre,
+.md pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: var(--color-canvas-subtle);
+  border-radius: 6px;
+}
+
+.md pre code,
+.md pre tt {
+  display: inline;
+  max-width: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.md .csv-data td,
+.md .csv-data th {
+  padding: 5px;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.md .csv-data .blob-num {
+  padding: 10px 8px 9px;
+  text-align: right;
+  background: var(--color-canvas-default);
+  border: 0;
+}
+
+.md .csv-data tr {
+  border-top: 0;
+}
+
+.md .csv-data th {
+  font-family: "font-semibold";
+  background: var(--color-canvas-subtle);
+  border-top: 0;
+}
+
+.md .footnotes {
+  font-size: 12px;
+  color: var(--color-fg-muted);
+  border-top: 1px solid var(--color-border-default);
+}
+
+.md .footnotes ol {
+  padding-left: 16px;
+}
+
+.md .footnotes li {
+  position: relative;
+}
+
+.md .footnotes li:target::before {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  left: -24px;
+  pointer-events: none;
+  content: "";
+  border: 2px solid var(--color-accent-emphasis);
+  border-radius: 6px;
+}
+
+.md .footnotes li:target {
+  color: var(--color-fg-default);
+}
+
+.md .task-list-item {
+  list-style-type: none;
+}
+
+.md .task-list-item label {
+  font-weight: 400;
+}
+
+.md .task-list-item.enabled label {
+  cursor: pointer;
+}
+
+.md .task-list-item + .task-list-item {
+  margin-top: 3px;
+}
+
+.md .task-list-item .handle {
+  display: none;
+}
+
+.md .task-list-item-checkbox {
+  margin: 0 0.2em 0.25em -1.6em;
+  vertical-align: middle;
+}
+
+.md .contains-task-list:dir(rtl) .task-list-item-checkbox {
+  margin: 0 -1.6em 0.25em 0.2em;
+}
+</style><style type="text/css"><![CDATA[@keyframes d2Transition-d2-2779973239-0 {
+		0%, 0.000000% {
+				opacity: 0;
+		}
+		0.000000%, 16.656250% {
+				opacity: 1;
+		}
+		16.666667%, 100% {
+				opacity: 0;
+		}
+}@keyframes d2Transition-d2-2779973239-1 {
+		0%, 16.656250% {
+				opacity: 0;
+		}
+		16.666667%, 33.322917% {
+				opacity: 1;
+		}
+		33.333333%, 100% {
+				opacity: 0;
+		}
+}@keyframes d2Transition-d2-2779973239-2 {
+		0%, 33.322917% {
+				opacity: 0;
+		}
+		33.333333%, 49.989583% {
+				opacity: 1;
+		}
+		50.000000%, 100% {
+				opacity: 0;
+		}
+}@keyframes d2Transition-d2-2779973239-3 {
+		0%, 49.989583% {
+				opacity: 0;
+		}
+		50.000000%, 66.656250% {
+				opacity: 1;
+		}
+		66.666667%, 100% {
+				opacity: 0;
+		}
+}@keyframes d2Transition-d2-2779973239-4 {
+		0%, 66.656250% {
+				opacity: 0;
+		}
+		66.666667%, 83.322917% {
+				opacity: 1;
+		}
+		83.333333%, 100% {
+				opacity: 0;
+		}
+}@keyframes d2Transition-d2-2779973239-5 {
+		0%, 83.322917% {
+				opacity: 0;
+		}
+		83.333333%, 100.000000% {
+				opacity: 1;
+		}
+}]]></style><g style="animation: d2Transition-d2-2779973239-0 9600ms infinite" class="d2-2779973239 " width="942" height="308" viewBox="-83 -55 942 308"><rect x="-83.000000" y="-55.000000" width="942.000000" height="308.000000" rx="0.000000" fill="#FFFFFF" class=" fill-N7" stroke-width="0" /><g class="dGl0bGU="><g class="shape" ></g><text x="56.500000" y="-14.000000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:20px">cache-aside · the read path</text></g><g class="YXBw svc dim"><g class="shape" ><rect x="12.000000" y="28.000000" width="192.000000" height="82.000000" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /></g><text x="108.000000" y="66.500000" fill="#94a3b8" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="108.000000" dy="0.000000">Application</tspan><tspan x="108.000000" dy="18.500000">owns the cache logic</tspan></text></g><g class="Y2FjaGU= data dim"><g class="shape" ><rect x="614.000000" y="12.000000" width="150.000000" height="82.000000" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /></g><text x="689.000000" y="50.500000" fill="#94a3b8" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="689.000000" dy="0.000000">Cache · TTL 5m</tspan><tspan x="689.000000" dy="18.500000">key: user:42</tspan></text></g><g class="ZGI= data dim"><g class="shape" ><path d="M 614 138 C 614 114 664 114 669 114 C 675 114 724 114 724 138 V 208 C 724 232 675 232 669 232 C 664 232 614 232 614 208 V 138 Z" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /><path d="M 614 138 C 614 162 664 162 669 162 C 675 162 724 162 724 138" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /></g><text x="669.000000" y="190.500000" fill="#94a3b8" class="text-bold" style="text-anchor:middle;font-size:16px">Database</text></g><g class="KGFwcCAtJmd0OyBjYWNoZSlbMF0= dim"><marker id="mk-d2-2779973239-3241831528" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><path d="M 206.000000 48.999001 L 237.750000 48.999001 C 250.250000 48.999001 237.750000 36.499001 250.250000 36.499001 L 610.000000 36.499001" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-2779973239-3241831528)" mask="url(#d2-2779973239)" /><rect x="274.000000" y="23.000000" width="258.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="403.000000" y="42.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">1. GET user:42   ·   4. SET user:42 EX 300</text></g><g class="KGNhY2hlIC0mZ3Q7IGFwcClbMF0= dim"><path d="M 612.000000 69.500000 L 208.000000 69.500000" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-2779973239-3241831528)" mask="url(#d2-2779973239)" /><rect x="364.000000" y="56.000000" width="91.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="409.500000" y="75.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">2. HIT / MISS</text></g><g class="KGFwcCAmbHQ7LSZndDsgZGIpWzBd dim"><marker id="mk-d2-2779973239-3669253731" markerWidth="10.000000" markerHeight="12.000000" refX="3.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="10.000000,0.000000 0.000000,6.000000 10.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><path d="M 208.000000 90.000000 L 234.000000 90.000000 S 244.000000 90.000000 244.000000 100.000000 L 244.000000 163.000000 S 244.000000 173.000000 254.000000 173.000000 L 610.000000 173.000000" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-start="url(#mk-d2-2779973239-3669253731)" marker-end="url(#mk-d2-2779973239-3241831528)" mask="url(#d2-2779973239)" /><rect x="256.000000" y="160.000000" width="223.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="367.500000" y="179.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">3. SELECT … WHERE id=42  →  row</text></g><mask id="d2-2779973239" maskUnits="userSpaceOnUse" x="-83" y="-55" width="942" height="308">
+<rect x="-83" y="-55" width="942" height="308" fill="white"></rect>
+<rect x="276.000000" y="26.000000" width="254" height="21" fill="black"></rect>
+<rect x="366.000000" y="59.000000" width="87" height="21" fill="black"></rect>
+<rect x="258.000000" y="163.000000" width="219" height="21" fill="black"></rect>
+</mask></g><g style="animation: d2Transition-d2-2779973239-1 9600ms infinite" class="d2-2779973239 " width="942" height="308" viewBox="-80 -55 942 308"><rect x="-80.000000" y="-55.000000" width="942.000000" height="308.000000" rx="0.000000" fill="#FFFFFF" class=" fill-N7" stroke-width="0" /><g class="dGl0bGU="><g class="shape" ></g><text x="33.000000" y="-14.000000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:20px">1 · ask the cache first</text></g><g class="YXBw svc current"><g class="shape" ><rect x="12.000000" y="27.000000" width="192.000000" height="82.000000" stroke="#ca8a04" fill="#fef08a" style="stroke-width:3;" /></g><text x="108.000000" y="65.500000" fill="#14532d" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="108.000000" dy="0.000000">Application</tspan><tspan x="108.000000" dy="18.500000">owns the cache logic</tspan></text></g><g class="Y2FjaGU= data current"><g class="shape" ><rect x="619.000000" y="12.000000" width="150.000000" height="82.000000" stroke="#ca8a04" fill="#fef08a" style="stroke-width:3;" /></g><text x="694.000000" y="50.500000" fill="#7c2d12" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="694.000000" dy="0.000000">Cache · TTL 5m</tspan><tspan x="694.000000" dy="18.500000">key: user:42</tspan></text></g><g class="ZGI= data dim"><g class="shape" ><path d="M 619 138 C 619 114 669 114 674 114 C 680 114 729 114 729 138 V 208 C 729 232 680 232 674 232 C 669 232 619 232 619 208 V 138 Z" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /><path d="M 619 138 C 619 162 669 162 674 162 C 680 162 729 162 729 138" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /></g><text x="674.000000" y="190.500000" fill="#94a3b8" class="text-bold" style="text-anchor:middle;font-size:16px">Database</text></g><g class="KGFwcCAtJmd0OyBjYWNoZSlbMF0= step"><marker id="mk-d2-1868633351-3040741369" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#0f172a" class="connection" stroke-width="2" /> </marker><path d="M 206.500000 48.499001 L 238.250000 48.499001 C 249.750000 48.499001 238.250000 36.999001 249.750000 36.999001 L 614.500000 36.999001" stroke="#0f172a" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-1868633351-3040741369)" mask="url(#d2-1868633351)" /><text x="405.500000" y="42.000000" fill="#676C7E" class="text-bold fill-N2" style="text-anchor:middle;font-size:15px">1. GET user:42   ·   4. SET user:42 EX 300</text></g><g class="KGNhY2hlIC0mZ3Q7IGFwcClbMF0= dim"><marker id="mk-d2-1868633351-3241831528" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><path d="M 616.500000 69.000000 L 208.500000 69.000000" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-1868633351-3241831528)" mask="url(#d2-1868633351)" /><rect x="366.000000" y="56.000000" width="91.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="411.500000" y="75.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">2. HIT / MISS</text></g><g class="KGFwcCAmbHQ7LSZndDsgZGIpWzBd dim"><marker id="mk-d2-1868633351-3669253731" markerWidth="10.000000" markerHeight="12.000000" refX="3.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="10.000000,0.000000 0.000000,6.000000 10.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><path d="M 208.500000 89.500000 L 234.000000 89.500000 S 244.000000 89.500000 244.000000 99.500000 L 244.000000 163.000000 S 244.000000 173.000000 254.000000 173.000000 L 615.000000 173.000000" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-start="url(#mk-d2-1868633351-3669253731)" marker-end="url(#mk-d2-1868633351-3241831528)" mask="url(#d2-1868633351)" /><rect x="258.000000" y="160.000000" width="223.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="369.500000" y="179.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">3. SELECT … WHERE id=42  →  row</text></g><mask id="d2-1868633351" maskUnits="userSpaceOnUse" x="-80" y="-55" width="942" height="308">
+<rect x="-80" y="-55" width="942" height="308" fill="white"></rect>
+<rect x="276.000000" y="27.000000" width="259" height="19" fill="black"></rect>
+<rect x="368.000000" y="59.000000" width="87" height="21" fill="black"></rect>
+<rect x="260.000000" y="163.000000" width="219" height="21" fill="black"></rect>
+</mask></g><g style="animation: d2Transition-d2-2779973239-2 9600ms infinite" class="d2-2779973239 " width="942" height="308" viewBox="-83 -55 942 308"><rect x="-83.000000" y="-55.000000" width="942.000000" height="308.000000" rx="0.000000" fill="#FFFFFF" class=" fill-N7" stroke-width="0" /><g class="dGl0bGU="><g class="shape" ></g><text x="67.500000" y="-14.000000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:20px">2 · MISS — the key is not there</text></g><g class="YXBw svc current"><g class="shape" ><rect x="12.000000" y="27.000000" width="192.000000" height="82.000000" stroke="#ca8a04" fill="#fef08a" style="stroke-width:3;" /></g><text x="108.000000" y="65.500000" fill="#14532d" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="108.000000" dy="0.000000">Application</tspan><tspan x="108.000000" dy="18.500000">owns the cache logic</tspan></text></g><g class="Y2FjaGU= data cold"><g class="shape" ><rect x="614.000000" y="12.000000" width="150.000000" height="82.000000" stroke="#93c5fd" fill="#eff6ff" style="stroke-width:2;" /></g><text x="689.000000" y="50.500000" fill="#64748b" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="689.000000" dy="0.000000">Cache · TTL 5m</tspan><tspan x="689.000000" dy="18.500000">key: user:42</tspan></text></g><g class="ZGI= data dim"><g class="shape" ><path d="M 614 138 C 614 114 664 114 669 114 C 675 114 724 114 724 138 V 208 C 724 232 675 232 669 232 C 664 232 614 232 614 208 V 138 Z" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /><path d="M 614 138 C 614 162 664 162 669 162 C 675 162 724 162 724 138" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /></g><text x="669.000000" y="190.500000" fill="#94a3b8" class="text-bold" style="text-anchor:middle;font-size:16px">Database</text></g><g class="KGFwcCAtJmd0OyBjYWNoZSlbMF0= dim"><marker id="mk-d2-2150141027-3241831528" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><path d="M 206.500000 48.499001 L 238.250000 48.499001 C 249.750000 48.499001 238.250000 36.999001 249.750000 36.999001 L 610.000000 36.999001" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-2150141027-3241831528)" mask="url(#d2-2150141027)" /><rect x="274.000000" y="23.000000" width="258.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="403.000000" y="42.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">1. GET user:42   ·   4. SET user:42 EX 300</text></g><g class="KGNhY2hlIC0mZ3Q7IGFwcClbMF0= step"><marker id="mk-d2-2150141027-3040741369" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#0f172a" class="connection" stroke-width="2" /> </marker><path d="M 612.000000 69.000000 L 208.500000 69.000000" stroke="#0f172a" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-2150141027-3040741369)" mask="url(#d2-2150141027)" /><text x="409.000000" y="75.000000" fill="#676C7E" class="text-bold fill-N2" style="text-anchor:middle;font-size:15px">2. HIT / MISS</text></g><g class="KGFwcCAmbHQ7LSZndDsgZGIpWzBd dim"><marker id="mk-d2-2150141027-3669253731" markerWidth="10.000000" markerHeight="12.000000" refX="3.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="10.000000,0.000000 0.000000,6.000000 10.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><path d="M 208.500000 89.500000 L 234.000000 89.500000 S 244.000000 89.500000 244.000000 99.500000 L 244.000000 163.000000 S 244.000000 173.000000 254.000000 173.000000 L 610.000000 173.000000" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-start="url(#mk-d2-2150141027-3669253731)" marker-end="url(#mk-d2-2150141027-3241831528)" mask="url(#d2-2150141027)" /><rect x="256.000000" y="160.000000" width="223.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="367.500000" y="179.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">3. SELECT … WHERE id=42  →  row</text></g><mask id="d2-2150141027" maskUnits="userSpaceOnUse" x="-83" y="-55" width="942" height="308">
+<rect x="-83" y="-55" width="942" height="308" fill="white"></rect>
+<rect x="276.000000" y="26.000000" width="254" height="21" fill="black"></rect>
+<rect x="366.000000" y="60.000000" width="86" height="19" fill="black"></rect>
+<rect x="258.000000" y="163.000000" width="219" height="21" fill="black"></rect>
+</mask></g><g style="animation: d2Transition-d2-2779973239-3 9600ms infinite" class="d2-2779973239 " width="942" height="309" viewBox="-83 -55 942 309"><rect x="-83.000000" y="-55.000000" width="942.000000" height="309.000000" rx="0.000000" fill="#FFFFFF" class=" fill-N7" stroke-width="0" /><g class="dGl0bGU="><g class="shape" ></g><text x="61.500000" y="-14.000000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:20px">3 · read through to the store</text></g><g class="YXBw svc current"><g class="shape" ><rect x="12.000000" y="28.000000" width="192.000000" height="82.000000" stroke="#ca8a04" fill="#fef08a" style="stroke-width:3;" /></g><text x="108.000000" y="66.500000" fill="#14532d" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="108.000000" dy="0.000000">Application</tspan><tspan x="108.000000" dy="18.500000">owns the cache logic</tspan></text></g><g class="Y2FjaGU= data cold"><g class="shape" ><rect x="614.000000" y="12.000000" width="150.000000" height="82.000000" stroke="#93c5fd" fill="#eff6ff" style="stroke-width:2;" /></g><text x="689.000000" y="50.500000" fill="#64748b" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="689.000000" dy="0.000000">Cache · TTL 5m</tspan><tspan x="689.000000" dy="18.500000">key: user:42</tspan></text></g><g class="ZGI= data current"><g class="shape" ><path d="M 614 138 C 614 114 664 114 669 114 C 675 114 724 114 724 138 V 208 C 724 232 675 232 669 232 C 664 232 614 232 614 208 V 138 Z" stroke="#ca8a04" fill="#fef08a" style="stroke-width:3;" /><path d="M 614 138 C 614 162 664 162 669 162 C 675 162 724 162 724 138" stroke="#ca8a04" fill="#fef08a" style="stroke-width:3;" /></g><text x="669.000000" y="190.500000" fill="#7c2d12" class="text-bold" style="text-anchor:middle;font-size:16px">Database</text></g><g class="KGFwcCAtJmd0OyBjYWNoZSlbMF0= dim"><marker id="mk-d2-3528398148-3241831528" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><path d="M 206.500000 48.999001 L 237.750000 48.999001 C 250.250000 48.999001 237.750000 36.499001 250.250000 36.499001 L 610.000000 36.499001" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-3528398148-3241831528)" mask="url(#d2-3528398148)" /><rect x="274.000000" y="23.000000" width="258.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="403.000000" y="42.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">1. GET user:42   ·   4. SET user:42 EX 300</text></g><g class="KGNhY2hlIC0mZ3Q7IGFwcClbMF0= dim"><path d="M 612.000000 69.500000 L 208.500000 69.500000" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-3528398148-3241831528)" mask="url(#d2-3528398148)" /><rect x="364.000000" y="56.000000" width="91.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="409.500000" y="75.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">2. HIT / MISS</text></g><g class="KGFwcCAmbHQ7LSZndDsgZGIpWzBd step"><marker id="mk-d2-3528398148-3024913810" markerWidth="10.000000" markerHeight="12.000000" refX="3.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="10.000000,0.000000 0.000000,6.000000 10.000000,12.000000" fill="#0f172a" class="connection" stroke-width="2" /> </marker><marker id="mk-d2-3528398148-3040741369" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#0f172a" class="connection" stroke-width="2" /> </marker><path d="M 208.500000 90.000000 L 234.000000 90.000000 S 244.000000 90.000000 244.000000 100.000000 L 244.000000 163.000000 S 244.000000 173.000000 254.000000 173.000000 L 609.500000 173.000000" stroke="#0f172a" fill="none" class="connection" style="stroke-width:2;" marker-start="url(#mk-d2-3528398148-3024913810)" marker-end="url(#mk-d2-3528398148-3040741369)" mask="url(#d2-3528398148)" /><text x="368.000000" y="179.000000" fill="#676C7E" class="text-bold fill-N2" style="text-anchor:middle;font-size:15px">3. SELECT … WHERE id=42  →  row</text></g><mask id="d2-3528398148" maskUnits="userSpaceOnUse" x="-83" y="-55" width="942" height="309">
+<rect x="-83" y="-55" width="942" height="309" fill="white"></rect>
+<rect x="276.000000" y="26.000000" width="254" height="21" fill="black"></rect>
+<rect x="366.000000" y="59.000000" width="87" height="21" fill="black"></rect>
+<rect x="257.000000" y="164.000000" width="222" height="19" fill="black"></rect>
+</mask></g><g style="animation: d2Transition-d2-2779973239-4 9600ms infinite" class="d2-2779973239 " width="942" height="308" viewBox="-80 -55 942 308"><rect x="-80.000000" y="-55.000000" width="942.000000" height="308.000000" rx="0.000000" fill="#FFFFFF" class=" fill-N7" stroke-width="0" /><g class="dGl0bGU="><g class="shape" ></g><text x="98.500000" y="-14.000000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:20px">4 · fill the cache · the TTL starts now</text></g><g class="YXBw svc current"><g class="shape" ><rect x="12.000000" y="27.000000" width="192.000000" height="82.000000" stroke="#ca8a04" fill="#fef08a" style="stroke-width:3;" /></g><text x="108.000000" y="65.500000" fill="#14532d" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="108.000000" dy="0.000000">Application</tspan><tspan x="108.000000" dy="18.500000">owns the cache logic</tspan></text></g><g class="Y2FjaGU= data hot"><g class="shape" ><rect x="619.000000" y="12.000000" width="150.000000" height="82.000000" stroke="#ea580c" fill="#ffedd5" style="stroke-width:2;" /></g><text x="694.000000" y="50.500000" fill="#7c2d12" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="694.000000" dy="0.000000">Cache · TTL 5m</tspan><tspan x="694.000000" dy="18.500000">key: user:42</tspan></text></g><g class="ZGI= data dim"><g class="shape" ><path d="M 619 138 C 619 114 669 114 674 114 C 680 114 729 114 729 138 V 208 C 729 232 680 232 674 232 C 669 232 619 232 619 208 V 138 Z" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /><path d="M 619 138 C 619 162 669 162 674 162 C 680 162 729 162 729 138" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /></g><text x="674.000000" y="190.500000" fill="#94a3b8" class="text-bold" style="text-anchor:middle;font-size:16px">Database</text></g><g class="KGFwcCAtJmd0OyBjYWNoZSlbMF0= step"><marker id="mk-d2-2485423474-3040741369" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#0f172a" class="connection" stroke-width="2" /> </marker><path d="M 206.500000 48.499001 L 238.250000 48.499001 C 249.750000 48.499001 238.250000 36.999001 249.750000 36.999001 L 615.000000 36.999001" stroke="#0f172a" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-2485423474-3040741369)" mask="url(#d2-2485423474)" /><text x="405.500000" y="42.000000" fill="#676C7E" class="text-bold fill-N2" style="text-anchor:middle;font-size:15px">1. GET user:42   ·   4. SET user:42 EX 300</text></g><g class="KGNhY2hlIC0mZ3Q7IGFwcClbMF0= dim"><marker id="mk-d2-2485423474-3241831528" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><path d="M 617.000000 69.000000 L 208.500000 69.000000" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-2485423474-3241831528)" mask="url(#d2-2485423474)" /><rect x="366.000000" y="56.000000" width="91.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="411.500000" y="75.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">2. HIT / MISS</text></g><g class="KGFwcCAmbHQ7LSZndDsgZGIpWzBd dim"><marker id="mk-d2-2485423474-3669253731" markerWidth="10.000000" markerHeight="12.000000" refX="3.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="10.000000,0.000000 0.000000,6.000000 10.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><path d="M 208.500000 89.500000 L 234.000000 89.500000 S 244.000000 89.500000 244.000000 99.500000 L 244.000000 163.000000 S 244.000000 173.000000 254.000000 173.000000 L 615.000000 173.000000" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-start="url(#mk-d2-2485423474-3669253731)" marker-end="url(#mk-d2-2485423474-3241831528)" mask="url(#d2-2485423474)" /><rect x="258.000000" y="160.000000" width="223.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="369.500000" y="179.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">3. SELECT … WHERE id=42  →  row</text></g><mask id="d2-2485423474" maskUnits="userSpaceOnUse" x="-80" y="-55" width="942" height="308">
+<rect x="-80" y="-55" width="942" height="308" fill="white"></rect>
+<rect x="276.000000" y="27.000000" width="259" height="19" fill="black"></rect>
+<rect x="368.000000" y="59.000000" width="87" height="21" fill="black"></rect>
+<rect x="260.000000" y="163.000000" width="219" height="21" fill="black"></rect>
+</mask></g><g style="animation: d2Transition-d2-2779973239-5 9600ms infinite" class="d2-2779973239 " width="942" height="308" viewBox="-100 -55 942 308"><rect x="-100.000000" y="-55.000000" width="942.000000" height="308.000000" rx="0.000000" fill="#FFFFFF" class=" fill-N7" stroke-width="0" /><g class="dGl0bGU="><g class="shape" ></g><text x="151.000000" y="-14.000000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:20px">5 · the next read is a HIT — the store is never touched</text></g><g class="YXBw svc active"><g class="shape" ><rect x="12.000000" y="26.000000" width="192.000000" height="82.000000" stroke="#16a34a" fill="#dcfce7" style="stroke-width:2;" /></g><text x="108.000000" y="64.500000" fill="#14532d" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="108.000000" dy="0.000000">Application</tspan><tspan x="108.000000" dy="18.500000">owns the cache logic</tspan></text></g><g class="Y2FjaGU= data hot"><g class="shape" ><rect x="579.000000" y="12.000000" width="150.000000" height="82.000000" stroke="#ea580c" fill="#ffedd5" style="stroke-width:2;" /></g><text x="654.000000" y="50.500000" fill="#7c2d12" class="text-bold" style="text-anchor:middle;font-size:16px"><tspan x="654.000000" dy="0.000000">Cache · TTL 5m</tspan><tspan x="654.000000" dy="18.500000">key: user:42</tspan></text></g><g class="ZGI= data dim"><g class="shape" ><path d="M 579 138 C 579 114 629 114 634 114 C 640 114 689 114 689 138 V 208 C 689 232 640 232 634 232 C 629 232 579 232 579 208 V 138 Z" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /><path d="M 579 138 C 579 162 629 162 634 162 C 640 162 689 162 689 138" stroke="#cbd5e1" fill="#fbfcfe" style="stroke-width:2;" /></g><text x="634.000000" y="190.500000" fill="#94a3b8" class="text-bold" style="text-anchor:middle;font-size:16px">Database</text></g><g class="KGFwcCAtJmd0OyBjYWNoZSlbMF0= hint"><marker id="mk-d2-1842330698-776762301" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#94a3b8" class="connection" stroke-width="2" /> </marker><path d="M 206.000000 37.999001 L 575.000000 37.999001" stroke="#94a3b8" fill="none" class="connection" style="stroke-width:2;stroke-dasharray:6.000000,5.919384;" marker-end="url(#mk-d2-1842330698-776762301)" mask="url(#d2-1842330698)" /><text x="392.000000" y="42.000000" fill="#64748b" class="text-italic" style="text-anchor:middle;font-size:13px">1. GET user:42   ·   4. SET user:42 EX 300</text></g><g class="KGNhY2hlIC0mZ3Q7IGFwcClbMF0= step"><marker id="mk-d2-1842330698-3040741369" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#0f172a" class="connection" stroke-width="2" /> </marker><path d="M 577.000000 68.000000 L 208.000000 68.000000" stroke="#0f172a" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-1842330698-3040741369)" mask="url(#d2-1842330698)" /><text x="392.000000" y="74.000000" fill="#676C7E" class="text-bold fill-N2" style="text-anchor:middle;font-size:15px">2. HIT / MISS</text></g><g class="KGFwcCAmbHQ7LSZndDsgZGIpWzBd dim"><marker id="mk-d2-1842330698-3669253731" markerWidth="10.000000" markerHeight="12.000000" refX="3.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="10.000000,0.000000 0.000000,6.000000 10.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><marker id="mk-d2-1842330698-3241831528" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#cbd5e1" class="connection" stroke-width="2" /> </marker><path d="M 208.000000 88.500000 L 234.000000 88.500000 S 244.000000 88.500000 244.000000 98.500000 L 244.000000 163.000000 S 244.000000 173.000000 254.000000 173.000000 L 575.000000 173.000000" stroke="#cbd5e1" fill="none" class="connection" style="stroke-width:2;" marker-start="url(#mk-d2-1842330698-3669253731)" marker-end="url(#mk-d2-1842330698-3241831528)" mask="url(#d2-1842330698)" /><rect x="238.000000" y="160.000000" width="223.000000" height="27.000000" rx="10.000000" fill="#fbfcfe" /><text x="349.500000" y="179.000000" fill="#94a3b8" class="text-italic" style="text-anchor:middle;font-size:16px">3. SELECT … WHERE id=42  →  row</text></g><mask id="d2-1842330698" maskUnits="userSpaceOnUse" x="-100" y="-55" width="942" height="308">
+<rect x="-100" y="-55" width="942" height="308" fill="white"></rect>
+<rect x="289.000000" y="29.000000" width="206" height="17" fill="black"></rect>
+<rect x="349.000000" y="59.000000" width="86" height="19" fill="black"></rect>
+<rect x="240.000000" y="163.000000" width="219" height="21" fill="black"></rect>
+</mask></g></svg></svg>

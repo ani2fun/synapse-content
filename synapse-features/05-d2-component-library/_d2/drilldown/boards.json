@@ -1,0 +1,44 @@
+{
+  "generator": 1,
+  "source": "8907bece",
+  "root": "root",
+  "boards": [
+    {
+      "id": "root",
+      "slug": "root",
+      "title": "Overview",
+      "parent": null,
+      "links": [
+        "root.layers.edge",
+        "root.layers.services",
+        "root.layers.data"
+      ]
+    },
+    {
+      "id": "root.layers.edge",
+      "slug": "edge",
+      "title": "Edge",
+      "parent": "root",
+      "links": [
+        "root.layers.services"
+      ]
+    },
+    {
+      "id": "root.layers.services",
+      "slug": "services",
+      "title": "Services",
+      "parent": "root",
+      "links": [
+        "root.layers.data"
+      ]
+    },
+    {
+      "id": "root.layers.data",
+      "slug": "data",
+      "title": "Data",
+      "parent": "root",
+      "links": []
+    }
+  ],
+  "warnings": []
+}
