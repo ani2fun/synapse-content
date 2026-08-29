@@ -1,6 +1,6 @@
 ---
 title: "Reading a Synapse Lesson"
-summary: "A quick tour of what a Synapse lesson can render: a Mermaid flowchart, a D2 diagram, and a runnable code block you can execute and visualise step by step."
+summary: "A quick tour of what a Synapse lesson can render: a Mermaid flowchart, a D2 diagram, a stepped image sequence, and code you can open in an editor, execute and visualise step by step — whether the author marked it runnable or not."
 ---
 
 # Reading a Synapse Lesson
@@ -186,6 +186,32 @@ while left < right:
 print("[" + ", ".join(arr) + "]")
 ```
 
+## Any code block, not just the tagged ones
+
+The block above was tagged `run`, which is what gave it an editor inline. But *every* code block on this
+page in a language the sandbox speaks carries a **Try in Editor** button in its toolbar — including ones the
+author never marked up at all. Press it and the snippet opens in a full-screen editor with its own **Run**
+button and a box for standard input.
+
+The block below is a plain `python` fence. Nothing was added to it. Look for **Try in Editor** at the top
+right of it:
+
+```python
+def is_anagram(a: str, b: str) -> bool:
+    return sorted(a) == sorted(b)
+
+for pair in [("listen", "silent"), ("hello", "world")]:
+    print(pair, "->", is_anagram(*pair))
+```
+
+A fence in a language the sandbox does *not* run — `bash`, `json`, `yaml` — still gets the toolbar and its
+copy button, just not this one.
+
+Running is open to everyone; **editing asks you to sign in**. If you are signed in, whatever you type is kept
+in your own browser: close the editor, reopen the same snippet, come back to this page tomorrow, and your
+version is still there rather than the one printed above. A **Reset to the original** button appears as soon as
+your copy differs, and puts the author's code back whenever you want it.
+
 ## One block, many languages
 
 A run group isn't limited to Python and Java — the sandbox speaks eleven languages, and adjacent `run` fences
@@ -231,6 +257,12 @@ for n in range(1, 16):
         print(n)
 ```
 
-That's a lesson in a nutshell: **read it, run it, watch it.** The next page turns this same idea into an
-interactive *problem* with a hidden test suite, and the one after shows how an *architecture diagram* can double as
-clickable documentation.
+Two more things a lesson can carry, which this page has no room to demonstrate. A ```` ```simulator ```` fence
+embeds a purpose-built interactive widget shipped alongside the book — the *Networking Essentials* lesson in
+**System Design from First Principles** uses one to take a packet down the OSI stack layer by layer. And a
+```` ```d2 boards ```` fence turns a diagram into a **walkthrough**: a tree of boards you click through rather
+than one drawing, which the third page of this chapter covers in full.
+
+That's a lesson in a nutshell: **read it, run it, watch it.** The next page teaches the D2 language one
+keyword at a time, and the one after turns a diagram into a **walkthrough** — a tree of boards you click
+down through instead of one picture.

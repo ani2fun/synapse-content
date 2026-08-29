@@ -1,6 +1,6 @@
 {
     "title": "Synapse Features",
-    "description": "A guided tour of what Synapse can do: rendered diagrams (Mermaid and D2), runnable code with step-by-step visualisations, an interactive coding problem with a hidden test suite, architecture diagrams whose components you can click for tutorial docs, and a library of copy-and-adapt D2 templates — static and animated — for data structures, algorithms and system design.",
+    "description": "A guided tour of what Synapse can do: rendered diagrams (Mermaid and D2), clickable D2 walkthroughs, any code block openable in a full editor and run in a sandbox, step-by-step visualisations of that code, an interactive coding problem with a hidden test suite, architecture write-ups that live in the lesson beside the diagram, and a library of copy-and-adapt D2 templates — static and animated — for data structures, algorithms and system design.",
     "tags": [
         "synapse",
         "demo",

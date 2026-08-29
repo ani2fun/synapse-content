@@ -1,51 +1,64 @@
 ---
 title: How to Work With Synapse and synapse-content
-summary: The practical guide to the platform serving this page — a step-by-step local setup for Mac, Windows and Linux that assumes no prior terminal experience, then the content vocabulary that turns a Markdown file into runnable code, judged problems, step-through visualisations and clickable architecture diagrams. Including the traps that fail quietly.
+summary: The practical guide to the platform serving this page — a step-by-step local setup for Mac, Windows and Linux that assumes no prior terminal experience, then the content vocabulary that turns a Markdown file into runnable code, judged problems, step-through visualisations and architecture walkthroughs. Including the traps that fail quietly.
 publishedAt: 2026-07-24
 tags: [synapse, authoring, guide, getting-started, developer-experience]
-readMinutes: 26
-eyebrow: Working Guide · Two Repositories · One Platform
-meta: Read Time=26 min; Setup steps=6; Reserved fences=7; Terminal experience=None needed
+readMinutes: 28
+eyebrow: Working Guide · One Catalog, Many Repositories
+meta: Read Time=28 min; Setup steps=6; Reserved fences=8; Terminal experience=None needed
 ---
 
 <header class="blog-post__hero">
   <div class="blog-post__hero-copy">
-    <div class="blog-post__hero-eyebrow">Working Guide · Two Repositories · One Platform</div>
+    <div class="blog-post__hero-eyebrow">Working Guide · One Catalog, Many Repositories</div>
     <h1 class="blog-post__hero-title">How to work with <em>Synapse</em></h1>
-    <p class="blog-post__hero-sub">Everything from an empty terminal to a published lesson with runnable code, a judged problem and a clickable architecture model. Setup is written for Mac, Windows and Linux, and assumes you have never used a terminal before.</p>
+    <p class="blog-post__hero-sub">Everything from an empty terminal to a published lesson with runnable code, a judged problem and an architecture walkthrough you click through. Setup is written for Mac, Windows and Linux, and assumes you have never used a terminal before.</p>
     <div class="blog-post__hero-meta">
-      <div class="blog-post__hero-meta-item"><span>Repositories</span><span>2</span></div>
+      <div class="blog-post__hero-meta-item"><span>Content Repos</span><span>1 + N</span></div>
       <div class="blog-post__hero-meta-item"><span>Setup Steps</span><span>6</span></div>
-      <div class="blog-post__hero-meta-item"><span>Reserved Fences</span><span>7</span></div>
+      <div class="blog-post__hero-meta-item"><span>Reserved Fences</span><span>8</span></div>
       <div class="blog-post__hero-meta-item"><span>Publish By</span><span>git push</span></div>
     </div>
   </div>
   <div class="blog-post__hero-art" aria-hidden="true">
     <svg viewBox="0 0 600 700" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="300" cy="350" r="260" fill="currentColor" opacity="0.14"/>
-      <rect x="120" y="120" width="360" height="92" rx="10" fill="currentColor" opacity="0.5"/>
-      <text x="300" y="156" font-family="monospace" font-size="17" fill="currentColor" text-anchor="middle" opacity="0.95">ani2fun/synapse</text>
-      <text x="300" y="186" font-family="serif" font-size="13" fill="currentColor" text-anchor="middle" opacity="0.7" font-style="italic">the code — rebuilt when code changes</text>
-      <path d="M300 212 V 268" stroke="currentColor" stroke-width="2" opacity="0.45"/>
-      <path d="M292 258 L300 270 L308 258" stroke="currentColor" stroke-width="2" opacity="0.45"/>
-      <rect x="150" y="272" width="300" height="66" rx="10" fill="none" stroke="currentColor" stroke-width="2" opacity="0.55"/>
-      <text x="300" y="306" font-family="monospace" font-size="15" fill="currentColor" text-anchor="middle" opacity="0.95">reads at SYNAPSE_ROOT</text>
-      <text x="300" y="326" font-family="serif" font-size="12" fill="currentColor" text-anchor="middle" opacity="0.7" font-style="italic">never writes</text>
-      <path d="M300 338 V 394" stroke="currentColor" stroke-width="2" opacity="0.45"/>
-      <path d="M292 384 L300 396 L308 384" stroke="currentColor" stroke-width="2" opacity="0.45"/>
-      <rect x="120" y="398" width="360" height="92" rx="10" fill="currentColor" opacity="0.5"/>
-      <text x="300" y="434" font-family="monospace" font-size="17" fill="currentColor" text-anchor="middle" opacity="0.95">ani2fun/synapse-content</text>
-      <text x="300" y="464" font-family="serif" font-size="13" fill="currentColor" text-anchor="middle" opacity="0.7" font-style="italic">the writing — live in under a minute</text>
-      <path d="M120 526 H480" stroke="currentColor" stroke-width="1" opacity="0.25"/>
-      <text x="300" y="566" font-family="serif" font-size="15" fill="currentColor" text-anchor="middle" opacity="0.8" font-style="italic">no CMS · no content database</text>
-      <text x="300" y="596" font-family="monospace" font-size="15" fill="currentColor" text-anchor="middle" opacity="0.9">git push IS the deploy</text>
+      <rect x="120" y="86" width="360" height="86" rx="10" fill="currentColor" opacity="0.5"/>
+      <text x="300" y="120" font-family="monospace" font-size="17" fill="currentColor" text-anchor="middle" opacity="0.95">ani2fun/synapse</text>
+      <text x="300" y="148" font-family="serif" font-size="13" fill="currentColor" text-anchor="middle" opacity="0.7" font-style="italic">the code — rebuilt when code changes</text>
+      <path d="M300 172 V 224" stroke="currentColor" stroke-width="2" opacity="0.45"/>
+      <path d="M292 214 L300 226 L308 214" stroke="currentColor" stroke-width="2" opacity="0.45"/>
+      <rect x="150" y="228" width="300" height="62" rx="10" fill="none" stroke="currentColor" stroke-width="2" opacity="0.55"/>
+      <text x="300" y="260" font-family="monospace" font-size="15" fill="currentColor" text-anchor="middle" opacity="0.95">one merged catalog</text>
+      <text x="300" y="279" font-family="serif" font-size="12" fill="currentColor" text-anchor="middle" opacity="0.7" font-style="italic">reads only — never writes</text>
+      <path d="M300 350 V 292" stroke="currentColor" stroke-width="2" opacity="0.45"/>
+      <path d="M292 302 L300 290 L308 302" stroke="currentColor" stroke-width="2" opacity="0.45"/>
+      <rect x="120" y="352" width="360" height="86" rx="10" fill="currentColor" opacity="0.5"/>
+      <text x="300" y="386" font-family="monospace" font-size="16" fill="currentColor" text-anchor="middle" opacity="0.95">ani2fun/synapse-content</text>
+      <text x="300" y="412" font-family="serif" font-size="13" fill="currentColor" text-anchor="middle" opacity="0.7" font-style="italic">the spine — blog, categories, the ground floor</text>
+      <path d="M180 470 V 446 H300" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+      <path d="M300 470 V 446" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+      <path d="M420 470 V 446 H300" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+      <path d="M292 456 L300 444 L308 456" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+      <rect x="126" y="470" width="108" height="56" rx="8" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"/>
+      <text x="180" y="494" font-family="monospace" font-size="13" fill="currentColor" text-anchor="middle" opacity="0.9">dsa-guide</text>
+      <text x="180" y="512" font-family="serif" font-size="11" fill="currentColor" text-anchor="middle" opacity="0.65" font-style="italic">satellite</text>
+      <rect x="246" y="470" width="108" height="56" rx="8" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"/>
+      <text x="300" y="494" font-family="monospace" font-size="13" fill="currentColor" text-anchor="middle" opacity="0.9">java-guide</text>
+      <text x="300" y="512" font-family="serif" font-size="11" fill="currentColor" text-anchor="middle" opacity="0.65" font-style="italic">satellite</text>
+      <rect x="366" y="470" width="108" height="56" rx="8" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"/>
+      <text x="420" y="494" font-family="monospace" font-size="19" fill="currentColor" text-anchor="middle" opacity="0.9">…</text>
+      <text x="420" y="512" font-family="serif" font-size="11" fill="currentColor" text-anchor="middle" opacity="0.65" font-style="italic">registered at /admin</text>
+      <path d="M120 566 H480" stroke="currentColor" stroke-width="1" opacity="0.25"/>
+      <text x="300" y="602" font-family="serif" font-size="15" fill="currentColor" text-anchor="middle" opacity="0.8" font-style="italic">no CMS · no content database</text>
+      <text x="300" y="632" font-family="monospace" font-size="15" fill="currentColor" text-anchor="middle" opacity="0.9">git push IS the deploy</text>
     </svg>
   </div>
 </header>
 
 <nav class="blog-post__toc" aria-label="On this page">
   <ul>
-    <li><a href="#two-repos">Two Repositories</a></li>
+    <li><a href="#two-repos">One Catalog, Many Repositories</a></li>
     <li><a href="#running">Running It Locally — Mac, Windows, Linux</a></li>
     <li><a href="#model">The Content Model</a></li>
     <li><a href="#fences">The Fence Vocabulary</a></li>
@@ -59,20 +72,35 @@ meta: Read Time=26 min; Setup steps=6; Reserved fences=7; Terminal experience=No
   </ul>
 </nav>
 
-<p class="blog-post__lede">Synapse is two repositories that never merge: one holds an application, the other holds everything the application says. Publishing a lesson is a <code>git push</code> to the second one, and nothing is rebuilt.</p>
+<p class="blog-post__lede">Synapse separates the application from everything the application says. One repository holds the code; a growing set of others hold the writing, and the platform merges them into a single catalog at runtime. Publishing a lesson is a <code>git push</code> to whichever repository owns it, and nothing is rebuilt.</p>
 
 This is the working guide. It assumes nothing beyond a terminal and covers the whole path — cloning, running the stack, writing a lesson with every feature the renderer has, verifying it, and getting it live. Where something fails *quietly*, this guide says so, because a wrong fence does not throw an error; it just renders as a plain code block and leaves you wondering.
 
+*Revised August 2026: content now spans several repositories rather than one, plain code fences open in a full editor, and there are two in-app diagram editors. Those sections are new; everything else stands.*
+
 <div class="blog-post__divider"><span>The Split</span></div>
 
-<h2 id="two-repos" class="blog-post__section">Two Repositories, and Why That Matters</h2>
+<h2 id="two-repos" class="blog-post__section">One Catalog, Many Repositories</h2>
 
 | Repository | Holds | Changes reach production |
 |---|---|---|
 | [`ani2fun/synapse`](https://github.com/ani2fun/synapse) | the application — Rust server, Astro web tier, visualisation engine | image build → registry → deployment rollout, **minutes** |
-| [`ani2fun/synapse-content`](https://github.com/ani2fun/synapse-content) | every book, lesson, diagram model, test suite and blog post | a sidecar pulls the commit, **under a minute**, no rebuild |
+| [`ani2fun/synapse-content`](https://github.com/ani2fun/synapse-content) | **the spine** — the blog, the category declarations, and any book that has not been split out | a sidecar pulls the commit, **under a minute**, no rebuild |
+| a **satellite** — one repository per book | that book, and nothing else: `book.json` plus chapters at the repository root | fetched on a 60-second loop, **under a minute**, no rebuild |
 
 The application reads content off disk at a path it is given. In production that path is a checkout maintained by a git-sync sidecar; in development it is wherever you cloned the content repository. Neither the server nor the browser can write to it.
+
+### Spine and satellites
+
+The spine is mounted first and always. Everything a satellite cannot own alone lives there: the blog and the category list that groups books on the library page.
+
+A **satellite** is a repository whose root *is* a book — a `book.json` beside numbered chapter directories, with no wrapper folder. It is registered once from `/admin`, and from then on the server fetches it as a GitHub tarball on a sixty-second loop. The registration row owns where the book sits and in what order; `book.json` owns the slug, because the slug is the URL.
+
+<div class="blog-post__callout blog-post__callout--warn">
+  <p><strong>The rule that makes a split safe:</strong> on a duplicate book slug, the <em>first</em> source wins, and the spine is always first. So moving a book out of the spine is: register the satellite, verify it at its real URL while both copies still exist, and only then delete the copy in the spine. A satellite's grouping and its <code>book.json</code> slug must reproduce the path the book had <em>before</em> the split — otherwise deletion day moves every URL and orphans the reading progress recorded against the old ones.</p>
+</div>
+
+Six books are satellites today — `dsa`, `java`, `low-level-design`, `python`, `sql` and `system-design-from-first-principles`. Nothing about writing a lesson changes when a book moves: the fences, the frontmatter and the URL rules below are identical in the spine and in a satellite.
 
 <aside class="blog-post__pullquote">
   <p>There is no CMS, no content database, no upload endpoint. Everything a content management system usually provides — drafts, review, revisions, rollback, an audit log — is delegated to git, which does all of it better and has already been written.</p>
@@ -212,6 +240,8 @@ git clone https://github.com/ani2fun/synapse-content.git
 
 Keep them **side by side** like that. The application looks for the writing in a folder next to it, so this layout works with no configuration. (`~` means your home folder; on a Mac that is `/Users/yourname`.)
 
+Two folders is all you need to run the platform. The spine is the only content repository a local stack mounts by default — satellites are fetched over the network from their registration, which a development machine has no reason to do. If you want a satellite in your local catalog, clone it beside the others and point `SYNAPSE_LOCAL_SOURCES` at it; the registry itself cannot hold a local path.
+
 <h3 id="step3">Step 3 · Start the four helper services</h3>
 
 Docker downloads and runs these for you. The first time takes a few minutes because it is fetching them; afterwards it is seconds.
@@ -219,9 +249,6 @@ Docker downloads and runs these for you. The first time takes a few minutes beca
 ```bash
 cd ~/synapse-workspace/synapse
 docker compose up -d db go-judge keycloak
-
-# Optional — only if you want the interactive architecture diagrams.
-docker compose --profile c4 up -d likec4
 ```
 
 `-d` means "in the background". To check they are alive:
@@ -341,8 +368,6 @@ synapse-content/
       03-a-problem.md
       03-a-problem.editorial.md     ← worked solution, revealed on demand
       03-a-problem.tests.json       ← the judge's suite
-      _c4-docs/                     ← click-docs for diagram elements
-      system.c4                     ← an architecture model
   _media/my-book/first-lesson/…     ← images and video, at the REPO ROOT
   local-only/                       ← never published
 ```
@@ -398,12 +423,14 @@ Everything else is a display language, and what it *does* is decided by the fenc
   <table class="blog-post__table">
     <thead><tr><th>Fence</th><th>Produces</th></tr></thead>
     <tbody>
-      <tr><td><code>```python</code></td><td>a highlighted code card</td></tr>
+      <tr><td><code>```python</code></td><td>a highlighted code card — plus <strong>Try in Editor</strong>, when the sandbox speaks that language</td></tr>
       <tr><td><code>```python run</code></td><td>an editor with a Run button, executed in the sandbox</td></tr>
       <tr><td><code>```python run viz=array:nums</code></td><td>runnable <em>and</em> visualised, the picture rooted at <code>nums</code></td></tr>
       <tr><td><code>```python solution time=O(n) space=O(1)</code></td><td>a spoiler-safe revealed answer with complexity labels</td></tr>
       <tr><td><code>```mermaid</code> / <code>```d2</code></td><td>a rendered diagram</td></tr>
+      <tr><td><code>```d2 boards</code></td><td>a walkthrough — a tree of boards the reader clicks through</td></tr>
       <tr><td><code>```viz widget=array</code></td><td>a declarative visualisation from an authored payload</td></tr>
+      <tr><td><code>```simulator</code></td><td>an embedded interactive simulator from <code>_simulators/</code></td></tr>
       <tr><td><code>```quiz</code></td><td>an interactive question</td></tr>
       <tr><td><code>```problem</code> + <code>```testcases</code> + <code>```editorial</code></td><td>the problem workbench and its attachments</td></tr>
     </tbody>
@@ -474,6 +501,29 @@ if __name__ == "__main__":
 
 <div class="blog-post__callout blog-post__callout--info">
   <p><strong>The rule that catches people out:</strong> every runnable fence must be a <em>complete, self-contained program</em>. Fences do not concatenate — each one is loaded into the editor alone, run with empty standard input, and must print something deterministic. If your example needs a driver, the driver goes in the same fence.</p>
+</div>
+
+### Plain fences are runnable too — Try in Editor
+
+`run` is not the only way a reader reaches the sandbox. **Any** plain fence in a language the sandbox speaks grows a **Try in Editor** button in its toolbar, which opens the snippet in a near-fullscreen editor with its own Run button and a standard-input box. You write nothing extra: no `run`, no meta, no change to the Markdown at all. A prose fence in a language the sandbox does not speak — `bash`, `json`, `yaml` — still gets the toolbar and the copy button, just not this one.
+
+The distinction worth keeping straight when you write:
+
+<div class="blog-post__table-wrap">
+  <table class="blog-post__table">
+    <thead><tr><th></th><th><code>```python</code></th><th><code>```python run</code></th></tr></thead>
+    <tbody>
+      <tr><td>In the page</td><td>a code card</td><td>an editor, inline</td></tr>
+      <tr><td>Reaches the sandbox</td><td>through <strong>Try in Editor</strong></td><td>directly, in place</td></tr>
+      <tr><td>Use it for</td><td>illustrating a point in prose</td><td>the example the lesson is <em>about</em></td></tr>
+    </tbody>
+  </table>
+</div>
+
+Editing in the popup requires signing in; running does not. A signed-in reader's edits are kept in their own browser, so closing the editor and opening the same snippet again — or coming back to the lesson tomorrow — returns the version they were working on rather than your original. **Reset to the original** puts your fence back, and rewriting that fence retires their saved copy automatically, so a reader is never handed edits that no longer fit the code around them.
+
+<div class="blog-post__callout blog-post__callout--info">
+  <p><strong>What this means for you as an author:</strong> nothing to maintain, but one habit worth keeping — the same rule as a <code>run</code> fence. A plain fence a reader can open in the editor should still be a <em>complete, self-contained program</em> where that is reasonable. A three-line excerpt is a perfectly good illustration; it just will not do anything useful when somebody presses Run on it.</p>
 </div>
 
 ### Adjacent fences group
@@ -562,9 +612,9 @@ Submitting requires signing in, and — in deployments that enforce it — being
 
 <div class="blog-post__divider"><span>Pictures</span></div>
 
-<h2 id="diagrams" class="blog-post__section">Diagrams and Architecture Models</h2>
+<h2 id="diagrams" class="blog-post__section">Diagrams and Walkthroughs</h2>
 
-Three engines, and they are not interchangeable.
+Two engines, and they are not interchangeable.
 
 <div class="blog-post__benefits">
   <div class="blog-post__benefit">
@@ -577,13 +627,7 @@ Three engines, and they are not interchangeable.
     <span class="blog-post__pill blog-post__pill--neutral">Structure</span>
     <span class="blog-post__benefit-icon">🧱</span>
     <h4>D2</h4>
-    <p>Architecture boxes, topologies, deployments. <strong>Consecutive D2 fences merge into one slideshow</strong> — the sanctioned way to build a mechanism up step by step.</p>
-  </div>
-  <div class="blog-post__benefit">
-    <span class="blog-post__pill blog-post__pill--warn">Special</span>
-    <span class="blog-post__benefit-icon">🗺️</span>
-    <h4>LikeC4</h4>
-    <p>Interactive, pan-and-zoom C4 models with clickable per-element documentation. Not a fence — an <code>&lt;iframe&gt;</code> against a compiled model.</p>
+    <p>Architecture boxes, topologies, deployments — and, with the <code>boards</code> marker, a <strong>walkthrough</strong>: one source, a tree of boards, and a reader who clicks down through them a level at a time. <strong>Consecutive plain D2 fences merge into one slideshow</strong> — the sanctioned way to build a mechanism up step by step.</p>
   </div>
 </div>
 
@@ -591,16 +635,11 @@ Here is a Mermaid diagram of the flow this whole post describes:
 
 ```mermaid
 flowchart TD
-    A["write a .md file<br/>in synapse-content"] --> B{what did you touch?}
-    B -->|"prose, media, sidecars"| C[git push]
+    A["write a .md file<br/>in synapse-content"] --> C[git push]
     C --> D["git-sync sidecar<br/>fetches the commit"]
     D --> E["symlink flips atomically"]
     E --> F["app re-reads the<br/>commit hash per request"]
     F --> G["live — under a minute"]
-    B -->|"a .c4 model"| H["CI rebuilds the<br/>diagram image"]
-    H --> I["promote the tag<br/>to the infra repo"]
-    I --> J["rollout"]
-    J --> K["live — minutes"]
 
     class A,C client
     class D,E,F svc
@@ -613,32 +652,58 @@ flowchart TD
     classDef data   fill:#ffedd5,stroke:#ea580c,color:#7c2d12;
 ```
 
-### LikeC4, and the one rule you must not break
+### Drawing one without leaving the site
 
-Architecture models are `.c4` files placed next to the lessons that embed them. The build globs **every `.c4` in the content repository into one merged workspace**, which has two consequences:
+You do not have to write diagram source blind and refresh to see it. Synapse ships two editors — **`/d2`** and **`/mermaid`** — each a split view with the source on the left and the live figure on the right, autosaving as you type.
 
-<div class="blog-post__rules">
-  <div class="blog-post__rules-do">
-    <p><strong>Exactly one <code>specification {}</code> exists across the entire repository.</strong> It lives in <code>synapse-features/03-architecture-docs/client-server.c4</code> and declares every element kind, colour and shape. Extend it additively if you need a new kind. Adding a second specification block anywhere breaks <em>every</em> architecture diagram on the site.</p>
-    <p><strong>Give every model a unique identifier prefix</strong> and <strong>list your <code>include</code>s explicitly</strong>. A bare <code>include *</code> pulls in every other book's model, because the namespace is global.</p>
-  </div>
+They are also the fastest route from a sketch to a lesson. Open one on a blank page and it is a scratchpad; open it *on an existing figure* and it loads the published source, so you can fix a diagram in place. Either way the **Add to lesson** button routes the result through the same review-and-pull-request pipeline as any other content edit — there is no separate publishing path and no endpoint of their own.
+
+Two details worth knowing before you reach for one:
+
+<div class="blog-post__table-wrap">
+  <table class="blog-post__table">
+    <thead><tr><th></th><th><code>/d2</code></th><th><code>/mermaid</code></th></tr></thead>
+    <tbody>
+      <tr><td>Names the figure by</td><td>the fence's info string</td><td>a <code>---</code> frontmatter block inside the source</td></tr>
+      <tr><td>Also exports</td><td>walkthroughs — a <code>```d2 boards</code> tree of clickable boards</td><td>—</td></tr>
+      <tr><td>Opening an existing one</td><td colspan="2"><code>?lesson=&amp;at=</code> — and <code>at</code> counts <em>per language</em>, so <code>/mermaid?at=1</code> is the second Mermaid figure, not the second figure</td></tr>
+    </tbody>
+  </table>
 </div>
 
-Embed a view with an iframe:
+### Walkthroughs, and the one rule you must not break
 
-```html
-<iframe src="/c4/view/my_container_view" width="100%" height="560"
-        style="border:1px solid var(--border,#2b2b2b);border-radius:8px;"
-        loading="lazy" title="What it shows"></iframe>
+An architecture diagram is a `d2` fence like every other figure — no model file, no shared
+workspace, no service. What makes it a *walkthrough* is the `boards` marker, which turns one source
+into a tree of boards the reader clicks down through: a system, its containers, the code inside one
+of them.
+
+````markdown
+```d2 boards name="c4-payments" root="System Context"
+sys: "Payments\n[Software System]" { link: layers.container }
+
+layers: {
+  container: {
+    api: "Payment API\n[Go service]" { link: _.layers.code }
+  }
+  code: {
+    guard: "IdempotencyGuard"
+  }
+}
 ```
-
-Then any element in that view can carry a click-doc at `_c4-docs/<elementId>.md`, resolved **relative to the lesson doing the embedding** — so the same element can have a one-paragraph doc in an overview chapter and a detailed one, with its own class diagram, in a deep dive. Nothing in the lesson wires this up; it is implicit by filename.
+````
 
 <div class="blog-post__callout blog-post__callout--bad">
-  <p><strong>The diagram build exits 0 on invalid input.</strong> It returns success while silently dropping relationships it could not resolve. Always grep the log:</p>
-  <p><code>npx -y likec4@latest build --base /c4/ --no-use-dot --output /tmp/c4 . 2>&1 | grep -iE "error|invalid"</code></p>
-  <p>An exit code you cannot trust is worse than no check, because it looks like verification. Four broken relationships in one model were discovered this way, long after they had "built successfully".</p>
+  <p><strong><code>link:</code> resolves against the board it is written in.</strong> At the root, <code>layers.container</code> is right; one level down, the same board is <code>_.layers.container</code>. Get it wrong and there is no error anywhere — <code>d2 validate</code> reports success, the board draws, and the reader clicks a box that does nothing.</p>
 </div>
+
+Everything else about it is ordinary. A walkthrough is addressed by the hash of its source, so the
+same one in two lessons is one set of boards; `name=` is a label for the editor and the export, not
+a path. Nothing is gathered from other repositories, so a satellite's diagrams work the day the
+satellite is registered — there is no build to deploy first, and no shared namespace to collide in.
+
+Write the boxes up as prose underneath the figure. Text a reader has to click for is text that
+search, the sitemap, and most readers never see.
 
 <div class="blog-post__divider"><span>Assets &amp; Prose</span></div>
 
@@ -714,13 +779,14 @@ There is a second way to change a lesson, added for people who should not have t
   </div>
   <div class="blog-post__timeline-item">
     <span class="blog-post__timeline-week">4</span>
-    <p>The server commits to <code>edit/&lt;username&gt;/&lt;lesson-path&gt;</code> and opens a pull request. The maintainer reviews and merges; the change then ships by the ordinary content pipeline.</p>
+    <p>The server commits to <code>edit/&lt;username&gt;/&lt;lesson-path&gt;</code> and opens a pull request <strong>against whichever repository owns that lesson</strong> — the spine or a satellite. The maintainer reviews and merges; the change then ships by the ordinary content pipeline.</p>
   </div>
 </div>
 
-Four things worth knowing before relying on it:
+Five things worth knowing before relying on it:
 
 - **Existing `.md` lessons only.** No sidecars, no `book.json`, no new files, no media uploads.
+- **A book can move mid-review.** A new suggestion is routed by wherever the lesson resolves *now*; a revision to one already under review goes back to the repository recorded on it when it was opened, so an in-flight pull request cannot be stranded by a split.
 - **A second edit while your pull request is open adds a commit to the same branch**, rather than opening a second one — so a reviewer gets one conversation per page.
 - **The frontmatter fence is part of what you are editing.** Deleting it is refused, because it silently changes the page's title, summary and social tags. So is submitting a file with no title left.
 - **If the file changed on disk while you had it open**, submitting is a `409` and you are asked to reload and reapply. There is no lock; a fingerprint comparison is the guard.
@@ -739,11 +805,10 @@ Content has no compiler, so the checks are yours to run. In rough order of how o
   <p><span class="blog-post__numbered-num">3</span> <strong>Run every runnable fence.</strong> With standard input closed, twice, checking the output is identical. A fence that needs stdin or prints a timestamp is broken in a way that only shows up in front of a reader.</p>
   <p><span class="blog-post__numbered-num">4</span> <strong>Validate quiz JSON</strong>, and confirm each <code>answer</code> is character-for-character one of its <code>options</code>.</p>
   <p><span class="blog-post__numbered-num">5</span> <strong>Check your links</strong> resolve to lessons that exist, in the slug-stripped form.</p>
-  <p><span class="blog-post__numbered-num">6</span> <strong>Grep the diagram build log</strong> if you touched a <code>.c4</code> file. It exits 0 either way.</p>
 </div>
 
 <div class="blog-post__callout blog-post__callout--info">
-  <p><strong>Checking a page by <code>curl</code> tells you half the truth.</strong> Prose and code are server-rendered, so the text really is in the HTML — but every widget is a <em>placeholder</em> that an island claims on mount. A <code>&lt;div&gt;</code> carrying an encoded diagram source is what success looks like in the raw response; the picture only exists after hydration. And diagrams are viewport-lazy, so one far down the page has not rendered because nothing scrolled near it — which is not the same as having failed.</p>
+  <p><strong>Checking a page by <code>curl</code> tells you half the truth.</strong> Prose and code are server-rendered, so the text really is in the HTML — but every widget is a <em>placeholder</em> that an island claims on mount. D2 figures are the exception: the renderer beside the app draws them during SSR, so a real <code>&lt;svg&gt;</code> really is in the raw response. Everything else — Mermaid, and D2 when the renderer is unreachable — is a <code>&lt;div&gt;</code> carrying an encoded source that an island draws on mount, viewport-lazily. So a diagram far down the page has not rendered because nothing scrolled near it, which is not the same as having failed.</p>
 </div>
 
 If you are changing the *application* rather than the content, the gates are automated and worth running before you push:
@@ -764,11 +829,11 @@ That last one is the interesting gate. It fetches each page kind from a producti
 
 Two paths, two very different speeds, and knowing which one you are on tells you whether to wait or to investigate.
 
-**Prose, media and sidecars** take the fast path. A sidecar polls the content repository, fetches the new commit into its own directory, and atomically repoints a symlink. The application derives its content version from that checkout's git hash, re-read per request — so a new commit is a new version, a new cache key, and no redeploy. **Well under a minute.**
+**Prose, media and sidecars** take the fast path. For the spine, a sidecar polls the content repository, fetches the new commit into its own directory, and atomically repoints a symlink. The application derives its content version from that checkout's git hash, re-read per request — so a new commit is a new version, a new cache key, and no redeploy. **Well under a minute.**
 
 The symlink is doing real work there. Updating files in place would let a request landing mid-write see one lesson from the new commit and another from the old. A symlink swap is a single atomic operation: every request sees exactly one commit.
 
-**`.c4` models** take the slow path, because the architecture model is *compiled* into a diagram application — a container image built in CI, promoted by a commit to the infrastructure repository, rolled out by the deployment controller. **Minutes, and a pod rollout.**
+**A satellite** takes the same fast path by a different road: no sidecar and no checkout, just the server pulling the repository as a GitHub tarball into its content cache on a sixty-second loop. Same outcome — `git push`, wait under a minute, it is live — and the same absence of a rebuild.
 
 Then there is the cache. Pages and content are served with `max-age=60, stale-while-revalidate=600`, so a reader may see the previous version for up to a minute — and, if their edge node has not revalidated, a stale-but-instant copy for longer while the fresh one is fetched behind them. That is a deliberate trade: for a learning platform, a one-minute delay on a typo fix is invisible, and never showing anyone a spinner is worth far more.
 
