@@ -24,7 +24,7 @@ essential: true
 | Sandbox | go-judge | purpose-built, resource-capped, isolated | an extra service to run |
 | Identity | Keycloak | standards-compliant OIDC; not my problem to invent | heavyweight for one user |
 | Content forge | GitHub REST, no `git` binary | stateless calls; a failure leaves nothing to clean up | one more credential to scope and rotate |
-| Diagrams | LikeC4, mermaid, d2 | diagrams-as-code, versioned with the prose | three engines to load |
+| Diagrams | d2, mermaid | diagrams-as-code, versioned with the prose | three engines to load |
 
 Two of those deserve real defence, because they are the ones a reviewer would push on.
 

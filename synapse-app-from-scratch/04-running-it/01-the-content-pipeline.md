@@ -45,8 +45,6 @@ synapse-content/
       01-<lesson-slug>.md         the lesson
       01-<lesson-slug>.editorial.md   worked solutions (revealed separately)
       01-<lesson-slug>.tests.json     the suite — only its samples reach the browser
-      _c4-docs/<elementId>.md     click-docs for diagram elements
-      <name>.c4                   architecture models
   _media/<book-slug>/<lesson-slug>/…    images and video, served at /media/…
   local-only/                     never published
 ```
@@ -57,7 +55,7 @@ Four conventions carry most of the weight:
   the URL as `the-system`. Reordering is a rename, not a database update — and the URL only changes
   if the *slug* changes.
 - **Underscore-prefixed directories are structural, not content.** The content walker skips anything
-  beginning with `_` or `.`, which is what lets `_c4-docs/` sit inside a chapter without becoming a
+  beginning with `_` or `.`, which is what lets `_d2-blocks/` sit inside a book without becoming a
   phantom lesson. Every other `.md` under a book *is* a lesson, including one you forgot about.
 - **Media lives at the repository root**, not beside the lesson — one `_media/` tree, addressed by
   book and lesson slug. It is served path-addressed with a shared cache hour rather than
@@ -68,34 +66,30 @@ Four conventions carry most of the weight:
 
 `local-only/` is excluded from what ships. Drafts stay local until they are a commit on `main`.
 
-## Two paths, two speeds
+## One path, one speed
 
-Not everything in the repository reaches production the same way, and conflating them is the main
-source of "why hasn't my change appeared?".
+Everything in the repository reaches production the same way, which is the answer to "why hasn't my
+change appeared?": if it has been a minute, something is wrong — there is no slower path it might be
+taking instead.
 
 ```mermaid
 flowchart TD
-    A[git push to synapse-content] --> B{what changed?}
-    B -->|Markdown, media, sidecars| C[git-sync sidecar polls]
+    A[git push to synapse-content] --> C[git-sync sidecar polls]
     C --> D[fetch commit into .worktrees/SHA]
     D --> E[atomically repoint /content/current]
     E --> F[app re-reads commit hash per request]
     F --> G[new content served — under a minute]
-    B -->|.c4 models| H[GitHub Actions builds the diagram image]
-    H --> I[push image to registry]
-    I --> J[promote: commit new tag to infra repo]
-    J --> K[ArgoCD syncs, rolls out the pod]
-    K --> L[new diagrams live — minutes]
 ```
 
-**Prose is fast** because nothing is built: a sidecar fetches the commit and repoints a symlink.
+Nothing is built, because nothing in the repository is a build input. Markdown, media, sidecars and
+diagrams are all *data*, read at request time: a `d2` or `mermaid` figure is a fenced source inside
+the lesson, drawn on demand by a renderer that already knows nothing about this repository.
 
-**Diagrams are slow** because the architecture model is *compiled* into a diagram application — a
-container image, built in CI, promoted by a commit to the infrastructure repository, rolled out by
-the deployment controller.
-
-So a lesson edit appears in well under a minute; a change to a `.c4` model takes several minutes and a
-pod rollout. Knowing which path a change is on tells you whether to wait or to investigate.
+That was not always true. Architecture diagrams used to be a second path — a model file compiled
+into a container image, built in CI, promoted by a commit to the infrastructure repository, and
+rolled out by the deployment controller. Editing one character took minutes and a pod rollout, and
+the two speeds were the main source of the question above. Folding diagrams into the same
+request-time path removed the second path, an image, a workflow and a deployment.
 
 ## The symlink is the atomic bit
 

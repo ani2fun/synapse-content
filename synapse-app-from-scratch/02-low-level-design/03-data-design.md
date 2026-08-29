@@ -12,17 +12,8 @@ essential: true
 
 ## The whole schema
 
-Six tables, in three pairs. Click any of them in the diagram to read its DDL, constraints and access
-patterns.
-
-<iframe
-  src="/c4/view/saf_data"
-  width="100%"
-  height="560"
-  style="border: 1px solid var(--border, #2b2b2b); border-radius: 8px;"
-  loading="lazy"
-  title="Synapse — data view"
-></iframe>
+Six tables, in three pairs. Each one's DDL, constraints and access patterns are written up under
+[the table reference](#-table-reference) at the end of the chapter.
 
 ```mermaid
 erDiagram
@@ -294,3 +285,376 @@ promote that field to a real column with an index — not to reach for JSON oper
 structure was there all along.
 
 </details>
+
+## 🧱 Table reference
+
+<details>
+<summary>7 tables — the DDL, the constraints that hold each one together, and the queries it is shaped for</summary>
+
+### Application store
+`Relational database` · `PostgreSQL 17`
+
+The system of record, and the only thing in the platform that grows without bound. Everything else
+— lessons, diagrams, test suites — is derived data reconstructable from a git repository.
+
+```mermaid
+erDiagram
+    SUBMISSIONS {
+        uuid id PK
+        text lesson_path
+        text language
+        text source
+        text user_id "nullable — opaque OIDC sub"
+        timestamptz created_at
+        text status "pending | judging | completed"
+        jsonb outcome "null unless completed"
+        timestamptz completed_at "null unless completed"
+    }
+    SUBMISSION_ALLOWLIST {
+        text username PK "lowercase IdP username"
+        text note
+        timestamptz granted_at
+    }
+    PROBLEM_PROGRESS {
+        text user_id PK "opaque OIDC sub"
+        text lesson_path PK
+        timestamptz completed_at
+    }
+    LESSON_VIEW {
+        bigserial id PK
+        text lesson_path
+        timestamptz viewed_at
+        boolean authed "the only attribution there is"
+    }
+    CONTENT_EDITOR_ALLOWLIST {
+        text username PK "a SEPARATE grant"
+        text note
+        timestamptz granted_at
+    }
+    CONTENT_EDIT_REQUEST {
+        uuid id PK
+        text username
+        text lesson_path
+        text branch UK "the forge keys on it"
+        int attempt
+        bigint pr_number "null in dry-run"
+        text state
+    }
+    SUBMISSIONS }o..o| SUBMISSION_ALLOWLIST : "logical only — no FK, different identifiers"
+    CONTENT_EDIT_REQUEST }o..o| CONTENT_EDITOR_ALLOWLIST : "logical only — same reason"
+```
+
+Six tables, in three pairs. Submissions and their allowlist are the original system of record.
+Progress and readership are account-owned conveniences added later. The last pair is content
+contribution: who may propose a change, and what they proposed.
+
+#### Why it is this small
+
+The platform's largest asset by far is its content, and content is **not** in the database. Books
+live as Markdown in a git repository, are pulled onto disk by a sidecar, and are re-indexed from the
+filesystem whenever the commit changes. That single decision removes an entire class of schema — no
+`books`, `chapters`, `lessons`, `revisions`, or `authors` tables — and replaces the write path for
+authoring with `git push`.
+
+Note that in-app editing did **not** change that. It adds two tables about *proposals*, not about
+content: the lesson text still only ever lives in git, and the row records which branch a proposal
+went to.
+
+What remains in Postgres is exactly the state that cannot be derived from a repository: what a
+reader attempted, what the judge decided, what they have finished, what was read, and what has been
+proposed.
+
+#### Capacity, honestly
+
+At the current scale this database holds single-digit-to-low-hundreds of rows and a `pg_dump` is
+kilobytes. Even at a million monthly readers the arithmetic stays undramatic — submissions arrive at
+well under one per second, and a submission is a few kilobytes of source plus a small JSON verdict.
+`lesson_view` is the one table that grows with *traffic* rather than with engagement, and it is the
+first candidate for time-partitioning or roll-up if that ever matters.
+
+The scarce resource is not capacity but **availability**: the database currently runs on
+node-local storage on a single machine, which makes that machine a single point of failure for the
+whole platform. That is discussed honestly in the
+[homelab case study](/synapse/synapse-app-from-scratch/running-it/the-homelab-case-study).
+
+#### Migrations and adoption
+
+Schema changes are embedded SQL migrations applied at boot, and the application **fails fast** if
+the database is unreachable — the system of record does not degrade, unlike the identity provider,
+which does.
+
+The first two migrations did not create the production schema. It was created by the previous
+implementation's migration tool and then *adopted*: the migration bookkeeping table was
+hand-baselined so the new tool considered both already applied, and boot no-ops instead of trying to
+re-create live tables. That procedure was rehearsed on a byte-for-byte copy of production first —
+which is what proved a verdict written by the old implementation still decodes correctly through the
+new one. Migrations three onwards are ordinary forward migrations that ran for real.
+
+### `submissions`
+`Table` · `PostgreSQL`
+
+One row per attempt. This is where the domain's state ADT flattens into columns — and, deliberately,
+the only place it does.
+
+```sql
+create table submissions (
+    id           uuid primary key,
+    lesson_path  text        not null,
+    language     text        not null,
+    source       text        not null,
+    user_id      text,
+    created_at   timestamptz not null,
+    status       text        not null check (status in ('pending', 'judging', 'completed')),
+    outcome      jsonb,
+    completed_at timestamptz,
+    constraint completed_shape check
+        ((status = 'completed') = (outcome is not null and completed_at is not null))
+);
+
+create index submissions_lesson_recency on submissions (lesson_path, created_at desc);
+```
+
+#### The constraint is the design
+
+`completed_shape` is a **biconditional**, not a null check. Read it as *"completed if and only if a
+verdict and a completion time are present"*. That single line rules out two bad rows at once:
+
+- a `pending` row that somehow carries a verdict, and
+- a `completed` row with no verdict.
+
+In the domain those states are unrepresentable because `Completed` is an enum variant that *owns*
+its `outcome` and `at`. The constraint is that same invariant restated where the type system cannot
+reach — anything writing to this table, including a hand-typed `UPDATE`, is held to it.
+
+#### How the ADT maps
+
+| Domain state | `status` | `outcome` | `completed_at` |
+|---|---|---|---|
+| `Pending` | `'pending'` | `NULL` | `NULL` |
+| `Judging` | `'judging'` | `NULL` | `NULL` |
+| `Completed { outcome, at }` | `'completed'` | JSONB | set |
+
+The inverse read fails loudly on an unrecognised `status` rather than defaulting — a value outside
+the three means the database disagrees with the code, and guessing would hide that.
+
+#### Notes on the columns
+
+- **`lesson_path`** is the joined path (`dsa/basics/two-sum`), not an array. The only query that
+  matters is "recent attempts at this lesson", which the one index serves.
+- **`user_id`** is nullable and stores the **opaque OIDC subject** — not a username. It is null for
+  the anonymous submissions the deployment permitted before the allowlist gate was enforced.
+- **`source`** stores the submitted code verbatim. There is no size column and no blob store; at
+  this scale the text column is the simpler correct answer.
+- **`outcome`** is JSONB in an **adapter-owned** shape that is deliberately *not* the wire DTO. It
+  is externally tagged (`{"Rejected": {...}}`) for compatibility with the previous implementation's
+  serialiser, so this schema could be adopted without rewriting a single stored row.
+
+### `submission_allowlist`
+`Table` · `PostgreSQL`
+
+Who is permitted to submit-and-save. Reading and running code need no entry here; only the act of
+storing an attempt against the shared judge does.
+
+```sql
+create table submission_allowlist (
+    username   text        primary key,
+    note       text,
+    granted_at timestamptz not null default now()
+);
+```
+
+Three columns, and the interesting one is the primary key.
+
+#### Why there is no foreign key
+
+The obvious relational move — `submissions.user_id REFERENCES submission_allowlist(username)` — is
+wrong here, because the two columns hold **different identifiers on purpose**:
+
+| Column | Holds | Chosen because |
+|---|---|---|
+| `submissions.user_id` | the opaque OIDC `sub` | stable forever; survives a username change; never re-issued |
+| `submission_allowlist.username` | the lowercase IdP username | a human has to be able to type it into an admin form |
+
+A `sub` looks like `f7c1…-9b2e`. Granting access by pasting a UUID would be miserable and
+error-prone, so grants are keyed by the name a person actually knows. The cost is that the
+association is **logical, not referential** — the database will not enforce it, and the application
+resolves it by canonicalising the username to lowercase exactly once, at the token verifier, so
+both sides of the comparison are always in the same case.
+
+This is a genuine trade: referential integrity given up in exchange for an admin surface a human can
+operate. It is defensible at this scale precisely because the allowlist is small and hand-curated.
+
+#### Lifecycle
+
+Grants are **live** — an insert takes effect on the next request, with no restart and no deploy. That
+is a deliberate asymmetry with *admin* rights, which are configuration and can only change through a
+commit and a rollout. A compromised admin session can therefore widen who may submit, but cannot
+mint another admin.
+
+#### A wrinkle worth knowing
+
+The migration seeds two development usernames so a fresh local database works out of the box. On a
+production database created from these migrations they are inert — no such users exist in the real
+identity realm — but they do appear in the admin panel and should be revoked. On the actual
+production database the point is moot: the schema predates these migrations and was adopted by
+baselining, so the seeds never ran.
+
+### `problem_progress`
+`Component` · `table`
+
+```sql
+create table problem_progress (
+    user_id      text        not null,
+    lesson_path  text        not null,
+    completed_at timestamptz not null default now(),
+    primary key (user_id, lesson_path)
+);
+
+create index problem_progress_user on problem_progress (user_id);
+```
+
+One row per (account, lesson) finished — a prose lesson read to the end, or a problem with an
+accepted judged submission. `user_id` is the opaque OIDC subject, the same value `submissions`
+stores.
+
+#### The composite key is the design
+
+There is no surrogate id and no "completed" boolean, because the row's *existence* is the fact.
+Marking a lesson done twice is an upsert on the primary key rather than a duplicate, so the client
+can re-sync freely and the table cannot drift into two disagreeing rows for one lesson.
+
+#### Why it exists at all
+
+The ticks used to live in `localStorage`. That made them per-device and invisible to the account —
+a reader who finished a chapter on a laptop saw an empty sidebar on a phone, and clearing site data
+erased the record of months of reading. Storage that survives a browser is the entire feature.
+
+#### It is convenience state, and it says so
+
+`DELETE /api/progress` clears these rows and **nothing else**. Keeping the reset scoped is what lets
+it be offered on the account page without a confirmation dialog full of warnings: a reader who
+resets progress has not lost their submission history, because that history is a different table
+with a different owner and a different meaning.
+
+### `lesson_view`
+`Component` · `table`
+
+```sql
+create table lesson_view (
+    id          bigserial   primary key,
+    lesson_path text        not null,
+    viewed_at   timestamptz not null default now(),
+    authed      boolean     not null
+);
+
+create index lesson_view_path_recency on lesson_view (lesson_path, viewed_at desc);
+```
+
+Append-only. The catalog writes one row when it serves a lesson; an admin-only endpoint reads the
+top paths, most recent first — which is exactly what the index is shaped for.
+
+#### What is deliberately absent
+
+No user id. No session id. No IP address. No referrer. `authed` is one bit distinguishing a
+signed-in reader from an anonymous one, and that is the entire attribution.
+
+The questions this table can answer are therefore *"which lessons get opened"* and *"which never
+do"* — and it is structurally incapable of answering "what did this person read". That is a stronger
+guarantee than a privacy policy, because it does not depend on anyone honouring it.
+
+#### The cost of append-only
+
+It is the one table that grows with **traffic** rather than with engagement, so it is also the first
+one that will need attention: a time-partition, or a nightly roll-up into counts with the raw rows
+aged out. Neither is worth building before the row count justifies it, and the shape above does not
+make either harder later.
+
+### `content_editor_allowlist`
+`Component` · `table`
+
+```sql
+create table content_editor_allowlist (
+    username   text        primary key,
+    note       text,
+    granted_at timestamptz not null default now()
+);
+```
+
+Who may propose a content change. Keyed by the lowercase IdP username, exactly like its sibling,
+because the token verifier canonicalises once and every comparison downstream is apples-to-apples.
+
+#### Why this is not the submit allowlist
+
+The two tables are byte-identical in shape and deliberately separate, which looks like duplication
+until you read what each grant *means*:
+
+| Grant | Permits | Blast radius |
+|---|---|---|
+| `submission_allowlist` | spend shared compute and storage saving judged attempts | this deployment |
+| `content_editor_allowlist` | open pull requests against a **public repository** under the deployment's own token | a public repo, under my name |
+
+Those are different decisions. Merging them would mean that granting someone the ability to save
+their homework silently granted them the ability to push branches to a repository the world can see
+— and, worse, that revoking one quietly revoked the other.
+
+Keeping them apart makes the trust decision explicit at grant time rather than inherited from an
+unrelated one. Two small tables is a cheap price for that.
+
+### `content_edit_request`
+`Component` · `table`
+
+```sql
+create table content_edit_request (
+    id          uuid        primary key,
+    username    text        not null,
+    lesson_path text        not null,
+    file_path   text        not null,
+    branch      text        not null unique,
+    attempt     int         not null,
+    pr_number   bigint,
+    pr_url      text,
+    state       text        not null,
+    commits     int         not null default 1,
+    created_at  timestamptz not null default now(),
+    updated_at  timestamptz not null default now()
+);
+
+create index content_edit_request_owner_page on content_edit_request (username, lesson_path);
+```
+
+One row per (contributor, page, attempt): the branch the server commits to and the pull request it
+opened. Both reads are owner-scoped — *"is there an open request from this person on this page"* (the
+reuse probe, on every submit) and *"every request of mine"* (the account page) — which is what the
+index serves.
+
+#### The reuse rule lives on this table
+
+A second edit to the same page by the same person, while their pull request is still open, becomes
+another **commit on the same branch** rather than a second pull request. Once that request is merged
+or closed the row stops being reusable and the next edit allocates `attempt + 1` — which is what puts
+the `-2`, `-3` suffix on the branch name.
+
+`branch` is `unique` because it is the value the forge keys on. Two rows claiming one ref would mean
+two pull requests silently sharing commits, which is the kind of bug that is invisible until someone
+merges the wrong one.
+
+#### The stored state is a cache, not the truth
+
+`state`, `pr_number` and `commits` record what the forge said last time. The forge is asked for the
+live state before anything is reused, because a maintainer can merge or close a pull request without
+this database hearing about it. Treating the row as authoritative would mean committing to a branch
+whose request closed yesterday.
+
+Reconciliation is therefore lazy — on the contributor's next submit for that page, or their next
+account-page load. A webhook is the obvious upgrade; the row is shaped so adding one changes when it
+is refreshed, not what it stores.
+
+#### Nullable pull-request columns are load-bearing
+
+`pr_number` and `pr_url` stay nullable so a **dry-run** deployment records the branch it *would* have
+pushed and opens nothing. That is what lets development, CI and the end-to-end suite exercise the
+whole flow — gate, drift guard, validation, branch derivation, stored history — without a credential
+anywhere near them.
+
+</details>
+

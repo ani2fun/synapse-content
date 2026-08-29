@@ -19,8 +19,6 @@ instead of the widget you meant.
     NN-<lesson-slug>.md            a lesson
     NN-<lesson-slug>.editorial.md  worked solutions, revealed on demand
     NN-<lesson-slug>.tests.json    the suite — only its sample cases reach the browser
-    _c4-docs/<elementId>.md        click-docs for architecture diagram elements
-    <name>.c4                      architecture model
 _media/<book-slug>/<lesson-slug>/  images and video — at the REPOSITORY ROOT, served at /media/…
 local-only/                        never published
 ```
@@ -196,36 +194,41 @@ declarative version draws correctly but the traced one does not, the fault is up
 
 ## Architecture diagrams
 
-Embed a view by `iframe`:
+An architecture diagram is a `d2` fence like any other figure — there is no separate model file, no
+build step and no service to keep running. What makes it an *architecture* diagram is the `boards`
+marker, which turns one source into a tree of boards the reader clicks through:
 
-```html
-<iframe src="/c4/view/<viewId>" width="100%" height="620" loading="lazy"></iframe>
+````markdown
+```d2 boards name="c4-payments" root="System Context"
+direction: right
+
+sys: "Payments\n[Software System]" {
+  link: layers.container
+}
+
+layers: {
+  container: {
+    api: "Payment API\n[Go service]" {
+      link: _.layers.code
+    }
+  }
+  code: {
+    guard: "IdempotencyGuard"
+  }
+}
 ```
+````
 
-Then any element in that view can carry a click-doc at `_c4-docs/<elementId>.md`, resolved
-**relative to the lesson doing the embedding** — so the same element can have a brief doc in an
-overview chapter and a detailed one in a deep-dive chapter.
+- `root="…"` titles the opening board, which is the one board with no key to take a name from.
+  Every other board is titled from its own key: `container` → *Container*, `code` → *Code*.
+- `name="…"` is a label for the editor and the export, not a path. A walkthrough is addressed by
+  the hash of its source, so the same one in two lessons is one set of boards.
+- **`link:` resolves against the board it is written in.** At the root, `layers.container` is
+  correct; one level down, the same board is `_.layers.container`. A link that lands nowhere is
+  silent — `d2 validate` reports success, and the reader just clicks and gets nothing.
 
-Four rules that are easy to get wrong:
-
-1. **Exactly one `specification {}` exists across the whole merged workspace.** Adding a second
-   breaks every architecture diagram on the site.
-2. **Use a unique id prefix per book** so models cannot collide.
-3. **List `include`s explicitly.** `include *` pulls in every other book's model.
-4. **A container may not have a relationship to its own child.** This produces an error that does
-   *not* fail the build — see below.
-
-### The build exits 0 on invalid input
-
-The diagram build **returns success while dropping invalid relationships**. Four broken
-relationships in this book's model were silently discarded, and the only evidence was in the log.
-Always grep it:
-
-```bash
-npx -y likec4@latest build --base /c4/ --output <dir> . 2>&1 | grep -iE "error|invalid"
-```
-
-An exit code you cannot trust is worse than no check, because it looks like verification.
+Write up the boxes as prose in the lesson itself, under the figure. Text a reader has to click for
+is text that search, the sitemap and most readers never see.
 
 ## Editing from inside the app
 
