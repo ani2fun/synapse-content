@@ -258,8 +258,9 @@ print("Sum:", sum(nums))
 **Try it with Run:**
 1. Clear STDIN and press **Run**. The output shows **Waiting for input**, and the STDIN area
    becomes the prompt, quoting `How many numbers?`.
-2. Answer each question with <kbd>Enter</kbd>. Every answer is added to the STDIN box as a new
-   line, so at the end the box holds the program's whole input.
+2. Answer each question with <kbd>Enter</kbd>. The prompt quotes each new question on its own
+   (`Number 1:`, then `Number 2:`). Every answer is added to the STDIN box as a new line, so at
+   the end the box holds the program's whole input.
 
 **Try it the batch way:**
 1. Put all four lines in STDIN up front (`3`, `10`, `20`, `30`).
@@ -358,5 +359,6 @@ print(ratios)
 - **Only the code you wrote is stepped.** Library calls and class bodies run in a single step.
 - **Runs are rate-limited**, like every Run button on the site. If the canvas says
   `Rate limit exceeded: Retry after 49s`, wait that long and press **Trace** again.
-- **Screen height.** On a short window the Structure canvas gets cramped. Drag the drawing to pan,
+- **Short windows.** The canvas keeps a minimum height, so on a short window the left pane scrolls
+  to reach the legend and step chips. A drawing bigger than its box scrolls inside it: drag to pan,
   or <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + scroll to zoom out.
