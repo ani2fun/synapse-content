@@ -4,6 +4,7 @@ local-only-content/
 _media/local-only-media-content/
 docs/
 .claude/
+.agents/
 CLAUDE.md
 AGENTS.md
 
