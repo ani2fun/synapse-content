@@ -84,7 +84,7 @@ Most architecture writing has a credibility problem. The system described is eit
 
 You are comfortable reading code and want to see how a non-trivial system actually fits together — not the pattern-book version, the version with the awkward parts still attached. Some Rust and some TypeScript help but neither is assumed; the design arguments are language-independent, and where a language forces a choice the text says so explicitly.
 
-The awkward parts include the book's own corrections. Since it was first written the platform has deleted a client it had just built, gained three bounded contexts, and grown a write path it had argued against having. Where a chapter's earlier reasoning turned out to be wrong, the reasoning is still there with the correction next to it — that being more useful than a document which has only ever been right.
+The awkward parts include the book's own corrections. Since it was first written the platform has deleted a client it had just built, gained five bounded contexts, and grown a write path it had argued against having. Where a chapter's earlier reasoning turned out to be wrong, the reasoning is still there with the correction next to it — that being more useful than a document which has only ever been right.
 
 ## The one rule
 
