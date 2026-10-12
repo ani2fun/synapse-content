@@ -36,7 +36,7 @@ Utilisation, measured at the same moment:
 
 **Capacity is not the constraint and is nowhere near becoming one.** Measured under load, one replica
 sustains 15,440 req/s on less than one of eight cores — enough for millions of monthly readers even
-with the CDN switched off ([the arithmetic](/synapse/synapse-app-from-scratch/running-it/scaling-and-maintainability)).
+with the CDN switched off ([the arithmetic](/synapse/synapse-features/running-it/scaling-and-maintainability)).
 Every real limit in this chapter is about *availability*, not throughput — which is the opposite of
 what capacity planning usually assumes.
 
@@ -143,7 +143,7 @@ mitigation table records where the mitigation does not reach.
 **None of these prevent today's outage class.** They shorten unattended downtime; they do not remove
 the dependency on a single node holding the only copy of the database. That fix is different in kind,
 and it is discussed — with its real costs — in
-[Trade-offs](/synapse/synapse-app-from-scratch/choices/trade-offs).
+[Trade-offs](/synapse/synapse-features/choices/trade-offs).
 
 The cheapest genuine improvement is not replication but **placement**: anti-affinity so the database
 and the sandbox do not share a node, and so neither shares a node with the thing most likely to

@@ -1,12 +1,17 @@
 {
-    "title": "Synapse Features",
-    "description": "A guided tour of what Synapse can do: rendered diagrams (Mermaid and D2), clickable D2 walkthroughs, any code block openable in a full editor and run in a sandbox, step-by-step visualisations of that code, a lab that traces any program you paste — frames, objects and interactive input, PythonTutor-style — an interactive coding problem with a hidden test suite, architecture write-ups that live in the lesson beside the diagram, and a library of copy-and-adapt D2 templates — static and animated — for data structures, algorithms and system design.",
+    "title": "Synapse",
+    "description": "What Synapse can do, then how it is built. Part 1 is a guided tour of the features: rendered diagrams (Mermaid and D2), clickable D2 walkthroughs, any code block openable in a full editor and run in a sandbox, step-by-step visualisations of that code, a lab that traces any program you paste, an interactive coding problem with a hidden test suite, architecture write-ups that live beside the diagram, and a library of copy-and-adapt D2 templates. Part 2 is the deep dive: architecture and low-level design drawn from the real code, the decision record and the price each decision paid, the technology stack, the git-to-production content pipeline, and a case study of the four-node homelab it runs on — with measured latency, real failure modes, and the outage that taught it fault tolerance. Every diagram matches the source; every number was measured.",
     "tags": [
         "synapse",
-        "demo",
-        "features"
+        "features",
+        "architecture",
+        "rust",
+        "typescript",
+        "low-level-design",
+        "production-engineering",
+        "case-study"
     ],
-    "estimatedReadingMinutes": 100,
+    "estimatedReadingMinutes": 350,
     "order": 1,
     "slug": "synapse-features"
 }

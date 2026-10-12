@@ -375,7 +375,7 @@ first candidate for time-partitioning or roll-up if that ever matters.
 The scarce resource is not capacity but **availability**: the database currently runs on
 node-local storage on a single machine, which makes that machine a single point of failure for the
 whole platform. That is discussed honestly in the
-[homelab case study](/synapse/synapse-app-from-scratch/running-it/the-homelab-case-study).
+[homelab case study](/synapse/synapse-features/running-it/the-homelab-case-study).
 
 #### Migrations and adoption
 

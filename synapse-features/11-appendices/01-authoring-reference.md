@@ -36,12 +36,12 @@ sidebar, which is why author-facing notes live outside the book tree entirely.
 
 ```json
 {
-  "title": "Synapse App From Scratch",
+  "title": "Synapse",
   "description": "…",
   "tags": ["architecture", "rust"],
-  "estimatedReadingMinutes": 220,
-  "order": 9,
-  "slug": "synapse-app-from-scratch"
+  "estimatedReadingMinutes": 350,
+  "order": 1,
+  "slug": "synapse-features"
 }
 ```
 
@@ -247,7 +247,7 @@ Four things are worth knowing before relying on it:
 - **The editor is on its own page.** That is deliberate: a lesson page carries zero eager JavaScript
   for this feature, just a small link that a tiny island un-hides for an allow-listed caller.
 
-The design is in [Content contribution, without git](/synapse/synapse-app-from-scratch/running-it/content-contribution).
+The design is in [Content contribution, without git](/synapse/synapse-features/running-it/content-contribution).
 
 ## Verifying before publishing
 

@@ -20,7 +20,7 @@ broadband and **7.2 s on a mid-range phone over Fast-3G** — for lessons whose 
 two kilobytes gzipped.
 
 Put those two numbers next to each other and the architecture argues with itself. This platform's
-traffic is [~99% reads of public, cacheable prose](/synapse/synapse-app-from-scratch/the-system/architecture).
+traffic is [~99% reads of public, cacheable prose](/synapse/synapse-features/the-system/architecture).
 Spending most of a second — or seven of them — booting an application in order to display a document
 is not a tuning problem. It is the wrong shape.
 
@@ -435,7 +435,7 @@ Notice that this is the *same fix* the whole tier later received, one level up. 
 common case wait for the expensive case — first for diagrams inside a page, then for the entire
 document inside an application boot. Finding the same shape twice at different scales is usually a
 sign it is a principle rather than a trick, and it is the same one as the
-[202 in the submission path](/synapse/synapse-app-from-scratch/low-level-design/the-submission-lifecycle).
+[202 in the submission path](/synapse/synapse-features/low-level-design/the-submission-lifecycle).
 
 <details>
 <summary>Shared wire types between client and server were the main argument for a Rust client. TypeScript threw that away — so what replaced it?</summary>

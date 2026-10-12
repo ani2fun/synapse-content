@@ -48,7 +48,7 @@ suites were the acceptance criteria, and its live deployment was the parity targ
 ⚠️ **A naming collision worth knowing about.** The file `api/openapi.oracle.yaml` in the repository
 is a frozen copy of the *Scala implementation's* API contract, kept so the Rust build can diff
 against it. It has nothing to do with Oracle Cloud — which this project also uses, for unrelated
-virtual machines. The [glossary](/synapse/synapse-app-from-scratch/appendices/glossary) opens with
+virtual machines. The [glossary](/synapse/synapse-features/appendices/glossary) opens with
 this term for exactly that reason.
 
 </div>
@@ -183,7 +183,7 @@ other belongs would be.)
 
 So the web tier became server-rendered Astro with per-feature TypeScript islands: prose is HTML in
 the response, and interactivity hydrates only where a page has any. The full design is in
-[the web tier chapter](/synapse/synapse-app-from-scratch/low-level-design/the-client); what belongs
+[the web tier chapter](/synapse/synapse-features/low-level-design/the-client); what belongs
 here is what it says about the *first* rewrite.
 
 Measured on production afterwards — median of three runs, mobile throttled to Fast-3G with a 4× CPU

@@ -12,7 +12,7 @@ essential: true
 
 ## The problem the last chapter predicted
 
-[The content pipeline](/synapse/synapse-app-from-scratch/running-it/the-content-pipeline) chapter
+[The content pipeline](/synapse/synapse-features/running-it/the-content-pipeline) chapter
 ends by asking when `git push` stops being enough, and answers its own question:
 
 > The first thing to break is **non-technical authors**. Asking a subject-matter expert to resolve a
