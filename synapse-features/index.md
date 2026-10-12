@@ -13,7 +13,7 @@ Synapse is the platform serving you this page. This book has two halves, and you
 | **Question** | What can a lesson do? | How does the platform work, and why is it built this way? |
 | **Reader** | Learners, and anyone writing a lesson | Contributors, reviewers, and anyone who wants the real architecture |
 | **Style** | Short, hands-on pages; every example runs | Long-form, drawn from the code; every number measured |
-| **Start with** | [Reading a Synapse lesson](/synapse/synapse-features/reading-a-lesson/reading-a-lesson) | [Why a rebuild](/synapse/synapse-features/the-system/why-a-rebuild) |
+| **Start with** | [Reading a Synapse lesson](/synapse/synapse-features/reading-a-lesson/reading-a-lesson) | [Why a rebuild](/synapse/synapse-features/system-context/why-a-rebuild) |
 
 Read Part 1 first. It shows what the product does; Part 2 explains the machinery behind each thing Part 1 demonstrated.
 
@@ -83,31 +83,31 @@ This rule has teeth. While writing, I found the project's own design documents c
 
 ## The system
 
-- [Why a rebuild](/synapse/synapse-features/the-system/why-a-rebuild) — two rewrites six days apart: Scala to Rust on the server, and a Rust client deleted almost as soon as it shipped. What each measurably bought, and which one the evidence never supported.
-- [Architecture](/synapse/synapse-features/the-system/architecture) — C4 from context to component. Ten bounded contexts, two processes behind one front door, and why the seams fall there.
+- [Why a rebuild](/synapse/synapse-features/system-context/why-a-rebuild) — two rewrites six days apart: Scala to Rust on the server, and a Rust client deleted almost as soon as it shipped. What each measurably bought, and which one the evidence never supported.
+- [Architecture](/synapse/synapse-features/containers/containers) — C4 from context to component. Ten bounded contexts, two processes behind one front door, and why the seams fall there.
 
 ## Low-level design
 
 Drawn from the code, with the traps that make an idealised diagram wrong.
 
-- [The server hexagon](/synapse/synapse-features/low-level-design/the-server-hexagon) — seventeen port traits, their adapters, and a purity rule enforced by CI rather than by discipline.
-- [The submission lifecycle](/synapse/synapse-features/low-level-design/the-submission-lifecycle) — accept in 202, judge in a detached task, poll for the verdict, and what happens when the process dies mid-judge.
-- [Data design and the schema](/synapse/synapse-features/low-level-design/data-design) — six small tables, one check constraint that makes an illegal state unrepresentable, and what a schema tells you by the columns it refuses to have.
-- [The web tier](/synapse/synapse-features/low-level-design/the-client) — server-rendered prose, islands that cannot share state, a budget measured per page, and a staleness guard that lost a guarantee in translation.
-- [The visualisation engine](/synapse/synapse-features/low-level-design/the-visualisation-engine) — how a running program becomes a picture, stage by stage. The visualisers Part 1 demonstrates, taken apart.
+- [The server hexagon](/synapse/synapse-features/components/the-server-hexagon) — seventeen port traits, their adapters, and a purity rule enforced by CI rather than by discipline.
+- [The submission lifecycle](/synapse/synapse-features/code/the-submission-lifecycle) — accept in 202, judge in a detached task, poll for the verdict, and what happens when the process dies mid-judge.
+- [Data design and the schema](/synapse/synapse-features/code/data-design) — six small tables, one check constraint that makes an illegal state unrepresentable, and what a schema tells you by the columns it refuses to have.
+- [The web tier](/synapse/synapse-features/containers/the-web-tier) — server-rendered prose, islands that cannot share state, a budget measured per page, and a staleness guard that lost a guarantee in translation.
+- [The visualisation engine](/synapse/synapse-features/code/the-visualisation-engine) — how a running program becomes a picture, stage by stage. The visualisers Part 1 demonstrates, taken apart.
 
 ## Choices and their cost
 
-- [The technology stack](/synapse/synapse-features/choices/technology-stack) — what was chosen, what was rejected, what each decision cost, and the one rejected option that turned out to be rejected for a bad reason.
-- [Trade-offs](/synapse/synapse-features/choices/trade-offs) — the deliberate asymmetries. Why the database fails fast but the identity provider degrades; why granting access is instant but granting admin needs a commit.
+- [The technology stack](/synapse/synapse-features/decisions/technology-stack) — what was chosen, what was rejected, what each decision cost, and the one rejected option that turned out to be rejected for a bad reason.
+- [Trade-offs](/synapse/synapse-features/decisions/trade-offs) — the deliberate asymmetries. Why the database fails fast but the identity provider degrades; why granting access is instant but granting admin needs a commit.
 
 ## Running it
 
-- [The content pipeline](/synapse/synapse-features/running-it/the-content-pipeline) — how a `git push` becomes this page, by two different routes with very different latencies.
-- [Content contribution, without git](/synapse/synapse-features/running-it/content-contribution) — a reader fixes a typo from inside the app and it lands as a reviewed pull request. Optimistic concurrency without a lock, and a credential-free mode that runs the whole flow.
-- [Performance, measured](/synapse/synapse-features/running-it/performance) — the numbers, the method, and the limits of both.
-- [The homelab case study](/synapse/synapse-features/running-it/the-homelab-case-study) — four nodes, one of them in a datacentre and three behind a domestic router. Capacity, failure modes, and the outage — reconstructed from timestamps — that exposed the real dependency graph.
-- [Scaling and maintainability](/synapse/synapse-features/running-it/scaling-and-maintainability) — what it serves today under load, the arithmetic from requests to readers, what breaks first, and the trigger-gated path to millions.
+- [The content pipeline](/synapse/synapse-features/containers/the-content-pipeline) — how a `git push` becomes this page, by two different routes with very different latencies.
+- [Content contribution, without git](/synapse/synapse-features/components/content-contribution) — a reader fixes a typo from inside the app and it lands as a reviewed pull request. Optimistic concurrency without a lock, and a credential-free mode that runs the whole flow.
+- [Performance, measured](/synapse/synapse-features/deployment-and-operations/performance) — the numbers, the method, and the limits of both.
+- [The homelab case study](/synapse/synapse-features/deployment-and-operations/the-homelab-case-study) — four nodes, one of them in a datacentre and three behind a domestic router. Capacity, failure modes, and the outage — reconstructed from timestamps — that exposed the real dependency graph.
+- [Scaling and maintainability](/synapse/synapse-features/deployment-and-operations/scaling-and-maintainability) — what it serves today under load, the arithmetic from requests to readers, what breaks first, and the trigger-gated path to millions.
 
 ## Appendices
 

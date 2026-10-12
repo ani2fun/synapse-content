@@ -59,7 +59,7 @@ later.
 
 That is the design working: no silent half-service, no lying readiness probe, and a failure whose
 cause is one line in a log. It is also, unmistakably, ninety minutes of downtime — which is the
-subject of the [case study](/synapse/synapse-features/running-it/the-homelab-case-study),
+subject of the [case study](/synapse/synapse-features/deployment-and-operations/the-homelab-case-study),
 and the point at which "correct behaviour" and "good availability" turn out to be different goals.
 
 ## Two ways to grant power, deliberately different

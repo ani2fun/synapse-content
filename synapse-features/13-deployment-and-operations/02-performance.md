@@ -146,7 +146,7 @@ this book.
 | Sustained throughput, one replica | **15,440 req/s** on 0.74 of 8 cores |
 
 That last row is measured, not estimated — the load test and the capacity arithmetic it supports are
-in [Scaling and maintainability](/synapse/synapse-features/running-it/scaling-and-maintainability).
+in [Scaling and maintainability](/synapse/synapse-features/deployment-and-operations/scaling-and-maintainability).
 The short version: the application is about ten times faster than the network it speaks through, so
 the origin's throughput has never been the thing worth optimising.
 

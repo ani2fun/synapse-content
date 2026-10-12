@@ -247,7 +247,7 @@ Four things are worth knowing before relying on it:
 - **The editor is on its own page.** That is deliberate: a lesson page carries zero eager JavaScript
   for this feature, just a small link that a tiny island un-hides for an allow-listed caller.
 
-The design is in [Content contribution, without git](/synapse/synapse-features/running-it/content-contribution).
+The design is in [Content contribution, without git](/synapse/synapse-features/components/content-contribution).
 
 ## Verifying before publishing
 

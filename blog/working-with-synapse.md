@@ -887,5 +887,5 @@ dev-tools/dev                                  # → http://localhost:5373
 That last line is the part worth keeping. There is no build step between writing a lesson and reading it, and no build step between merging one and it being live. The whole authoring pipeline is a file, a commit, and a symlink — and every feature in this guide is something you get by typing a word after a triple backtick.
 
 <div class="blog-post__post-footer">
-  <p>The architecture behind all of this — the ten bounded contexts, the ports and their adapters, the measured numbers and the two rewrites it took to get here — is documented in <a href="/synapse/synapse-features/the-system/why-a-rebuild">the deep-dive half of the Synapse book</a>, which is written in the vocabulary this guide describes and lives in the repository it describes.</p>
+  <p>The architecture behind all of this — the ten bounded contexts, the ports and their adapters, the measured numbers and the two rewrites it took to get here — is documented in <a href="/synapse/synapse-features/system-context/why-a-rebuild">the deep-dive half of the Synapse book</a>, which is written in the vocabulary this guide describes and lives in the repository it describes.</p>
 </div>

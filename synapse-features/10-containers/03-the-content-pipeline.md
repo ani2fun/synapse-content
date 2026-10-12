@@ -31,7 +31,7 @@ from.** A lesson becomes live by being a commit on `main`, and by no other route
 inside the app — but it opens a *pull request*, and the change still becomes live only by the path
 described in this chapter. The sentence that had to be retired is "there is no authoring endpoint";
 the one that matters, above, still holds. See
-[Content contribution, without git](/synapse/synapse-features/running-it/content-contribution).
+[Content contribution, without git](/synapse/synapse-features/components/content-contribution).
 
 </div>
 
@@ -183,7 +183,7 @@ git is inadequate, but because the interface is wrong for the person.
 
 That is the one that broke, and the answer turned out not to be a CMS. It was an editor page that
 opens a pull request — a new interface onto the same pipeline, rather than a second pipeline. The
-[next chapter](/synapse/synapse-features/running-it/content-contribution) is that design,
+[next chapter](/synapse/synapse-features/components/content-contribution) is that design,
 including the two shortcuts that would have destroyed the property this chapter is about.
 
 Second is **partial permissions**. Git access is all-or-nothing per repository. "This person may edit

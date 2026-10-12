@@ -213,7 +213,7 @@ inside the app — and it is worth being precise about why that does not break t
 editor does not write to the served tree. It opens a **pull request against the repository**, and the
 change reaches readers by the same sidecar-and-symlink path as everything else, after a human merges
 it. The write path gained a front end; it did not gain a second source of truth. That story is
-[its own chapter](/synapse/synapse-features/running-it/content-contribution).
+[its own chapter](/synapse/synapse-features/components/content-contribution).
 
 ## Two processes behind one front door
 
@@ -253,7 +253,7 @@ Three of those ten arrived after the first version of this chapter was written, 
 is more interesting than that they exist. `insights` came from noticing the platform could serve
 hundreds of lessons and answer nothing about which were opened. `progress` came from ✓ ticks living
 in `localStorage`, which made them a property of a browser rather than of an account. `authoring`
-came from the closing question of [the content pipeline](/synapse/synapse-features/running-it/the-content-pipeline)
+came from the closing question of [the content pipeline](/synapse/synapse-features/containers/the-content-pipeline)
 chapter — what breaks first is non-technical contributors — turning out to be the thing that broke.
 
 They are also visibly different sizes. `authoring` and `catalog` have four layers and thousands of
@@ -333,7 +333,7 @@ Publishes by pushing Markdown. There is no editor UI, no upload form, and no adm
 
 New prose appears within about a minute with no restart and no redeploy, and a diagram is prose —
 a fenced source in the lesson, on the same path at the same speed. The route is traced in
-[The content pipeline](/synapse/synapse-features/running-it/the-content-pipeline).
+[The content pipeline](/synapse/synapse-features/containers/the-content-pipeline).
 
 ### synapse-content
 `Source repository` · `git (GitHub)`
@@ -618,11 +618,11 @@ failing case rather than running a suite to completion.
 This is process-level isolation, not virtualisation. It is appropriate for a personal deployment
 with a handful of trusted-ish users and would not be appropriate at public scale, where the next
 step is a hardened runtime that gives each execution its own kernel boundary. The
-[scaling chapter](/synapse/synapse-features/running-it/scaling-and-maintainability) treats
+[scaling chapter](/synapse/synapse-features/deployment-and-operations/scaling-and-maintainability) treats
 that as a gated stage rather than a someday-maybe.
 
 It currently shares a physical machine with the database, which is the arrangement the
-[case study](/synapse/synapse-features/running-it/the-homelab-case-study) argues should
+[case study](/synapse/synapse-features/deployment-and-operations/the-homelab-case-study) argues should
 change first.
 
 ### Application store
@@ -638,7 +638,7 @@ change that, because its two tables hold a branch name, never a lesson.
 
 The full schema, the check constraint that makes an illegal row unrepresentable, and the story of
 adopting a schema created by a different migration tool are all in
-[Data design and the schema](/synapse/synapse-features/low-level-design/data-design) —
+[Data design and the schema](/synapse/synapse-features/code/data-design) —
 where the data view lets you click straight into each table's DDL.
 
 ### Identity provider

@@ -183,7 +183,7 @@ other belongs would be.)
 
 So the web tier became server-rendered Astro with per-feature TypeScript islands: prose is HTML in
 the response, and interactivity hydrates only where a page has any. The full design is in
-[the web tier chapter](/synapse/synapse-features/low-level-design/the-client); what belongs
+[the web tier chapter](/synapse/synapse-features/containers/the-web-tier); what belongs
 here is what it says about the *first* rewrite.
 
 Measured on production afterwards — median of three runs, mobile throttled to Fast-3G with a 4× CPU
