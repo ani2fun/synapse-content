@@ -28,10 +28,13 @@ A guided tour of what a lesson can do. Every page is itself a working lesson, so
 - [Reading a Synapse lesson](/synapse/synapse-features/reading-a-lesson/reading-a-lesson) — Mermaid and D2 diagrams, stepped image sequences, and code you can open in an editor, run and visualise step by step.
 - [D2 diagram snippets](/synapse/synapse-features/reading-a-lesson/d2-diagrams-snippets) — the D2 syntax a lesson can render.
 - [D2 walkthroughs](/synapse/synapse-features/reading-a-lesson/d2-walkthroughs) — one D2 source, many boards, and a reader who clicks down through them.
+- [The reader](/synapse/synapse-features/reading-a-lesson/the-reader) — the library, the sidebar and drawer, ⌘K search over the prose, reading preferences, Mark as read, and Suggest an edit.
+- [Interactive embeds](/synapse/synapse-features/reading-a-lesson/interactive-embeds) — simulators and lesson-local widgets framed in the page, with a live one to try.
 
 ## Practice problems
 
 - [Flip characters](/synapse/synapse-features/flip-characters/flip-characters) — an interactive coding problem with a hidden test suite: write, run, submit, read the verdict.
+- [The problem page](/synapse/synapse-features/flip-characters/the-problem-page) — Description, Editorial, Coach and Submissions; Think, Code and Notes — what each does, and what needs an account.
 
 ## Architecture docs in the lesson
 
@@ -60,6 +63,14 @@ Copy-and-adapt D2 templates, static and animated.
   [animating a diagram](/synapse/synapse-features/d2-component-library/animating-a-diagram),
   [animated system design](/synapse/synapse-features/d2-component-library/animated-system-design),
   [animated DSA](/synapse/synapse-features/d2-component-library/animated-dsa).
+
+## Diagram labs
+
+- [Diagram labs](/synapse/synapse-features/diagram-labs/diagram-labs) — the `/d2` and `/mermaid` editors: a live preview that is the reader's own renderer, and a route into a lesson as a pull request.
+
+## Accounts and contributing
+
+- [Accounts and contributing](/synapse/synapse-features/accounts-and-contributing/accounts-and-contributing) — what signing in adds, erasing your data, private books, proposing an edit, and the admin screen.
 
 ---
 

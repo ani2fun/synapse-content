@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Binary search stepper</title>
+<style>
+  :root { --bg: #ffffff; --fg: #111827; --muted: #6b7280; --cell: #f3f4f6; --edge: #cbd5e1;
+          --active: #dcfce7; --active-edge: #16a34a; --mid: #fef08a; --mid-edge: #ca8a04;
+          --out: #f1f5f9; --found: #bbf7d0; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f172a; --fg: #e5e7eb; --muted: #94a3b8; --cell: #1e293b; --edge: #334155;
+            --active: #14532d; --active-edge: #22c55e; --mid: #713f12; --mid-edge: #eab308;
+            --out: #0b1220; --found: #166534; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 14px 16px; font: 14px/1.4 system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cell { width: 44px; height: 44px; display: grid; place-items: center; border: 1.5px solid var(--edge);
+          background: var(--cell); border-radius: 6px; font-weight: 600; }
+  .cell.active { background: var(--active); border-color: var(--active-edge); }
+  .cell.out { background: var(--out); color: var(--muted); }
+  .cell.mid { background: var(--mid); border-color: var(--mid-edge); border-width: 3px; }
+  .cell.found { background: var(--found); border-color: var(--active-edge); border-width: 3px; }
+  .idx { width: 44px; text-align: center; color: var(--muted); font-size: 12px; }
+  .bar { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  button { font: inherit; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--edge);
+           background: var(--cell); color: var(--fg); cursor: pointer; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .note { color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="row" id="cells"></div>
+  <div class="row" id="idx"></div>
+  <div class="bar">
+    <button id="step">Step</button>
+    <button id="reset">Reset</button>
+    <span id="msg" class="note"></span>
+  </div>
+<script>
+  // The page contract (ADR RS012): on a private book the widget is inlined as srcdoc and has no
+  // query string, so the reader page defines window.synapseSimulator.params first. Read that,
+  // and fall back to this page's own URL when it is framed directly.
+  const params = (window.synapseSimulator && window.synapseSimulator.params) || new URLSearchParams(location.search);
+  const values = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91];
+  const target = Number(params.get("target") || 23);
+
+  const cells = document.getElementById("cells");
+  const idx = document.getElementById("idx");
+  const msg = document.getElementById("msg");
+  const stepBtn = document.getElementById("step");
+
+  values.forEach((v, i) => {
+    const c = document.createElement("div"); c.className = "cell"; c.textContent = v; cells.appendChild(c);
+    const n = document.createElement("div"); n.className = "idx"; n.textContent = i; idx.appendChild(n);
+  });
+
+  let lo, hi, done;
+  function paint(mid, found) {
+    [...cells.children].forEach((c, i) => {
+      c.className = "cell" + (i < lo || i > hi ? " out" : " active") + (i === mid ? (found ? " found" : " mid") : "");
+    });
+  }
+  function reset() {
+    lo = 0; hi = values.length - 1; done = false;
+    stepBtn.disabled = false;
+    paint(-1, false);
+    msg.textContent = `Looking for ${target} in [${lo}, ${hi}].`;
+  }
+  function step() {
+    if (done) return;
+    if (lo > hi) { done = true; stepBtn.disabled = true; msg.textContent = `${target} is not here.`; return; }
+    const mid = Math.floor((lo + hi) / 2);
+    if (values[mid] === target) {
+      done = true; stepBtn.disabled = true; paint(mid, true);
+      msg.textContent = `Found ${target} at index ${mid}.`; return;
+    }
+    paint(mid, false);
+    if (values[mid] < target) { msg.textContent = `${values[mid]} < ${target}: drop the left half.`; lo = mid + 1; }
+    else { msg.textContent = `${values[mid]} > ${target}: drop the right half.`; hi = mid - 1; }
+    setTimeout(() => { if (!done) paint(-1, false); }, 700);
+  }
+  stepBtn.addEventListener("click", step);
+  document.getElementById("reset").addEventListener("click", reset);
+  reset();
+</script>
+</body>
+</html>
