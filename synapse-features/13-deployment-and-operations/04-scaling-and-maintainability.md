@@ -179,7 +179,7 @@ justified is **availability**, which the numbers say is the binding constraint:
 
 | Change | Why |
 |---|---|
-| Move rate-limiter state out of process | the one thing blocking multiple replicas |
+| Move rate-limiter and admission state out of process | the two things blocking multiple replicas |
 | Add a second replica | removes the single-process outage window |
 | Make the submission reconciler periodic, not boot-time | with N replicas, a crash is no longer a restart |
 | Database replica with a manual failover | the top-ranked constraint, once downtime costs more than embarrassment |
@@ -227,17 +227,20 @@ comfortable because of it.
 
 ## Maintainability is automated or it does not exist
 
-A one-person codebase decays quietly, because there is no reviewer to notice. Six gates run in CI,
-each catching a specific kind of drift:
+A one-person codebase decays quietly, because there is no reviewer to notice. These gates each catch a
+specific kind of drift (`.github/workflows/ci.yml`, `dev-tools/check-conventions.sh`):
 
-| Gate | Catches |
-|---|---|
-| Domain + viz-engine purity greps | a framework import creeping into pure code |
-| File-size caps (500 server / 800 web + viz) | a file quietly becoming two responsibilities |
-| Per-page eager-JS budget (250 KiB gz) | an island going eager; dependency weight one library at a time |
-| Generated API types are current | the wire contract drifting from the server that defines it |
-| Contract lock against the reference spec | an endpoint changing shape without anyone deciding to |
-| Formatting + linting, warnings as errors | style drift and known-bad patterns |
+| Gate | Runs | Catches |
+|---|---|---|
+| Domain + viz-engine purity greps | CI, first | a framework import creeping into pure code |
+| File-size caps (500 server/shared · 800 web + viz) | CI, first | a file quietly becoming two responsibilities |
+| Test placement (`<module>/tests.rs`, ADR RS008) | CI, first | tests scattered where nobody looks for them |
+| Generated API types are current | CI | the wire contract drifting from the server that defines it |
+| Contract lock against the reference spec | CI | an endpoint changing shape without anyone deciding to |
+| Formatting + clippy, warnings as errors | CI | style drift and known-bad patterns |
+| Coverage floor (server + shared) | CI | tests quietly stopping to cover what they used to |
+| "Prove it ran" checks after each test suite | CI | a skipped suite reporting green |
+| Per-page eager-JS budget (250 KiB gz, seven page kinds) | CI, at the end of the e2e job, against the production-shaped stack | an island going eager; dependency weight one library at a time |
 
 They share the property worth copying: **each fails the build on a measurable threshold**, not on
 judgement. "Keep files focused" is advice nobody can enforce. "This file is 512 lines and the limit
@@ -257,8 +260,9 @@ problem; it named the fix.
 ### A gate that does not work
 
 Honesty requires naming one that fails. A test diffs the generated API description against a
-committed snapshot, so contract drift should be a red test. In practice **that snapshot documents
-one endpoint out of roughly twenty**, so it has never caught anything.
+committed snapshot, so contract drift should be a red test. In practice **that snapshot,
+`api/openapi.oracle.yaml`, still documents one endpoint — `/api/health` — out of more than forty
+operations the server now publishes**, so it has never caught anything.
 
 That is worse than no gate, because it appears in the list above and produces confidence without
 coverage. A gate that cannot fail is decoration. It should be regenerated in full or deleted —
@@ -268,13 +272,16 @@ leaving it as ornament is the one option that should be off the table.
 
 Two mechanisms keep the docs from rotting, and both work by removing the option to drift.
 
-**The architecture model lives in the content repository** and is compiled by the same push that
-publishes this prose. The chapter and its diagrams cannot disagree, because they are the same commit.
+**The diagrams live in the chapters.** Every architecture figure in this book is a D2 fence inside
+the lesson that discusses it, drawn on demand. The chapter and its diagram cannot disagree, because
+they are the same file and the same commit.
 
-**The build book is immutable.** Each chapter documents one step and is not retrofitted; later
-changes are documented forward. That sounds like a recipe for stale docs and is the opposite: a
-chapter that claims to describe a moment in time is *accurate* about that moment, whereas a
-continuously-edited document claims to be current and quietly stops being so.
+**Decisions are append-only.** The app repository's `docs/adr/` records each decision once, with a
+date, and never rewrites it: a decision that changes is *amended* or *superseded* by a new record that
+says so — RS007 (draw D2 ahead of time) is still there, marked superseded by RS009 (draw it on
+demand). A record that claims to describe a moment is accurate about that moment, whereas a
+continuously-edited document claims to be current and quietly stops being so. (An earlier
+step-by-step "build book" served the same purpose and was retired once the ADRs carried it.)
 
 The failure mode this avoids is the one every project has: a `README` that was true two years ago,
 with no way to tell which sentences still hold.
@@ -293,8 +300,9 @@ that price was ninety-two minutes of downtime, measured. A deferral with an unqu
 guess wearing a plan's clothes.
 
 **The design does not foreclose the change.** Execution can be extracted because it depends on a
-port whose adapter already crosses a process boundary. Replicas are blocked by exactly one known
-thing — per-process rate-limiter state — and that thing is written down in the chapter that owns it.
+port whose adapter already crosses a process boundary. Replicas are blocked by two known
+things — per-process rate-limiter and admission state — and both are written down in the chapter that
+owns them.
 Cheap-to-change-later is what makes deferring rational rather than lucky.
 
 Where this plan was weakest by its own test was **capacity itself**. Until these measurements

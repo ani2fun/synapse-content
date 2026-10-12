@@ -40,7 +40,9 @@ with the CDN switched off ([the arithmetic](/synapse/synapse-features/deployment
 Every real limit in this chapter is about *availability*, not throughput — which is the opposite of
 what capacity planning usually assumes.
 
-## Where the pieces run
+## Where the pieces ran
+
+On the day of the outage, 2026-07-18:
 
 | Component | Node |
 |---|---|
@@ -53,6 +55,19 @@ Note what happened here without anyone deciding it: `wk-1` has 18 cores and 32 G
 memory of any other node, so the scheduler put the resource-hungry things there. **The most capable
 node accumulated the most critical state — and it is also the least reliable one.** Nothing chose
 that; it is what a default scheduler does with an uneven cluster.
+
+<div style="border-left:4px solid #15448e;background:rgba(21,68,142,0.08);padding:0.6rem 1rem;border-radius:0 0.5rem 0.5rem 0;margin:1.25rem 0">
+
+**Since then.** The "diagram service" was the LikeC4 viewer, retired on 2026-08-29 (ADR RS010); D2 is
+now drawn by the `d2-render` sidecar inside the application pod. And the application moved: the
+deployment manifests now pin the `synapse` pod, the content-sync deployment and go-judge to `wk-1` by
+hostname, because their volumes are node-local. So the concentration this section describes got
+*stronger*, not weaker — the application now shares the least reliable node with the state it depends
+on. That is a deliberate trade for node-local storage, and the first item on the list in
+[Scaling and maintainability](/synapse/synapse-features/deployment-and-operations/scaling-and-maintainability)
+is what undoes it.
+
+</div>
 
 ## The outage, from the timestamps
 
@@ -84,17 +99,30 @@ outcome are the same event — and pretending otherwise is how systems stay frag
 
 The outage makes the real dependency graph visible:
 
-```mermaid
-flowchart TD
-    R[Reader] --> CF[Edge cache]
-    CF -->|cache hit ~99%| R
-    CF -->|miss / write| APP[Application · wk-2]
-    APP --> DB[(PostgreSQL · wk-1)]
-    APP --> GJ[go-judge · wk-1]
-    APP -.->|degrades gracefully| KC[Keycloak]
+```d2
+direction: down
 
-    style DB fill:#7f1d1d,color:#fff
-    style GJ fill:#7f1d1d,color:#fff
+classes: {
+  client: { style: { fill: "#f3f4f6"; stroke: "#6b7280"; font-color: "#111827" } }
+  edge:   { style: { fill: "#dbeafe"; stroke: "#2563eb"; font-color: "#1e3a8a" } }
+  svc:    { style: { fill: "#dcfce7"; stroke: "#16a34a"; font-color: "#14532d" } }
+  down:   { style: { fill: "#7f1d1d"; stroke: "#7f1d1d"; font-color: "#ffffff" } }
+  external: { style: { fill: "#f8fafc"; stroke: "#94a3b8"; font-color: "#475569"; stroke-dash: 3 } }
+}
+
+reader: "Reader" { class: client; shape: person }
+cdn: "Edge cache" { class: edge }
+app: "Application · wk-2" { class: svc }
+db: "PostgreSQL · wk-1" { class: down; shape: cylinder }
+gj: "go-judge · wk-1" { class: down }
+kc: "Keycloak" { class: external }
+
+reader -> cdn
+cdn -> reader: "cache hit ~99%"
+cdn -> app: "miss / write"
+app -> db
+app -> gj
+app -> kc: "degrades gracefully" { style.stroke-dash: 3 }
 ```
 
 | Component | Replicas | If it fails |

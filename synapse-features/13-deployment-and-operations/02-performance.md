@@ -177,7 +177,7 @@ have made a blank page appear slightly sooner.
 
 ## What is deliberately not optimised
 
-- **The database.** Six small tables, one index per query that needs one, and no query that is not
+- **The database.** Ten small tables, one index per query that needs one, and no query that is not
   either a primary-key lookup or a two-column index scan. Tuning it would be optimising a component
   that is not in any critical path.
 - **The judge.** It runs someone else's code; its duration is set by that code. The design goal was
