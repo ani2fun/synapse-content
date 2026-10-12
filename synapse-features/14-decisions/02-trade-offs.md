@@ -1,10 +1,10 @@
 ---
-title: "Trade-offs and the decision record"
+title: "Trade-offs"
 summary: "The deliberate asymmetries: fail fast on the database but degrade on the identity provider, admin by commit but access by row, and one replica as a correctness requirement rather than a compromise."
 essential: true
 ---
 
-# Trade-offs and the decision record
+# Trade-offs
 
 > **You'll be able to:** decide per-dependency whether to fail fast or degrade, and defend the
 > asymmetry; distinguish a constraint you chose from one you backed into; and read a scaling limit
