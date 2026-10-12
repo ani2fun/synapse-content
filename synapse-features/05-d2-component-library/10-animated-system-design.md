@@ -439,16 +439,19 @@ ride along with a canary deploy.
 
 ## Adapting one
 
-Every animation is a directory under `synapse-features/_d2-blocks/`. To make your own:
+Every animation is a directory beside the lesson that shows it — these live in
+`synapse-features/05-d2-component-library/_assets/_diagrams/`. To make your own:
 
-1. Copy the nearest `.anim/` directory.
+1. Copy the nearest `.anim/` directory into your lesson folder's `_assets/_diagrams/`, and fix the
+   `...@` import of the theme so it still reaches `_d2-blocks/lib/theme` from the new depth.
 2. Rewrite `base.d2` with your boxes — **every** node and edge the sequence will show, all dimmed.
 3. Set the three header lines: `# animation-mode:` (`highlight` if the layout should freeze,
    `build` if it should grow), `# lesson:` and `# caption:`. The last two are what
    `./render.sh media` uses to draw the frames and what `./render.sh player` writes into the alt
    text — and the alt text is the only thing that groups a run into one figure.
 4. Rewrite the frames. Three or four lines each: a title, and the classes that change.
-5. Run `./render.sh stable`, then `./render.sh media`.
+5. Run `./render.sh stable`, then `./render.sh media`, and commit the frames it writes under
+   `_media/<book>/<lesson>/`.
 
 ## Next
 

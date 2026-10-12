@@ -30,7 +30,11 @@ function blockFiles(dir, out = []) {
 }
 
 const known = new Map(); // flattened source → the file it came from
-for (const dir of ["demo", "dsa", "system-design"]) {
+// The shared catalogue, plus every lesson folder's own sources (`<lesson>/_assets/_diagrams/`).
+const sidecars = readdirSync("..")
+  .map((d) => join("..", d, "_assets", "_diagrams"))
+  .filter((d) => existsSync(d));
+for (const dir of ["demo", "dsa", "system-design", ...sidecars]) {
   if (!existsSync(dir)) continue;
   for (const file of blockFiles(dir)) {
     try {

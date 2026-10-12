@@ -19,6 +19,28 @@ render.sh         the gate
 build/            rendered output (gitignored)
 ```
 
+### Where a source lives
+
+This folder is the **shared catalogue**: blocks any lesson may copy. A source that belongs to **one
+lesson** lives beside that lesson instead, in the sidecar layout of ADR RS012:
+
+```
+05-d2-component-library/
+  09-animating-a-diagram.md
+  10-animated-system-design.md
+  11-animated-dsa.md
+  _assets/_diagrams/            the D2 sources these lessons own — kept in git, never served
+    sliding-window.anim/        an animation: base.d2 + one file per frame
+    cache-aside-loop.d2         the auto-loop
+    …
+_media/synapse-features/<lesson>/<name>/frame-N.svg   the rendered frames — repository root, served at /media/…
+```
+
+Sources go beside the lesson so that moving or deleting a lesson moves or deletes what it owns. The
+rendered frames stay in the root `_media/` tree, because that is the folder the server serves;
+`_assets/_diagrams/` is deliberately not served. `render.sh` walks every `../*/_assets/_diagrams/`
+alongside this folder, so every gate below covers both.
+
 ## The gate
 
 ```bash
@@ -44,12 +66,12 @@ Two things about that list are load-bearing.
 `...@../lib/theme` resolves to nothing inside one. The flattened form is what a lesson publishes, and
 if only the file compiled you would ship a dead fence.
 
-**`app` uses a different d2 from the rest.** The app pins the WASM build (v0.7.0 at the time of
-writing) and renders with **ELK** at `pad: 20`; your CLI is probably v0.8.1 and defaults to dagre at
-`pad: 100`. `render.sh` passes `--layout elk --pad 20` everywhere so the local picture matches, but
-only `app` compiles with the engine a reader receives. It draws into a throwaway root by default —
-committing those figures is CI's job (`.github/workflows/render-d2.yml`); pass `APP_GATE_INPLACE=1`
-to populate `_media/d2` here instead.
+**`app` uses a different d2 from the rest.** A reader's figure is drawn by the app's d2-render
+sidecar — the d2 v0.7.2 library, natively, with **ELK** at `pad: 20` (ADR RS009) — and on a sidecar
+miss by the browser's pinned WASM build (v0.7.0). Your CLI is probably newer and defaults to dagre at
+`pad: 100`. `render.sh` passes `--layout elk --pad 20` everywhere so the local picture matches, and
+`app` compiles every lesson fence with the app's own engine into a throwaway root. Nothing is
+committed for a fence: the sidecar draws it when the page renders.
 
 ## Imports
 
@@ -114,10 +136,11 @@ recolour has to be declared two-class from the start.
 
 ## Animations
 
-Two panels show one step; an animation shows the run. The sources are directories:
+Two panels show one step; an animation shows the run. The sources are directories, kept beside the
+lesson that shows them (see *Where a source lives*):
 
 ```
-dsa/sliding-window.anim/
+05-d2-component-library/_assets/_diagrams/sliding-window.anim/
   base.d2          # every node, edge and label — dimmed. Frame zero.
   01-open.d2       # ...@./base  +  a title and three classes
   02-grow.d2
@@ -138,10 +161,10 @@ Four transports put one in a lesson, and the trade is where the frames get drawn
 
 | | Reader gets | Drawn |
 | --- | --- | --- |
-| **Stepper** — consecutive ```` ```d2 ```` fences | ‹ 3/5 › | in the reader's browser, pulling the ~6 MB engine |
-| **Player** — a run of images, alt `— frame i of N` | ▶ ⏸ scrubber, arrow keys | at authoring time, by `./render.sh media` |
-| **Auto-loop** — `steps:` + `--animate-interval` | plays itself, forever, no controls | at authoring time; never a fence |
-| **Walkthrough** — ```` ```d2 boards ```` + `layers:` | click to drill, ⌂ ☰, shareable | by content CI, into `_d2/` beside the lesson |
+| **Stepper** — consecutive ```` ```d2 ```` fences | ‹ 3/5 › | the first by the d2-render sidecar; later slides in the reader's browser, pulling the ~6 MB engine |
+| **Player** — a run of images, alt `— frame i of N` | ▶ ⏸ scrubber, arrow keys | at authoring time, by `./render.sh media`, committed under `_media/` |
+| **Auto-loop** — `steps:` + `--animate-interval` | plays itself, forever, no controls | at authoring time, committed under `_media/`; never a fence |
+| **Walkthrough** — ```` ```d2 boards ```` + `layers:` | click to drill, ⌂ ☰, shareable | on demand by the d2-render sidecar, cached by the source's hash |
 
 The player is the default for anything longer than a few frames.
 
@@ -299,18 +322,18 @@ lesson its frames are drawn into, and the caption that groups them:
 
 | Animation | Directory | Frames | When to use it |
 | --- | --- | --- | --- |
-| `cache-aside` | [system-design/animated/cache-aside.anim/](system-design/animated/cache-aside.anim/) | 5 · *highlight* | The whole diagram with nothing happening yet. Frame zero, and the file every frame spreads in with `...@./base`. |
-| `leader-failover` | [system-design/animated/leader-failover.anim/](system-design/animated/leader-failover.anim/) | 6 · *highlight* | A failure over TIME, which is the one thing a static architecture diagram cannot show at all. The boxes never move; what changes is which node is the leader, and that is carried entirely by colour: |
-| `rolling-deploy` | [system-design/animated/rolling-deploy.anim/](system-design/animated/rolling-deploy.anim/) | 5 · *highlight* | A deploy is a sequence, so a static picture of it is always the wrong picture: it shows one moment and the reader has to imagine the rest. |
-| `scaling-story` | [system-design/animated/scaling-story.anim/](system-design/animated/scaling-story.anim/) | 5 · *build* | The OTHER animation mode. Everywhere else in this library a frame recolours a fixed picture; here each frame ADDS to the last, and the diagram grows. |
-| `bfs-frontier` | [dsa/bfs-frontier.anim/](dsa/bfs-frontier.anim/) | 5 · *highlight* | Breadth-first search is a wave, and a wave is the thing a still picture is worst at. Five frames show the frontier expanding one hop at a time — which IS the proof that BFS finds shortest paths: a nod |
-| `binary-search` | [dsa/binary-search.anim/](dsa/binary-search.anim/) | 5 · *highlight* | The search space halving, frame by frame. A static picture of binary search shows one comparison; the whole idea is what happens to the OTHER half, and only a sequence shows that. |
-| `dp-2d-fill` | [dsa/dp-2d-fill.anim/](dsa/dp-2d-fill.anim/) | 5 · *highlight* | Counting paths across a 4×4 grid, moving only right or down. Every cell is the sum of the one above it and the one to its left — and THAT is the thing a static table cannot show: which two cells the a |
-| `sliding-window` | [dsa/sliding-window.anim/](dsa/sliding-window.anim/) | 6 · *highlight* | The canonical animated DSA figure: a window that grows on the right and shrinks on the left, over a fixed strip. Problem: the longest subarray with sum ≤ 8. |
+| `cache-aside` | [../05-d2-component-library/_assets/_diagrams/cache-aside.anim/](../05-d2-component-library/_assets/_diagrams/cache-aside.anim/) | 5 · *highlight* | The whole diagram with nothing happening yet. Frame zero, and the file every frame spreads in with `...@./base`. |
+| `leader-failover` | [../05-d2-component-library/_assets/_diagrams/leader-failover.anim/](../05-d2-component-library/_assets/_diagrams/leader-failover.anim/) | 6 · *highlight* | A failure over TIME, which is the one thing a static architecture diagram cannot show at all. The boxes never move; what changes is which node is the leader, and that is carried entirely by colour: |
+| `rolling-deploy` | [../05-d2-component-library/_assets/_diagrams/rolling-deploy.anim/](../05-d2-component-library/_assets/_diagrams/rolling-deploy.anim/) | 5 · *highlight* | A deploy is a sequence, so a static picture of it is always the wrong picture: it shows one moment and the reader has to imagine the rest. |
+| `scaling-story` | [../05-d2-component-library/_assets/_diagrams/scaling-story.anim/](../05-d2-component-library/_assets/_diagrams/scaling-story.anim/) | 5 · *build* | The OTHER animation mode. Everywhere else in this library a frame recolours a fixed picture; here each frame ADDS to the last, and the diagram grows. |
+| `bfs-frontier` | [../05-d2-component-library/_assets/_diagrams/bfs-frontier.anim/](../05-d2-component-library/_assets/_diagrams/bfs-frontier.anim/) | 5 · *highlight* | Breadth-first search is a wave, and a wave is the thing a still picture is worst at. Five frames show the frontier expanding one hop at a time — which IS the proof that BFS finds shortest paths: a nod |
+| `binary-search` | [../05-d2-component-library/_assets/_diagrams/binary-search.anim/](../05-d2-component-library/_assets/_diagrams/binary-search.anim/) | 5 · *highlight* | The search space halving, frame by frame. A static picture of binary search shows one comparison; the whole idea is what happens to the OTHER half, and only a sequence shows that. |
+| `dp-2d-fill` | [../05-d2-component-library/_assets/_diagrams/dp-2d-fill.anim/](../05-d2-component-library/_assets/_diagrams/dp-2d-fill.anim/) | 5 · *highlight* | Counting paths across a 4×4 grid, moving only right or down. Every cell is the sum of the one above it and the one to its left — and THAT is the thing a static table cannot show: which two cells the a |
+| `sliding-window` | [../05-d2-component-library/_assets/_diagrams/sliding-window.anim/](../05-d2-component-library/_assets/_diagrams/sliding-window.anim/) | 6 · *highlight* | The canonical animated DSA figure: a window that grows on the right and shrinks on the left, over a fixed strip. Problem: the longest subarray with sum ≤ 8. |
 
 ### The other two transports
 
 | Block | File | Preview | When to use it |
 | --- | --- | --- | --- |
-| `cache-aside-loop` | [system-design/animated/cache-aside-loop.d2](system-design/animated/cache-aside-loop.d2) | `build/system-design/animated/cache-aside-loop.svg` | The same cache-aside sequence as cache-aside.anim/, written as d2 `steps:` and compiled with `--animate-interval`. The output is a SINGLE svg carrying CSS keyframes: it plays by itself, forever, with |
+| `cache-aside-loop` | [../05-d2-component-library/_assets/_diagrams/cache-aside-loop.d2](../05-d2-component-library/_assets/_diagrams/cache-aside-loop.d2) | `build/05-d2-component-library/_assets/_diagrams/cache-aside-loop.svg` | The same cache-aside sequence as cache-aside.anim/, written as d2 `steps:` and compiled with `--animate-interval`. The output is a SINGLE svg carrying CSS keyframes: it plays by itself, forever, with |
 | `drilldown-boards` | [system-design/animated/drilldown-boards.d2](system-design/animated/drilldown-boards.d2) | `build/system-design/animated/drilldown-boards.svg` | The fourth transport, and the only one that is not a sequence. d2 `layers:` compiles to a TREE of boards, and a node carrying `link:` is a door into one of them: overview → the edge → the service → th |

@@ -10,16 +10,21 @@
 #   ./render.sh player <anim-dir>  the ```bash + the frame run of a player
 #   ./render.sh stable             every highlight-mode animation is layout-stable
 #   ./render.sh drift              no lesson shows a figure its block no longer draws
-#   ./render.sh media              the two figures that ship as FILES, into _media/
+#   ./render.sh media              the figures that ship as FILES, into _media/
+#
+# Shared catalogue blocks live here (demo/, dsa/, system-design/). A source that belongs to ONE
+# lesson — every animation, and the auto-loop — lives beside that lesson instead, in
+# `<lesson folder>/_assets/_diagrams/` (ADR RS012's sidecar layout), and is walked from there.
 #   ./render.sh sheet    one captioned PNG per directory → build/sheet-<dir>.png
 #   ./render.sh icons    every icon URL answers 200
 #   ./render.sh app      draw the LESSON fences with the app's own engine
 #   ./render.sh all      icons + lib + blocks + stability + sheets + app
 #
-# Two engines, deliberately. `d2` here is whatever you have installed; the app draws with
-# a pinned WASM build (v0.7.0 at the time of writing) through dev-tools/render-d2.mjs, and
-# they are NOT the same — v0.8.1 inlines icon bytes, v0.7.0 leaves them as remote URLs.
-# `./render.sh app` is the one that speaks for the reader.
+# Two engines, deliberately. `d2` here is whatever you have installed. The reader gets a
+# figure drawn by the app's d2-render sidecar (the d2 v0.7.2 library, native — ADR RS009),
+# and on a sidecar miss by the browser's pinned WASM build (v0.7.0), which `./render.sh app`
+# drives through dev-tools/render-d2.mjs. They are NOT the same as a recent CLI — v0.8+
+# inlines icon bytes, v0.7 leaves them as remote URLs. `./render.sh app` speaks for the reader.
 #
 # Layout is ELK and padding is 20 because that is what the app uses
 # (web/src/lib/islands/diagram/d2.ts: LAYOUT = "elk", pad: 20). The CLI defaults to dagre
@@ -40,8 +45,14 @@ red() { printf '\033[31m%s\033[0m\n' "$1"; }
 # A block is any .d2 that draws ONE figure. The two multi-board kinds are excluded: d2
 # writes a DIRECTORY of boards for those, so the ordinary render path would silently
 # create `build/foo.svg/` and call it a success.
-blocks() { find demo dsa system-design -name '*.d2' ! -name '*-loop.d2' ! -name '*-boards.d2' 2>/dev/null | sort; }
-anims() { find dsa system-design -type d -name '*.anim' 2>/dev/null | sort; }
+# Lesson-owned sources live BESIDE their lesson, in `<lesson folder>/_assets/_diagrams/` (ADR
+# RS012's sidecar layout) — never served, and walked here alongside the shared catalogue.
+SIDECARS=$(ls -d ../*/_assets/_diagrams 2>/dev/null | tr '\n' ' ')
+blocks() { find demo dsa system-design $SIDECARS -name '*.d2' ! -name '*-loop.d2' ! -name '*-boards.d2' 2>/dev/null | sort; }
+anims() { find dsa system-design $SIDECARS -type d -name '*.anim' 2>/dev/null | sort; }
+# Where a source's render lands under build/. A sidecar path starts `../`, which would
+# escape build/, so the prefix is dropped: ../05-x/_assets/… → build/05-x/_assets/….
+built() { local p="${1#../}"; echo "$BUILD/${p%.d2}"; }
 # One animation's frames, in order. `base.d2` is frame zero and is rendered as a block,
 # but it is not a frame of the published sequence.
 frames() { find "$1" -name '[0-9]*.d2' | sort; }
@@ -71,7 +82,7 @@ render() {
   local want_png="${1:-}" n=0
   for file in $(blocks); do
     n=$((n + 1))
-    local out="$BUILD/${file%.d2}.svg" flat="$BUILD/${file%.d2}.flat.d2"
+    local out flat; out="$(built "$file").svg"; flat="$(built "$file").flat.d2"
     mkdir -p "$(dirname "$out")"
 
     if ! d2 --layout elk --pad 20 "$file" "$out" >/dev/null 2>&1; then
@@ -113,9 +124,9 @@ render() {
 # through `render`, and neither is a fence the app draws from source.
 render_boards() {
   local n=0
-  for file in $(find system-design dsa -name '*-loop.d2' 2>/dev/null | sort); do
+  for file in $(find system-design dsa $SIDECARS -name '*-loop.d2' 2>/dev/null | sort); do
     n=$((n + 1))
-    local out="$BUILD/${file%.d2}.svg"
+    local out; out="$(built "$file").svg"
     mkdir -p "$(dirname "$out")"
     if ! d2 --layout elk --pad 20 --target '*' --animate-interval "$LOOP_MS" "$file" "$out" >/dev/null 2>&1; then
       red "  ✗ $file (animated)"; fail=1; continue
@@ -127,7 +138,7 @@ render_boards() {
   done
   for file in $(find system-design dsa -name '*-boards.d2' 2>/dev/null | sort); do
     n=$((n + 1))
-    local out="$BUILD/${file%.d2}"
+    local out; out="$(built "$file")"
     rm -rf "$out"; mkdir -p "$out"
     if ! d2 --layout elk --pad 20 "$file" "$out/board.svg" >/dev/null 2>&1; then
       red "  ✗ $file (boards)"; fail=1; continue
@@ -161,7 +172,7 @@ check_stability() {
     n=$((n + 1))
     local widths=() heights=() f
     for f in $(frames "$dir"); do
-      local svg="$BUILD/${f%.d2}.svg" box
+      local svg; svg="$(built "$f").svg"; local box
       box=$(grep -o 'viewBox="[^"]*"' "$svg" 2>/dev/null | head -1)
       [[ -z "$box" ]] && { red "     ✗ $f not rendered"; fail=1; continue; }
       widths+=("$(echo "$box" | awk '{print $3}')")
@@ -259,7 +270,7 @@ build_media() {
   done
   green "  $n animation(s) drawn under $MEDIA_ROOT"
 
-  local loop=system-design/animated/cache-aside-loop.d2
+  local loop=../05-d2-component-library/_assets/_diagrams/cache-aside-loop.d2
   mkdir -p "$MEDIA_ROOT/animating-a-diagram"
   if d2 --layout elk --pad 20 --target '*' --animate-interval "$LOOP_MS" "$loop" "$MEDIA_ROOT/animating-a-diagram/cache-aside-loop.svg" >/dev/null 2>&1; then
     node lib/intrinsic.mjs "$MEDIA_ROOT/animating-a-diagram/cache-aside-loop.svg" >/dev/null
@@ -321,7 +332,7 @@ sheets() {
   done
   local dir
   for dir in $(anims); do
-    local svgs; svgs=$(frames "$dir" | sed "s|^|$BUILD/|; s|\.d2$|.svg|")
+    local svgs="" f; for f in $(frames "$dir"); do svgs+="$(built "$f").svg "; done
     # shellcheck disable=SC2086
     python3 lib/sheet.py "$BUILD/sheet-anim-$(basename "${dir%.anim}").png" $svgs >/dev/null &&
       green "  build/sheet-anim-$(basename "${dir%.anim}").png" ||
@@ -357,10 +368,9 @@ check_icons() {
 # accepts can still be rejected there, and the failure mode in production is silent — the
 # page just falls back to compiling in the reader's browser.
 #
-# It draws into a throwaway root rather than the repo's own `_media/d2`, because
-# committing those figures is CI's job (.github/workflows/render-d2.yml) and a local run
-# would leave a pile of untracked SVGs behind. Pass APP_GATE_INPLACE=1 to draw them here
-# for real — useful when you want the dev server to serve inlined figures immediately.
+# It draws into a throwaway root and keeps nothing. Since ADR RS009 no figure is committed
+# for a fence: the sidecar draws it when the page renders. This gate exists only to catch a
+# fence the app's engine rejects.
 check_app() {
   local repo scratch root
   repo=$(cd ../.. && pwd)
@@ -370,17 +380,13 @@ check_app() {
     return
   fi
 
-  if [[ "${APP_GATE_INPLACE:-}" == 1 ]]; then
-    root="$repo"
-  else
-    scratch=$(mktemp -d)
-    root="$scratch/content"
-    mkdir -p "$root"
-    # Only the lessons: the gate is about what the reader receives, and copying the whole
-    # repo would redraw every book to prove nothing.
-    ( cd "$repo" && find . -path ./node_modules -prune -o -name '*.md' -print |
-        while read -r f; do mkdir -p "$root/$(dirname "$f")"; cp "$f" "$root/$f"; done )
-  fi
+  scratch=$(mktemp -d)
+  root="$scratch/content"
+  mkdir -p "$root"
+  # Only the lessons: the gate is about what the reader receives, and copying the whole
+  # repo would redraw every book to prove nothing.
+  ( cd "$repo" && find . -path ./node_modules -prune -o -name '*.md' -print |
+      while read -r f; do mkdir -p "$root/$(dirname "$f")"; cp "$f" "$root/$f"; done )
 
   if ( cd "$SYNAPSE/web" && node ../dev-tools/render-d2.mjs "$root" ); then
     green "  every fence compiles under the app's engine"

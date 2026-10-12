@@ -22,16 +22,23 @@ synapse-features/_d2-blocks/
   lib/flatten.mjs      # resolves the imports away, for publication
   demo/                # the three figures on this page
   dsa/                 # data structures and algorithms
-    *.anim/            # animations: a base diagram + one file per frame
   system-design/
     primitives/        # the boxes, grouped by tier
     shapes/            # where a native shape beats an icon
     boundaries/        # regions, AZs, VPCs, trust
     patterns/          # nine composed architectures
-    animated/          # failover, growth, a deploy — and the four transports
+    animated/          # the walkthrough example (drill-down boards)
   render.sh            # the gate: compile everything, twice, two engines
   README.md            # the index — every block, with a preview
+
+synapse-features/05-d2-component-library/_assets/_diagrams/
+  *.anim/              # the animations these lessons show: a base diagram + one file per frame
+  cache-aside-loop.d2  # the auto-loop
 ```
+
+`_d2-blocks/` is the shared catalogue — copy from it. A source that belongs to **one** lesson, like
+an animation, lives beside that lesson in its `_assets/_diagrams/` folder (the sidecar layout of ADR
+RS012), which keeps it in git and out of what the server serves. The gate walks both.
 
 The directory starts with `_`, which keeps the content walker out of it. Without the underscore its
 `README.md` would render as a lesson of its own.

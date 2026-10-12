@@ -37,10 +37,10 @@ is the source that drew it.
 
 ## The sources
 
-An animation is a directory, not a file:
+An animation is a directory, not a file, kept beside the lesson that shows it:
 
 ```bash
-system-design/animated/cache-aside.anim/
+05-d2-component-library/_assets/_diagrams/cache-aside.anim/
   base.d2        # the whole diagram, dimmed — frame zero
   01-lookup.d2   # ...@./base  +  three lines
   02-miss.d2
@@ -375,9 +375,9 @@ whose frames differ by more than 2%. A little drift is real — a heavier stroke
 node genuinely moves the bounding box by a pixel — and failing on that would be noise.
 
 ```bash
-  ✓  dsa/binary-search.anim                     942x223–942x223  drift 0.0%
-  ✓  system-design/animated/cache-aside.anim    942x308–942x309  drift 0.3%
-  ·  system-design/animated/scaling-story.anim  build — exempt
+  ✓  ../05-d2-component-library/_assets/_diagrams/binary-search.anim 942x223–942x223  drift 0.0%
+  ✓  ../05-d2-component-library/_assets/_diagrams/cache-aside.anim 942x308–942x309  drift 0.3%
+  ·  ../05-d2-component-library/_assets/_diagrams/scaling-story.anim build — exempt
 ```
 
 Every `base.d2` declares which mode it is in, on its second line:
@@ -437,7 +437,8 @@ Press play. Same frames, same files, better transport — and because the frames
 than inlined source, a fifteen-frame animation costs the page about as much as a link.
 
 What it costs instead is the copy-and-paste property: the reader can no longer lift the source off
-the page, and the SVGs have to be committed. `./render.sh media` draws them:
+the page, and the SVGs have to be committed — by you, under the repository's root `_media/` tree,
+which is the folder the server serves. There is no CI step that draws them. `./render.sh media` does:
 
 ```bash
 ./render.sh media
