@@ -36,29 +36,29 @@ what a first design reaches for.
 A signed-in, allow-listed reader edits a lesson's Markdown inside Synapse, previews it, and submits.
 The server opens — or reuses — a pull request against the content repository on their behalf.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant R as Reader
-    participant W as /edit/<path>
-    participant A as authoring
-    participant F as ContentForge
-    participant G as GitHub
-    participant M as Maintainer
+```d2
+shape: sequence_diagram
 
-    R->>W: "Suggest an edit"
-    W->>A: GET /api/edits/source
-    A-->>W: the whole file + a fingerprint of it
-    Note over W: edit · rendered preview · lint
-    R->>W: Submit
-    W->>A: POST /api/edits  (text + fingerprint)
-    A->>A: allow-listed? · fingerprint still current? · valid?
-    A->>F: commit on edit/<user>/<page>, open a pull request
-    F->>G: PUT contents · POST pulls
-    G-->>F: pr number + url
-    A-->>W: 202 + the pull-request link
-    M->>G: review, then merge
-    G-->>R: the change ships by the ordinary content pipeline
+r: Reader
+w: "/edit/<path>"
+a: authoring
+f: ContentForge
+g: GitHub
+mt: Maintainer
+
+r -> w: "1. Suggest an edit"
+w -> a: "2. GET /api/edits/source"
+a -> w: "3. the whole file + its fingerprint" { style.stroke-dash: 3 }
+w."4. edit · rendered preview · lint"
+r -> w: "5. Submit"
+w -> a: "6. POST /api/edits (text + fingerprint)"
+a -> a: "7. allow-listed? fingerprint current? valid?"
+a -> f: "8. commit on edit/<user>/<page>, open a PR"
+f -> g: "9. PUT contents · POST pulls"
+g -> f: "10. PR number + URL" { style.stroke-dash: 3 }
+a -> w: "11. 202 + the PR link" { style.stroke-dash: 3 }
+mt -> g: "12. review, then merge"
+g -> r: "13. ships by the ordinary content pipeline" { style.stroke-dash: 3 }
 ```
 
 Two properties survive that a naive design would have destroyed. The content repository is still the
@@ -66,14 +66,27 @@ only place lesson text lives — step 12 is an ordinary merge, and the change re
 same sidecar-and-symlink path as every other commit. And every published word still passes a human
 review, because the feature's output is a *proposal*, not a write.
 
-This is a new bounded context, `authoring`, hexagonal like the rest, with four ports:
+This is a bounded context of its own, `authoring`, hexagonal like the rest, with five ports:
 
 | Port | Answers |
 |---|---|
 | `LessonSource` | what is on disk right now, frontmatter fence and all |
 | `ContentEditors` | may this person propose? |
-| `EditRequestRepository` | which branch, which attempt, what state |
+| `EditRequestRepository` | which branch, which attempt, which repository, what state |
 | `ContentForge` | commit this file; open a pull request |
+| `Forges` | which forge — which repository — does this edit go to? |
+
+The fifth port arrived with satellite repositories ([Catalog and content](/synapse/synapse-features/components/catalog-and-content)).
+Until then there was one content repository, so a branch name alone identified a proposal. Now a
+lesson can live in any registered repository, and `ConfiguredForges` resolves the target on every
+edit: the primary from configuration, a satellite from the registry. It is resolved rather than
+cached on purpose — edits are rare, so one registry read per edit costs nothing, and a repository
+registered a moment ago is editable at once while one just removed stops accepting proposals.
+
+Two lookups, not one, and the difference matters. A **new** proposal goes to the repository that
+serves the page now. A **revision** follows the repository recorded on its row (migration
+`0007_edit_request_repo`), because if a book migrates out of the primary while a pull request is open,
+the open branch still lives where it was opened.
 
 ## No `git` binary, no working copy
 
@@ -190,7 +203,7 @@ someone the ability to save their homework silently granted them the ability to 
 repository the world can see — and, worse, that revoking one quietly revoked the other.
 
 The credential behind it is scoped to match: one fine-grained token with `contents: write` and
-`pull_requests: write` **on the content repository alone**, held as a sealed secret, never logged and
+`pull_requests: write` **on the content repositories alone**, held as a sealed secret, never logged and
 never returned. It is the only credential in the system whose blast radius extends outside the
 cluster, which is why it is the one with the narrowest scope.
 

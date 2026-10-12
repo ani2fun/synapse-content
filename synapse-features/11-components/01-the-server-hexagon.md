@@ -1,6 +1,6 @@
 ---
 title: "The server hexagon"
-summary: "Seventeen ports, their adapters, and a purity rule that a grep enforces. Why the ports are generic rather than dynamic, and why exactly one of them breaks that rule."
+summary: "C4 level 3 for the origin: twelve bounded contexts, twenty-two ports and their adapters, and a purity rule a grep enforces. Why the ports are generic rather than dynamic, and why exactly one of them breaks that rule."
 essential: true
 ---
 
@@ -9,6 +9,29 @@ essential: true
 > **You'll be able to:** read a bounded context's four layers and predict what each may import;
 > explain why a port is generic instead of `dyn` and name the cost of that choice; and spot the one
 > place in this codebase where a cross-context dependency is legitimate.
+
+## Twelve contexts in one process
+
+The origin server is one Rust binary organised as **twelve bounded contexts** (`server/src/lib.rs`).
+Each has its own vocabulary, its own error type, and ports it declares but does not implement.
+
+| Context | Owns | Detail |
+| --- | --- | --- |
+| `catalog` | the library: walking every content source, lesson payloads, search, the source registry | [Catalog and content](/synapse/synapse-features/components/catalog-and-content) |
+| `blog` | posts, over the same filesystem seam as `catalog` | — |
+| `execution` | the language vocabulary and the port to the sandbox | [Execution and submission](/synapse/synapse-features/components/execution-and-submission) |
+| `submission` | judged submissions, the submit allowlist | same page |
+| `identity` | token verification, `/api/me`, account deletion | [Identity and access](/synapse/synapse-features/components/identity-and-access) |
+| `authoring` | Suggest an edit → a pull request | [Content contribution](/synapse/synapse-features/components/content-contribution) |
+| `progress` | ✓ ticks per account | [Learner state](/synapse/synapse-features/components/learner-state) |
+| `notes` | the Notes tab, per problem per account | same page |
+| `canvas` | saved Think canvases | same page |
+| `insights` | which lessons get opened — counts, not people | same page |
+| `tutoring` | the coach chat; off in production | [Tutoring](/synapse/synapse-features/components/tutoring) |
+| `platform` | cross-cutting: limits, headers, proxies, file routes, SEO | [Platform](/synapse/synapse-features/components/platform) |
+
+Two arrived since the first version of this chapter: `canvas`, with the Think pane, and `notes`,
+with the Notes tab. Like `progress`, both are three files — a port, a Postgres adapter and a router.
 
 ## Four layers, sized to the work
 
@@ -23,9 +46,11 @@ server/src/<context>/
 ```
 
 The layering is **proportional to the work**, not applied uniformly. `submission` earns all four —
-it has an aggregate, a state machine, five ports and a background task. `platform` stays flat: it is
-health checks, security headers and three proxies, and giving it a `domain/` would be ceremony. So do
-`progress` and `insights`, which are three files each: a port, a Postgres adapter and a router. The
+it has an aggregate, a state machine, four ports of its own plus the runner it borrows from
+`execution`, and a background task. `platform` stays flat: it is
+health checks, limits, security headers, two proxies and the file routes, and giving it a `domain/`
+would be ceremony. So do `progress`, `insights`, `notes` and `canvas`, which are a handful of files
+each: a port, a Postgres adapter and a router. The
 rule is that structure is justified by complexity, not by symmetry.
 
 The clearest evidence that the rule is real rather than stated is the spread. Measured in lines of
@@ -35,13 +60,15 @@ layering was applied by template.
 
 ## The ports
 
-Seventeen traits, each the narrowest capability its use case needs. This is Interface Segregation
+Twenty-two traits, each the narrowest capability its use case needs. This is Interface Segregation
 applied literally — `TokenVerifier` and `KeycloakAdmin` are separate ports because verifying a token
 and deleting a user are different jobs with different failure modes, even though both are "Keycloak".
 
 | Port | Context | Adapter | Backed by |
 |---|---|---|---|
 | `ContentRepository` | catalog | `FileSystemContentRepository` | disk (git-sync checkout) |
+| `ContentFetcher` | catalog | `GitHubFetcher` | GitHub REST: head, then tarball |
+| `ContentSources` | catalog | `PostgresContentSources` | Postgres (the source registry) |
 | `CodeRunner` | execution | `GoJudgeRunner` | go-judge over HTTP |
 | `SubmissionRepository` | submission | `PostgresSubmissionRepository` | Postgres via sqlx |
 | `SubmissionAllowlist` | submission | Postgres adapter | Postgres |
@@ -54,8 +81,11 @@ and deleting a user are different jobs with different failure modes, even though
 | `ContentEditors` | authoring | `PostgresContentEditors` | Postgres |
 | `EditRequestRepository` | authoring | `PostgresEditRequests` | Postgres |
 | `ContentForge` | authoring | `GitHubForge` / `DryRunForge` | GitHub REST, or nothing |
+| `Forges` | authoring | `ConfiguredForges` / `OneForge` | picks the forge for an edit's repository |
 | `LessonViewStore` | insights | `PostgresLessonViews` | Postgres |
 | `ProblemProgressStore` | progress | `PostgresProblemProgress` | Postgres |
+| `NoteStore` | notes | `PostgresNoteStore` | Postgres |
+| `CanvasStore` | canvas | `PostgresCanvasStore` | Postgres |
 | `TutorClient` | tutoring | `OllamaTutorClient` | Ollama |
 | `ReadinessProbe` | platform | `PgReadiness` | a Postgres ping |
 
@@ -72,48 +102,54 @@ it. A technology-shaped port cannot have a credential-free twin.
 described below). An accepted verdict should mark the lesson complete, and `submission` says exactly
 that much: it declares a one-method port and knows nothing about progress tables.
 
-```mermaid
-classDiagram
-    class SubmitSolution~Repo, Tests, R, List, Notify~ {
-        +submit(request) SubmissionId
-        +reconcile_unfinished(cutoff)
-    }
-    class SubmissionRepository {
-        <<port>>
-        +save(submission)
-        +update(submission)
-        +get(id) Option~Submission~
-        +list_for(lesson_path, by_user)
-        +delete(id)
-        +delete_all_for(user_id) usize
-        +unfinished_before(cutoff) Vec~Submission~
-    }
-    class ProblemTests {
-        <<port>>
-        +suite_for(lesson_path) Option~TestSpec~
-    }
-    class ContentRepository {
-        <<port>>
-        +content_version() String
-        +load_tree() Vec~ContentEntry~
-        +read_lesson(path) String
-    }
-    class PostgresSubmissionRepository {
-        <<adapter>>
-    }
-    class FsProblemTests~R~ {
-        <<adapter>>
-    }
-    class FileSystemContentRepository {
-        <<adapter>>
-    }
+```d2
+direction: right
 
-    SubmitSolution ..> SubmissionRepository : depends on
-    SubmitSolution ..> ProblemTests : depends on
-    PostgresSubmissionRepository ..|> SubmissionRepository
-    FsProblemTests ..|> ProblemTests
-    FileSystemContentRepository ..|> ContentRepository
-    FsProblemTests ..> ContentRepository : reuses (customer-supplier)
+classes: {
+  port: { shape: class }
+  adapter: { shape: class }
+  usecase: { shape: class }
+}
+
+submit: "SubmitSolution<Repo, Tests, R, List, Notify>" {
+  class: usecase
+  "+submit(request)": "SubmissionId"
+  "+reconcile_unfinished(cutoff)": "()"
+}
+
+repo: "«port» SubmissionRepository" {
+  class: port
+  "+save(submission)"
+  "+update(submission)"
+  "+get(id)": "Option<Submission>"
+  "+list_for(lesson_path, by_user)"
+  "+delete(id)"
+  "+delete_all_for(user_id)": "usize"
+  "+unfinished_before(cutoff)": "Vec<Submission>"
+}
+
+tests: "«port» ProblemTests" {
+  class: port
+  "+suite_for(lesson_path)": "Option<TestSpec>"
+}
+
+content: "«port» ContentRepository" {
+  class: port
+  "+content_version()": "String"
+  "+load_tree()": "Vec<ContentEntry>"
+  "+read_lesson(path)": "String"
+}
+
+pg: "«adapter» PostgresSubmissionRepository" { class: adapter }
+fs_tests: "«adapter» FsProblemTests<R>" { class: adapter }
+fs_content: "«adapter» FileSystemContentRepository" { class: adapter }
+
+submit -> repo: "depends on" { style.stroke-dash: 3 }
+submit -> tests: "depends on" { style.stroke-dash: 3 }
+pg -> repo: "implements"
+fs_tests -> tests: "implements"
+fs_content -> content: "implements"
+fs_tests -> content: "reuses (customer–supplier)" { style.stroke-dash: 3 }
 ```
 
 Read the direction carefully: the application depends on the trait, the adapter implements it, and
@@ -176,7 +212,7 @@ inside `#[async_trait]`. It is worth paying exactly here, because readiness is h
 application state used by a route that must not be generic over the whole world, and it is called
 once per probe — roughly every ten seconds, not once per request.
 
-One `dyn` in seventeen ports, with a written reason. That is what "no `dyn` where a generic suffices"
+One `dyn` in twenty-two ports, with a written reason. That is what "no `dyn` where a generic suffices"
 means in practice: not a ban, but a decision that has to be justified.
 
 ## The purity rule is a grep
@@ -188,7 +224,11 @@ Layering that lives only in a document decays. This one is checked:
   ok
 → viz engine purity (no leptos/web-sys/wasm-bindgen/js-sys/gloo under viz-wasm/src/engine/)
   ok
-→ file-size caps (server/shared ≤ 500 · viz-wasm/web ≤ 800 · *.gen.ts exempt)
+→ render-local-only stays out of the production image
+  ok
+→ file-size caps (server/shared ≤ 500 · viz-wasm/web ≤ 800 · tests + *.gen.ts exempt)
+  ok
+→ test placement (a module's tests at <module>/tests.rs; server · shared · viz-wasm)
   ok
 ```
 
@@ -201,15 +241,20 @@ responsibilities that have not been separated yet, so the cap turns a design sme
 failure. It has fired for real — one client file reached 889 lines and was split along its layer
 seams, which is what it should have been from the start.
 
-The exemption in that third line is worth noticing too. `*.gen.ts` is skipped because a generated
+The exemptions in the caps line are worth noticing too. Test files are exempt because a test
+suite grows with the cases it covers (ADR RS008 moved every test to `<module>/tests.rs` and gated
+that placement), and `*.gen.ts` is skipped because a generated
 schema is machine output, not prose to split — and a cap that fires on generated code teaches people
 to disable the cap. **A gate with a false positive is a gate someone eventually routes around**, so
 the carve-outs matter as much as the rule.
 
 ## Errors are per-context, and they are enums
 
-Ten application-layer error enums, one per context, each a `thiserror` enum. No `Box<dyn Error>` in
-any signature, and `anyhow` only in `main.rs` where the caller is a human reading a log.
+Fourteen `thiserror` enums across the eleven contexts that have rules to break: one each, except
+`catalog`, which keeps four (`ContentError`, `FetchError`, `RegistryError`, `SynapseContentError`)
+because reading a checkout, fetching a tarball and validating a registration fail in different ways.
+`platform` has none. No `Box<dyn Error>` in any signature, and `anyhow` only in the two binaries'
+`main` functions, where the caller is a human reading a log.
 
 The value shows up at the HTTP boundary, where mapping an error to a status is an **exhaustive
 match**. Adding a variant does not silently fall into a catch-all — it fails the build until someone
