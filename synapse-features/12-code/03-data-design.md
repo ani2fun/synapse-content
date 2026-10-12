@@ -1,6 +1,6 @@
 ---
 title: "Data design and the schema"
-summary: "Six small tables, one check constraint that makes an illegal row unrepresentable, three representations of a single verdict — and the story of adopting a schema a different tool created."
+summary: "Ten small tables, one check constraint that makes an illegal row unrepresentable, three representations of a single verdict — and the story of adopting a schema a different tool created."
 essential: true
 ---
 
@@ -12,73 +12,123 @@ essential: true
 
 ## The whole schema
 
-Six tables, in three pairs. Each one's DDL, constraints and access patterns are written up under
+Ten tables, in five groups. Each one's DDL, constraints and access patterns are written up under
 [the table reference](#-table-reference) at the end of the chapter.
 
-```mermaid
-erDiagram
-    SUBMISSIONS {
-        uuid id PK
-        text lesson_path "joined with '/' — split on read"
-        text language
-        text source
-        text user_id "nullable — the opaque OIDC sub"
-        timestamptz created_at
-        text status "check: pending | judging | completed"
-        jsonb outcome "null unless completed"
-        timestamptz completed_at "null unless completed"
-    }
-    SUBMISSION_ALLOWLIST {
-        text username PK "lowercase IdP username"
-        text note
-        timestamptz granted_at
-    }
-    PROBLEM_PROGRESS {
-        text user_id PK "opaque OIDC sub"
-        text lesson_path PK
-        timestamptz completed_at
-    }
-    LESSON_VIEW {
-        bigserial id PK
-        text lesson_path
-        timestamptz viewed_at
-        boolean authed "the whole of the attribution"
-    }
-    CONTENT_EDITOR_ALLOWLIST {
-        text username PK "a SEPARATE grant"
-        text note
-        timestamptz granted_at
-    }
-    CONTENT_EDIT_REQUEST {
-        uuid id PK
-        text username
-        text lesson_path
-        text branch UK
-        int attempt
-        bigint pr_number "null in dry-run"
-        text state
-        int commits
-    }
-    SUBMISSIONS }o..o| SUBMISSION_ALLOWLIST : "logical only — deliberately no FK"
-    CONTENT_EDIT_REQUEST }o..o| CONTENT_EDITOR_ALLOWLIST : "logical only — same reason"
+```d2
+direction: right
+
+submissions: {
+  shape: sql_table
+  id: uuid {constraint: primary_key}
+  lesson_path: text
+  language: text
+  source: text
+  user_id: "text (OIDC sub, nullable)"
+  created_at: timestamptz
+  status: "text (pending | judging | completed)"
+  outcome: "jsonb (null unless completed)"
+  completed_at: "timestamptz (null unless completed)"
+}
+submission_allowlist: {
+  shape: sql_table
+  username: text {constraint: primary_key}
+  note: text
+  granted_at: timestamptz
+}
+problem_progress: {
+  shape: sql_table
+  user_id: text {constraint: primary_key}
+  lesson_path: text {constraint: primary_key}
+  completed_at: timestamptz
+}
+problem_notes: {
+  shape: sql_table
+  user_id: text {constraint: primary_key}
+  lesson_path: text {constraint: primary_key}
+  body: text
+  updated_at: timestamptz
+}
+canvas_entries: {
+  shape: sql_table
+  id: uuid {constraint: primary_key}
+  user_id: text
+  lesson_path: text
+  body: jsonb
+  created_at: timestamptz
+}
+lesson_view: {
+  shape: sql_table
+  id: bigserial {constraint: primary_key}
+  lesson_path: text
+  viewed_at: timestamptz
+  authed: "boolean (the only attribution)"
+}
+content_editor_allowlist: {
+  shape: sql_table
+  username: text {constraint: primary_key}
+  note: text
+  granted_at: timestamptz
+}
+content_edit_request: {
+  shape: sql_table
+  id: uuid {constraint: primary_key}
+  username: text
+  lesson_path: text
+  file_path: text
+  repo: "text (unique with branch)"
+  branch: "text (unique with repo)"
+  attempt: int
+  pr_number: "bigint (null in dry-run)"
+  pr_url: text
+  state: text
+  commits: int
+}
+content_source: {
+  shape: sql_table
+  id: text {constraint: primary_key}
+  repo: text {constraint: unique}
+  branch: text
+  grouping: text
+  sort_order: int
+  enabled: boolean
+  visibility: "text (public | private)"
+  last_sha: text
+  last_synced_at: timestamptz
+  last_error: text
+}
+content_source_reader: {
+  shape: sql_table
+  source_id: text {constraint: [primary_key; foreign_key]}
+  username: text {constraint: primary_key}
+  note: text
+  granted_at: timestamptz
+}
+
+content_source_reader.source_id -> content_source.id: "on delete cascade"
+submissions.user_id -> submission_allowlist.username: "logical only, no FK" { style.stroke-dash: 3 }
+content_edit_request.username -> content_editor_allowlist.username: "logical only, no FK" { style.stroke-dash: 3 }
 ```
 
-| Pair | Tables | What it is |
+| Group | Tables | What it is |
 |---|---|---|
-| System of record | `submissions`, `submission_allowlist` | what a reader attempted and what the judge decided |
-| Account conveniences | `problem_progress`, `lesson_view` | what has been finished, and what gets read |
+| System of record | `submissions`, `submission_allowlist` | what a reader attempted, what the judge decided, and who may submit |
+| Account state | `problem_progress`, `problem_notes`, `canvas_entries` | what a reader finished, wrote down, and planned |
+| Readership | `lesson_view` | which lessons get opened — no person attached |
 | Contribution | `content_editor_allowlist`, `content_edit_request` | who may propose a change, and what they proposed |
+| Library registry | `content_source`, `content_source_reader` | which repositories feed the library, and who may read a private one |
 
-A platform this size having six small tables is the point, and it is worth being explicit about why:
+A platform this size having ten small tables is the point, and it is worth being explicit about why:
 **content is not in the database.** Books are Markdown in a git repository, pulled onto disk by a
 sidecar and re-indexed when the commit changes. That single decision deletes an entire schema —
 no `books`, `chapters`, `lessons`, `revisions`, `authors` — and replaces the authoring write path
 with `git push`.
 
-The third pair is the interesting test of that claim, because in-app editing is exactly the feature
+The contribution pair is the interesting test of that claim, because in-app editing is exactly the feature
 that usually drags content into a database. It did not. Those two tables are about *proposals* — an
 allowlist and a branch name — and the lesson text still only ever exists in git. A row records where
-a change went, never what it said.
+a change went, never what it said. The registry pair passes the same test: `content_source` names a
+repository and records how its last fetch went, but the books themselves stay in that repository.
 
 What is left is exactly the state that *cannot* be rebuilt from a repository.
 
@@ -217,16 +267,23 @@ Two identifiers for two jobs, with the join made by policy rather than by constr
 trade *at this scale*: the allowlist is small and hand-curated. It would not be defensible if grants
 were self-service and high-volume.
 
+The one foreign key the schema *does* have shows where the line sits. `content_source_reader.source_id`
+references `content_source(id)` with `on delete cascade`. Both columns hold the same kind of value — a
+source id the platform minted — and a reader list for a repository that is no longer registered means
+nothing, so removing the source should remove its list. Same identifier, same lifecycle: a real key.
+
 ## One index per query, and no others
 
 ```sql
-create index submissions_lesson_recency    on submissions           (lesson_path, created_at desc);
-create index lesson_view_path_recency      on lesson_view           (lesson_path, viewed_at desc);
-create index problem_progress_user         on problem_progress      (user_id);
+create index submissions_lesson_recency      on submissions          (lesson_path, created_at desc);
+create index lesson_view_path_recency        on lesson_view          (lesson_path, viewed_at desc);
+create index problem_progress_user           on problem_progress     (user_id);
 create index content_edit_request_owner_page on content_edit_request (username, lesson_path);
+create index canvas_entries_owner_recency    on canvas_entries       (user_id, lesson_path, created_at desc);
+create index content_source_enabled_order    on content_source       (enabled, sort_order, id);
 ```
 
-Four indexes for four queries, and the shape of each is dictated by its query rather than chosen:
+Six indexes for six queries, and the shape of each is dictated by its query rather than chosen:
 
 | Query | Index shape |
 |---|---|
@@ -234,8 +291,10 @@ Four indexes for four queries, and the shape of each is dictated by its query ra
 | top lesson paths, recent first | the same shape, same reason |
 | every lesson this account has finished | equality on the leading column of the composite key |
 | is there an open request from this person on this page | equality on both |
+| this reader's saved canvases for this problem, newest first | equality on two, then `desc` |
+| the enabled sources, in display order | the sync loop's one scan, read in index order |
 
-Two of them are literally the same pattern, which is worth noticing rather than deduplicating: when a
+Three of them are literally the same pattern, which is worth noticing rather than deduplicating: when a
 second feature's access pattern matches the first's, that is evidence the first index was shaped by
 the *question* and not by the table.
 
@@ -289,7 +348,7 @@ structure was there all along.
 ## 🧱 Table reference
 
 <details>
-<summary>7 tables — the DDL, the constraints that hold each one together, and the queries it is shaped for</summary>
+<summary>10 tables — the DDL, the constraints that hold each one together, and the queries it is shaped for</summary>
 
 ### Application store
 `Relational database` · `PostgreSQL 17`
@@ -297,56 +356,10 @@ structure was there all along.
 The system of record, and the only thing in the platform that grows without bound. Everything else
 — lessons, diagrams, test suites — is derived data reconstructable from a git repository.
 
-```mermaid
-erDiagram
-    SUBMISSIONS {
-        uuid id PK
-        text lesson_path
-        text language
-        text source
-        text user_id "nullable — opaque OIDC sub"
-        timestamptz created_at
-        text status "pending | judging | completed"
-        jsonb outcome "null unless completed"
-        timestamptz completed_at "null unless completed"
-    }
-    SUBMISSION_ALLOWLIST {
-        text username PK "lowercase IdP username"
-        text note
-        timestamptz granted_at
-    }
-    PROBLEM_PROGRESS {
-        text user_id PK "opaque OIDC sub"
-        text lesson_path PK
-        timestamptz completed_at
-    }
-    LESSON_VIEW {
-        bigserial id PK
-        text lesson_path
-        timestamptz viewed_at
-        boolean authed "the only attribution there is"
-    }
-    CONTENT_EDITOR_ALLOWLIST {
-        text username PK "a SEPARATE grant"
-        text note
-        timestamptz granted_at
-    }
-    CONTENT_EDIT_REQUEST {
-        uuid id PK
-        text username
-        text lesson_path
-        text branch UK "the forge keys on it"
-        int attempt
-        bigint pr_number "null in dry-run"
-        text state
-    }
-    SUBMISSIONS }o..o| SUBMISSION_ALLOWLIST : "logical only — no FK, different identifiers"
-    CONTENT_EDIT_REQUEST }o..o| CONTENT_EDITOR_ALLOWLIST : "logical only — same reason"
-```
-
-Six tables, in three pairs. Submissions and their allowlist are the original system of record.
-Progress and readership are account-owned conveniences added later. The last pair is content
-contribution: who may propose a change, and what they proposed.
+The diagram at the top of the chapter is the whole schema: ten tables in five groups. Submissions and
+their allowlist are the original system of record. Progress, notes and canvases are account state
+added later, readership sits on its own, contribution came with in-app editing, and the registry came
+with satellite repositories.
 
 #### Why it is this small
 
@@ -361,8 +374,8 @@ content: the lesson text still only ever lives in git, and the row records which
 went to.
 
 What remains in Postgres is exactly the state that cannot be derived from a repository: what a
-reader attempted, what the judge decided, what they have finished, what was read, and what has been
-proposed.
+reader attempted, what the judge decided, what they have finished, noted and planned, what was read,
+what has been proposed, and which repositories feed the library.
 
 #### Capacity, honestly
 
@@ -500,7 +513,7 @@ production database the point is moot: the schema predates these migrations and 
 baselining, so the seeds never ran.
 
 ### `problem_progress`
-`Component` · `table`
+`Table` · `PostgreSQL`
 
 ```sql
 create table problem_progress (
@@ -537,7 +550,7 @@ resets progress has not lost their submission history, because that history is a
 with a different owner and a different meaning.
 
 ### `lesson_view`
-`Component` · `table`
+`Table` · `PostgreSQL`
 
 ```sql
 create table lesson_view (
@@ -570,7 +583,7 @@ aged out. Neither is worth building before the row count justifies it, and the s
 make either harder later.
 
 ### `content_editor_allowlist`
-`Component` · `table`
+`Table` · `PostgreSQL`
 
 ```sql
 create table content_editor_allowlist (
@@ -601,7 +614,7 @@ Keeping them apart makes the trust decision explicit at grant time rather than i
 unrelated one. Two small tables is a cheap price for that.
 
 ### `content_edit_request`
-`Component` · `table`
+`Table` · `PostgreSQL`
 
 ```sql
 create table content_edit_request (
@@ -609,7 +622,8 @@ create table content_edit_request (
     username    text        not null,
     lesson_path text        not null,
     file_path   text        not null,
-    branch      text        not null unique,
+    repo        text        not null,   -- 0007
+    branch      text        not null,
     attempt     int         not null,
     pr_number   bigint,
     pr_url      text,
@@ -619,6 +633,8 @@ create table content_edit_request (
     updated_at  timestamptz not null default now()
 );
 
+alter table content_edit_request
+    add constraint content_edit_request_repo_branch_key unique (repo, branch);   -- 0007
 create index content_edit_request_owner_page on content_edit_request (username, lesson_path);
 ```
 
@@ -634,9 +650,12 @@ another **commit on the same branch** rather than a second pull request. Once th
 or closed the row stops being reusable and the next edit allocates `attempt + 1` — which is what puts
 the `-2`, `-3` suffix on the branch name.
 
-`branch` is `unique` because it is the value the forge keys on. Two rows claiming one ref would mean
-two pull requests silently sharing commits, which is the kind of bug that is invisible until someone
-merges the wrong one.
+`(repo, branch)` is unique because that pair is what the forge keys on. Two rows claiming one ref would
+mean two pull requests silently sharing commits, which is the kind of bug that is invisible until
+someone merges the wrong one. It used to be `branch` alone, while there was one content repository;
+migration `0007` added `repo` when satellites arrived, because the same branch name can legitimately
+exist in two repositories. The repository is **recorded**, not re-derived from where the page lives
+now, so a revision still commits to the repository its pull request was opened against.
 
 #### The stored state is a cache, not the truth
 
@@ -655,6 +674,91 @@ is refreshed, not what it stores.
 pushed and opens nothing. That is what lets development, CI and the end-to-end suite exercise the
 whole flow — gate, drift guard, validation, branch derivation, stored history — without a credential
 anywhere near them.
+
+### `problem_notes`
+`Table` · `PostgreSQL`
+
+```sql
+create table problem_notes (
+    user_id     text        not null,
+    lesson_path text        not null,
+    body        text        not null,
+    updated_at  timestamptz not null default now(),
+    primary key (user_id, lesson_path)
+);
+```
+
+One living Markdown note per (account, problem), replaced on each save. The composite key makes that
+shape structural: there is no way to store a second note for the same problem. `updated_at` is what
+the browser's copy compares against to know whether anyone else has written since — the `base` in
+[Learner state](/synapse/synapse-features/components/learner-state).
+
+### `canvas_entries`
+`Table` · `PostgreSQL`
+
+```sql
+create table canvas_entries (
+    id          uuid primary key,
+    user_id     text        not null,
+    lesson_path text        not null,
+    body        jsonb       not null,
+    created_at  timestamptz not null default now()
+);
+
+create index canvas_entries_owner_recency
+    on canvas_entries (user_id, lesson_path, created_at desc);
+```
+
+The opposite shape to notes: many saved snapshots per (account, problem), each a deliberate Save of the
+Think pane. The plan is a JSON document for the same reason the outcome is — nothing queries inside it,
+and it is always read whole. The in-progress draft never reaches this table; it lives in the browser.
+
+### `content_source`
+`Table` · `PostgreSQL`
+
+```sql
+create table content_source (
+    id             text        primary key,
+    repo           text        not null unique,
+    branch         text        not null default 'main',
+    grouping       text        not null default '',
+    sort_order     int,
+    enabled        boolean     not null default true,
+    visibility     text        not null default 'public'
+        check (visibility in ('public', 'private')),          -- 0009
+    last_sha       text,
+    last_synced_at timestamptz,
+    last_error     text,
+    created_at     timestamptz not null default now(),
+    updated_at     timestamptz not null default now()
+);
+
+create index content_source_enabled_order on content_source (enabled, sort_order, id);
+```
+
+One row per **satellite** repository. The primary repository is never a row: it arrives by git-sync,
+is always mounted and always first. The row owns *placement* — repository, branch, grouping, order,
+visibility — while the book's own `book.json` owns its identity and slug.
+
+The last three columns are the sync loop's report card. A failed fetch writes `last_error` and keeps
+`last_sha`, so the library keeps serving the commit it already had. Stale content beats none.
+
+### `content_source_reader`
+`Table` · `PostgreSQL`
+
+```sql
+create table content_source_reader (
+    source_id  text        not null references content_source(id) on delete cascade,
+    username   text        not null,
+    note       text,
+    granted_at timestamptz not null default now(),
+    primary key (source_id, username)
+);
+```
+
+Who may read a private source (ADR RS011). Keyed by the canonical username, like the other two
+allowlists, and — unlike them — tied to its parent by a real foreign key, because a reader list
+outlives nothing: remove the source and its list goes with it.
 
 </details>
 

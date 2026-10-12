@@ -20,39 +20,34 @@ Doing that inside the request would mean an HTTP connection held open for the du
 timeout that loses the result while the work continues, and a slow submission occupying a connection
 that reads need. So submission is **accepted**, not answered:
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as Client
-    participant H as POST /api/submissions
-    participant S as SubmitSolution
-    participant T as ProblemTests
-    participant DB as Postgres
-    participant J as judging task
-    participant G as go-judge
+```d2
+shape: sequence_diagram
 
-    C->>H: submit(lesson, language, source)
-    H->>S: submit(...)
-    S->>S: authorize(submitter)
-    Note over S: 401 if anonymous · 403 if not allow-listed
-    S->>T: suite_for(lesson_path)
-    T-->>S: TestSpec (404 if the lesson has no suite)
-    S->>DB: save(Submission{Pending})
-    S-)J: tokio::spawn(judge_and_complete)
-    S-->>H: SubmissionId
-    H-->>C: 202 Accepted + id
+c: Client
+h: "POST /api/submissions"
+sv: SubmitSolution
+t: ProblemTests
+db: Postgres
+j: "judging task"
+g: go-judge
+p: "progress (SolvedRecorder)"
 
-    J->>DB: update(Judging)
-    loop each hidden case
-        J->>G: run(language, source, stdin)
-        G-->>J: stdout / status / time / memory
-    end
-    J->>DB: update(Completed{outcome})
-
-    C->>H: GET /api/submissions/{id}
-    H->>DB: get(id)
-    DB-->>H: Completed{Accepted 11/11}
-    H-->>C: 200 + verdict
+c -> h: "1. submit(lesson, language, source)"
+h -> sv: "2. submit(...)"
+sv -> sv: "3. authorize: 401 anonymous · 403 not allow-listed"
+sv -> t: "4. suite_for(lesson_path)"
+t -> sv: "5. TestSpec (404 if no suite)" { style.stroke-dash: 3 }
+sv -> db: "6. save(Submission{Pending})"
+sv -> j: "7. tokio::spawn(judge_and_complete)"
+h -> c: "8. 202 Accepted + id" { style.stroke-dash: 3 }
+j -> db: "9. update(Judging)"
+j -> g: "10. run each hidden case, in order"
+g -> j: "11. stdout · status · time · memory" { style.stroke-dash: 3 }
+j -> db: "12. update(Completed{outcome})"
+j -> p: "13. if Accepted: record_solved"
+c -> h: "14. GET /api/submissions/{id}"
+h -> db: "15. get(id)"
+h -> c: "16. 200 + verdict" { style.stroke-dash: 3 }
 ```
 
 Two orderings in that diagram are load-bearing:
@@ -81,21 +76,24 @@ share ownership explicitly, and let the type system prove the task cannot outliv
 
 ## Three states, and transitions you cannot forget
 
-```mermaid
-stateDiagram-v2
-    [*] --> Pending: save() after accept
-    Pending --> Judging: task picks it up
-    Judging --> Completed: verdict recorded
-    Pending --> Completed: reconciler (process died before pickup)
-    Judging --> Completed: reconciler (process died mid-judge)
-    Completed --> [*]
+```d2
+direction: right
 
-    note right of Completed
-        outcome is one of:
-        Accepted{total}
-        Rejected{passed, total, first_failure}
-        JudgeFailed{passed, total, detail}
-    end note
+classes: {
+  state: { style: { fill: "#dcfce7"; stroke: "#16a34a"; font-color: "#14532d"; border-radius: 12 } }
+  done:  { style: { fill: "#ffedd5"; stroke: "#ea580c"; font-color: "#7c2d12"; border-radius: 12 } }
+}
+
+start: "" { shape: circle; width: 16; height: 16; style.fill: "#111827" }
+pending: "Pending" { class: state }
+judging: "Judging" { class: state }
+completed: "Completed\noutcome is one of:\nAccepted{total}\nRejected{passed, total, first_failure}\nJudgeFailed{passed, total, detail}" { class: done }
+
+start -> pending: "save() after accept"
+pending -> judging: "task picks it up"
+judging -> completed: "verdict recorded"
+pending -> completed: "reconciler: died before pickup" { style.stroke-dash: 3 }
+judging -> completed: "reconciler: died mid-judge" { style.stroke-dash: 3 }
 ```
 
 The transitions are functions returning a **new** value, and they are `#[must_use]`:

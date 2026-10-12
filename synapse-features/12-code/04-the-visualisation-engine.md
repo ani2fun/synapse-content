@@ -34,18 +34,35 @@ exists to turn that product into a sum.
 
 ## One contract in the middle
 
-```mermaid
-flowchart LR
-    P[Python tracer] --> HT[HeapTrace]
-    J[Java tracer] --> HT
-    HT --> A[adapt pipeline]
-    A --> VC[VizCases]
-    VC --> RF{RenderFamily}
-    RF --> C[Cells]
-    RF --> T[Tree]
-    RF --> F[Force]
-    RF --> B[Buckets]
-    RF --> M[…8 more]
+```d2
+direction: right
+
+classes: {
+  client: { style: { fill: "#f3f4f6"; stroke: "#6b7280"; font-color: "#111827" } }
+  svc:    { style: { fill: "#dcfce7"; stroke: "#16a34a"; font-color: "#14532d" } }
+  data:   { style: { fill: "#ffedd5"; stroke: "#ea580c"; font-color: "#7c2d12" } }
+}
+
+py: "Python tracer" { class: client }
+java: "Java tracer" { class: client }
+ht: "HeapTrace\n[narrow waist 1]" { class: data }
+adapt: "adapt pipeline" { class: svc }
+vc: "VizCases\n[narrow waist 2]" { class: data }
+rf: "RenderFamily\n[12 families]" { class: svc; shape: diamond }
+cells: "Cells" { class: client }
+tree: "Tree" { class: client }
+force: "Force" { class: client }
+buckets: "Buckets" { class: client }
+more: "…8 more" { class: client }
+
+py -> ht
+java -> ht
+ht -> adapt -> vc -> rf
+rf -> cells
+rf -> tree
+rf -> force
+rf -> buckets
+rf -> more
 ```
 
 Two narrow waists. **`HeapTrace`** is what every tracer must produce: a language-neutral sequence of
@@ -142,18 +159,40 @@ until someone decides how it is drawn. And the tests assert the *partition* rath
 pairs — "the Cells family covers exactly array, bitset and fenwick" — so an accidental
 recategorisation fails a test that states the intent.
 
+## Two lenses on one trace
+
+Everything above is the **structure** lens: pick a root (the `viz=<structure>:<root>` hint), project one
+data structure, throw the rest of the heap away. It answers "what shape is this data structure".
+
+The `/viz` lab added a second lens, **frames and objects** (`viz-wasm/src/engine/memory.rs`). It answers a
+different question — "what does the program's memory look like right now" — so it keeps everything and
+interprets nothing: every frame on the left, every reachable object on the right, an arrow for every
+reference, the way PythonTutor draws it. No root hint, no vocabulary, no render family.
+
+That makes it the lens that works when the other cannot. Two lists and a counter, or a class instance
+pointing at a dict, has no single rooted structure for a `viz=` hint to name, and the structure lens
+would draw an empty canvas. The memory lens draws it. Objects sit in **columns by depth** — what a frame
+points at is column 1, what those point at is column 2 — so a reference reads across the canvas and a
+linked list reads left to right.
+
+Both lenses read the same trace format, so the tracers did not change when the second lens arrived.
+
 ## Pure code, no server
 
-The engine is pure Rust in the shared crate: heap projection, layout geometry, diffing, narration.
-It runs on the client, and there is **no server hexagon behind it** — no viz endpoint, no viz
+The engine is pure Rust in the `viz-wasm` crate (`viz-wasm/src/engine/`): heap projection, layout
+geometry, diffing, narration. It used to live in the shared crate and moved out once the browser was
+its only user. It runs on the client, and there is **no server hexagon behind it** — no viz endpoint, no viz
 database, no viz service.
 
 That is worth defending, because "add a service" is the reflex. The engine has no I/O, no shared
 mutable state, and no privileged data: it is a deterministic function from a trace to a drawing. A
 service around a pure function buys a network hop, a scaling concern and a failure mode, in exchange
-for nothing — the client already has the trace.
+for nothing — the client already has the trace. (The trace itself comes from running the program
+inside a tracing harness through the ordinary `POST /api/run`; see
+[Execution and submission](/synapse/synapse-features/components/execution-and-submission). The server
+runs code; it never draws.)
 
-Being in the shared crate does real work, though. It compiles both natively and to WebAssembly, so
+Being a Rust crate does real work, though. It compiles both natively and to WebAssembly, so
 the entire engine is unit-tested **natively** — fast, headless — while shipping to the browser as the
 same code. Layout geometry is a nightmare to test through a DOM and pleasant to test as a function
 returning coordinates.
