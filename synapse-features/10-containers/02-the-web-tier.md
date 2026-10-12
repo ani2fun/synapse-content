@@ -11,6 +11,25 @@ essential: true
 > as orthogonal state rather than a combinatorial enum; and use a token type to make stale async
 > results impossible to apply.
 
+## What it serves
+
+The web tier is the Astro 7 server inside the `synapse` pod, plus the code it ships to the browser.
+It owns eleven page routes (`web/src/pages/`):
+
+| Route | Page |
+| --- | --- |
+| `/` | the library landing, with the guided tour |
+| `/synapse/<book>/…` | every lesson and problem page |
+| `/blog`, `/blog/<slug>` | the blog |
+| `/viz`, `/d2`, `/mermaid` | the three labs |
+| `/edit/<path>` | the in-app editor behind **Suggest an edit** |
+| `/account`, `/admin` | the signed-in panels |
+| `404` | the site's 404, which the origin forwards to as its fallback |
+
+Its interactive parts are islands, grouped by feature under `web/src/islands/`. The full list, and
+what each one talks to, is a component view:
+[Web islands](/synapse/synapse-features/components/web-islands).
+
 ## The measurement that ended the previous design
 
 The reader first shipped as a single-page application compiled to WebAssembly: around twenty
@@ -119,13 +138,19 @@ stylesheets — and gzip-sum them.
 
 | Page kind | Measured (gz) |
 |---|---|
-| Landing | 42 KiB |
-| Prose lesson | 47 KiB |
-| Problem page | 48 KiB |
-| Blog index | 11 KiB |
-| **Budget** | **250 KiB** |
+| Landing | 44 KiB |
+| Prose lesson | 58 KiB |
+| Problem page | 57 KiB |
+| Blog index | 13 KiB |
+| `/d2` lab | 48 KiB |
+| `/mermaid` lab | 49 KiB |
+| `/viz` lab | 50 KiB |
+| **Budget, each** | **250 KiB** |
 
-Against 641 KiB of wasm that every page paid before rendering anything.
+Seven page kinds are gated today; the four original ones were joined by the three labs. The numbers
+are the last ones recorded in `dev-tools/check-page-budget.sh`, and each drifts a KiB or two as
+features land — the signal is the 250 KiB cap, not the last digit. Against 641 KiB of wasm that
+every page paid before rendering anything.
 
 The budget's headroom is deliberate — roughly five times the heaviest page. It is not sized to be
 tight; it is sized so that **approaching it means something structural regressed**, and the answer is
@@ -323,7 +348,7 @@ code.
 ## The one Rust surface that stayed
 
 The visualisation engine did not move. It is still Rust, compiled to WebAssembly, shipped as a
-standalone **lazy 288 KiB gzipped bundle** loaded only when a page actually has a widget or a
+standalone **lazy 288 KiB gzipped bundle** (measured July 2026) loaded only when a page actually has a widget or a
 viz-hinted workbench — and capped in CI at 350 KiB.
 
 Keeping it was not sentiment. The engine is thousands of lines of pure logic with 93 unit tests and
@@ -430,6 +455,12 @@ source, and rendering happens at mount, near the viewport.
 Prose paints immediately; each diagram renders independently and concurrently; a diagram far below
 the fold does not render until the reader approaches it; the heavy engines load only if a page has
 diagrams of that kind at all.
+
+That is still how Mermaid works. D2 has since moved one step further (ADR RS009): the page tier asks
+the [d2-render sidecar](/synapse/synapse-features/containers/containers) for each D2 fence while it
+renders the lesson, and inlines the SVG, so a D2 figure arrives *with* the prose and no engine is
+downloaded at all. The placeholder survives as the fallback — when the sidecar misses, the source
+ships and the browser draws it at mount exactly as before.
 
 Notice that this is the *same fix* the whole tier later received, one level up. Do not make the
 common case wait for the expensive case — first for diagrams inside a page, then for the entire

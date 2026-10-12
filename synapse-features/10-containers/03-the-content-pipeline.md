@@ -1,6 +1,6 @@
 ---
 title: "The content pipeline"
-summary: "How a git push becomes a live lesson: two paths with very different speeds, a symlink that makes the deploy atomic, and a matching commit hash you can verify from both ends."
+summary: "How a git push becomes a live lesson: one path at one speed, many repositories merged into one library, a symlink that makes the deploy atomic, and a commit hash you can verify from both ends."
 essential: true
 ---
 
@@ -45,9 +45,14 @@ synapse-content/
       01-<lesson-slug>.md         the lesson
       01-<lesson-slug>.editorial.md   worked solutions (revealed separately)
       01-<lesson-slug>.tests.json     the suite — only its samples reach the browser
-  _media/<book-slug>/<lesson-slug>/…    images and video, served at /media/…
+      _assets/_simulators/        a lesson's interactive widgets, served at /content-assets/…
+      _assets/_diagrams/          the D2 sources of its figures — kept, never served
+  _media/<book-slug>/<lesson-slug>/…    images, video and rendered frames, served at /media/…
   local-only/                     never published
 ```
+
+A repository can also *be* a single book: if its root holds a `book.json`, the whole repository is
+that book and its chapters sit at the root. That is the shape of the satellite repositories below.
 
 Four conventions carry most of the weight:
 
@@ -59,7 +64,9 @@ Four conventions carry most of the weight:
   phantom lesson. Every other `.md` under a book *is* a lesson, including one you forgot about.
 - **Media lives at the repository root**, not beside the lesson — one `_media/` tree, addressed by
   book and lesson slug. It is served path-addressed with a shared cache hour rather than
-  content-hashed, because authors replace files in place.
+  content-hashed, because authors replace files in place. What a lesson keeps *beside* it goes in
+  `_assets/` (ADR RS012): `_assets/_simulators/` is served, gated exactly like the book, and
+  `_assets/_diagrams/` holds diagram sources that are never served.
 - **Sidecars sit beside their lesson.** Editorial content and test suites share the lesson's stem and
   are unlocked by `kind: problem` in the frontmatter. Only the suite's *sample* cases are ever
   serialised into a response; the rest stays server-side with the judge.
@@ -72,13 +79,23 @@ Everything in the repository reaches production the same way, which is the answe
 change appeared?": if it has been a minute, something is wrong — there is no slower path it might be
 taking instead.
 
-```mermaid
-flowchart TD
-    A[git push to synapse-content] --> C[git-sync sidecar polls]
-    C --> D[fetch commit into .worktrees/SHA]
-    D --> E[atomically repoint /content/current]
-    E --> F[app re-reads commit hash per request]
-    F --> G[new content served — under a minute]
+```d2
+direction: down
+
+classes: {
+  client: { style: { fill: "#f3f4f6"; stroke: "#6b7280"; font-color: "#111827" } }
+  svc:    { style: { fill: "#dcfce7"; stroke: "#16a34a"; font-color: "#14532d" } }
+  data:   { style: { fill: "#ffedd5"; stroke: "#ea580c"; font-color: "#7c2d12" } }
+}
+
+push: "git push to synapse-content" { class: client }
+poll: "git-sync polls (every 60 s)" { class: svc }
+fetch: "fetch the commit into .worktrees/<sha>" { class: data }
+flip: "atomically repoint /content/current" { class: data }
+reread: "origin re-reads the commit hash per request" { class: svc }
+live: "new content served — under a minute" { class: client }
+
+push -> poll -> fetch -> flip -> reread -> live
 ```
 
 Nothing is built, because nothing in the repository is a build input. Markdown, media, sidecars and
@@ -90,6 +107,32 @@ into a container image, built in CI, promoted by a commit to the infrastructure 
 rolled out by the deployment controller. Editing one character took minutes and a pod rollout, and
 the two speeds were the main source of the question above. Folding diagrams into the same
 request-time path removed the second path, an image, a workflow and a deployment.
+
+## Many repositories, one library
+
+The library is no longer one repository. Since ADR RS005 it is the merge of several **content
+sources**: the primary `ani2fun/synapse-content`, plus any number of satellite repositories — guides
+such as the Java, Python and SQL books each live in their own. Which sources exist is a row
+in the `content_source` table, managed from `/admin`, not a redeploy.
+
+| | Primary | Satellite |
+| --- | --- | --- |
+| How it arrives | git-sync clones it into a volume | the origin fetches a tarball from the GitHub API into its cache |
+| How often | every 60 s | every 60 s (`SYNAPSE_CONTENT_SYNC_SECONDS`) |
+| Atomic switch | symlink flip | `<cache>/<id>/<sha>/` written in full, then a `current` symlink flipped |
+| Owns its placement | — | the admin row: repository, branch, grouping, order |
+| Owns its identity | `book.json` | `book.json`, including the `slug` |
+
+The slug lives with the content on purpose. It *is* the URL, so deriving it from the repository name
+would let a rename move every lesson, and an admin field would let a typo do the same. When two
+sources claim the same book, the **first source wins** and the conflict is a warning on the admin
+screen, not an outage — which is also what made each guide's migration out of the primary safe: the
+old copy kept serving until the new repository was verified.
+
+A source can also be **private** (ADR RS011). Its books are served only to the readers on its list
+in `content_source_reader`: an anonymous caller gets 401, a signed-in caller who is not listed gets
+403, and a listed reader gets the page with `private, no-store` so no cache keeps it. The same gate
+covers the book's `/media` files and its lesson widgets.
 
 ## The symlink is the atomic bit
 
@@ -182,12 +225,13 @@ merge conflict is asking them to stop contributing. That is where a CMS earns it
 git is inadequate, but because the interface is wrong for the person.
 
 That is the one that broke, and the answer turned out not to be a CMS. It was an editor page that
-opens a pull request — a new interface onto the same pipeline, rather than a second pipeline. The
-[next chapter](/synapse/synapse-features/components/content-contribution) is that design,
+opens a pull request — a new interface onto the same pipeline, rather than a second pipeline. [Content contribution, without git](/synapse/synapse-features/components/content-contribution) is that design,
 including the two shortcuts that would have destroyed the property this chapter is about.
 
 Second is **partial permissions**. Git access is all-or-nothing per repository. "This person may edit
-one book" needs either repository splitting or a permissions layer git does not have.
+one book" needs either repository splitting or a permissions layer git does not have. That one broke
+too, and the answer was repository splitting: each guide now lives in its own repository with its own
+maintainers, merged back into one library (see *Many repositories, one library* above).
 
 Third is **scheduled publishing**, which needs something that acts at a time rather than on a push.
 
