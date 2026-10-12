@@ -16,15 +16,15 @@ essential: true
 |---|---|---|---|
 | Server | Rust + axum + tokio | tiny footprint, no GC pauses, exhaustive matching | slow compiles; a real learning curve |
 | Database access | sqlx | compile-time-checked SQL, no ORM indirection | queries are hand-written; no lazy loading |
-| Web tier | Astro SSR + TypeScript islands | the workload is documents, not an application: prose is HTML in the response | a second runtime in the image; no compile-time type sharing with the server |
-| UI components | Preact, only where state is real | small, familiar, and confined to the four surfaces that need it | a second idiom next to vanilla TS islands |
+| Web tier | Astro 7 SSR + TypeScript islands | the workload is documents, not an application: prose is HTML in the response | a second runtime in the image; no compile-time type sharing with the server |
+| UI components | Preact, only where state is real | small, familiar, and confined to the surfaces with real state — the workbench, the problem page, the Think and Notes panes, the labs, the editor, the account and admin panels | a second idiom next to vanilla TS islands |
 | Visualisation | Rust → WASM, lazy | genuine compute; thousands of pure lines with goldens already passing | a third toolchain in the build |
 | Config | figment | env-first, layered, typed | precedence needs care (see below) |
 | Errors | thiserror per context | typed, exhaustive, no stringly errors | more code than `anyhow` everywhere |
 | Sandbox | go-judge | purpose-built, resource-capped, isolated | an extra service to run |
 | Identity | Keycloak | standards-compliant OIDC; not my problem to invent | heavyweight for one user |
 | Content forge | GitHub REST, no `git` binary | stateless calls; a failure leaves nothing to clean up | one more credential to scope and rotate |
-| Diagrams | d2, mermaid | diagrams-as-code, versioned with the prose | three engines to load |
+| Diagrams | D2 drawn by a Go sidecar on demand; Mermaid in the browser | diagrams-as-code, versioned with the prose; D2 arrives as SVG with the page | a fourth runtime (Go) in the pod; the browser still carries a D2 fallback |
 
 Two of those deserve real defence, because they are the ones a reviewer would push on.
 
@@ -169,7 +169,7 @@ Both were caught by rehearsing the deployment in the real namespace rather than 
 | Rejected | Why |
 |---|---|
 | An ORM | the queries are simple and few; compile-checked SQL is more honest than a query DSL |
-| Microservices | ten contexts, one team, no independent scaling need — see the architecture chapter |
+| Microservices | twelve contexts, one team, no independent scaling need — see [Containers](/synapse/synapse-features/containers/containers) |
 | A managed cloud database | the whole point was to run it myself and know what that costs |
 | Kubernetes operators for everything | the cluster is four nodes; the operational surface should match |
 | Rewriting the TS islands | months of work to reproduce working behaviour |

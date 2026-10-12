@@ -34,10 +34,20 @@ The file should probably be renamed `openapi.reference.yaml`.
 
 ## Architecture and code
 
-**bounded context** — a self-contained area of the domain with its own vocabulary, types and rules:
-`catalog`, `execution`, `submission`, `identity`, `blog`, `authoring`, `progress`, `insights`,
-`tutoring`, `platform`. Each is a directory and an error type, not a service. They are deliberately
-different sizes — two of them are three files each.
+**bounded context** — a self-contained area of the domain with its own vocabulary, types and rules.
+Twelve: `catalog`, `blog`, `execution`, `submission`, `identity`, `authoring`, `progress`, `notes`,
+`canvas`, `insights`, `tutoring`, `platform`. Each is a directory and an error type, not a service.
+They are deliberately different sizes — four of them are a handful of files each.
+
+**C4** — the four zoom levels Part 2 of this book follows: system context, containers, components,
+code. A *container* in C4 is anything that runs as its own process — not necessarily a Docker
+container.
+
+**admission** — the gate that bounds runs *in flight* (6 in total, 2 per caller) and refuses the rest
+at once rather than queueing them. Distinct from the rate limit, which counts runs per time window.
+
+**tier** — whether a run is anonymous or signed in. An anonymous run gets half of each language's CPU
+and wall-clock limits.
 
 **port** — a trait an application layer *declares* describing what it needs from the outside world
 (`ContentRepository`, `CodeRunner`). Named for the thing needed, never for the technology providing
@@ -103,6 +113,13 @@ one block with two variants.
 **spine** — the shared machinery every visualisation widget uses regardless of what it draws:
 stepping, playback, the frame panel, the legend.
 
+**lens** — one way of reading a trace. The *structure* lens projects one rooted data structure; the
+*memory* lens (frames and objects) draws every frame, every object and every reference, PythonTutor
+style.
+
+**harness** — the wrapper the browser puts around a program to trace it. It prints an event before
+each line; the wrapped program runs through the ordinary `/api/run`.
+
 **family** — a way of *drawing* (`Cells`, `Tree`, `Buckets`, `Force`, …). Twelve of them. Distinct
 from a structure, which is what a thing *is* — seventeen of those.
 
@@ -132,6 +149,24 @@ previous implementation's goldens.
 
 **git-sync** — the sidecar that fetches content commits and repoints the `current` symlink. The
 symlink swap is what makes a content update atomic.
+
+**content source** — one repository feeding the library. The *primary* (`synapse-content`) arrives by
+git-sync; every other one is a *satellite*, registered as a row and fetched as a tarball.
+
+**satellite** — a content repository other than the primary, usually one book with `book.json` at
+its root. Registered from `/admin`; first source wins on a slug conflict.
+
+**private book** — a book whose source is `private`: served only to the readers on its list, with
+401 for anonymous callers and 403 for everyone else signed in.
+
+**d2-render** — the Go sidecar that draws D2 fences and walkthrough boards to SVG on demand, cached by
+the hash of the source.
+
+**walkthrough** — a `d2 boards` fence: one D2 source with `layers:`, which the reader drills through
+by clicking. The C4 walkthrough on the System context page is one.
+
+**sidecar layout** — for content files: a lesson keeps what belongs to it in `_assets/` beside it —
+widgets in `_assets/_simulators/` (served), D2 sources in `_assets/_diagrams/` (not served).
 
 **fail fast** — exit on a dependency the application cannot serve correctly without (Postgres), as
 opposed to **degrade** — keep serving what still works (Keycloak).
@@ -167,3 +202,6 @@ presented back on submit. A drift detector; nothing is authorised by it.
 
 **attempt** — the counter that distinguishes a contributor's second proposal for a page from their
 first, once the first has merged or closed. It is what puts the `-2` on a branch name.
+
+**`Forges`** — the port that picks which repository an edit goes to. A new proposal goes to the source
+that serves the page now; a revision follows the repository recorded on its row.

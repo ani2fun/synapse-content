@@ -12,8 +12,8 @@ essential: true
 
 ## Dependencies are not equal
 
-The platform depends on Postgres, Keycloak, go-judge and a git checkout. A uniform policy for all
-four would be wrong, because they do not support the same things:
+The platform depends on Postgres, Keycloak, go-judge, a git checkout, the d2-render sidecar and
+GitHub. A uniform policy for all six would be wrong, because they do not support the same things:
 
 | Dependency | If it is down | Policy |
 |---|---|---|
@@ -21,6 +21,8 @@ four would be wrong, because they do not support the same things:
 | Keycloak | reading and running still work; sign-in fails | degrade |
 | go-judge | running and submitting fail; reading works | degrade |
 | Content on disk | nothing works, but nothing is *wrong* | fail fast at boot |
+| d2-render | the page ships the D2 source and the browser draws it | degrade |
+| GitHub (satellites) | each source keeps serving the commit it already has; the failure is written on its registry row | degrade |
 
 The asymmetry between the first two is the interesting one, and it is not about which service is more
 important. It is about **what the application can still honestly do**.
@@ -109,7 +111,7 @@ deferral rather than an oversight — but the deferral has now been priced.
 
 **The contract snapshot pins one endpoint.** A test diffs the generated API description against a
 committed copy, so drift should be a red test. In practice that file documents a single endpoint out
-of roughly twenty, so the guard has never actually guarded anything. A gate that cannot fail is worse
+of more than forty operations, so the guard has never actually guarded anything. A gate that cannot fail is worse
 than no gate, because it produces confidence without coverage. Either regenerate it in full or retire
 it — leaving it as decoration is the one option that should be off the table.
 

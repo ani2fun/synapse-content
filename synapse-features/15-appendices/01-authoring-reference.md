@@ -19,9 +19,26 @@ instead of the widget you meant.
     NN-<lesson-slug>.md            a lesson
     NN-<lesson-slug>.editorial.md  worked solutions, revealed on demand
     NN-<lesson-slug>.tests.json    the suite — only its sample cases reach the browser
-_media/<book-slug>/<lesson-slug>/  images and video — at the REPOSITORY ROOT, served at /media/…
+    _assets/_simulators/           this lesson's widgets, served at /content-assets/… (RS012)
+    _assets/_diagrams/             this lesson's D2 sources — kept beside it, never served
+_media/<book-slug>/<lesson-slug>/  images, video, rendered frames — at the REPOSITORY ROOT, served at /media/…
+_simulators/<sim-id>/              repository-wide simulator bundles, served at /simulators/… (RS006)
 local-only/                        never published
 ```
+
+A repository can also *be* one book: put `book.json` at its root and the chapters beside it. That is
+the shape of every satellite repository (ADR RS005). A satellite is registered from `/admin`, which
+owns its placement (grouping, order, visibility); the `slug` in `book.json` owns its URL.
+
+**Where a file goes:**
+
+| It is | Put it in | Served? |
+| --- | --- | --- |
+| an image, a video, or a rendered animation frame | `_media/<book-slug>/<lesson-slug>/` | yes, `/media/…`, gated like the book |
+| the D2 source of a figure or animation | `<lesson folder>/_assets/_diagrams/` | no |
+| an interactive widget one lesson embeds | `<lesson folder>/_assets/_simulators/` | yes, `/content-assets/…`, gated like the book |
+| a simulator several lessons share | `_simulators/<sim-id>/` at the repository root | yes, `/simulators/…` |
+| notes for authors | outside the book tree, or under `local-only/` | no |
 
 **`NN-` prefixes order; slugs identify.** `02-low-level-design/` sorts second and appears in the URL
 as `low-level-design`. Renumbering changes order without changing any URL — only renaming the *slug*
@@ -83,11 +100,11 @@ against nothing is worse than one that fails to load.
 
 ## Fence vocabulary
 
-Seven language names are **reserved** — the renderer claims them for widgets rather than
-highlighting them as code:
+Eight language names are **reserved** — the renderer claims them for widgets rather than
+highlighting them as code (`web/src/lib/markdown/render.ts`):
 
 ```
-mermaid · d2 · viz · quiz · problem · testcases · editorial
+mermaid · d2 · viz · quiz · problem · testcases · editorial · simulator
 ```
 
 Anything else (`python`, `rust`, `sql`, …) is a display language, and its behaviour is decided by the
@@ -100,7 +117,10 @@ fence's **meta** — the text after the language name.
 | ` ```python run viz=array:nums ` | runnable **and** visualised, rooted at `nums` |
 | ` ```python solution time=O(n) space=O(1) ` | a spoiler-safe revealed answer |
 | ` ```mermaid ` | a rendered mermaid diagram |
-| ` ```d2 ` | a rendered d2 diagram |
+| ` ```d2 ` | a rendered d2 diagram, drawn by the d2-render sidecar and inlined as SVG |
+| ` ```d2 boards name="…" root="…" ` | a clickable walkthrough: one source, many boards (see below) |
+| ` ```simulator name=<id> height=… title="…" ` | a repository simulator from `_simulators/<id>/`, framed in the lesson |
+| ` ```simulator src=_assets/_simulators/… ` | a lesson-local widget from the lesson's own `_assets/` |
 | ` ```viz widget=array ` | a declarative visualisation from an authored payload |
 | ` ```quiz ` | an interactive question |
 | ` ```problem ` | a problem workbench |
@@ -227,6 +247,11 @@ layers: {
   correct; one level down, the same board is `_.layers.container`. A link that lands nowhere is
   silent — `d2 validate` reports success, and the reader just clicks and gets nothing.
 
+Colour the boxes with the five role classes — `client`, `edge`, `svc`, `data`, `async` — so every
+architecture figure in the library reads the same way. The worked example is the walkthrough on
+[System context](/synapse/synapse-features/system-context/system-context): context, containers and
+components in one source.
+
 Write up the boxes as prose in the lesson itself, under the figure. Text a reader has to click for
 is text that search, the sitemap and most readers never see.
 
@@ -251,15 +276,18 @@ The design is in [Content contribution, without git](/synapse/synapse-features/c
 
 ## Verifying before publishing
 
-1. Grep the diagram build log for errors (above).
-2. Confirm every `<iframe src>` names a view that exists, and every element id has its click-doc.
+1. Run `validate_book` over the repository (`cargo run --bin validate_book -- <dir>` in the app
+   repository). It uses the server's own walker, so what it reports is what the site will do.
+2. Compile every D2 fence with `d2 --layout elk --pad 20` — the engine and options the reader gets.
 3. Render each lesson locally: diagrams draw, widgets mount, quizzes hydrate, no console errors.
 4. Confirm the book appears in the library index with the right title and order.
 
-For step 3, note what is and is not in the server's response. **Prose and code blocks are rendered
-server-side**, so "the text is there" is answered by `curl` — but every widget is a *placeholder* in
-that HTML, claimed by an island on mount. A `div` carrying a diagram's source is what success looks
-like in the raw response; the picture only exists after hydration.
+For step 3, note what is and is not in the server's response. **Prose, code blocks and D2 figures are
+rendered server-side** — a D2 fence arrives as inline SVG when the sidecar is up — so "the text and
+the figure are there" is answered by `curl`. Every other widget is a *placeholder* in that HTML,
+claimed by an island on mount: a `div` carrying a Mermaid diagram's source is what success looks like
+in the raw response, and the picture only exists after hydration. A D2 fence the sidecar could not
+draw falls back to the same placeholder.
 
 Diagrams are additionally **viewport-lazy**: one far down the page has not rendered because nothing
 scrolled near it, which is not the same as having failed. Check by driving the renderer directly
